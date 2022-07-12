@@ -1,0 +1,54 @@
+name: "Test"
+
+on:
+  push:
+    branches: [main,github-actions-test]
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    - 'README.rst'
+    - 'LICENSE.txt'
+    - '.gitignore'
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    - 'README.rst'
+    - 'LICENSE.txt'
+    - '.gitignore'
+
+
+jobs:
+  build:
+
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04]
+        python-version: [3.9]
+        test-folder : ['tests/']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build using Python ${{matrix.python-version}}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{matrix.python-version}}
+
+      - name: install dependencies [pip]
+        run:  |
+          pip install --upgrade pip setuptools wheel
+          for req in dev-requirements.txt requirements.txt; do
+            pip install -q -r $req
+          done
+          pip install -e .
+      - name: unit testing [pytest]
+        run: |
+          pytest --cov-report term --cov-report xml:coverage.xml --cov=stnets ${{matrix.test-folder}}
+
+      - name: uploading code coverage [codecov]
+        run: |
+          bash <(curl -s https://codecov.io/bash) 

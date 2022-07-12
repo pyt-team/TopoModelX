@@ -1,0 +1,12 @@
+black
+black[jupyter]
+flake8
+flake8-docstrings
+isort
+jupyter
+nb_black
+pre-commit
+pytest
+pytest-cov
+codecov
+coverage

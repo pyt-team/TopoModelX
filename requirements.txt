@@ -1,0 +1,7 @@
+gudhi
+networkx
+numpy
+pre-commit
+scikit-learn
+scipy
+torch>=1.9.0
