@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from scipy.sparse import coo_matrix, csr_matrix, diags, dok_matrix, eye
 
-from stnets.topology.simplicial_complex import SimplicialComplex
-from stnets.util.tensors_util import coo_2_torch_tensor
+from torch_topo.topology.simplicial_complex import SimplicialComplex
+from torch_topo.util.tensors_util import coo_2_torch_tensor
 
 
 def read_mesh(path, file_type=".m"):
@@ -60,8 +60,9 @@ def read_mesh(path, file_type=".m"):
 
 
 def mesh_2_simplicial_complex(top_faces):
-    
+
     return SimplicialComplex(top_faces)
+
 
 def mesh_2_operators(faces, signed=False, norm_method="kipf", output_type="coo"):
 

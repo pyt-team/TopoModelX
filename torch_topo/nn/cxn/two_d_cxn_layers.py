@@ -3,7 +3,6 @@ __all__ = ["two_d_CXN", "two_d_CXN_AMPS", "two_d_CXN_CMPS", "two_d_CXN_HCMPS"]
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from stnets.layers import LTN, MergeOper, MultiMergeOper, MultiSplitOper, SplitOper
 
 """

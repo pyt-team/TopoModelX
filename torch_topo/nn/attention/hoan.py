@@ -3,7 +3,6 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from stnets.util import sp_matmul, sp_softmax
 
 """
@@ -185,17 +184,23 @@ class HigherOrderAttentionLayer(nn.Module):
 
         if ht is None:
             if A_opt.shape[0] != A_opt.shape[1]:
-                raise ValueError("The operator A must be symmetric when the target features are None .")
+                raise ValueError(
+                    "The operator A must be symmetric when the target features are None ."
+                )
             if self.target_out_features != self.source_out_features:
-                raise ValueError("the target out features dimension and the source out feature dimensions must be the same when the operator A is symmetric")
+                raise ValueError(
+                    "the target out features dimension and the source out feature dimensions must be the same when the operator A is symmetric"
+                )
         else:
             if A_opt.shape[0] == A_opt.shape[1]:
-                raise ValueError("The input operator is symmetric and the target" +
-                                 "feature is not None." +
-                                 "The target features must",
-                                 "be None when the operator A is symmetric." +
-                                 "Set the target feature vector, second input," +
-                                 "to None and repeat the computation.")
+                raise ValueError(
+                    "The input operator is symmetric and the target"
+                    + "feature is not None."
+                    + "The target features must",
+                    "be None when the operator A is symmetric."
+                    + "Set the target feature vector, second input,"
+                    + "to None and repeat the computation.",
+                )
 
         if len(hs.shape) == 3 and hs.shape[0] != 1:
             raise Exception(" batch multiplication is not supported.")
@@ -226,13 +231,17 @@ class HigherOrderAttentionLayer(nn.Module):
                 ht = ht.squeeze(0)
 
         if hs.shape[0] != A_opt.shape[1]:
-            raise ValueError(" num_source_cell in the second argument tensor hs  must match A_opt.shape[1].")
+            raise ValueError(
+                " num_source_cell in the second argument tensor hs  must match A_opt.shape[1]."
+            )
 
         if ht is not None:
             if ht.shape[0] != A_opt.shape[0]:
                 # TODO write better error
-                raise ValueError("num_source_cell the first argument " +
-                                 "tensor ht must match A_opt.shape[0]  ")
+                raise ValueError(
+                    "num_source_cell the first argument "
+                    + "tensor ht must match A_opt.shape[0]  "
+                )
 
         hs = F.dropout(hs, self.dropout, self.training)
 
@@ -394,7 +403,7 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
     def reset_parameters(self):
         super().reset_parameters()
 
-    def forward(self, hs, ht, operator_list, operator_symmetry = False):
+    def forward(self, hs, ht, operator_list, operator_symmetry=False):
         """
         Args:
              -hs. A torch tensor of size
@@ -444,9 +453,11 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
 
         if ht is None:
             if self.target_out_features != self.source_out_features:
-                raise ValueError("The target out features dimension and the source " +
-                                 "out feature dimensions must be the same when the " +
-                                 "operator A is symmetric.")
+                raise ValueError(
+                    "The target out features dimension and the source "
+                    + "out feature dimensions must be the same when the "
+                    + "operator A is symmetric."
+                )
             if operator_symmetry is not True:
                 raise ValueError(
                     "operator_symmetry must be True when the "

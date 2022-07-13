@@ -9,7 +9,6 @@ NAME = "torch_topo"
 DESCRIPTION = "Python module integrating higher order deep learning."
 URL = "https://github.com/pyt-team/torch_topo"
 VERSION = 0.2
-REQUIRED = ["numpy", "torch>=1.9.0", "scipy", "scikit-learn"]
 
 
 here = path.abspath(path.dirname(__file__))
@@ -17,6 +16,46 @@ here = path.abspath(path.dirname(__file__))
 
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
+
+install_requires = [
+    "tqdm",
+    "numpy",
+    "scipy",
+    "requests",
+    "scikit-learn",
+    "networkx",
+    "gudhi",
+    "torch_geometric"
+]
+
+full_requires = [
+    "pandas",
+    "matplotlib",
+    #'torch>=1.9.0',
+    #'pytorch-memlab',
+    #'torchmetrics>=0.7'
+]
+
+test_requires = [
+    "pytest",
+    "pytest-cov",
+]
+
+dev_requires = test_requires + [
+    "pre-commit",
+    "black",
+    "black[jupyter]",
+    "flake8",
+    "flake8-docstrings",
+    "isort",
+    "jupyter",
+    "nb_black",
+    "pytest",
+    "pytest-cov",
+    "codecov",
+    "coverage",
+]
+
 
 setup(
     name=NAME,
@@ -45,6 +84,12 @@ setup(
         "Cellular complex Neural Networks",
         "CW Neural Networks",
     ],
-    python_requires=">=3.6",
-    install_requires=REQUIRED,
+    python_requires=">=3.7",
+    install_requires=install_requires,
+    extras_require={
+        "full": full_requires,
+        "test": test_requires,
+        "dev": dev_requires,
+    },
+    packages=find_packages(),
 )
