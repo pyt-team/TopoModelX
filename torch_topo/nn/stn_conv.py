@@ -26,11 +26,10 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
-from torch.nn.parameter import Parameter
-
 from stnets.layers.linear import Linear
 from stnets.util import batch_mm
+from torch import Tensor
+from torch.nn.parameter import Parameter
 
 r"""
 This class implements message passing functions on regular cell complexes
@@ -277,19 +276,19 @@ class _LTN(nn.Module):
             if len(x.shape) == 3:  # assuming batch input
                 if x.shape[1] != A_operator.shape[-1]:
                     raise ValueError(
-                        "Mumber of source cells/simplicies must match " +
-                        "number of elements in input vector. " +
-                        "number of elements in the input vector is " +
-                        f"{x.shape[1]} and number of source cells is {A_operator.shape[-1]}."
+                        "Mumber of source cells/simplicies must match "
+                        + "number of elements in input vector. "
+                        + "number of elements in the input vector is "
+                        + f"{x.shape[1]} and number of source cells is {A_operator.shape[-1]}."
                     )
             elif (
                 len(x.shape) == 2
             ):  # Assuming single input, batchsize=1 and no batch channel is included
                 if x.shape[0] != A_operator.shape[-1]:
                     raise ValueError(
-                        "Number of source cells/simplicies must match number of elements in input tensor." +
-                        f"Number of elements in the input vector is {x.shape[0]} " +
-                        f"and number of source cells is {A_operator.shape[-1]}."
+                        "Number of source cells/simplicies must match number of elements in input tensor."
+                        + f"Number of elements in the input vector is {x.shape[0]} "
+                        + f"and number of source cells is {A_operator.shape[-1]}."
                     )
                     raise
 
@@ -333,16 +332,18 @@ class _LTN(nn.Module):
 
         else:  # nonbatch multiplication.
             if not isinstance(x, Tensor):
-                raise TypeError(f"Input cochain must be torch tensor. Instead got an input of type {type(x)}.")
+                raise TypeError(
+                    f"Input cochain must be torch tensor. Instead got an input of type {type(x)}."
+                )
 
             if (
                 len(x.shape) == 2
             ):  # assuming single input, batchsize=1 and no batch channel is included
                 if x.shape[0] != A_operator.shape[-1]:
                     raise ValueError(
-                        "Number of source cells/simplicies must match number of elements in input tensor." +
-                        f"Number of elements in the input vector is {x.shape[0]} " +
-                        f"and number of source cells is {A_operator.shape[-1]}."
+                        "Number of source cells/simplicies must match number of elements in input tensor."
+                        + f"Number of elements in the input vector is {x.shape[0]} "
+                        + f"and number of source cells is {A_operator.shape[-1]}."
                     )
             else:
                 Exception(
@@ -569,7 +570,9 @@ class _MergeOper(nn.Module):
                     )
             else:
                 if self.in_ch_1 != self.in_ch_2:
-                    raise ValueError("input channels must be the same when 'initial_linear_shift' is False")
+                    raise ValueError(
+                        "input channels must be the same when 'initial_linear_shift' is False"
+                    )
 
                 if self.batch_cochain:
                     self.LN3 = BatchLTN(
@@ -659,13 +662,15 @@ class _MergeOper(nn.Module):
             if self.batch_cochain:
                 if len(x1.shape) != 3 or len(x2.shape) != 3:
                     raise ValueError(
-                        "with batch merge, both input" +
-                        " tensor must be three dimensionals," +
-                        f"got tensors of shape {x1.shape}" +
-                        f"and {x2.shape}"
+                        "with batch merge, both input"
+                        + " tensor must be three dimensionals,"
+                        + f"got tensors of shape {x1.shape}"
+                        + f"and {x2.shape}"
                     )
                 if x1.shape[0] != x2.shape[0]:
-                    raise ValueError("input tensors x1 and x2 must " "have the same batch size")
+                    raise ValueError(
+                        "input tensors x1 and x2 must " "have the same batch size"
+                    )
             if G1 is None and G2 is None:
                 if not (self.in_ch_1 == self.in_ch_2 == self.target_ch):
                     raise ValueError(
@@ -691,7 +696,9 @@ class _MergeOper(nn.Module):
                     )
             else:
                 if G1.shape[0] != G2.shape[0]:
-                    raise ValueError("Input operators G1 and G2" " must have the same target ")
+                    raise ValueError(
+                        "Input operators G1 and G2" " must have the same target "
+                    )
             if self.shared_parameters:
                 if self.initial_linear_shift:
                     x1 = self.linear1(x1)
@@ -878,7 +885,9 @@ class _SplitOper(nn.Module):
 
         if self.shared_parameters:
             if self.target_ch_1 != self.target_ch_2:
-                raise ValueError("The output channels must be equal when shared_parameters is True")
+                raise ValueError(
+                    "The output channels must be equal when shared_parameters is True"
+                )
 
             if self.batch_cochain:
                 self.LN = BatchLTN(
@@ -959,7 +968,7 @@ class _SplitOper(nn.Module):
                     " G1 and G2 None, target_ch_1,",
                     " target_ch_2 and num_features_in must be equal",
                 )
-    
+
         elif G1 is None and G2 is not None:
             if self.target_ch_1 != self.num_features_in:
                 raise ValueError(
@@ -977,7 +986,7 @@ class _SplitOper(nn.Module):
                     " target_ch_2, and num_features_in must be equal."
                 )
         else:
-            if G1.shape[-1] != G2.shape[-1]: # Input domains must be the same
+            if G1.shape[-1] != G2.shape[-1]:  # Input domains must be the same
                 raise ValueError(
                     f"Operators must have the same domain, input domains are {G1.shape[-1]} and {G2.shape[-1]}."
                 )
@@ -1236,7 +1245,9 @@ class _MultiMergeOper(nn.Module):
                 print("input tensors x1 and x2 must have the same batch size")
                 raise"""
         if len(x_input_list) != len(Gi_input_list):
-            raise ValueError("tenors list and operators list must have the same lengths.")
+            raise ValueError(
+                "tenors list and operators list must have the same lengths."
+            )
         # TODO, assertion on types of the input
         # TODO, assert the dimension of the input shape match with input tensors
         # TODO, fix dropout

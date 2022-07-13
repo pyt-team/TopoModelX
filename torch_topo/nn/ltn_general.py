@@ -9,12 +9,12 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from stnets.layers.linear import Linear
+from stnets.layers.message_passing import HigherOrderMessagePassing
+from stnets.util import batch_mm
 from torch import Tensor
 from torch.nn.parameter import Parameter
 
-from stnets.layers.linear import Linear
-from stnets.util import batch_mm
-from stnets.layers.message_passing import HigherOrderMessagePassing
 
 class _LTNMessagePassing(HigherOrderMessagePassing):
     r"""
@@ -69,7 +69,7 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
         out_ft: int,
         dropout=0.0,
         bias=True,
-        activation = torch.nn.ReLU(),
+        activation=torch.nn.ReLU(),
         init_scheme="xavier_uniform",
         batch_cochain=True,
     ):
@@ -160,26 +160,34 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
         """
         if self.in_ft != self.out_ft:
             raise ValueError(
-                "The input operator is None or 'Id' acts" +
-                " as an identity operator," +
-                "the in_ft must be the same as out_ft " +
-                "in the model constructor."
+                "The input operator is None or 'Id' acts"
+                + " as an identity operator,"
+                + "the in_ft must be the same as out_ft "
+                + "in the model constructor."
             )
         if self.in_ft != x.shape[-1]:
-            raise ValueError("The input operator is None acts as an identity "
-            + "operator, the in_ft must be the same as number"
-            + " of features in the input cochain" )
+            raise ValueError(
+                "The input operator is None acts as an identity "
+                + "operator, the in_ft must be the same as number"
+                + " of features in the input cochain"
+            )
 
         if not isinstance(A_operator, torch.Tensor):
-            raise TypeError(f"Input operator must be torch tensor, instead got an input of type {type(A_operator)}.")
+            raise TypeError(
+                f"Input operator must be torch tensor, instead got an input of type {type(A_operator)}."
+            )
         if not isinstance(x, torch.Tensor):
-            raise TypeError(f"Input cochain must be torch tensor, instead got an input of type {type(x)}.")
+            raise TypeError(
+                f"Input cochain must be torch tensor, instead got an input of type {type(x)}."
+            )
 
         if (
             len(x.shape) == 2
         ):  # Assuming single input, batchsize=1 and no batch channel is included
             if x.shape[0] != A_operator.shape[-1]:
-                raise ValueError("number of source cells/simplicies must match number of elements in input tensor.")
+                raise ValueError(
+                    "number of source cells/simplicies must match number of elements in input tensor."
+                )
 
         x = x @ self.weight
         if self.bias is not None:
@@ -187,5 +195,4 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
         x = F.dropout(x, self.dropout, self.training)
         x = self.activation(x)
 
-        return self.propagate(x, A_operator)                
-
+        return self.propagate(x, A_operator)

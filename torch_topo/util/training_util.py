@@ -1,7 +1,7 @@
 __all__ = ["accuracy", "normalize_features", "encode_labels"]
 import numpy as np
 import torch
-from scipy.sparse import diags, coo_matrix
+from scipy.sparse import coo_matrix, diags
 
 
 def accuracy(output, labels):

@@ -1,0 +1,10 @@
+def test_imports():
+    import gudhi
+    import networkx
+    import numpy
+    import requests
+    import scipy
+    import sklearn
+    import torch_geometric
+    import torch_sparse
+    import tqdm
