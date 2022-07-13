@@ -5,9 +5,9 @@ from os import path
 from setuptools import find_packages, setup
 
 # Package meta-data.
-NAME = "stnets"
+NAME = "torch_topo"
 DESCRIPTION = "Python module integrating higher order deep learning."
-URL = "https://github.com/mhajij/stnets"
+URL = "https://github.com/pyt-team/torch_topo"
 VERSION = 0.2
 REQUIRED = ["numpy", "torch>=1.9.0", "scipy", "scikit-learn"]
 
