@@ -10,12 +10,11 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
-from torch.nn.parameter import Parameter
-
 from stnets.layers.linear import Linear, TensorLinear
 from stnets.layers.stn_conv import LTN, MultiMergeOper, MultiSplitOper
 from stnets.topology import SimplicialComplex
+from torch import Tensor
+from torch.nn.parameter import Parameter
 
 
 class BlockLTN(nn.Module):
@@ -68,9 +67,13 @@ class BlockLTN(nn.Module):
         assert isinstance(o_depth_ch, int)
 
         if input_ch < 1:
-            raise ValueError("Dimension of input features must be larger than or equal to 1.")
+            raise ValueError(
+                "Dimension of input features must be larger than or equal to 1."
+            )
         if target_ch < 1:
-            raise ValueError("Dimension of output features must be larger than or equal to 1.")
+            raise ValueError(
+                "Dimension of output features must be larger than or equal to 1."
+            )
         if in_depth_ch < 1:
             raise ValueError("Input of Channels must be larger than or equal to 1.")
         if o_depth_ch < 1:
@@ -95,12 +98,16 @@ class BlockLTN(nn.Module):
             x = x.unsqueeze(-1)
 
         if len(x.shape) != 3:
-            raise ValueError("input tensor must have at 2d or 3d tensor," +
-                             f" however got input tensor of shape: {x.shape}.")
+            raise ValueError(
+                "input tensor must have at 2d or 3d tensor,"
+                + f" however got input tensor of shape: {x.shape}."
+            )
         if x.shape[0] != G.shape[-1]:
-            raise ValueError(" number of in_simplices in the input tenor " +
-                             "must be equal to number of in_simplices "
-                             f"in the input operator, got: {x.shape[0]} and {G.shape[-1]}.")
+            raise ValueError(
+                " number of in_simplices in the input tenor "
+                + "must be equal to number of in_simplices "
+                f"in the input operator, got: {x.shape[0]} and {G.shape[-1]}."
+            )
 
         convolve_tensor = torch.stack([G for i in range(0, self.in_depth_ch)], dim=2)
         # convolve_tensor = convolve_tensor.to_dense()

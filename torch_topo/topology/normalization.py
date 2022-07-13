@@ -15,8 +15,7 @@ import numpy as np
 from numpy import ndarray
 from numpy.linalg import pinv
 from scipy.linalg import pinv as s_pinv
-from scipy.sparse import diags, identity
-from scipy.sparse.coo import coo_matrix
+from scipy.sparse import coo_matrix, diags, identity
 
 """
 @author: Mustafa Hajij

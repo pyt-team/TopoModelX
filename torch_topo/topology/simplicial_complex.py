@@ -33,12 +33,14 @@ class SimplicialComplex:
     higher order (co)adjacency operators from collection of
     simplices."""
 
-    def __init__(self, simplices, maxdimension = None, mode = "gudhi"):
+    def __init__(self, simplices, maxdimension=None, mode="gudhi"):
         self.mode = mode
         self.face_set = {}
 
         if not isinstance(simplices, (list, tuple)):
-            raise TypeError(f"Input simplices must be given as a list or tuple, got {type(simplices)}.")
+            raise TypeError(
+                f"Input simplices must be given as a list or tuple, got {type(simplices)}."
+            )
 
         max_simplex_size = len(max(simplices, key=lambda el: len(el)))
         if maxdimension is not None:
@@ -51,14 +53,14 @@ class SimplicialComplex:
             from gudhi import SimplexTree
         except ImportError:
             warn(
-                "gudhi library is not installed."+
-                "normal mode will be used for computations",
+                "gudhi library is not installed."
+                + "normal mode will be used for computations",
                 stacklevel=2,
             )
             self.mode = "normal"
         if self.mode == "normal":
 
-            self._import_simplices(simplices = filtered)
+            self._import_simplices(simplices=filtered)
 
             if maxdimension is None:
                 self.maxdim = max_simplex_size - 1
@@ -66,13 +68,15 @@ class SimplicialComplex:
 
                 if maxdimension > max_simplex_size - 1:
                     warn(
-                        f"Maximal simplex in the collection has size {max_simplex_size}."+
-                        "\n maxdimension is set to {max_simplex_size-1}",
+                        f"Maximal simplex in the collection has size {max_simplex_size}."
+                        + "\n maxdimension is set to {max_simplex_size-1}",
                         stacklevel=2,
                     )
                     self.maxdim = max_simplex_size - 1
                 elif maxdimension < 0:
-                    raise ValueError(f"maxdimension should be a positive integer, got {maxdimension}.")
+                    raise ValueError(
+                        f"maxdimension should be a positive integer, got {maxdimension}."
+                    )
                 else:
                     self.maxdim = maxdimension
         elif self.mode == "gudhi":
@@ -86,13 +90,15 @@ class SimplicialComplex:
 
                 if maxdimension > max_simplex_size - 1:
                     warn(
-                        f"Maximal simplex in the collection has size {max_simplex_size}."+
-                        f" \n {maxdimension} is set to {max_simplex_size-1}",
+                        f"Maximal simplex in the collection has size {max_simplex_size}."
+                        + f" \n {maxdimension} is set to {max_simplex_size-1}",
                         stacklevel=2,
                     )
                     self.maxdim = max_simplex_size - 1
                 elif maxdimension < 0:
-                    raise ValueError(f"maxdimension should be a positive integer, got {maxdimension}.")
+                    raise ValueError(
+                        f"maxdimension should be a positive integer, got {maxdimension}."
+                    )
                 else:
                     self.maxdim = maxdimension
         else:
@@ -103,8 +109,10 @@ class SimplicialComplex:
         # valid in normal mode and can be used as a static method on any face
         # TODO, do for gudhi mode as well.
         if not isinstance(simplices, (list, tuple)):
-            raise TypeError(f"Input simplices must be given as a list or tuple, got {type(simplices)}.")
-  
+            raise TypeError(
+                f"Input simplices must be given as a list or tuple, got {type(simplices)}."
+            )
+
         faceset = set()
         for simplex in simplices:
             numnodes = len(simplex)
@@ -113,8 +121,7 @@ class SimplicialComplex:
                     faceset.add(tuple(sorted(face)))
         return faceset
 
-
-    def _import_simplices(self, simplices = []):
+    def _import_simplices(self, simplices=[]):
         if self.mode == "normal":
             self.simplices = tuple(
                 map(lambda simplex: tuple(sorted(simplex)), simplices)
@@ -161,8 +168,9 @@ class SimplicialComplex:
         for s in simplices:
             st.insert(s)
         return st
-    @staticmethod    
-    def extract_simplices(simplex_tree ):
+
+    @staticmethod
+    def extract_simplices(simplex_tree):
         """
         extract simplices from gudhi simples tree
         """
@@ -175,7 +183,7 @@ class SimplicialComplex:
     @staticmethod
     def get_edges_from_operator(operator):
         """
-        
+
 
         Parameters
         ----------
@@ -187,15 +195,15 @@ class SimplicialComplex:
 
         Rational:
         -------
-         Most operaters (e.g. adjacencies/(co)boundary maps) that describe 
+         Most operaters (e.g. adjacencies/(co)boundary maps) that describe
          connectivity of the simplicial complex
-         can be described as a graph whose nodes are the simplices used to 
+         can be described as a graph whose nodes are the simplices used to
          construct the operator and whose edges correspond to the entries
          in the matrix where the operator is not zero.
-         
+
          This property implies that many computations on simplicial complexes
          can be reduced to graph computations.
-         
+
         """
         rows, cols = np.where(np.sign(np.abs(operator)) == 1)
         edges = zip(rows.tolist(), cols.tolist())
@@ -203,7 +211,7 @@ class SimplicialComplex:
 
     # ---------- operators ---------------#
 
-    def boundary_operator_gudhi(self, d, signed = True):
+    def boundary_operator_gudhi(self, d, signed=True):
         """
         get the boundary map using gudhi
         """
@@ -231,7 +239,7 @@ class SimplicialComplex:
         else:
             return abs(boundary)
 
-    def boundary_operator_normal(self, d, signed = True):
+    def boundary_operator_normal(self, d, signed=True):
         source_simplices = self.dic_order_faces(d)
         target_simplices = self.dic_order_faces(d - 1)
 
@@ -260,7 +268,7 @@ class SimplicialComplex:
                         S[i, j] = 1
         return S
 
-    def get_boundary_operator(self, d, signed = True):
+    def get_boundary_operator(self, d, signed=True):
 
         if d >= 0 and d <= self.maxdim:
             if self.mode == "normal":
@@ -272,10 +280,10 @@ class SimplicialComplex:
                 f"d should be larget than zero and not greater than {self.maxdim} (maximal allowed dimension for simplices), got {d}"
             )
 
-    def get_coboundary_operator(self, d, signed = True):
+    def get_coboundary_operator(self, d, signed=True):
         return self.get_boundary_operator(d, signed).T
 
-    def get_hodge_laplacian(self, d, signed = True):
+    def get_hodge_laplacian(self, d, signed=True):
         if d == 0:
             B_next = self.get_boundary_operator(d + 1)
             L = B_next @ B_next.transpose()
@@ -295,7 +303,7 @@ class SimplicialComplex:
         else:
             return abs(L)
 
-    def get_up_laplacian(self, d, signed = True):
+    def get_up_laplacian(self, d, signed=True):
         if d == 0:
             B_next = self.get_boundary_operator(d + 1)
             L_up = B_next @ B_next.transpose()
@@ -312,7 +320,7 @@ class SimplicialComplex:
         else:
             return abs(L_up)
 
-    def get_down_laplacian(self, d, signed = True):
+    def get_down_laplacian(self, d, signed=True):
         if d <= self.maxdim and d > 0:
             B = self.get_boundary_operator(d)
             L_down = B.transpose() @ B
@@ -325,73 +333,82 @@ class SimplicialComplex:
         else:
             return abs(L_down)
 
-    def get_higher_order_adj(self, d, signed = False):
+    def get_higher_order_adj(self, d, signed=False):
 
         L_up = self.get_up_laplacian(d, signed)
-        L_up.setdiag(0)
+
+        # fast L.setdiag(0)
+        # see https://github.com/scipy/scipy/issues/11600
+        (nonzero,) = L_up.diagonal().nonzero()
+        L_up[nonzero, nonzero] = 0
+        L_up.eliminate_zeros()
 
         if signed:
             return L_up
         else:
             return abs(L_up)
 
-    def get_higher_order_coadj(self, d, signed = False):
+    def get_higher_order_coadj(self, d, signed=False):
 
         L_down = self.get_down_laplacian(d, signed)
-        L_down.setdiag(0)
+        # fast L.setdiag(0)
+        # see https://github.com/scipy/scipy/issues/11600
+        (nonzero,) = L_down.diagonal().nonzero()
+        L_down[nonzero, nonzero] = 0
+        L_down.eliminate_zeros()
 
         if signed:
             return L_down
         else:
             return abs(L_down)
-        
-    def get_k_hop_boundary(self, d,k):
-        Bd = self.get_boundary_operator(d , signed = True)
-        if d < self.maxdim and d >= 0:
-            Ad = self.get_higher_order_adj(d, signed = True)
-        if d <= self.maxdim and d > 0:
-            coAd = self.get_higher_order_coadj(d , signed = True)
-        if d == self.maxdim:
-            return Bd @ np.power(coAd,k)
-        elif d == 0 :
-            return Bd @ np.power(Ad,k)
-        else:            
-            return Bd @ np.power(Ad,k)+ Bd @ np.power(coAd,k) 
 
-    def get_k_hop_coboundary(self, d,k):
-        BTd = self.get_coboundary_operator(d , signed = True)
+    def get_k_hop_boundary(self, d, k):
+        Bd = self.get_boundary_operator(d, signed=True)
         if d < self.maxdim and d >= 0:
-            Ad = self.get_higher_order_adj(d, signed = True)
+            Ad = self.get_higher_order_adj(d, signed=True)
         if d <= self.maxdim and d > 0:
-            coAd = self.get_higher_order_coadj(d , signed = True)
+            coAd = self.get_higher_order_coadj(d, signed=True)
         if d == self.maxdim:
-            return np.power(coAd,k) @ BTd
-        elif d == 0 :
-            return np.power(Ad,k) @ BTd
+            return Bd @ np.power(coAd, k)
+        elif d == 0:
+            return Bd @ np.power(Ad, k)
         else:
-            return  np.power(Ad,k) @ BTd + np.power(coAd,k) @ BTd 
+            return Bd @ np.power(Ad, k) + Bd @ np.power(coAd, k)
 
-
+    def get_k_hop_coboundary(self, d, k):
+        BTd = self.get_coboundary_operator(d, signed=True)
+        if d < self.maxdim and d >= 0:
+            Ad = self.get_higher_order_adj(d, signed=True)
+        if d <= self.maxdim and d > 0:
+            coAd = self.get_higher_order_coadj(d, signed=True)
+        if d == self.maxdim:
+            return np.power(coAd, k) @ BTd
+        elif d == 0:
+            return np.power(Ad, k) @ BTd
+        else:
+            return np.power(Ad, k) @ BTd + np.power(coAd, k) @ BTd
 
     #  -----------normalized operators------------------#
 
-    def get_normalized_hodge_laplacian(self, d, signed = True):
+    def get_normalized_hodge_laplacian(self, d, signed=True):
 
         return SimplicialComplex.normalize_laplacian(
             self.get_hodge_laplacian(d=d), signed=signed
         )
 
     def get_normalized_down_laplacian(self, d):
-        Ld = self.get_hodge_laplacian(d=d) 
-        Ldown = self.get_down_laplacian(d=d) 
-        out = SimplicialComplex.normalize_x_laplacian(Ld,Ldown)
+        Ld = self.get_hodge_laplacian(d=d)
+        Ldown = self.get_down_laplacian(d=d)
+        out = SimplicialComplex.normalize_x_laplacian(Ld, Ldown)
         return out
+
     def get_normalized_up_laplacian(self, d):
-        Ld = self.get_hodge_laplacian(d=d) 
-        Lup = self.get_up_laplacian(d=d) 
-        out = SimplicialComplex.normalize_x_laplacian(Ld,Lup)
+        Ld = self.get_hodge_laplacian(d=d)
+        Lup = self.get_up_laplacian(d=d)
+        out = SimplicialComplex.normalize_x_laplacian(Ld, Lup)
         return out
-    def get_normalized_coboundary_operator(self, d, signed = True, normalization="xu"):
+
+    def get_normalized_coboundary_operator(self, d, signed=True, normalization="xu"):
 
         CoBd = self.get_coboundary_operator(d, signed)
 
@@ -417,7 +434,7 @@ class SimplicialComplex:
         else:
             raise Exception("invalid normalization method entered.")
 
-    def get_normalized_boundary_operator(self, d, signed = True, normalization="xu"):
+    def get_normalized_boundary_operator(self, d, signed=True, normalization="xu"):
 
         Bd = self.get_boundary_operator(d, signed)
         if normalization == "row":
@@ -429,9 +446,9 @@ class SimplicialComplex:
         else:
             raise Exception("invalid normalization method entered.")
 
-    def get_normalized_k_hop_boundary_operator(self, d,k, normalization="xu"):
+    def get_normalized_k_hop_boundary_operator(self, d, k, normalization="xu"):
 
-        Bd = self.get_k_hop_boundary(d,k)
+        Bd = self.get_k_hop_boundary(d, k)
         if normalization == "row":
             return normalize(Bd, norm="l1", axis=1)
         elif normalization == "kipf":
@@ -441,8 +458,7 @@ class SimplicialComplex:
         else:
             raise Exception("invalid normalization method entered.")
 
-
-    def get_normalized_higher_order_adj(self, d, signed = False, normalization="kipf"):
+    def get_normalized_higher_order_adj(self, d, signed=False, normalization="kipf"):
         """
         Args:
             d: dimenion of the higher order adjacency matrix
@@ -464,7 +480,7 @@ class SimplicialComplex:
         else:
             raise Exception("invalid normalization method entered.")
 
-    def get_normalized_higher_order_coadj(self, d, signed = False, normalization="xu"):
+    def get_normalized_higher_order_coadj(self, d, signed=False, normalization="xu"):
         """
         Args:
             d: dimenion of the higher order adjacency matrix
@@ -489,20 +505,21 @@ class SimplicialComplex:
     @staticmethod
     def normalize_laplacian(L, signed=True):
 
-        topeigen_val = spl.eigsh(L, k=1, which="LM", return_eigenvectors = False)[0]
+        topeigen_val = spl.eigsh(L, k=1, which="LM", return_eigenvectors=False)[0]
         out = L.copy()
         out *= 1.0 / topeigen_val
         if signed:
             return out
         else:
             return abs(out)
-    @staticmethod        
-    def normalize_x_laplacian(L,Lx): # used to normalize the up or the down Laplacians
-        assert(L.shape[0] == L.shape[1])
-        topeig = spl.eigsh(L, k=1, which="LM", return_eigenvectors = False)[0]
+
+    @staticmethod
+    def normalize_x_laplacian(L, Lx):  # used to normalize the up or the down Laplacians
+        assert L.shape[0] == L.shape[1]
+        topeig = spl.eigsh(L, k=1, which="LM", return_eigenvectors=False)[0]
         out = Lx.copy()
-        out *= 1.0/topeig
-        return out        
+        out *= 1.0 / topeig
+        return out
 
     @staticmethod
     def normalize_higher_order_adj(A_opt):
@@ -559,18 +576,18 @@ class SimplicialComplex:
             return normalized_operator
 
         else:
-            Di = np.sum(np.abs(A_opt), axis = 1)
-            Dj = np.sum(np.abs(A_opt), axis = 0)
-            inv_Dj = np.mat(np.diag(np.power(Dj, -0.5)))
+            Di = np.sum(np.abs(A_opt), axis=1)
+            Dj = np.sum(np.abs(A_opt), axis=0)
+            inv_Dj = np.array(np.diag(np.power(Dj, -0.5)))
             inv_Dj[np.isinf(inv_Dj)] = 0.0
-            Di2 = np.mat(np.diag(np.power(Di, -0.5)))
+            Di2 = np.array(np.diag(np.power(Di, -0.5)))
             Di2[np.isinf(Di2)] = 0.0
-            A_opt = np.mat(A_opt)
-            G = Di2 * A_opt * inv_Dj
+            A_opt = np.array(A_opt)
+            G = Di2 @ A_opt @ inv_Dj
             return G
 
     @staticmethod
-    def asymmetric_xu_normalization(A_opt, is_sparse = True):
+    def asymmetric_xu_normalization(A_opt, is_sparse=True):
         """
         This version works for asymmetric matrices such as
         the coboundary matrices, as well as symmetric ones
@@ -595,8 +612,8 @@ class SimplicialComplex:
 
         else:
             Di = np.sum(np.abs(A_opt), axis=1)
-            Di2 = np.mat(np.diag(np.power(Di, -1)))
+            Di2 = np.array(np.diag(np.power(Di, -1)))
             Di2[np.isinf(Di2)] = 0.0
-            A_opt = np.mat(A_opt)
-            normalized_operator = Di2 * A_opt
+            A_opt = np.array(A_opt)
+            normalized_operator = Di2 @ A_opt
             return normalized_operator
