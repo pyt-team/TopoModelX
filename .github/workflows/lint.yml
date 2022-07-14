@@ -32,4 +32,4 @@ jobs:
           isort --profile black --check .
       - name: linting [flake8]
         run: |
-          flake8 torch_topo/ tests/
+          flake8 torch_topo/ test/
