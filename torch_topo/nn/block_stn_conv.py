@@ -9,12 +9,11 @@ from warnings import warn
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from stnets.layers.linear import Linear, TensorLinear
-from stnets.layers.stn_conv import LTN, MultiMergeOper, MultiSplitOper
-from stnets.topology import SimplicialComplex
 from torch import Tensor
 from torch.nn.parameter import Parameter
+
+from torch_topo.nn.linear import TensorLinear
+from torch_topo.topology import SimplicialComplex
 
 
 class BlockLTN(nn.Module):

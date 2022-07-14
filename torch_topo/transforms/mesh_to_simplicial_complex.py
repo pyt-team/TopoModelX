@@ -136,7 +136,7 @@ def mesh_2_operators(faces, signed=False, norm_method="kipf", output_type="coo")
         Coadj2 = hl.get_higher_order_coadj(d=2, signed=signed)
         out = [Adj0, Adj1, Coadj1, Coadj2, L0, L1, L2, B1, B2]
         if output_type == "coo":
-            return out + [None, None]  #  output length consistent
+            return out + [None, None]  # output length consistent
         elif output_type == "numpy" or output_type == "np":
             return [i.toarray() for i in out] + [None, None]
         elif output_type == "torch":

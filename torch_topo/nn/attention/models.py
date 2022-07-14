@@ -5,20 +5,18 @@ Created on Wed Jan 12 16:16:44 2022
 @author: Mustafa Hajij
 """
 
-
-"""
-    Simplicial/Cellular/hypergraph Mutli-head Attention , sparse and dense implementations
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .hoan import HigherOrderAttentionLayer, SparseHigherOrderAttentionLayer
 
+"""
+    Simplicial/Cellular/hypergraph Mutli-head Attention , sparse and dense implementations
+"""
+
 
 class MultiHeadHigherOrderAttention(nn.Module):
-
     """
     Simplicial/Cellular Mutli-head Attention
     """
@@ -68,12 +66,16 @@ class MultiHeadHigherOrderAttention(nn.Module):
         layer built based on  https://github.com/psh150204/GAT/blob/master/layer.py
         """
 
-        if input2 == None:
+        if input2 is None:
             if A_opt.shape[0] != A_opt.shape[1]:
-                raise ValueError("The operator A must be symmetric when the target features are None.")
+                raise ValueError(
+                    "The operator A must be symmetric when the target features are None."
+                )
         else:
             if A_opt.shape[0] == A_opt.shape[1]:
-                raise ValueError("the target features cannot must be None when the operator A is symmetric.")
+                raise ValueError(
+                    "the target features cannot must be None when the operator A is symmetric."
+                )
 
         if self.concatinate:
             # concatenate
@@ -82,9 +84,9 @@ class MultiHeadHigherOrderAttention(nn.Module):
             for attention in self.attentions:
                 hst, hts = attention(input1, input2, A_opt)
                 outputs_st.append(hst)
-                if input2 != None:
+                if input2 is not None:
                     outputs_ts.append(hts)
-            if input2 != None:
+            if input2 is not None:
                 return torch.cat(outputs_st, dim=-1), torch.cat(outputs_ts, dim=-1)
             else:
                 return torch.cat(outputs_st, dim=-1), None
@@ -94,17 +96,17 @@ class MultiHeadHigherOrderAttention(nn.Module):
             outputs_st = None
             outputs_ts = None
             for attention in self.attentions:
-                if outputs_st == None:
+                if outputs_st is None:
                     outputs_st, outputs_ts = attention(input1, input2, A_opt)
                 else:
                     hst, hts = attention(input1, input2, A_opt)
                     outputs_st = outputs_st + hst
                     if (
-                        hts != None
+                        hts is not None
                     ):  # operator A_opt is symmetric -> second feature vector is None
                         outputs_ts = outputs_ts + hts
 
-            if input2 != None:
+            if input2 is not None:
 
                 return (
                     outputs_st / len(self.attentions),
@@ -115,7 +117,6 @@ class MultiHeadHigherOrderAttention(nn.Module):
 
 
 class SpMultiHeadHigherOrderAttention(nn.Module):
-
     """
     Simplicial/Cellular Mutli-head Attention
     """
@@ -181,9 +182,9 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
             for attention in self.attentions:
                 hst, hts = attention(input1, input2, A_opt, operator_symmetry)
                 outputs_st.append(hst)
-                if input2 != None:
+                if input2 is not None:
                     outputs_ts.append(hts)
-            if input2 != None:
+            if input2 is not None:
                 return torch.cat(outputs_st, dim=-1), torch.cat(outputs_ts, dim=-1)
             else:
                 return torch.cat(outputs_st, dim=-1), None
@@ -193,7 +194,7 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
             outputs_st = None
             outputs_ts = None
             for attention in self.attentions:
-                if outputs_st == None:
+                if outputs_st is None:
                     outputs_st, outputs_ts = attention(
                         input1, input2, A_opt, operator_symmetry
                     )
@@ -201,11 +202,11 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
                     hst, hts = attention(input1, input2, A_opt, operator_symmetry)
                     outputs_st = outputs_st + hst
                     if (
-                        hts != None
+                        hts is not None
                     ):  # operator A_opt is symmetric -> second feature vector is None
                         outputs_ts = outputs_ts + hts
 
-            if input2 != None:
+            if input2 is not None:
 
                 return (
                     outputs_st / len(self.attentions),
@@ -216,7 +217,6 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
 
 
 class MultiHeadHigherOrderAttentionClassifer(nn.Module):
-
     """
     Simplicial/Cellular Mutli-head Attention
     """
@@ -274,21 +274,25 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
         layer built based on  https://github.com/psh150204/GAT/blob/master/layer.py
         """
 
-        if input2 == None:
+        if input2 is None:
             if A_opt.shape[0] != A_opt.shape[1]:
-                raise ValueError("The operator A must be symmetric when the target features are None.")
+                raise ValueError(
+                    "The operator A must be symmetric when the target features are None."
+                )
         else:
             if A_opt.shape[0] == A_opt.shape[1]:
-                raise ValueError("the target features cannot must be None when the operator A is symmetric.")
+                raise ValueError(
+                    "the target features cannot must be None when the operator A is symmetric."
+                )
 
         outputs_st = []
         outputs_ts = []
         for attention in self.attentions:
             hst, hts = attention(input1, input2, A_opt)
             outputs_st.append(hst)
-            if input2 != None:
+            if input2 is not None:
                 outputs_ts.append(hts)
-        if input2 != None:
+        if input2 is not None:
 
             outputs_st = torch.cat(outputs_st, dim=1)
             outputs_ts = torch.cat(outputs_ts, dim=1)
@@ -310,7 +314,6 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
 
 
 class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
-
     """
     Sparse Simplicial/Cellular Mutli-head Attention
     """
@@ -383,10 +386,10 @@ class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
         for attention in self.attentions:
             hst, hts = attention(input1, input2, A_opt, operator_symmetry)
             outputs_st.append(hst)
-            if input2 != None:
+            if input2 is not None:
                 outputs_ts.append(hts)
 
-        if input2 != None:
+        if input2 is not None:
 
             outputs_st = torch.cat(outputs_st, dim=1)
             outputs_ts = torch.cat(outputs_ts, dim=1)

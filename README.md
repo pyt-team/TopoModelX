@@ -76,3 +76,7 @@ pytest
 
 ## Black
 
+```bash
+black . --diff --extend-exclude 'examples'
+```
+
