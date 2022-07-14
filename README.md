@@ -74,9 +74,19 @@ Run the entire test suite with
 pytest
 ```
 
-## Black
+## Linting
 
+1. Black
 ```bash
-black . --diff --extend-exclude 'examples'
+black . --check --extend-exclude 'examples'
 ```
 
+2.Isort
+```bash
+isort torch_topo/ test/ --profile black --check
+```
+
+3.Other hooks
+```bash
+pre-commit run trailing-whitespace
+```
