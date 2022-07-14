@@ -8,11 +8,9 @@ from setuptools import find_packages, setup
 NAME = "torch_topo"
 DESCRIPTION = "Python module integrating higher order deep learning."
 URL = "https://github.com/pyt-team/torch_topo"
-VERSION = 0.2
-
+VERSION = 0.1
 
 here = path.abspath(path.dirname(__file__))
-
 
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
@@ -25,15 +23,16 @@ install_requires = [
     "scikit-learn",
     "networkx",
     "gudhi",
-    "torch_geometric"
+    "torch_geometric",
 ]
 
 full_requires = [
     "pandas",
     "matplotlib",
-    #'torch>=1.9.0',
-    #'pytorch-memlab',
-    #'torchmetrics>=0.7'
+    "jupyter",
+    # 'torch>=1.9.0',
+    # 'pytorch-memlab',
+    # 'torchmetrics>=0.7'
 ]
 
 test_requires = [
@@ -43,19 +42,15 @@ test_requires = [
 
 dev_requires = test_requires + [
     "pre-commit",
-    "black",
-    "black[jupyter]",
     "flake8",
-    "flake8-docstrings",
-    "isort",
-    "jupyter",
-    "nb_black",
-    "pytest",
-    "pytest-cov",
+    "yapf",
+    "black==22.6.0",
+    "black[jupyter]",
+    # "flake8-docstrings",  # flake8-docstrings causes flake8 to change behaviour for tests; removed it
+    "isort==5.10.1",
     "codecov",
     "coverage",
 ]
-
 
 setup(
     name=NAME,
@@ -65,7 +60,7 @@ setup(
     url=URL,
     download_url=URL,
     license="MIT",
-    author="Simplicial Tensor Networks Authors",
+    author="PyT-Team Authors",
     contact_email="mustafahajij@gmail.com",
     classifiers=[
         "Intended Audience :: Developers",

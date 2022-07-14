@@ -23,7 +23,7 @@ class Linear(nn.Module):
         self.out_ft = out_ft
         self.init_scheme = weight_initializer
 
-        self.weight = Parameter(torch.Tensor(out_ft, in_ft))  #  flip the order
+        self.weight = Parameter(torch.Tensor(out_ft, in_ft))  # flip the order
         if bias:
             self.bias = Parameter(torch.Tensor(out_ft))
         else:
@@ -34,15 +34,12 @@ class Linear(nn.Module):
     @torch.no_grad()
     def reset_parameters(self, gain=1.414):
         if self.bias is not None:
-
             nn.init.zeros_(self.bias)
 
         if self.init_scheme == "xavier_uniform":
-
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.init_scheme == "xavier_normal":
-
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "uniform":
@@ -99,15 +96,12 @@ class TensorLinear(nn.Module):
     @torch.no_grad()
     def reset_parameters(self, gain=1.414):
         if self.bias is not None:
-
             nn.init.zeros_(self.bias)
 
         if self.init_scheme == "xavier_uniform":
-
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.init_scheme == "xavier_normal":
-
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "uniform":
@@ -128,12 +122,16 @@ class TensorLinear(nn.Module):
         """
         assert len(x.shape) == 3
         if x.shape[1] != self.in_ft:
-            raise ValueError("The feature dimension in the input tensor must " +
-                             f"equal to in_features in the model, got {x.shape[1]} and {self.in_ft}. ")
+            raise ValueError(
+                "The feature dimension in the input tensor must "
+                + f"equal to in_features in the model, got {x.shape[1]} and {self.in_ft}. "
+            )
 
         if x.shape[-1] != self.in_ch_ft:
-            raise ValueError("The depth channel in the input tensor must be equal to the " +
-                             f"number of input channels in the model, got {x.shape[-1]} and {self.in_ch_ft} ")
+            raise ValueError(
+                "The depth channel in the input tensor must be equal to the "
+                + f"number of input channels in the model, got {x.shape[-1]} and {self.in_ch_ft} "
+            )
 
         return torch.einsum("vid,iot->vot", x, self.weight) + self.bias
 

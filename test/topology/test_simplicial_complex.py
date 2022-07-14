@@ -4,6 +4,7 @@ import unittest
 import networkx as nx
 import numpy as np
 from scipy.linalg import fractional_matrix_power
+
 # from stnets.topology import SimplicialComplex
 from sklearn.preprocessing import normalize
 
@@ -12,8 +13,8 @@ from torch_topo.topology import SimplicialComplex
 
 def normalize_(A):  # works on numpy arrays --
     # A is assumed to be an adj matrix, without selfloops
-    I = np.identity(A.shape[0])
-    A_hat = A + I
+    identity = np.identity(A.shape[0])
+    A_hat = A + identity
     D = np.diag(np.sum(A_hat, axis=0))
     D_half_norm = fractional_matrix_power(D, -0.5)
     return D_half_norm.dot(A_hat).dot(D_half_norm)
@@ -22,9 +23,6 @@ def normalize_(A):  # works on numpy arrays --
 def test_simplical_complex():
     simplices = [(0, 1, 2), (1, 2, 3), (2, 3), (1, 2, 4), (5, 3), (0, 4)]
     HL = SimplicialComplex(simplices, mode="gudhi")
-
-    B1 = HL.get_boundary_operator(1)
-    B2 = HL.get_boundary_operator(2)
 
     L0 = HL.get_hodge_laplacian(0)
     L1 = HL.get_hodge_laplacian(1)
@@ -67,7 +65,7 @@ def test_simplical_complex():
     val = nx.is_isomorphic(G1, G2)
 
     assert D1.all() == D2.all()
-    assert val == True
+    assert val
 
     HL = SimplicialComplex(simplices, mode="gudhi")
 
