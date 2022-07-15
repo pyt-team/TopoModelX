@@ -71,3 +71,4 @@ Run the entire test suite with
 
 ```bash
 pytest
+```
