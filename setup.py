@@ -23,7 +23,6 @@ install_requires = [
     "scikit-learn",
     "networkx",
     "gudhi",
-    "torch_geometric",
 ]
 
 full_requires = [
