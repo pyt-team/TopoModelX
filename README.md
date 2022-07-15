@@ -1,5 +1,5 @@
-[![Test](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml/badge.svg)](https://github.com/mhajij/stnets/actions/workflows/test.yml)
-[![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/mhajij/stnets/actions/workflows/lint.yml)
+[![Test](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml)
+[![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 
 # Pytorch Topological: Higher Order Deep Models For Python
 
@@ -71,4 +71,3 @@ Run the entire test suite with
 
 ```bash
 pytest
-```
