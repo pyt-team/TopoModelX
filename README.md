@@ -38,10 +38,9 @@ To develop PyTopo on your machine, here are some tips:
 4. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
       To install the binaries for PyTorch 1.12.0, simply run:
-
-      ```
+      ```bash
       pip install torch --extra-index-url https://download.pytorch.org/whl/${CUDA}
-      pip install torch-scatter torch-sparse torch-geometric -f https://data.pyg.org/whl/torch-1.12.0+${CUDA}.html
+      pip install torch-scatter torch-sparse torch_geometric -f https://data.pyg.org/whl/torch-1.12.0+${CUDA}.html
       ```
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
