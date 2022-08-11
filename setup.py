@@ -24,7 +24,7 @@ install_requires = [
     "networkx",
     "gudhi",
     "torch_geometric",
-    'toponetx @ git+https://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@github.com/pyt-team/TopoNetX.git',
+    "toponetx @ git+https://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@github.com/pyt-team/TopoNetX.git",
 ]
 
 full_requires = [
@@ -32,8 +32,6 @@ full_requires = [
     "matplotlib",
     "jupyter",
     # 'torch>=1.9.0',
-    # 'pytorch-memlab',
-    # 'torchmetrics>=0.7'
 ]
 
 test_requires = [
