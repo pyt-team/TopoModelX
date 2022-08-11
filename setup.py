@@ -16,7 +16,6 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "decorator",
     "tqdm",
     "numpy",
     "scipy",
@@ -25,6 +24,7 @@ install_requires = [
     "networkx",
     "gudhi",
     "torch_geometric",
+    'toponetx @ git+https://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@github.com/pyt-team/TopoNetX.git',
 ]
 
 full_requires = [
