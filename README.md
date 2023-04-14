@@ -8,8 +8,8 @@ TopoModelX is a Python module integrating higher order deep learning learning.
 It aims to provide simple and efficient solutions to higher order deep learning
  as a versatile tool for science and engineering.
 
-# Contributing to PyT
-*based off PyGeometric*
+# Contributing to tmx
+
 
 ## Developing PyTopo
 
