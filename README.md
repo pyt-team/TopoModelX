@@ -11,9 +11,9 @@ It aims to provide simple and efficient solutions to higher order deep learning
 # Contributing to tmx
 
 
-## Developing PyTopo
+## Developing tmx
 
-To develop PyTopo on your machine, here are some tips:
+To develop tmx on your machine, here are some tips:
 
 1. Clone a copy of PyTopo from source:
 
@@ -28,13 +28,13 @@ To develop PyTopo on your machine, here are some tips:
    git pull
    ```
 
-3. Install PyT in editable mode:
+3. Install tmx in editable mode:
 
    ```bash
    pip install -e ".[dev,full]"
    ```
 
-   This mode will symlink the Python files from the current local source tree into the Python install. Hence, if you modify a Python file, you do not need to reinstall PyT again and again.
+   This mode will symlink the Python files from the current local source tree into the Python install. Hence, if you modify a Python file, you do not need to reinstall tmx again and again.
 
 4. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
