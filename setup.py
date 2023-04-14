@@ -47,7 +47,6 @@ dev_requires = test_requires + [
     "black[jupyter]",
     # "flake8-docstrings",  # flake8-docstrings causes flake8 to change behaviour for tests; removed it
     "isort==5.10.1",
-    "codecov",
     "coverage",
 ]
 
@@ -75,8 +74,7 @@ setup(
         "Simplicial Attention Networks",
         "Simplicial Complex Neural Networks",
         "Tensor networks" "Cell complex Neural Networks",
-        "Cellular complex Neural Networks",
-        "CW Neural Networks",
+        "Cellular complex Neural Networks"
     ],
     python_requires=">=3.7",
     install_requires=install_requires,
