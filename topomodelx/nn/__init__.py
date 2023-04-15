@@ -1,6 +1,6 @@
-from .block_stn_conv import BlockLTN
+from .block_cccnn import BlockLTN
 from .linear import Linear
-from .stn_conv import (
+from .cccnn import (
     _LTN,
     LTN,
     BatchLTN,

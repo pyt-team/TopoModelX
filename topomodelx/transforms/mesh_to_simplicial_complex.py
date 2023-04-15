@@ -5,8 +5,8 @@ import numpy as np
 import torch
 from scipy.sparse import coo_matrix, csr_matrix, diags, dok_matrix, eye
 
-from torch_topo.topology.simplicial_complex import SimplicialComplex
-from torch_topo.util.tensors_util import coo_2_torch_tensor
+from toponetx.classes.simplicial_complex import SimplicialComplex as SC
+from topomodelx.util.tensors_util import coo_2_torch_tensor
 
 
 def read_mesh(path, file_type=".m"):

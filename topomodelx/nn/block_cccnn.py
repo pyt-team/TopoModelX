@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Dec 10 13:00:01 2021
 
-@author: Mustafa Hajij
-"""
 
 from warnings import warn
 
@@ -12,8 +7,7 @@ import torch.nn as nn
 from torch import Tensor
 from torch.nn.parameter import Parameter
 
-from torch_topo.nn.linear import TensorLinear
-from torch_topo.topology import SimplicialComplex
+from topomodelx.nn.linear import TensorLinear
 
 
 class BlockLTN(nn.Module):

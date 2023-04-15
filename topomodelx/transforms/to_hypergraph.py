@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-@author: Mustafa Hajij
-"""
+
 
 __all__ = [
     "simplicial_subcomplex_2_hypergraph_incidence_matrix",
@@ -21,7 +18,7 @@ import networkx as nx
 import numpy as np
 from scipy.sparse import coo_matrix
 from sklearn.neighbors import kneighbors_graph, radius_neighbors_graph
-from stnets.topology import SimplicialComplex
+from toponetx.classes.simplicial_complex import SimplicialComplex as SC
 
 
 def simplicial_subcomplex_2_hypergraph_incidence_matrix(

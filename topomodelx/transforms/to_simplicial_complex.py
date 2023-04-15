@@ -1,5 +1,5 @@
 import gudhi
-from stnets.topology import SimplicialComplex as SC
+from toponetx.classes.simplicial_complex import SimplicialComplex as SC
 
 
 def simplicial_complex_closure_of_hypergraph(H):

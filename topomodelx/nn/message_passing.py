@@ -5,7 +5,7 @@
 from typing import Optional, Tuple
 
 import torch
-from stnets.scatter.scatter import scatter
+from modelnetx.scatter.scatter import scatter
 from torch import Tensor
 
 
@@ -13,11 +13,11 @@ class HigherOrderMessagePassing(torch.nn.Module):
 
     """
     Example
-        from stnets.topology.simplicial_complex import SimplicialComplex
-        from stnets.util.tensors_util import coo_2_torch_tensor
-
+        from toponetx.simplicial_complex import SimplicialComplex
+        from modelnetx.util.tensors_util import coo_2_torch_tensor
+        from modelnetx.nn.message_passing import HigherOrderMessagePassing
         SC= SimplicialComplex([[0,1],[1,2]])
-        B1 = coo_2_torch_tensor(SC.get_boundary_operator(1))
+        B1 = coo_2_torch_tensor(SC.incidence_matrix(1))
         homp = HigherOrderMessagePassing()
         x_e = torch.rand(2,10)
         x_v = homp(x_e,B1)

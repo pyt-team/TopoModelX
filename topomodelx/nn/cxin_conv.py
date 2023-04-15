@@ -1,21 +1,17 @@
-# -*- coding: utf-8 -*-
-"""
 
-@author: Mustafa Hajij
-"""
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from stnets.layers.message_passing import HigherOrderMessagePassing
+from topomodelx.layers.message_passing import HigherOrderMessagePassing
 
 
 class CXINConv(HigherOrderMessagePassing):
     r"""
 
     Example :
-        from stnets.topology.simplicial_complex import SimplicialComplex
-        from stnets.util.tensors_util import coo_2_torch_tensor
+        from toponetx.simplicial_complex import SimplicialComplex
+        from topomodelx.util.tensors_util import coo_2_torch_tensor
 
 
         SC= SimplicialComplex([[0,1],[1,2]])
@@ -107,8 +103,8 @@ class CXINConv(HigherOrderMessagePassing):
 class CXINMerge(nn.Module):
     r"""
     Example :
-        from stnets.topology.simplicial_complex import SimplicialComplex
-        from stnets.util.tensors_util import coo_2_torch_tensor
+        from toponetx.simplicial_complex import SimplicialComplex
+        from topomodelx.util.tensors_util import coo_2_torch_tensor
 
         SC= SimplicialComplex([[0,1],[1,2]])
 
@@ -201,8 +197,8 @@ class CXINMerge(nn.Module):
 class CXINMergeToTarget(HigherOrderMessagePassing):
     r"""
     Example :
-        from stnets.topology.simplicial_complex import SimplicialComplex
-        from stnets.util.tensors_util import coo_2_torch_tensor
+        from toponetx.simplicial_complex import SimplicialComplex
+        from topomodelx.util.tensors_util import coo_2_torch_tensor
 
         SC= SimplicialComplex([[0,1],[1,2]])
 
@@ -309,8 +305,8 @@ class CXINMergeToTarget(HigherOrderMessagePassing):
 class CXINGeneral(nn.Module):
     r"""
     Example :
-        from stnets.topology.simplicial_complex import SimplicialComplex
-        from stnets.util.tensors_util import coo_2_torch_tensor
+        from toponetx.simplicial_complex import SimplicialComplex
+        from topomodelx.util.tensors_util import coo_2_torch_tensor
 
         SC= SimplicialComplex([[0,1],[1,2]])
 

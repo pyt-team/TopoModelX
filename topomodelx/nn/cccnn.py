@@ -1,6 +1,6 @@
 # --------------------------------------------------------
 # Base classes for general conv operator executed on a toplogical space
-# modeled as a cellular(CW)/simplicial/cubical/polyhedral complex.
+# modeled as a combinatorial/cellular(CW)/simplicial/cubical/polyhedral complex.
 #
 # --------------------------------------------------------
 __all__ = [
@@ -26,8 +26,8 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from stnets.layers.linear import Linear
-from stnets.util import batch_mm
+from topomodelx.nn.linear import Linear
+from topomodelx.util import batch_mm
 from torch import Tensor
 from torch.nn.parameter import Parameter
 

@@ -15,7 +15,7 @@ import numpy as np
 from numpy.linalg import inv, pinv
 from scipy.sparse import coo_matrix
 
-from torch_topo.topology import simplicial_complex as SC
+from toponetx.classes.simplicial_complex import SimplicialComplex as SC
 
 
 def get_neighbor_complex(G):

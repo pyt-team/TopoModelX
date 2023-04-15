@@ -15,6 +15,5 @@ from .nn.cxn import *
 from .nn.conv import *
 from .nn.autoencoders import *
 from .nn.attention import *
-from .nn.scatter import *
+from .scatter import *
 from .transforms import *
-from .topomodelx import version as __version__

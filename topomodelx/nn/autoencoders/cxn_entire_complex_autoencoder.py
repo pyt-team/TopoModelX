@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from stnets.cxn import CXN_AMPS, CXN_CMPS, CXN_HCMPS
+from topomodelx.nn.cxn.cxn_layers import CXN_AMPS, CXN_CMPS, CXN_HCMPS
 
 """
 Here we implement three versions of entire complex
