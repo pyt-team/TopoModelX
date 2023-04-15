@@ -18,7 +18,6 @@ from scipy.linalg import pinv as s_pinv
 from scipy.sparse import coo_matrix, diags, identity
 
 """
-@author: Mustafa Hajij
 
 refs :
     [1] Michael T. Schaub, Austin R. Benson,

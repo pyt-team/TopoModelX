@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<mesh type="simplicial_mesh">
-	<elements>
-		<file name="mesh_example.elements"/>
-	</elements>
-	<vertices>
-		<file name="mesh_example.vertices"/>
-	</vertices>
-</mesh>

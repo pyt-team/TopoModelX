@@ -8,4 +8,4 @@ from .normalization import (
     _compute_D3,
     _compute_D5,
 )
-from .simplicial_complex import SimplicialComplex
+

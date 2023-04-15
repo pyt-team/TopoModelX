@@ -5,9 +5,9 @@ from os import path
 from setuptools import find_packages, setup
 
 # Package meta-data.
-NAME = "torch_topo"
+NAME = "TopoModelX"
 DESCRIPTION = "Python module integrating higher order deep learning."
-URL = "https://github.com/pyt-team/torch_topo"
+URL = "https://github.com/pyt-team/TopoModelX"
 VERSION = 0.1
 
 here = path.abspath(path.dirname(__file__))

@@ -3,15 +3,14 @@ import unittest
 import networkx as nx
 import numpy as np
 
-# from simplicial_complex import SimplicialComplex
-from torch_topo.topology import (
-    SimplicialComplex,
+# from toponetx.simplicial_complex import SimplicialComplex
+from topomodelx.normalization import (
     _compute_B1_normalized,
     _compute_B1T_normalized,
     _compute_B2_normalized,
     _compute_B2T_normalized,
 )
-from torch_topo.topology.normalization import get_normalized_2d_operators
+from topomodelx.normalization.normalization import get_normalized_2d_operators
 
 # sys.path.append("..")
 
