@@ -12,6 +12,8 @@ from topomodelx.normalization import (
 )
 from topomodelx.normalization.normalization import get_normalized_2d_operators
 
+from toponetx.classes.simplicial_complex import SimplicialComplex
+
 # sys.path.append("..")
 
 
