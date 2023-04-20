@@ -1,6 +1,7 @@
 __all__ = ["CXNGeneralLayer", "CXN_AMPS", "CXN_CMPS", "CXN_HCMPS"]
 import torch.nn as nn
 import torch.nn.functional as F
+
 from topomodelx.nn.cccnn import LTN, MergeOper, MultiMergeOper
 
 """

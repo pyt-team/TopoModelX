@@ -3,8 +3,8 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from topomodelx.util import sp_matmul, sp_softmax
 
+from topomodelx.util import sp_matmul, sp_softmax
 
 """
 Two main layers are implemented here that are functionally

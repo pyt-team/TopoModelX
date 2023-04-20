@@ -4,8 +4,8 @@ __all__ = ["read_mesh", "mesh_2_operators"]
 import numpy as np
 import torch
 from scipy.sparse import coo_matrix, csr_matrix, diags, dok_matrix, eye
-
 from toponetx.classes.simplicial_complex import SimplicialComplex as SC
+
 from topomodelx.util.tensors_util import coo_2_torch_tensor
 
 

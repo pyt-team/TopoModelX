@@ -2,6 +2,7 @@ import unittest
 
 import networkx as nx
 import numpy as np
+from toponetx.classes.simplicial_complex import SimplicialComplex
 
 # from toponetx.simplicial_complex import SimplicialComplex
 from topomodelx.normalization import (
@@ -11,8 +12,6 @@ from topomodelx.normalization import (
     _compute_B2T_normalized,
 )
 from topomodelx.normalization.normalization import get_normalized_2d_operators
-
-from toponetx.classes.simplicial_complex import SimplicialComplex
 
 # sys.path.append("..")
 
