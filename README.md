@@ -52,6 +52,7 @@ To develop tmx on your machine, here are some tips:
 5. Ensure that you have a working tmx installation by running the entire test suite with
 
    ```bash
+   pip install pytest
    pytest
    ```
 
@@ -60,7 +61,8 @@ To develop tmx on your machine, here are some tips:
 6. Install pre-commit hooks:
 
    ```bash
-    pre-commit install
+   pip install pre-commit
+   pre-commit install
    ```
 
 ## Unit Testing
@@ -69,5 +71,6 @@ The tmx testing suite is located under `test/`.
 Run the entire test suite with
 
 ```bash
+pip install pytest
 pytest
 ```
