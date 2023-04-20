@@ -25,7 +25,7 @@ jobs:
 
       - name: install dependencies [pip]
         run:  |
-          pip install --no-deps -e .[dev]
+          pip install -e .[dev] --no-deps
       - name : linting [black and isort]
         run: |
           black . --check --extend-exclude 'examples'
