@@ -1,5 +1,3 @@
-
-
 __all__ = [
     "simplicial_subcomplex_2_hypergraph_incidence_matrix",
     "simplicial_complex_2_hypergraph",

@@ -74,7 +74,7 @@ setup(
         "Simplicial Attention Networks",
         "Simplicial Complex Neural Networks",
         "Tensor networks" "Cell complex Neural Networks",
-        "Cellular complex Neural Networks"
+        "Cellular complex Neural Networks",
     ],
     python_requires=">=3.7",
     install_requires=install_requires,

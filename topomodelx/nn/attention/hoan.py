@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from topomodelx.util import sp_matmul, sp_softmax
 
 
-
 """
 Two main layers are implemented here that are functionally
 identitcal and represent Higher Order Attention Networks (HOANs).
