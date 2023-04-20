@@ -2,27 +2,27 @@
 [![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pyt-team/torch_topo/blob/main/examples/Introduction_to_deep_higher_order_networks.ipynb)
 
-# TopoModelX: Higher Order Deep Models For Python
+# TopoModelX (TMX): Higher Order Deep Models For Python
 
-TopoModelX is a Python module integrating higher order deep learning learning.
+TopoModelX (TMX) is a Python module integrating higher order deep learning learning.
 It aims to provide simple and efficient solutions to higher order deep learning
  as a versatile tool for science and engineering.
 
-# Contributing to tmx
+# Contributing to TMX
 
 
-## Developing tmx
+## Developing TMX
 
 To develop tmx on your machine, here are some tips:
 
-1. Clone a copy of PyTopo from source:
+1. Clone a copy of tmx from source:
 
    ```bash
-   git clone https://github.com/pyt-team/torch_topo
-   cd torch_topo
+   git clone git@github.com:pyt-team/TopoModelX.git
+   cd TopoModelX
    ```
 
-2. If you already cloned PyT from source, update it:
+2. If you already cloned tmx from source, update it:
 
    ```bash
    git pull
@@ -49,9 +49,7 @@ To develop tmx on your machine, here are some tips:
       For PyTorch 10 or 11 replace `torch-1.12` by `torch-1.10` or `torch-1.11`.
 
 
-
-
-5. Ensure that you have a working PyT installation by running the entire test suite with
+5. Ensure that you have a working tmx installation by running the entire test suite with
 
    ```bash
    pytest
@@ -67,7 +65,7 @@ To develop tmx on your machine, here are some tips:
 
 ## Unit Testing
 
-The PyT testing suite is located under `test/`.
+The tmx testing suite is located under `test/`.
 Run the entire test suite with
 
 ```bash
