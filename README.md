@@ -52,8 +52,10 @@ Then:
 
       For PyTorch 10 or 11 replace `torch-1.12` by `torch-1.10` or `torch-1.11`.
 
+5. Install the package TopoNetX from source, following: https://github.com/pyt-team/TopoNetX
+6. Install the package TopoEmbedX from source, following: https://github.com/pyt-team/TopoEmbedX
 
-5. Ensure that you have a working tmx installation by running the entire test suite with
+7. Ensure that you have a working tmx installation by running the entire test suite with 
 
    ```bash
    pip install pytest
@@ -62,7 +64,7 @@ Then:
 
    In case an error occurs, please first check if all sub-packages ([`torch-scatter`](https://github.com/rusty1s/pytorch_scatter), [`torch-sparse`](https://github.com/rusty1s/pytorch_sparse), [`torch-cluster`](https://github.com/rusty1s/pytorch_cluster) and [`torch-spline-conv`](https://github.com/rusty1s/pytorch_spline_conv)) are on its latest reported version.
 
-6. Install pre-commit hooks:
+8. Install pre-commit hooks:
 
    ```bash
    pip install pre-commit
