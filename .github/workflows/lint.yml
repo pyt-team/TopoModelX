@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  black-isort-flake8:
 
     runs-on: ${{matrix.os}}
     strategy:
@@ -25,7 +25,7 @@ jobs:
 
       - name: install dependencies [pip]
         run:  |
-          pip install .[dev]
+          pip install --no-deps -e .[dev]
       - name : linting [black and isort]
         run: |
           black . --check --extend-exclude 'examples'
