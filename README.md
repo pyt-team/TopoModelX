@@ -44,7 +44,7 @@ Then:
 
       To install the binaries for PyTorch 1.12.0, simply run:
       ```bash
-      pip install torch --extra-index-url https://download.pytorch.org/whl/${CUDA}
+      pip install torch==1.12.0 --extra-index-url https://download.pytorch.org/whl/${CUDA}
       pip install torch-scatter torch-sparse torch_geometric -f https://data.pyg.org/whl/torch-1.12.0+${CUDA}.html
       ```
 
