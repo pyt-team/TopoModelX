@@ -13,7 +13,11 @@ It aims to provide simple and efficient solutions to higher order deep learning
 
 ## Developing TMX
 
-To develop tmx on your machine, here are some tips:
+To develop tmx on your machine, here are some tips.
+
+First, we recommend using Python 3.10, which the python version used to run the unit-tests.
+
+Then:
 
 1. Clone a copy of tmx from source:
 
