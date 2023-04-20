@@ -14,7 +14,6 @@ import networkx as nx
 import numpy as np
 from numpy.linalg import inv, pinv
 from scipy.sparse import coo_matrix
-
 from toponetx.classes.simplicial_complex import SimplicialComplex as SC
 
 

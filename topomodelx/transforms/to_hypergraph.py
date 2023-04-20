@@ -1,5 +1,3 @@
-
-
 __all__ = [
     "simplicial_subcomplex_2_hypergraph_incidence_matrix",
     "simplicial_complex_2_hypergraph",
@@ -18,7 +16,7 @@ import networkx as nx
 import numpy as np
 from scipy.sparse import coo_matrix
 from sklearn.neighbors import kneighbors_graph, radius_neighbors_graph
-from toponetx.classes.simplicial_complex import SimplicialComplex as SC
+from toponetx import SimplicialComplex
 
 
 def simplicial_subcomplex_2_hypergraph_incidence_matrix(

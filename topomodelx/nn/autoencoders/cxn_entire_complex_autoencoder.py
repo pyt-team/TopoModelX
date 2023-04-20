@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from topomodelx.nn.cxn.cxn_layers import CXN_AMPS, CXN_CMPS, CXN_HCMPS
 
 """

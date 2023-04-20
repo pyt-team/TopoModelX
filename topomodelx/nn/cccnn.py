@@ -26,10 +26,11 @@ from warnings import warn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from topomodelx.nn.linear import Linear
-from topomodelx.util import batch_mm
 from torch import Tensor
 from torch.nn.parameter import Parameter
+
+from topomodelx.nn.linear import Linear
+from topomodelx.util import batch_mm
 
 r"""
 This class implements message passing functions on regular cell complexes

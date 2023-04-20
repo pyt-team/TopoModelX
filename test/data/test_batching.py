@@ -1,10 +1,9 @@
 import numpy as np
 import scipy.linalg
 import torch
-from torch_sparse import SparseTensor
-
 from nightly_torch_geometric.data.data import Data
 from nightly_torch_geometric.loader.loader import DataLoader
+from torch_sparse import SparseTensor
 from torch_topo.topology import SimplicialComplex
 
 
