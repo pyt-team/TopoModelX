@@ -10,7 +10,7 @@
 TMX's development follows the topological deep learning (TDL) blue print laid out in:
 - [Hajij et al. 2023. Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606). 
 
-TMX implements the topological neural networks (TNNs) surveyed in:
+TMX can reproduce and extend the topological neural networks (TNNs) surveyed in:
 - [Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks](https://arxiv.org/abs/2304.10031).
 
 The TNNs are graphically summarized below using the framework from Hajij et al. and figure from Papillon et al. Their equations are available at [https://github.com/awesome-tnns/awesome-tnns](https://github.com/awesome-tnns/awesome-tnns).
