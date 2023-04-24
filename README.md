@@ -2,16 +2,18 @@
 [![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pyt-team/torch_topo/blob/main/examples/Introduction_to_deep_higher_order_networks.ipynb)
 
-# TopoModelX (TMX): Higher Order Deep Models For Python
-
-TopoModelX (TMX) is a Python module integrating higher order deep learning learning.
-It aims to provide simple and efficient solutions to higher order deep learning
- as a versatile tool for science and engineering.
-
-# Contributing to TMX
+# TopoModelX (TMX)
+# Topological Deep Learning
 
 
-## Developing TMX
+`TopoModelX` (TMX) is a Python module for topological deep learning.
+
+It provides simple and efficient solutions for science and engineering.
+
+## Contributing to TMX
+
+
+### Developing TMX
 
 To develop tmx on your machine, here are some tips.
 
@@ -71,7 +73,7 @@ Then:
    pre-commit install
    ```
 
-## Unit Testing
+### Unit Testing
 
 The tmx testing suite is located under `test/`.
 Run the entire test suite with
@@ -79,4 +81,20 @@ Run the entire test suite with
 ```bash
 pip install pytest
 pytest
+```
+
+## 🔍 References ##
+
+To learn more about the topological blueprint:
+
+- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub. [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
+```
+@misc{hajij2023topological,
+      title={Topological Deep Learning: Going Beyond Graph Data}, 
+      author={Mustafa Hajij and Ghada Zamzmi and Theodore Papamarkou and Nina Miolane and Aldo Guzmán-Sáenz and Karthikeyan Natesan Ramamurthy and Tolga Birdal and Tamal K. Dey and Soham Mukherjee and Shreyas N. Samaga and Neal Livesay and Robin Walters and Paul Rosen and Michael T. Schaub},
+      year={2023},
+      eprint={2206.00606},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
 ```
