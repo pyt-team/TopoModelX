@@ -12,21 +12,22 @@ from topomodelx.util.tensors_util import coo_2_torch_tensor
 
 
 def read_mesh(path, file_type=".m"):
-    """
-    Args
+    """Read a mesh from a file.
+
+    Parameters
     ----------
-    path : a string indicating the path of a mesh
-        DESCRIPTION: the path of the mesh
-    file_type: string indicating the type of input file, options=[.m,.off,.obj]
+    path : string
+       Path of a mesh.
+    file_type: string
+        Indicates the type of input file, options=[.m,.off,.obj]
+
     Returns
     -------
-    nodes : python list
-        list of nodes. Each node is defined 2 or three coordinates
+    nodes : list
+        List of nodes. Each node is defined 2 or three coordinates
     faces : list
-        list of faces, each face is defined via three indices
-
+        List of faces, each face is defined via three indices
     """
-
     faces = []
     nodes = []
     with open(path) as f:
@@ -62,32 +63,49 @@ def read_mesh(path, file_type=".m"):
 
 
 def mesh_2_simplicial_complex(top_faces):
+    """Transform a mesh to a simplicial complex.
 
+    Parameters
+    ----------
+    top_faces : list
+        List of faces.
+
+    Returns
+    -------
+    _ : SimplicialComplex
+        The simplicial complex of the input mesh.
+    """
     return SimplicialComplex(top_faces)
 
 
 def mesh_2_operators(faces, signed=False, norm_method="kipf", output_type="coo"):
+    """Get the Laplacian and boundary operators of a mesh.
 
-    """
-    Args
+    Parameters
     ----------
-    faces : a list of tuples that determines the mesh topology.
-        DESCRIPTION. Topologically, a trianglular mesh is completely determined by its faces.
-    device : This is a torch.device object.
-        DESCRIPTION. The torch.device contains a device type ('cpu' or 'cuda')
+    faces : a list of tuples
+        Determines the mesh topology.
+        Topologically, a trianglular mesh is completely determined by its faces.
+    device : torch.device
+        The torch.device contains a device type ('cpu' or 'cuda')
 
     Returns
     -------
-    L0N : a torch tensor of shape [N0,N0] where N0 is the number of nodes in the input mesh
-        DESCRIPTION. The zero Laplacian matrix of the input mesh. This is also denoted by L0
-    L1N : a torch tensor of shape [N1,N1] where N1 is the number of edges in the input mesh
-        DESCRIPTION. The 1-Hodge Laplacian matrix of the input mesh. This is also denoted by L1
-    L2N : a torch tensor of shape [N2,N2] where N2 is the number of faces in the input mesh
-        DESCRIPTION. The 2-Hodge Laplacian matrix of the input mesh. This is also denoted by L2
-    B1N : a torch tensor of shape [N0,N1] where N0/N1 is the number of nodes/edges in the input mesh
-        DESCRIPTION. The boundary map partial_1 C^1 -> C^0
-    B2N : a torch tensor of shape [N1,N2] where N1/N2 are the number of edges/faces in the input mesh
-        DESCRIPTION. The boundary map partial_2 C^2 -> C^1
+    L0N : torch.tensor, shape=[N0,N0]
+        The zero Laplacian matrix of the input mesh. This is also denoted by L0.
+        N0 is the number of nodes in the input mesh.
+    L1N : torch.tensor, shape=[N1,N1]
+        The 1-Hodge Laplacian matrix of the input mesh. This is also denoted by L1.
+        N1 is the number of edges in the input mesh.
+    L2N : torch.tensor, shape [N2,N2]
+        The 2-Hodge Laplacian matrix of the input mesh. This is also denoted by L2.
+        N2 is the number of faces in the input mesh.
+    B1N : torch.tensor, shape=[N0,N1]
+        The boundary map partial_1 C^1 -> C^0.
+        N0/N1 is the number of nodes/edges in the input mesh.
+    B2N : torch.tensor, shape=[N1,N2]
+        The boundary map partial_2 C^2 -> C^1.
+        N1/N2 are the number of edges/faces in the input mesh.
     """
     hl = SimplicialComplex(faces)
 
