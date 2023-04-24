@@ -1,3 +1,18 @@
+"""Normalization of neighborhood operators.
+
+References
+----------
+    [1] Michael T. Schaub, Austin R. Benson,
+        Paul Horn, Gabor Lippner,
+        Ali Jadbabaie Random walks on
+        simplicial complexes and the normalized
+        hodge 1-laplacian.
+    [2] Eric Bunch, Qian You,
+        Glenn Fung, Vikas Singh
+        Simplicial 2-Complex Convolutional
+        Neural Networks
+"""
+
 __all__ = [
     "get_normalized_2d_operators",
     "_compute_B1_normalized",
@@ -17,41 +32,27 @@ from numpy.linalg import pinv
 from scipy.linalg import pinv as s_pinv
 from scipy.sparse import coo_matrix, diags, identity
 
-"""
-
-refs :
-    [1] Michael T. Schaub, Austin R. Benson,
-        Paul Horn, Gabor Lippner,
-        Ali Jadbabaie Random walks on
-        simplicial complexes and the normalized
-        hodge 1-laplacian.
-    [2] Eric Bunch, Qian You,
-        Glenn Fung, Vikas Singh
-        Simplicial 2-Complex Convolutional
-        Neural Networks
-"""
-
 
 def get_normalized_2d_operators(B1, B2):
-    """
-    Args
-    ------
-        B1 : The boundary B1: C1->C0  of a simplicial complex.
-            type: numpy array or scipy coo_matrix
-        B2 : The boundary B2: C2->C1  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
+    """Get normalized 2d operators.
+
+    Parameters
+    ----------
+    B1 : numpy array or scipy coo_matrix
+        The boundary B1: C1->C0  of a simplicial complex.
+    B2 : numpy array or scipy coo_matrix
+        The boundary B2: C2->C1  of a simplicial complex.
 
     Returns
     -------
-        B1 : normalized B1 : C1->C2
-             numpy array or scipy coo_matrix
-        B1T : normalized B1T : C0->C1
-             numpy array or scipy coo_matrix
-        B2 : normalized B2 : C2->C1
-             numpy array or scipy coo_matrix
-        B2T : normalized B2T : C1->C2
-             numpy array or scipy coo_matrix
-
+    B1 : numpy array or scipy coo_matrix
+        Normalized B1 : C1->C0
+    B1T : numpy array or scipy coo_matrix
+        Normalized B1T : C0->C1
+    B2 : numpy array or scipy coo_matrix
+        Normalized B2 : C2->C1
+    B2T : numpy array or scipy coo_matrix
+        Normalized B2T : C1->C2
     """
     B1N = _compute_B1_normalized(B1, B2)
     B1TN = _compute_B1T_normalized(B1, B2)
@@ -61,15 +62,19 @@ def get_normalized_2d_operators(B1, B2):
 
 
 def _compute_B1_normalized(B1, B2):
-    """
-    args:
-        B1 : The boundary B1: C1->C0  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-        B2 : The boundary B2: C2->C1  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-    return:
-            The normalized boundary B1: C1->C0  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
+    """Compute normalized boundary operator B1.
+
+    Parameters
+    ----------
+    B1 : numpy array or scipy coo_matrix
+        The boundary B1: C1->C0  of a simplicial complex.
+    B2 : numpy array or scipy coo_matrix
+        The boundary B2: C2->C1  of a simplicial complex.
+
+    Returns
+    -------
+    _ : numpy array or scipy coo_matrix
+        Normalized B1 : C1->C0.
     """
     D2 = _compute_D2(B2)
     D1 = _compute_D1(B1, D2)
@@ -81,17 +86,20 @@ def _compute_B1_normalized(B1, B2):
 
 
 def _compute_B1T_normalized(B1, B2):
-    """
-    args:
-        B1 : The boundary B1: C1->C0  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-        B2 : The boundary B1: C2->C1  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-    return:
-            The normalized traponse boundary operator B1T: C0->C1
-            of a simplicial complex. This is the same as be regarded as the
-            coboundary C0->C1
-            type:  numpy array or scipy coo_matrix
+    """Compute normalized transpose boundary operator B1T.
+
+    Parameters
+    ----------
+    B1 : numpy array or scipy coo_matrix
+        The boundary B1: C1->C0  of a simplicial complex.
+    B2 : numpy array or scipy coo_matrix
+        The boundary B2: C2->C1  of a simplicial complex.
+
+    Returns
+    -------
+    _ : numpy array or scipy coo_matrix
+        Normalized transpose boundary operator B1T: C0->C1.
+        This is the coboundary C0->C1.
     """
     D2 = _compute_D2(B2)
     D1 = _compute_D1(B1, D2)
@@ -105,30 +113,35 @@ def _compute_B1T_normalized(B1, B2):
 
 
 def _compute_B2_normalized(B2):
-    """
-    args:
+    """Compute normalized boundary operator B2.
 
-        B2 : The boundary B1: C2->C1  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-    return:
-            The normalized  boundary operator B2: C2->C1
-            of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
+    Parameters
+    ----------
+    B2 : numpy array or scipy coo_matrix
+        The boundary B2: C2->C1  of a simplicial complex.
+
+    Returns
+    -------
+    _ : numpy array or scipy coo_matrix
+        Normalized boundary operator B2 : C2->C1.
     """
     D3 = _compute_D3(B2)
     return B2 @ D3
 
 
 def _compute_B2T_normalized(B2):
-    """
-    args:
-        B2 : The boundary B1: C2->C1  of a simplicial complex.
-            type:  numpy array or scipy coo_matrix
-    return:
-            The normalized traponse boundary operator B2T: C1->C2
-            of a simplicial complex. This is the same
-            as be regarded as the coboundary C1->C2
-            type:  numpy array or scipy coo_matrix
+    """Compute normalized transpose boundary operator B2T.
+
+    Parameters
+    ----------
+    B2 : numpy array or scipy coo_matrix
+        The boundary B2: C2->C1.
+
+    Returns
+    -------
+    _ : numpy array or scipy coo_matrix
+        Normalized transpose boundary operator B2T: C1->C2.
+        This is the coboundary operator: C1->C2
     """
     D5 = _compute_D5(B2)
     if isinstance(B2, ndarray):
@@ -141,10 +154,7 @@ def _compute_B2T_normalized(B2):
 
 
 def _compute_D1(B1, D2):
-    """
-    Note:
-        use in normalization of B1 and B1T
-    """
+    """Compute the degree matrix D1."""
     if isinstance(B1, coo_matrix):
         rowsum = np.array((abs(B1) @ D2).sum(axis=1)).flatten()
         D1 = 2 * diags(rowsum)
@@ -157,10 +167,7 @@ def _compute_D1(B1, D2):
 
 
 def _compute_D2(B2):
-    """
-    Note:
-        use in normalization of B1T
-    """
+    """Compute the degree matrix D2."""
     if isinstance(B2, coo_matrix):
         rowsum = np.array(np.abs(B2).sum(axis=1)).flatten()
         D2 = diags(np.maximum(rowsum, 1))
@@ -173,10 +180,7 @@ def _compute_D2(B2):
 
 
 def _compute_D3(B2):
-    """
-    Note:
-        use in normalization of B2
-    """
+    """Compute the degree matrix D3."""
     if isinstance(B2, coo_matrix):
         D3 = identity(B2.shape[1]) / 3
     elif isinstance(B2, ndarray):
@@ -185,10 +189,7 @@ def _compute_D3(B2):
 
 
 def _compute_D5(B2):
-    """
-    Note:
-        use in normalization of B2T
-    """
+    """Compute the degree matrix D5."""
     if isinstance(B2, coo_matrix):
         rowsum = np.array(np.abs(B2).sum(axis=1)).flatten()
         D5 = diags(rowsum)

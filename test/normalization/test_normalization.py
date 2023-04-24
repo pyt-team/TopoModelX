@@ -15,16 +15,17 @@ from topomodelx.normalization import (
 from topomodelx.normalization.normalization import get_normalized_2d_operators
 
 
-
 class TestNormalization(unittest.TestCase):
     """Test normalization."""
-    def test_compute_B1_normalized(self):
+
+    def test_get_normalized_2d_operators(self):
+        """Test get_normalized_2d_operators."""
         G = nx.karate_club_graph()
         cliques = list(nx.enumerate_all_cliques(G))
 
         SC = SimplicialComplex(cliques)
-        B1 = SC.get_boundary_operator(1)
-        B2 = SC.get_boundary_operator(2)
+        B1 = SC.incidence_matrix(1)
+        B2 = SC.incidence_matrix(2)
         B1N, B1TN, B2N, B2TN = get_normalized_2d_operators(B1, B2)
         assert B1.shape == B1N.shape
         assert B2.shape == B2N.shape
@@ -57,4 +58,4 @@ class TestNormalization(unittest.TestCase):
 
 
 if __name__ == "__main__":
-   unittest.main()
+    unittest.main()
