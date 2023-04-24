@@ -2,18 +2,23 @@
 [![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/pyt-team/torch_topo/blob/main/examples/Introduction_to_deep_higher_order_networks.ipynb)
 
-# TopoModelX (TMX)
+# 🌐 TopoModelX (TMX) 🍩
 # Topological Deep Learning
 
+`TopoModelX` (TMX) is a Python module for topological deep learning, which simple and efficient solutions for science and engineering. 
 
-`TopoModelX` (TMX) is a Python module for topological deep learning.
+TMX's development follows the topological deep learning (TDL) blue print laid out in:
+- [Hajij et al. 2023. Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606). 
 
-It provides simple and efficient solutions for science and engineering.
+TMX implements the topological neural networks (TNNs) surveyed in:
+- [Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks](https://arxiv.org/abs/2304.10031).
 
-## Contributing to TMX
+The TNNs are graphically summarized below using the framework from Hajij et al. and figure from Papillon et al. Their equations are available at [https://github.com/awesome-tnns/awesome-tnns](https://github.com/awesome-tnns/awesome-tnns).
+
+![topomodelx](https://user-images.githubusercontent.com/8267869/234081015-23263927-901e-4ac5-af39-1bf21157378d.jpeg)
 
 
-### Developing TMX
+## 🦾 Contributing to TMX
 
 To develop tmx on your machine, here are some tips.
 
@@ -85,7 +90,7 @@ pytest
 
 ## 🔍 References ##
 
-To learn more about the topological blueprint:
+To learn more about the topological deep learning blueprint:
 
 - Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub. [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
 ```
