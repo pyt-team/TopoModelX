@@ -1,10 +1,11 @@
+"""Set up."""
+
 import os
 from codecs import open
 from os import path
 
 from setuptools import find_packages, setup
 
-# Package meta-data.
 NAME = "TopoModelX"
 DESCRIPTION = "Python module integrating higher order deep learning."
 URL = "https://github.com/pyt-team/TopoModelX"
@@ -24,6 +25,7 @@ install_requires = [
     "networkx",
     "gudhi",
     "torch_geometric",
+    "pyg-nightly",
     "toponetx @ git+https://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@github.com/pyt-team/TopoNetX.git",
 ]
 
@@ -31,7 +33,6 @@ full_requires = [
     "pandas",
     "matplotlib",
     "jupyter",
-    # 'torch>=1.9.0',
 ]
 
 test_requires = [
@@ -45,7 +46,7 @@ dev_requires = test_requires + [
     "yapf",
     "black==22.6.0",
     "black[jupyter]",
-    # "flake8-docstrings",  # flake8-docstrings causes flake8 to change behaviour for tests; removed it
+    "flake8-docstrings",
     "isort==5.10.1",
     "coverage",
 ]

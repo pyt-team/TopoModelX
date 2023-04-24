@@ -44,7 +44,7 @@ jobs:
 
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
-          pip install torch==${{ matrix.torch-version}}+cpu -f https://download.pytorch.org/whl/torch_stable.html
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
       - name: Install internal dependencies
         run: |
           pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html

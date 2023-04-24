@@ -1,10 +1,10 @@
 import numpy as np
 import scipy.linalg
 import torch
-from nightly_torch_geometric.data.data import Data
-from nightly_torch_geometric.loader.loader import DataLoader
+from torch_geometric.data.data import Data
+from torch_geometric.loader import DataLoader
 from torch_sparse import SparseTensor
-from torch_topo.topology import SimplicialComplex
+from toponetx.topology import SimplicialComplex
 
 
 def get_simplical_data_to_batch(simplices):
