@@ -63,10 +63,7 @@ def get_all_neighbor_complex_incidence_matrices(G, max_dim=None, signed=True):
         k=min(dim,max_dim_of_complex).
     """
     complex = get_neighbor_complex(G, max_dim)
-    return [
-        complex.incidence_matrix(i, signed)
-        for i in range(0, complex.get_dimension() + 1)
-    ]
+    return [complex.incidence_matrix(i, signed) for i in range(0, complex.dim + 1)]
 
 
 def get_k_cliques(G, k):
@@ -133,10 +130,7 @@ def get_all_clique_complex_incidence_matrices(G, max_dim=None, signed=True):
         k=min(dim,max_dim_of_complex).
     """
     complex = graph_clique_complex(G, max_dim)
-    return [
-        complex.incidence_matrix(i, signed)
-        for i in range(0, complex.get_dimension() + 1)
-    ]
+    return [complex.incidence_matrix(i, signed) for i in range(1, complex.dim + 1)]
 
 
 def get_clique_complex_incidence_matrix(G, dim, signed=True):
@@ -157,7 +151,6 @@ def get_clique_complex_incidence_matrix(G, dim, signed=True):
     _ :
         Incidence matrix B_dim.
     """
-
     complex = graph_clique_complex(G, dim + 1)
     return complex.incidence_matrix(dim, signed)
 
