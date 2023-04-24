@@ -2,16 +2,16 @@
 
 import numpy as np
 import torch
+from toponetx import SimplicialComplex
 from torch_geometric.data.data import Data
 from torch_geometric.loader import DataLoader
 from torch_sparse import SparseTensor
-from toponetx import SimplicialComplex
 
 
 def get_simplical_data_to_batch(simplices):
     """Get simplicial data to batch."""
     # other available modes : gudhi--typically much faster
-    Sc = SimplicialComplex(simplices, mode="gudhi")  
+    Sc = SimplicialComplex(simplices, mode="gudhi")
 
     B1 = Sc.incidence_matrix(1)  # B1: E(X)->V(X)
     B2 = Sc.incidence_matrix(2)  # B2: F(X)->E(X)
@@ -88,7 +88,5 @@ def test_batch():
     for batch in loader:
         break
 
-    correct_batched_B1 = np.vstack(
-        [np.array(B1_correct_A), np.array(B1_correct_B)]
-    )
+    correct_batched_B1 = np.vstack([np.array(B1_correct_A), np.array(B1_correct_B)])
     assert np.allclose(correct_batched_B1, batch.c["Bs"][0].to_scipy("csr").todense())

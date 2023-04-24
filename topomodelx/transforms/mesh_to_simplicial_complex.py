@@ -48,7 +48,6 @@ def read_mesh(path, file_type=".m"):
                     out = [int(i) for i in line[1:]]
                     faces.append(out)
             elif file_type == ".off":
-
                 if len(line) == 3:
                     if line[0].find(".") != -1:
                         out = [float(i) for i in line[:]]

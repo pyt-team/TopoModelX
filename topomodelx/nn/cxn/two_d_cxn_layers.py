@@ -57,7 +57,6 @@ class two_d_CXN(nn.Module):
         merge_type="average",
         shared_parameters=False,
     ):
-
         super(two_d_CXN, self).__init__()
         self.dropout = dropout
 
@@ -166,7 +165,6 @@ class two_d_CXN(nn.Module):
         zf_out = self.merge_e_f(xe, xf, e2f, Gf2f)  # target is faces
 
         if self.act is not None:
-
             zv_out = self.act(zv_out)
             ze_out = self.act(ze_out)
             zf_out = self.act(zf_out)
@@ -208,7 +206,6 @@ class two_d_CXN_AMPS(nn.Module):
         activation=F.relu,
         verbose=False,
     ):
-
         super(two_d_CXN_AMPS, self).__init__()
         self.dropout = dropout
 
@@ -287,7 +284,6 @@ class two_d_CXN_AMPS(nn.Module):
         zf_out = self.LTNf2f(xf, Gf2f)  # target is faces
 
         if self.act is not None:
-
             zv_out = self.act(zv_out)
             ze_out = self.act(ze_out)
             zf_out = self.act(zf_out)
@@ -329,7 +325,6 @@ class two_d_CXN_CMPS(nn.Module):
         activation=None,
         verbose=False,
     ):
-
         super(two_d_CXN_CMPS, self).__init__()
         self.dropout = dropout
 
@@ -405,7 +400,6 @@ class two_d_CXN_CMPS(nn.Module):
         zf_out = self.merge_e_f(xe, xf, Ge2f, Gf2f)  # target is faces
 
         if self.activation is not None:
-
             zv_out = self.act(zv_out)
             ze_out = self.act(ze_out)
             zf_out = self.act(zf_out)
@@ -510,7 +504,6 @@ class two_d_CXN_HCMPS(nn.Module):
         zv_out, zf_out = self.split_v_f(xe, Ge2v, e2f)  # targets : (vertices , faces)
 
         if self.act is not None:
-
             zv_out = self.act(zv_out)
             ze_out = self.act(ze_out)
             zf_out = self.act(zf_out)

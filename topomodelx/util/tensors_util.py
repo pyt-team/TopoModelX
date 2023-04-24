@@ -48,7 +48,6 @@ def sp_matmul(indices, values, mat, output_size, dim=0):
     source, target = indices
     out = torch.zeros(output_size)
     if dim == 0:
-
         out.scatter_add_(0, target.expand(mat.size(1), -1).t(), values * mat[source])
     elif dim == 1:
         out.scatter_add_(0, source.expand(mat.size(1), -1).t(), values * mat[target])

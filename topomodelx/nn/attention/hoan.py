@@ -107,7 +107,6 @@ class HigherOrderAttentionLayer(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):  # TODO: support + methods.
-
         nn.init.xavier_uniform_(self.Ws.data, gain=gain)
         nn.init.xavier_uniform_(self.Wt.data, gain=gain)
 
@@ -226,7 +225,6 @@ class HigherOrderAttentionLayer(nn.Module):
 
         Whs = hs.matmul(self.Ws)
         if ht is not None:
-
             ht = F.dropout(ht, self.dropout, self.training)  # dropout
             Wht = ht.matmul(self.Wt)
         else:
@@ -458,13 +456,11 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
         Whs = torch.matmul(hs, self.Ws)
 
         if ht is not None:
-
             ht = F.dropout(ht, self.dropout, self.training)
             Wht = torch.matmul(ht, self.Wt)
             a_input_1 = torch.cat([Whs[source], Wht[target]], dim=1)
 
         else:
-
             Wht = None
             a_input_1 = torch.cat([Whs[source], Whs[target]], dim=1)
 
@@ -486,7 +482,6 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
             h_prime_st = h_prime_st + self.bias_s
 
         if operator_symmetry is False:
-
             a_input_2 = torch.cat([Wht[target], Whs[source]], dim=1)
             a_rev = torch.cat(
                 [

@@ -141,7 +141,6 @@ def graph_2_k_hop_hypergraph(G, k_hop=1):
 
 
 def pointcloud_2_knn_graph(pointcloud, num_neighbord):
-
     """
     Parameters
     ----------
@@ -165,7 +164,6 @@ def pointcloud_2_knn_graph(pointcloud, num_neighbord):
 
 
 def pointcloud_2_knn_hypergraph(pointcloud, num_neighbord):
-
     """
     Parameters
     ----------
@@ -188,7 +186,6 @@ def pointcloud_2_knn_hypergraph(pointcloud, num_neighbord):
 
 
 def pointcloud_2_eps_neighborhood_hypergraph(pointcloud, eps):
-
     """
     Parameters
     ----------
@@ -212,7 +209,6 @@ def pointcloud_2_eps_neighborhood_hypergraph(pointcloud, eps):
 
 
 def distance_matrix_2_eps_neighborhood_hypergraph(distance_matrix, eps):
-
     """
     Parameters
     ----------
@@ -235,7 +231,6 @@ def distance_matrix_2_eps_neighborhood_hypergraph(distance_matrix, eps):
 
 
 def distance_matrix_2_knn_graph(distance_matrix, num_neighbords):
-
     """
     Parameters
     ----------
@@ -260,7 +255,6 @@ def distance_matrix_2_knn_graph(distance_matrix, num_neighbords):
 
 
 def distance_matrix_2_knn_hypergraph(distance_matrix, num_neighbords):
-
     """
     Parameters
     ----------

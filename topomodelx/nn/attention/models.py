@@ -107,7 +107,6 @@ class MultiHeadHigherOrderAttention(nn.Module):
                         outputs_ts = outputs_ts + hts
 
             if input2 is not None:
-
                 return (
                     outputs_st / len(self.attentions),
                     outputs_ts / len(self.attentions),
@@ -207,7 +206,6 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
                         outputs_ts = outputs_ts + hts
 
             if input2 is not None:
-
                 return (
                     outputs_st / len(self.attentions),
                     outputs_ts / len(self.attentions),
@@ -293,7 +291,6 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
             if input2 is not None:
                 outputs_ts.append(hts)
         if input2 is not None:
-
             outputs_st = torch.cat(outputs_st, dim=1)
             outputs_ts = torch.cat(outputs_ts, dim=1)
 
@@ -304,7 +301,6 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
             return F.log_softmax(outputs_st, dim=1), F.log_softmax(outputs_ts, dim=1)
 
         else:
-
             outputs_st = torch.cat(outputs_st, dim=1)
 
             outputs_st, _ = self.out_att(outputs_st, None, A_opt)
@@ -390,7 +386,6 @@ class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
                 outputs_ts.append(hts)
 
         if input2 is not None:
-
             outputs_st = torch.cat(outputs_st, dim=1)
             outputs_ts = torch.cat(outputs_ts, dim=1)
 
@@ -403,7 +398,6 @@ class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
             return F.log_softmax(outputs_st, dim=1), F.log_softmax(outputs_ts, dim=1)
 
         else:
-
             outputs_st = torch.cat(outputs_st, dim=1)
 
             outputs_st, _ = self.out_att(outputs_st, None, A_opt, operator_symmetry)

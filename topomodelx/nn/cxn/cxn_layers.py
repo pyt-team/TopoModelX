@@ -107,7 +107,6 @@ class CXNGeneralLayer(nn.Module):
 
         z_j_final = self.multi_merge([xi, xj1, xj1, xk], [Gi2j, Adj2j, coAdj2j, Gk2j])
         if self.act is not None:
-
             z_j_final = self.act(z_j_final)
 
         return z_j_final
@@ -193,7 +192,6 @@ class CXN_AMPS(nn.Module):
         z_i_final = zi_out + zj_out
 
         if self.act is not None:
-
             z_i_final = self.act(z_i_final)
 
         return z_i_final

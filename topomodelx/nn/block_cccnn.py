@@ -84,7 +84,6 @@ class BlockLTN(nn.Module):
         )
 
     def forward(self, x: Tensor, G: Tensor) -> Tensor:
-
         if len(x.shape) == 2:
             x = x.unsqueeze(-1)
 

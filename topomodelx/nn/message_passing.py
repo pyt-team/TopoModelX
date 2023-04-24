@@ -42,7 +42,6 @@ class HigherOrderMessagePassing(torch.nn.Module):
         return self.propagate(x, a, aggregate_sign, aggregate_value)
 
     def propagate(self, x, a, aggregate_sign=True, aggregate_value=True) -> Tensor:
-
         assert isinstance(x, Tensor)
         assert isinstance(a, Tensor)
         assert len(a.shape) == 2
@@ -80,7 +79,6 @@ class HigherOrderMessagePassing(torch.nn.Module):
         return self.get_j(x)
 
     def aggregate(self, messages: Tensor):
-
         return self.agg(messages, self.index_i, 0)
 
     def update(self, embeddings) -> Tensor:
