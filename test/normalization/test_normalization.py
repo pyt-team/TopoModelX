@@ -1,10 +1,11 @@
+"""Test normalization."""
+
 import unittest
 
 import networkx as nx
 import numpy as np
-from toponetx.classes.simplicial_complex import SimplicialComplex
+from toponetx import SimplicialComplex
 
-# from toponetx.simplicial_complex import SimplicialComplex
 from topomodelx.normalization import (
     _compute_B1_normalized,
     _compute_B1T_normalized,
@@ -13,10 +14,10 @@ from topomodelx.normalization import (
 )
 from topomodelx.normalization.normalization import get_normalized_2d_operators
 
-# sys.path.append("..")
 
 
-class test_normalization(unittest.TestCase):
+class TestNormalization(unittest.TestCase):
+    """Test normalization."""
     def test_compute_B1_normalized(self):
         G = nx.karate_club_graph()
         cliques = list(nx.enumerate_all_cliques(G))
@@ -55,5 +56,5 @@ class test_normalization(unittest.TestCase):
         assert np.sign(B2TN.toarray()).all() == B2.T.toarray().all()
 
 
-# if __name__ == "__main__":
-#    unittest.main()
+if __name__ == "__main__":
+   unittest.main()

@@ -1,5 +1,6 @@
+"""Test batching of simplicial complexes."""
+
 import numpy as np
-import scipy.linalg
 import torch
 from torch_geometric.data.data import Data
 from torch_geometric.loader import DataLoader
@@ -8,6 +9,7 @@ from toponetx import SimplicialComplex
 
 
 def get_simplical_data_to_batch(simplices):
+    """Get simplicial data to batch."""
     # other available modes : gudhi--typically much faster
     Sc = SimplicialComplex(simplices, mode="gudhi")  
 
@@ -29,6 +31,7 @@ def get_simplical_data_to_batch(simplices):
 
 
 def test_batch():
+    """Test batch."""
     simplices_A = [(0, 1, 2), (0, 4), (5,)]
     simplices_B = [(0, 4, 5), (1, 2), (3,)]
 
@@ -89,8 +92,3 @@ def test_batch():
         [np.array(B1_correct_A), np.array(B1_correct_B)]
     )
     assert np.allclose(correct_batched_B1, batch.c["Bs"][0].to_scipy("csr").todense())
-
-    # batch vectors as usual in pyg, indicate which n, e or f is part of what complex
-    # assert batch.xs[0].tolist() == 5 * [0] + 6 * [1]
-    # assert batch.xs[1].tolist() == 4 * [0] + 4 * [1]
-    # assert batch.xs[2].tolist() == 1 * [0] + 1 * [1]
