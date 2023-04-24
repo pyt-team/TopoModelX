@@ -26,7 +26,7 @@ install_requires = [
     "gudhi",
     "torch_geometric",
     "pyg-nightly",
-    "toponetx @ git+https://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@github.com/pyt-team/TopoNetX.git",
+    "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
 ]
 
 full_requires = [
@@ -46,7 +46,6 @@ dev_requires = test_requires + [
     "yapf",
     "black==22.6.0",
     "black[jupyter]",
-    "flake8-docstrings",
     "isort==5.10.1",
     "coverage",
 ]

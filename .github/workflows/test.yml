@@ -51,6 +51,7 @@ jobs:
           pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
       - name: Install main package
         run: |
+          pip install --upgrade pip setuptools wheel
           pip install -e .[full,test]
       - name: Run tests
         run: |
