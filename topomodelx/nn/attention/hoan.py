@@ -64,6 +64,25 @@ class HigherOrderAttentionLayer(nn.Module):
             - X_t is the input feature vector that
             belongs to the cochain space C^t.
             - W_s2t, and W_t2s are trainable parameter matrices.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for source cells.
+    target_in_features : int
+        Number of input features for target cells.
+    source_out_features : int
+        Number of output features for source cells.
+    target_out_features : int
+        Number of output features for target cells.
+    dropout : float, optional
+        Dropout rate. The default is 0.2.
+    alpha : float, optional
+        LeakyReLU negative slope. The default is 0.1.
+    concatenate : bool, optional
+        Concatenate or average attention. The default is True.
+    bias : bool, optional
+        Use bias. The default is True.
     """
 
     def __init__(
@@ -74,7 +93,7 @@ class HigherOrderAttentionLayer(nn.Module):
         target_out_features,
         dropout=0.2,
         alpha=0.1,
-        concat=True,
+        concatenate=True,
         bias=True,
     ):
         super(HigherOrderAttentionLayer, self).__init__()
@@ -86,7 +105,7 @@ class HigherOrderAttentionLayer(nn.Module):
         self.target_out_features = target_out_features
 
         self.alpha = alpha
-        self.concat = concat
+        self.concatenate = concatenate
         self.dropout = dropout
 
         self.Ws = nn.Parameter(
@@ -165,7 +184,7 @@ class HigherOrderAttentionLayer(nn.Module):
         -------
         * If A_opt is symmetric:
             h_prime_st : torch.tensor, shape=[n_source_cell, n_target_out_features],
-                here num n_source_cell=n_target_cell
+                Here, num n_source_cell=n_target_cell
             h_prime_ts. None
         * If A_opt is asymmetric:
             h_prime_st : torch.tensor, shape=[n_source_cell, n_target_out_features]
@@ -266,12 +285,12 @@ class HigherOrderAttentionLayer(nn.Module):
             if self.bias_t is not None:
                 h_prime_ts = h_prime_ts + self.bias_t
 
-            if self.concat:
+            if self.concatenate:
                 return F.elu(h_prime_st), F.elu(h_prime_ts)
             return h_prime_st, h_prime_ts
 
         else:
-            if self.concat:
+            if self.concatenate:
                 return F.elu(h_prime_st), None
             return h_prime_st, None
 
@@ -374,6 +393,26 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
             - X_t is the input feature vector that
             belongs to the cochain space C^t.
             - W_s2t, and W_t2s are trainable parameter matrices.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for the source cells.
+    target_in_features : int
+        Number of input features for the target cells.
+    source_out_features : int
+        Number of output features for the source cells.
+    target_out_features : int
+        Number of output features for the target cells.
+    dropout : float, optional
+        Dropout rate, by default 0.1.
+    alpha : float, optional
+        LeakyReLU angle of the negative slope, by default 0.1.
+    concatenate : bool, optional
+        Whether to concatenate the input features to the output ones,
+        by default True.
+    bias : bool, optional
+        Whether to add a bias term, by default True.
     """
 
     def __init__(
@@ -384,7 +423,7 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
         target_out_features,
         dropout=0.1,
         alpha=0.1,
-        concat=True,
+        concatenate=True,
         bias=True,
     ):
         super(SparseHigherOrderAttentionLayer, self).__init__(
@@ -394,7 +433,7 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
             target_out_features,
             dropout,
             alpha,
-            concat,
+            concatenate,
             bias,
         )
         self.reset_parameters()
@@ -528,12 +567,12 @@ class SparseHigherOrderAttentionLayer(HigherOrderAttentionLayer):
                 h_prime_ts = h_prime_ts + self.bias_t
 
         if operator_symmetry:
-            if self.concat:
+            if self.concatenate:
                 return F.elu(h_prime_st), None
             else:
                 return h_prime_st, None
         else:
-            if self.concat:
+            if self.concatenate:
                 return F.elu(h_prime_st), F.elu(h_prime_ts)
             else:
                 return h_prime_st, h_prime_ts

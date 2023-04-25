@@ -1,7 +1,7 @@
 from .models import (
     MultiHeadHigherOrderAttention,
-    MultiHeadHigherOrderAttentionClassifer,
+    MultiHeadHigherOrderAttentionClassifier,
     SpMultiHeadHigherOrderAttention,
-    SpMultiHeadHigherOrderAttentionClassifer,
+    SpMultiHeadHigherOrderAttentionClassifier,
 )
 from .hoan import HigherOrderAttentionLayer, SparseHigherOrderAttentionLayer
