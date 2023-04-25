@@ -142,7 +142,7 @@ class CXN_AMPS(nn.Module):
     (2) it uses boundary maps to pass signal down.
     In the figure below, signal moves from edges->nodes,
     and from faces->edges via the first and second
-    boundary maps respectivly.
+    boundary maps respectively.
 
     AMPS can be summarized via the figure below.
     Note that you need 2 maps to define an AMPS.
@@ -202,9 +202,9 @@ class CXN_AMPS(nn.Module):
             Input feature vector on the i-cells of the input SC/CX.
         xj : torch.tensor, shape=[n_j_cells, n_j_features]
             Input feature vector on the j-cells of the input SC/CX.
-        Gi2i : torch.tensor, shape=[n_i_cells , n_i_cells]
+        Gi2i : torch.tensor, shape=[n_i_cells, n_i_cells]
             Cochain operator C^i->C^i.
-        Gj2i : torch.tensor, shape=[n_i_cells , n_j_cells]
+        Gj2i : torch.tensor, shape=[n_i_cells, n_j_cells]
             Cochain operator C^i->C^j.
             Typically, a boundary matrix.
 
@@ -213,7 +213,6 @@ class CXN_AMPS(nn.Module):
         zi_out : torch.tensor, shape=[n_i_cells, target_ch_i]
             Feature vector on the i-cells of the input SC/CX.
         """
-
         xi = F.dropout(xi, self.dropout, self.training)
 
         if xj is not None:
@@ -242,7 +241,7 @@ class CXN_CMPS(nn.Module):
     (2) it uses coboundary maps to move signal up (in the diagonal part).
         In the figure below, signal moves from nodes->edges, and from
         edges->faces via the first and second
-        coboundary maps respectivly.
+        coboundary maps respectively.
 
               j_out
                /|
