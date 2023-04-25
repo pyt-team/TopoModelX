@@ -1,17 +1,12 @@
-# Copyright © 2022 Pyt-Team
-# All rights reserved.
-
-"""
-Base classes for TorchTopo exceptions
-"""
+"""Base classes for exceptions."""
 
 
 class TorchTopoException(Exception):
-    """Base class for exceptions in TorchTopo."""
+    """Base class for exceptions."""
 
 
 class TorchTopoError(TorchTopoException):
-    """Exception for a serious error in TorchTopo"""
+    """Exception for a serious error."""
 
 
 class TorchTopoNotImplementedError(TorchTopoError):
