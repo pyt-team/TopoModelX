@@ -1,19 +1,16 @@
-"""
+"""Adaptation of torch_scatter/scatter.py Code.
 
-@author: Mustafa Hajij
-
-copied from
+Adapted from:
 https://github.com/rusty1s/pytorch_scatter/blob/master/torch_scatter/scatter.py
-and modified.
-
 """
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 
 
 def broadcast(src: torch.Tensor, other: torch.Tensor, dim: int):
+    """Broadcasts `src` to the shape of `other`."""
     if dim < 0:
         dim = other.dim() + dim
     if src.dim() == 1:
@@ -32,6 +29,7 @@ def scatter_sum(
     out: Optional[torch.Tensor] = None,
     dim_size: Optional[int] = None,
 ) -> torch.Tensor:
+    """Add all values from the `src` tensor into `out` at the indices."""
     index = broadcast(index, src, dim)
     if out is None:
         size = list(src.size())
@@ -54,6 +52,7 @@ def scatter_add(
     out: Optional[torch.Tensor] = None,
     dim_size: Optional[int] = None,
 ) -> torch.Tensor:
+    """Add all values from the `src` tensor into `out` at the indices."""
     return scatter_sum(src, index, dim, out, dim_size)
 
 
@@ -64,6 +63,7 @@ def scatter_mean(
     out: Optional[torch.Tensor] = None,
     dim_size: Optional[int] = None,
 ) -> torch.Tensor:
+    """Compute the mean value of all values from the `src` tensor into `out`."""
     out = scatter_sum(src, index, dim, out, dim_size)
     dim_size = out.size(dim)
 
@@ -88,6 +88,7 @@ SCATTER_DICT = {"sum": scatter_sum, "mean": scatter_mean, "add": scatter_sum}
 
 
 def scatter(scatter):
+    """Return the scatter function."""
     if isinstance(scatter, str) and scatter in SCATTER_DICT:
         return SCATTER_DICT[scatter]
     else:
