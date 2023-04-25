@@ -4,11 +4,9 @@ __all__ = ["read_mesh", "mesh_2_operators"]
 
 
 import numpy as np
-import torch
-from scipy.sparse import coo_matrix, csr_matrix, diags, dok_matrix, eye
 from toponetx import SimplicialComplex
 
-from topomodelx.util.tensors_util import coo_2_torch_tensor
+from topomodelx.util.tensors_util import coo_2_torch_tensor  # NOQA
 
 
 def read_mesh(path, file_type=".m"):

@@ -6,13 +6,13 @@ import networkx as nx
 import numpy as np
 from toponetx import SimplicialComplex
 
-from topomodelx.normalization import (
+from topomodelx.normalization import (  # NOQA
     _compute_B1_normalized,
     _compute_B1T_normalized,
     _compute_B2_normalized,
     _compute_B2T_normalized,
 )
-from topomodelx.normalization.normalization import get_normalized_2d_operators
+from topomodelx.normalization.normalization import get_normalized_2d_operators  # NOQA
 
 
 class TestNormalization(unittest.TestCase):
