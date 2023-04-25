@@ -97,7 +97,6 @@ def sparse_eye(size):
 def coo_2_torch_tensor(sparse_mx, sparse=True):
     """Convert a scipy matrix to a torch tensor.
 
-
     Parameters
     ----------
     sparse_mx : scipy matrix
@@ -110,7 +109,6 @@ def coo_2_torch_tensor(sparse_mx, sparse=True):
     _ : torch.tensor
         Converted matrix.
     """
-
     if sparse:
         sparse_mx = sparse_mx.tocoo().astype(np.float32)
         indices = torch.from_numpy(
