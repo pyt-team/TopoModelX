@@ -101,17 +101,13 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-
         if self.bias is not None:
-
             nn.init.zeros_(self.bias)
 
         if self.init_scheme == "xavier_uniform":
-
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.init_scheme == "xavier_normal":
-
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "debug":
@@ -128,7 +124,6 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
                 nn.init.eye_(self.weight)
 
         elif self.init_scheme == "uniform":
-
             stdv = 1.0 / torch.sqrt(self.weight.size(1))
             self.weight.data.uniform_(-stdv, stdv)
             if self.bias is not None:

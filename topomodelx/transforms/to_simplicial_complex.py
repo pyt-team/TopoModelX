@@ -11,7 +11,6 @@ def simplicial_complex_closure_of_hypergraph(H):
 
 
 def rips_complex_point_cloud(point_cloud, max_edge_length, max_dimension=2):
-
     rips_complex = gudhi.RipsComplex(
         points=point_cloud, max_edge_length=max_edge_length
     )
@@ -25,7 +24,6 @@ def rips_complex_point_cloud(point_cloud, max_edge_length, max_dimension=2):
 
 
 def rips_complex_distance_matrix(distance_mat, max_edge_length, max_dimension=2):
-
     rips_complex = gudhi.RipsComplex(
         distance_matrix=distance_mat, max_edge_length=max_edge_length
     )

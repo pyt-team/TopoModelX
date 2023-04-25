@@ -170,7 +170,6 @@ class CXINMerge(nn.Module):
         )
 
         if self.merge_type == "conc":
-
             self.merger = nn.Linear(2 * out_channels, out_channels)
 
     def forward(self, x1, x2, G1, G2):
@@ -266,15 +265,12 @@ class CXINMergeToTarget(HigherOrderMessagePassing):
         if self.epsilon is None:
             nn.init.zeros_(self.eps)
         if self.init_scheme == "xavier_uniform":
-
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.init_scheme == "xavier_normal":
-
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "uniform":
-
             stdv = 1.0 / torch.sqrt(self.weight.size(1))
             self.weight.data.uniform_(-stdv, stdv)
             if self.bias is not None:
@@ -285,7 +281,6 @@ class CXINMergeToTarget(HigherOrderMessagePassing):
             )
 
     def forward(self, x_target, x_source, a, aggregate_sign=True):
-
         assert x_target.shape[-1] == self.out_channel
 
         if (
@@ -371,7 +366,6 @@ class CXINGeneral(nn.Module):
             self.merger = nn.Linear(len(in_ch_list) * out_channel, out_channel)
 
     def forward(self, x_target, x_neighbor_list, G_list):
-
         assert len(x_neighbor_list) == len(G_list)
 
         assert x_target.shape[-1] == self.out_channel

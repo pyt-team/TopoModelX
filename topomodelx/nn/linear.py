@@ -105,7 +105,6 @@ class TensorLinear(nn.Module):
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "uniform":
-
             stdv = 1.0 / torch.sqrt(self.weight.size(1))
             self.weight.data.uniform_(-stdv, stdv)
             if self.bias is not None:

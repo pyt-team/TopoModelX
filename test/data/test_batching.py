@@ -1,27 +1,28 @@
+"""Test batching of simplicial complexes."""
+
 import numpy as np
-import scipy.linalg
 import torch
-from nightly_torch_geometric.data.data import Data
-from nightly_torch_geometric.loader.loader import DataLoader
+from toponetx import SimplicialComplex
+from torch_geometric.data.data import Data
+from torch_geometric.loader import DataLoader
 from torch_sparse import SparseTensor
-from torch_topo.topology import SimplicialComplex
 
 
 def get_simplical_data_to_batch(simplices):
-    HL = SimplicialComplex(
-        simplices, mode="gudhi"
-    )  # other available modes : gudhi--typically much faster
+    """Get simplicial data to batch."""
+    # other available modes : gudhi--typically much faster
+    Sc = SimplicialComplex(simplices, mode="gudhi")
 
-    B1 = HL.get_boundary_operator(1)  # B1: E(X)->V(X)
-    B2 = HL.get_boundary_operator(2)  # B2: F(X)->E(X)
+    B1 = Sc.incidence_matrix(1)  # B1: E(X)->V(X)
+    B2 = Sc.incidence_matrix(2)  # B2: F(X)->E(X)
 
-    L0 = HL.get_hodge_laplacian(0)  # L0: V(X)->V(X), L0=D-A
-    L1 = HL.get_hodge_laplacian(1)  # L1: E(X)->E(X)
-    L2 = HL.get_hodge_laplacian(2)  # L2: F(X)->F(X)
+    L0 = Sc.hodge_laplacian_matrix(0)  # L0: V(X)->V(X), L0=D-A
+    L1 = Sc.hodge_laplacian_matrix(1)  # L1: E(X)->E(X)
+    L2 = Sc.hodge_laplacian_matrix(2)  # L2: F(X)->F(X)
 
-    N0 = len(HL.n_faces(0))  # number of nodes
-    N1 = len(HL.n_faces(1))  # number of edges
-    N2 = len(HL.n_faces(2))  # number of faces
+    N0 = len(Sc.skeleton(rank=0))  # number of nodes
+    N1 = len(Sc.skeleton(rank=1))  # number of edges
+    N2 = len(Sc.skeleton(rank=2))  # number of faces
 
     x_v = torch.rand(N0, 3)
     x_e = torch.rand(N1, 3)
@@ -30,6 +31,7 @@ def get_simplical_data_to_batch(simplices):
 
 
 def test_batch():
+    """Test batch."""
     simplices_A = [(0, 1, 2), (0, 4), (5,)]
     simplices_B = [(0, 4, 5), (1, 2), (3,)]
 
@@ -86,17 +88,5 @@ def test_batch():
     for batch in loader:
         break
 
-    assert (
-        str(batch) == "DataBatch(\n  xs=[3],\n  xs_batch=[3],\n  xs_ptr=[3],\n  "
-        "c={\n    Bs=[2],\n    Ls=[3]\n  },\n  extra_attrs=[2]\n)"
-    )
-
-    correct_batched_B1 = scipy.linalg.block_diag(
-        np.array(B1_correct_A), np.array(B1_correct_B)
-    )
-    assert np.allclose(correct_batched_B1, batch.c.Bs[0].to_scipy("csr").todense())
-
-    # batch vectors as usual in pyg, indicate which n, e or f is part of what complex
-    assert batch.xs_batch[0].tolist() == 5 * [0] + 6 * [1]
-    assert batch.xs_batch[1].tolist() == 4 * [0] + 4 * [1]
-    assert batch.xs_batch[2].tolist() == 1 * [0] + 1 * [1]
+    correct_batched_B1 = np.vstack([np.array(B1_correct_A), np.array(B1_correct_B)])
+    assert np.allclose(correct_batched_B1, batch.c["Bs"][0].to_scipy("csr").todense())

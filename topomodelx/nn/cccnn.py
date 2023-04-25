@@ -151,17 +151,13 @@ class _LTN(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-
         if self.bias is not None:
-
             nn.init.zeros_(self.bias)
 
         if self.init_scheme == "xavier_uniform":
-
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.init_scheme == "xavier_normal":
-
             nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.init_scheme == "debug":
@@ -178,7 +174,6 @@ class _LTN(nn.Module):
                 nn.init.eye_(self.weight)
 
         elif self.init_scheme == "uniform":
-
             stdv = 1.0 / torch.sqrt(self.weight.size(1))
             self.weight.data.uniform_(-stdv, stdv)
             if self.bias is not None:
@@ -423,7 +418,6 @@ class LTN(_LTN):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(LTN, self).__init__(in_ft, out_ft, dropout, bias, init_scheme, False)
         """
         Args:
@@ -537,7 +531,6 @@ class _MergeOper(nn.Module):
         init_scheme="xavier_uniform",
         batch_cochain=False,
     ):
-
         super(_MergeOper, self).__init__()
 
         self.merge_type = merge_type
@@ -594,7 +587,6 @@ class _MergeOper(nn.Module):
 
         else:
             if self.batch_cochain:
-
                 self.LN1 = BatchLTN(
                     in_ch_1,
                     target_ch,
@@ -783,7 +775,6 @@ class MergeOper(_MergeOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(MergeOper, self).__init__(
             in_ch_1,
             in_ch_2,
@@ -831,7 +822,6 @@ class BatchMergeOper(_MergeOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(BatchMergeOper, self).__init__(
             in_ch_1,
             in_ch_2,
@@ -876,7 +866,6 @@ class _SplitOper(nn.Module):
         init_scheme="xavier_uniform",
         batch_cochain=True,
     ):
-
         super(_SplitOper, self).__init__()
         self.num_features_in = num_features_in
         self.target_ch_1 = target_ch_1
@@ -908,7 +897,6 @@ class _SplitOper(nn.Module):
                 )
         else:
             if self.batch_cochain:
-
                 self.LN1 = BatchLTN(
                     num_features_in,
                     target_ch_1,
@@ -1042,7 +1030,6 @@ class SplitOper(_SplitOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(SplitOper, self).__init__(
             num_features_in,
             target_ch_1,
@@ -1083,7 +1070,6 @@ class BatchSplitOper(_SplitOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(BatchSplitOper, self).__init__(
             num_features_in,
             target_ch_1,
@@ -1131,7 +1117,6 @@ class _MultiMergeOper(nn.Module):
         init_scheme="xavier_uniform",
         batch_cochain=True,
     ):
-
         super(_MultiMergeOper, self).__init__()
 
         self.merge_type = merge_type
@@ -1190,7 +1175,6 @@ class _MultiMergeOper(nn.Module):
                         init_scheme=init_scheme,
                     )
         if self.batch_cochain:
-
             self.LN_list = nn.ModuleList(
                 [
                     BatchLTN(
@@ -1350,7 +1334,6 @@ class MultiMergeOper(_MultiMergeOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(MultiMergeOper, self).__init__(
             in_ch_list,
             target_ch,
@@ -1398,7 +1381,6 @@ class BatchMultiMergeOper(_MultiMergeOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(BatchMultiMergeOper, self).__init__(
             in_ch_list,
             target_ch,
@@ -1474,7 +1456,6 @@ class _MultiSplitOper(nn.Module):
                 )
         else:
             if self.batch_cochain:
-
                 self.LN_list = nn.ModuleList(
                     [
                         BatchLTN(
@@ -1603,7 +1584,6 @@ class BatchMultiSplitOper(_MultiSplitOper):
         bias=True,
         init_scheme="xavier_uniform",
     ):
-
         super(BatchMultiSplitOper, self).__init__(
             num_features_in,
             target_channels_list,
