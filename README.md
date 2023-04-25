@@ -57,8 +57,6 @@ Then:
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
 
-      For PyTorch 10 or 11 replace `torch-1.12` by `torch-1.10` or `torch-1.11`.
-
 5. Install the package TopoNetX from source, following: https://github.com/pyt-team/TopoNetX
 6. Install the package TopoEmbedX from source, following: https://github.com/pyt-team/TopoEmbedX
 
