@@ -43,6 +43,7 @@ test_requires = [
 dev_requires = test_requires + [
     "pre-commit",
     "flake8",
+    "flake8-docstrings",
     "yapf",
     "black==22.6.0",
     "black[jupyter]",
