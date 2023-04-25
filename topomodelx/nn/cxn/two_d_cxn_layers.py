@@ -1,19 +1,6 @@
-__all__ = ["two_d_CXN", "two_d_CXN_AMPS", "two_d_CXN_CMPS", "two_d_CXN_HCMPS"]
+"""Cellular complex networks on a 2D regular complex.
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-from topomodelx.nn.cccnn import (
-    LTN,
-    MergeOper,
-    MultiMergeOper,
-    MultiSplitOper,
-    SplitOper,
-)
-
-"""
-Here we implement three versions of message passing schemes defined on
+This implements three versions of message passing schemes defined on
 regular cell complexes or simplicial complexes. The implementation is based
 on message passing schemes given in Cell Complex Neural Networks (CXNs) :
 https://openreview.net/pdf?id=6Tq18ySFpGU
@@ -21,28 +8,65 @@ publishedin Topological Data Analysis and Beyond Workshop
 at the 34th Conferenceon Neural Information Processing Systems
 (NeurIPS 2020), Vancouver, Canada.
 Released on Arxiv in Oct/2/2020.
-    These geometric message passing schemes are :
-    1) Adjacency message passing scheme networks AMPS.
-    2) Coadjacency message passing scheme networks CMPS.
-    3) Homology/Cohomology message passing scheme network HCMPS.
-    4) Also implemented the message passing function that combine
-        the above schemes all together.
+
+These geometric message passing schemes are :
+1) Adjacency message passing scheme networks AMPS.
+2) Coadjacency message passing scheme networks CMPS.
+3) Homology/Cohomology message passing scheme network HCMPS.
+4) Also implemented the message passing function that combine
+    the above schemes all together.
+
 The implementation here is given on a 2d regular cell complex
 (see our paper above for definition) or 2d simplicial complex.
-In particular,  the implementation here is applicable to
+In particular, the implementation here is applicable to
 triangular and polygonal surfaces/meshes.
 """
 
+__all__ = ["two_d_CXN", "two_d_CXN_AMPS", "two_d_CXN_CMPS", "two_d_CXN_HCMPS"]
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from topomodelx.nn.cccnn import LTN, MergeOper, MultiMergeOper, SplitOper
+
 
 class two_d_CXN(nn.Module):
-    """general message passing function on 2d regular cell complex"""
+    r"""General message passing on 2d regular cell complex.
 
-    # v_ot   e_ot   f_ot
-    # | \  / | |   \  / |
-    # |  \/  | |    \/  |
-    # | /  \ | |   /  \ |
-    # |/    \| |  /    \|
-    # v_in  e_in  f_in
+    v_ot   e_ot   f_ot
+    | \  / | |   \  / |
+    |  \/  | |    \/  |
+    | /  \ | |   /  \ |
+    |/    \| |  /    \|
+    v_in  e_in  f_in
+
+    Parameters
+    ----------
+    in_ch_v : int
+        Number of input channels for vertices.
+    in_ch_e : int
+        Number of input channels for edges.
+    in_ch_f : int
+        Number of input channels for faces.
+    target_ch_v : int
+        Number of output channels for vertices.
+    target_ch_e : int
+        Number of output channels for edges.
+    target_ch_f : int
+        Number of output channels for faces.
+    dropout : float, optional
+        Dropout rate. The default is 0.5.
+    activation : torch.nn.functional, optional
+        Activation function. The default is F.relu.
+    verbose : bool, optional
+        Print out the shape of the output of each layer. The default is False.
+    merge_type : str, optional
+        Type of merge operation. The default is "average".
+    shared_parameters : bool, optional
+        Whether to share parameters between merge operations. The default is False.
+    """
+
     def __init__(
         self,
         in_ch_v,
@@ -88,59 +112,38 @@ class two_d_CXN(nn.Module):
         self.verbose = verbose
 
     def forward(self, xv, xe, xf, Gv2v, Ge2v, Ge2e, He2e, Gf2e, Gf2f):
-        """
-        Args:
-            xv: torch tensor of shape
-                [ num_nodes, num_node_features]
-                representing the input feature
-                vector on the nodes of the input SC/CX
-            xe: torch tensor of shape
-                [num_edges, num_edges_features]
-                representing the input feature vector
-                on the edges of the input SC/CX
-            xf: torch tensor of shape
-                [ num_faces, num_faces_features]
-                representing the input feature vector
-                on the faces of the input SC/CX
-            Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
-                representing the a cochain
-                operator C^0->C^0
-            Ge2v: torch tensor of shape
-                [num_nodes , num_edges]
-                representing the a cochain
-                operator C^1->C^0.
-            Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
-                representing the a cochain
-                operator C^1->C^1.
-            He2e: torch tensor of shape
-                [num_edges , num_edges ]
-                representing the a cochain
-                operator C^1->C^1.
-            Gf2e: torch tensor of shape
-                [num_edges , num_faces]
-                representing the a cochain
-                operator C^2->C^1.
-            Gf2f: torch tensor of shape
-                [num_faces , num_faces ]
-                representing the a cochain
-                operator C^2->C^2
-        Return:
-            zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
-                representing the input feature vector
-                on the nodes of the input SC/CX
-            ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
-                representing the input feature vector
-                on the edges of the input SC/CX
-            zf_out: torch tensor of shape
-                [num_edges, target_ch_f]
-                representing the input feature
-                vector on the faces of the input SC/CX
-        """
+        """Forward pass.
 
+        Parameters
+        ----------
+        xv : torch.tensor, shape=[n_nodes, n_node_features]
+            Input feature vector on the nodes of the input SC/CX.
+        xe : torch tensor, shape=[n_edges, n_edges_features]
+            Input feature vector on the edges of the input SC/CX.
+        xf : torch.tensor, shape=[n_faces, n_faces_features]
+            Input feature vector on the faces of the input SC/CX.
+        Gv2v : torch.tensor, shape=[n_nodes, n_nodes]
+            Cochain operator C^0->C^0.
+        Ge2v : torch.tensor, shape=[n_nodes, n_edges]
+            Cochain operator C^1->C^0.
+        Ge2e : torch.tensor, shape=[n_edges, n_edges]
+            Cochain operator C^1->C^1.
+        He2e : torch.tensor, shape=[n_edges, n_edges]
+            Cochain operator C^1->C^1.
+        Gf2e : torch.tensor, shape=[n_edges, n_faces]
+            Cochain operator C^2->C^1.
+        Gf2f : torch.tensor, shape=[n_faces, n_faces]
+            Cochain operator C^2->C^2.
+
+        Returns
+        -------
+        zv_out : torch.tensor, shape=[n_nodes, target_ch_v]
+            Output feature vector on the nodes of the input SC/CX.
+        ze_out : torch.tensor, shape=[n_edges, target_ch_e]
+            Output feature vector on the edges of the input SC/CX.
+        zf_out : torch.tensor, shape=[n_edges, target_ch_f]
+            Output feature vector on the faces of the input SC/CX.
+        """
         if xv is not None:
             xv = F.dropout(xv, self.dropout, self.training)
         if xe is not None:
@@ -173,27 +176,56 @@ class two_d_CXN(nn.Module):
 
 
 class two_d_CXN_AMPS(nn.Module):
-    """AMPS has two main charactersitics:
-    (1) uses the adjacency/Hodge Laplacian
+    r"""Adjacency message passing scheme (AMPS) on a 2d regular complex.
+
+    AMPS has two main characteristics:
+    (1) it uses the adjacency/Hodge Laplacian
         matrices to move signal among simplices
         of the same dimension. That is, a cochain
         map between C^i->C^i
-    (2) uses boundary maps to move signal down.
+    (2) it uses boundary maps to move signal down.
         In the figure below, signal moves from
         edges->nodes, and from faces->edges via
-        the first and second bounary maps respectivly.
-    In the case of 2d simplicial complex,
-    AMPS can be summerized via the figure below.
-    Note that you need 5 maps to define an AMPS
-    Furthermore, you need two merge
-    operations : (a) (v, e)->v and (b) (e,f)->e"""
+        the first and second boundary maps respectively.
 
-    # v_ot   e_ot   f_ot
-    # | \   | \   |
-    # |  \  |  \  |
-    # |   \ |   \ |
-    # |    \|    \|
-    # v_in  e_in  f_in
+    In the case of 2d simplicial complex,
+    AMPS can be summarized via the figure below.
+
+    Note that you need 5 maps to define an AMPS.
+
+    Furthermore, you need two merge operations:
+    (a) (v, e)->v
+    (b) (e,f)->e
+
+    v_ot   e_ot   f_ot
+    | \   | \   |
+    |  \  |  \  |
+    |   \ |   \ |
+    |    \|    \|
+    v_in  e_in  f_in
+
+    Parameters
+    ----------
+    in_ch_v : int
+        Number of input channels for vertices.
+    in_ch_e : int
+        Number of input channels for edges.
+    in_ch_f : int
+        Number of input channels for faces.
+    target_ch_v : int
+        Number of output channels for vertices.
+    target_ch_e : int
+        Number of output channels for edges.
+    target_ch_f : int
+        Number of output channels for faces.
+    dropout : float, optional
+        Dropout rate. The default is 0.5.
+    activation : torch.nn.functional, optional
+        Activation function. The default is F.relu.
+    verbose : bool, optional
+        Print out the shape of the output of each layer. The default is False.
+    """
+
     def __init__(
         self,
         in_ch_v,
@@ -224,53 +256,35 @@ class two_d_CXN_AMPS(nn.Module):
         self.verbose = verbose
 
     def forward(self, xv, xe, xf, Gv2v, Ge2v, Ge2e, Gf2e, Gf2f):
-        """
-        Args:
-            xv: torch tensor of shape
-                [ num_nodes, num_node_features]
-                representing the input feature
-                vector on the nodes of the input SC/CX
-            xe: torch tensor of shape
-                [num_edges, num_edges_features]
-                representing the input feature vector
-                on the edges of the input SC/CX
-            xf: torch tensor of shape
-                [ num_faces, num_faces_features]
-                representing the input feature vector
-                on the faces of the input SC/CX
-            Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
-                representing the a cochain
-                operator C^0->C^0
-            Ge2v: torch tensor of shape
-                [num_nodes , num_edges]
-                representing the a cochain
-                operator C^1->C^0.
-            Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
-                representing the a cochain
-                operator C^1->C^1.
-            Gf2e: torch tensor of shape
-                [num_edges , num_faces]
-                representing the a cochain
-                operator C^2->C^1.
-            Gf2f: torch tensor of shape
-                [num_faces , num_faces ]
-                representing the a cochain
-                operator C^2->C^2
-        Return:
-            zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
-                representing the input feature vector
-                on the nodes of the input SC/CX
-            ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
-                representing the input feature vector
-                on the edges of the input SC/CX
-            zf_out: torch tensor of shape
-                [num_edges, target_ch_f]
-                representing the input feature
-                vector on the faces of the input SC/CX
+        """Forward pass of the AMPS.
+
+        Parameters
+        ----------
+        xv : torch.tensor, shape=[n_nodes, n_node_features]
+            Input feature vector on the nodes of the input SC/CX.
+        xe : torch.tensor, shape=[n_edges, n_edges_features]
+            Input feature vector on the edges of the input SC/CX.
+        xf : torch.tensor, shape=[ n_faces, n_faces_features]
+            Input feature vector on the faces of the input SC/CX.
+        Gv2v : torch.tensor, shape=[n_nodes, n_nodes]
+            Cochain operator C^0->C^0.
+        Ge2v : torch.tensor, shape=[n_nodes, n_edges]
+            Cochain operator C^1->C^0.
+        Ge2e : torch.tensor, shape=[n_edges, n_edges]
+            Cochain operator C^1->C^1.
+        Gf2e : torch.tensor, shape=[n_edges, n_faces]
+            Cochain operator C^2->C^1.
+        Gf2f : torch.tensor, shape=[n_faces, n_faces]
+            Cochain operator C^2->C^2.
+
+        Returns
+        -------
+        zv_out : torch.tensor, shape=[n_nodes, target_ch_v]
+            Output feature vector on the nodes of the input SC/CX.
+        ze_out : torch.tensor, shape=[n_edges, target_ch_e]
+            Output feature vector on the edges of the input SC/CX.
+        zf_out : torch.tensor, shape=[n_faces, target_ch_f]
+            Output feature vector on the faces of the input SC/CX.
         """
 
         if xv is not None:
@@ -292,27 +306,57 @@ class two_d_CXN_AMPS(nn.Module):
 
 
 class two_d_CXN_CMPS(nn.Module):
-    """CMPS has two main charactersitics:
-    (1) uses the coadjacency/Hodge Laplacian matrices to move
+    r"""Coadjaceny message passing scheme (CMPS) for 2d regular complexes.
+
+    CMPS has two main characteristics:
+    (1) it uses the coadjacency/Hodge Laplacian matrices to move
         signal among simplices of the same dimension.
         That is, a cochain map between C^i->C^i.
-    (2) uses coboundary maps to move signal up
-        (in the diagonal part). In the figure below,
-        signal moves from nodes->edges, and from edges->facces
-        via the first and second coboundary maps respectivly.
+    (2) it uses coboundary maps to move signal up
+        (in the diagonal part).
+
+    In the figure below,
+    signal moves from nodes->edges, and from edges->faces
+    via the first and second coboundary maps respectively.
 
     In the case of 2d simplicial complex, CMPS can be
-    summerized via the figure below.
-    Note that you need 5 maps to define an CMPS.
-    Furthermore, you need two
-    merge operations : (a) (v,e)->e and (b) (e,f)->f."""
+    summarized via the figure below.
 
-    # v_ot   e_ot   f_ot
-    #  |    /|    / |
-    #  |   / |   /  |
-    #  |  /  |  /   |
-    #  | /   | /    |
-    #  v_in  e_in  f_in
+    Note that you need 5 maps to define an CMPS.
+
+    Furthermore, you need two merge operations:
+    (a) (v,e)->e
+    (b) (e,f)->f.
+
+    v_ot   e_ot   f_ot
+     |    /|    / |
+     |   / |   /  |
+     |  /  |  /   |
+     | /   | /    |
+     v_in  e_in  f_in
+
+    Parameters
+    ----------
+    in_ch_v : int
+        Number of input channels for vertices.
+    in_ch_e : int
+        Number of input channels for edges.
+    in_ch_f : int
+        Number of input channels for faces.
+    target_ch_v : int
+        Number of output channels for vertices.
+    target_ch_e : int
+        Number of output channels for edges.
+    target_ch_f : int
+        Number of output channels for faces.
+    dropout : float, optional
+        Dropout rate. The default is 0.5.
+    activation : torch.nn.functional, optional
+        Activation function. The default is F.relu.
+    verbose : bool, optional
+        Print out the shape of the output of each layer. The default is False.
+    """
+
     def __init__(
         self,
         in_ch_v,
@@ -339,54 +383,35 @@ class two_d_CXN_CMPS(nn.Module):
         self.verbose = verbose
 
     def forward(self, xv, xe, xf, Gv2v, Gv2e, Ge2e, Ge2f, Gf2f):
-        """
-        Parameters:
-            xv: torch tensor of shape
-                [ num_nodes, num_node_features]
-                representing the input feature
-                vector on the nodes of the input SC/CX.
-            xe: torch tensor of shape
-                [num_edges, num_edges_features]
-                representing the input feature
-                vector on the edges of the input SC/CX.
-            xf: torch tensor of shape
-                [num_faces, num_faces_features]
-                representing the input feature
-                vector on the faces of the input SC/CX.
-            Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
-                representing the a cochain
-                operator C^0 -> C^0.
-            Gv2e: torch tensor of shape
-                [num_edges , num_nodes ]
-                representing the a cochain
-                operator C^0 -> C^1.
-            Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
-                representing the a cochain
-                operator C^1 -> C^1.
-            Ge2f: torch tensor of shape
-                [num_faces , num_edges ]
-                representing the a cochain
-                operator C^1 -> C^2.
-            Gf2f: torch tensor of shape
-                [num_faces, num_faces]
-                representing the a cochain
-                operator C^2 -> C^2.
-        Return:
-            zv_out: torch tensor of shape
-                [ num_nodes, target_ch ]
-                representing the input feature
-                vector on the nodes of the input SC/CX.
-            ze_out: torch tensor of shape
-                [num_edges, target_ch ]
-                representing the input feature
-                vector on the edges of the input SC/CX.
-            zf_out: torch tensor of shape
-                [num_edges, target_ch]
-                representing the input feature
-                vector on the faces of the input SC/CX.
+        """Forward pass of the CMPS.
 
+        Parameters
+        ----------
+        xv : torch.tensor, shape=[n_nodes, n_node_features]
+            Input feature vector on the nodes of the input SC/CX.
+        xe : torch.tensor, shape=[n_edges, n_edges_features]
+            Input feature vector on the edges of the input SC/CX.
+        xf : torch.tensor, shape=[n_faces, n_faces_features]
+            Input feature vector on the faces of the input SC/CX.
+        Gv2v : torch.tensor, shape=[n_nodes, n_nodes]
+            Cochain operator C^0 -> C^0.
+        Gv2e : torch.tensor, shape=[n_edges, n_nodes]
+            Cochain operator C^0 -> C^1.
+        Ge2e : torch.tensor, shape=[n_edges, n_edges]
+            Cochain operator C^1 -> C^1.
+        Ge2f : torch.tensor, shape=[n_faces, n_edges]
+            Cochain operator C^1 -> C^2.
+        Gf2f : torch.tensor, shape=[n_faces, n_faces]
+            Cochain operator C^2 -> C^2.
+
+        Returns
+        -------
+        zv_out : torch.tensor, shape=[n_nodes, target_ch ]
+            Output feature vector on the nodes of the input SC/CX.
+        ze_out : torch.tensor, shape=[n_edges, target_ch ]
+            Output feature vector on the edges of the input SC/CX.
+        zf_out : torch.tensor, shape=[n_edges, target_ch]
+            Output feature vector on the faces of the input SC/CX.
         """
         if xv is not None:
             xv = F.dropout(xv, self.dropout, self.training)
@@ -408,23 +433,53 @@ class two_d_CXN_CMPS(nn.Module):
 
 
 class two_d_CXN_HCMPS(nn.Module):
-    """HCMPS has one main charactersitic:
-    (*) uses only boundary and coboundary
+    r"""Homology/Co-homology message passing scheme (HCMPS) layer.
+
+    HCMPS has one main characteristic:
+    (*) it uses only boundary and coboundary
         maps to move signal up and down (in the diagonal part).
+
     In the case of 2d simplicial complex,
-    HCMPS can be summerized via the figure below.
+    HCMPS can be summarized via the figure below.
+
     Note that you need 2 maps to define an HCMPS.
     Two of these maps are the boundary maps and the
     other two are simply the tranpose of these maps.
-    Furthermore, you need one merge operation and
-    one split operation : (a) (v,f)->e and (b) (e)->(v,f)"""
 
-    #    v_ot  e_ot   f_ot
-    #       \  /   \ /
-    #        \/    /\
-    #        /\   /  \
-    #       /  \ /    \
-    #    v_in  e_in  f_in
+    Furthermore, you need one merge operation and
+    one split operation :
+    (a) (v,f)->e
+    (b) (e)->(v,f)
+
+    v_ot  e_ot   f_ot
+       \  /   \ /
+        \/    /\
+        /\   /  \
+       /  \ /    \
+    v_in  e_in  f_in
+
+    Parameters
+    ----------
+    in_ch_v : int
+        Number of input channels for vertices.
+    in_ch_e : int
+        Number of input channels for edges.
+    in_ch_f : int
+        Number of input channels for faces.
+    target_ch_v : int
+        Number of output channels for vertices.
+    target_ch_e : int
+        Number of output channels for edges.
+    target_ch_f : int
+        Number of output channels for faces.
+    dropout : float, optional
+        Dropout rate. The default is 0.5.
+    activation : torch.nn.functional, optional
+        Activation function. The default is F.relu.
+    verbose : bool, optional
+        Print out the shape of the output of each layer. The default is False.
+    """
+
     def __init__(
         self,
         in_ch_v,
@@ -445,43 +500,30 @@ class two_d_CXN_HCMPS(nn.Module):
         self.verpose = verbose
 
     def forward(self, xv, xe, xf, Ge2v, Gf2e):
-        """
-        Args:
-            xv: torch tensor of shape
-              [batch_size, num_nodes, num_node_features]
-              representing the input feature vector on the
-              nodes of the input SC/CX.
-            xe: torch tensor of shape
-              [num_edges, num_edges_features]
-              representing the input feature vector
-              on the edges of the input SC/CX.
-            xf: torch tensor of shape
-               [num_faces, num_faces_features]
-               representing the input feature vector
-               on the faces of the input SC/CX.
-            Ge2v: torch tensor of shape
-               [ num_nodes, num_edges ]
-               representing the a cochain
-               operator C^1-> C^0.
-            Gf2e: torch tensor of shape
-               [ num_edges ,num_faces ]
-               representing the a cochain
-               operator C^2 -> C^1.
-        Return:
-            zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
-                representing the input feature vector
-                on the nodes of the input SC/CX.
-            ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
-                representing the input feature
-                vector on the edges of the input SC/CX.
-            zf_out: torch tensor of shape
-                [ num_edges, target_ch_f ]
-                representing the input feature vector
-                on the faces of the input SC/CX.
-        """
+        """Forward pass of the HCMPS.
 
+        Parameters
+        ----------
+        xv : torch.tensor, shape=[batch_size, n_nodes, n_node_features]
+            Input feature vector on the nodes of the input SC/CX.
+        xe : torch.tensor, shape=[n_edges, n_edges_features]
+            Input feature vector on the edges of the input SC/CX.
+        xf : torch.tensor, shape=[n_faces, n_faces_features]
+            Input feature vector on the faces of the input SC/CX.
+        Ge2v : torch.tensor, shape=[n_nodes, n_edges]
+            Cochain operator C^1-> C^0.
+        Gf2e : torch.tensor, shape=[n_edges, n_faces]
+            Cochain operator C^2 -> C^1.
+
+        Returns
+        -------
+        zv_out : torch.tensor, shape=[n_nodes, target_ch_v]
+            Output feature vector on the nodes of the input SC/CX.
+        ze_out : torch.tensor, shape=[n_edges, target_ch_e]
+            Output feature vector on the edges of the input SC/CX.
+        zf_out : torch.tensor, shape=[ n_edges, target_ch_f]
+            Output feature vector on the faces of the input SC/CX.
+        """
         if xv is not None:
             xv = F.dropout(xv, self.dropout, self.training)
         if xe is not None:
