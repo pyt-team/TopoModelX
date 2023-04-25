@@ -23,7 +23,7 @@ from topomodelx.nn.cxn.cxn_layers import CXN_AMPS, CXN_CMPS, CXN_HCMPS
 class CXN_entire_CX_encoder_AMPS(nn.Module):
     """Autoencoder on entire complex.
 
-    This implements the message passing AMPS.
+    This implements the adjacency message passing scheme (AMPS).
 
     Parameters
     ----------
@@ -97,7 +97,7 @@ class CXN_entire_CX_encoder_AMPS(nn.Module):
 class CXN_entire_CX_encoder_CMPS(nn.Module):
     """Autoencoder on entire complex.
 
-    This implements the message passing CMPS.
+    This implements the coadjacency message passing scheme (CMPS).
 
     Parameters
     ----------
@@ -171,7 +171,7 @@ class CXN_entire_CX_encoder_CMPS(nn.Module):
 class CXN_entire_CX_encoder_HCMPS(nn.Module):
     """Autoencoder on entire complex.
 
-    This implements the message passing HCMPS.
+    This implements the homology/cohomology message passing scheme (HCMPS).
 
     Parameters
     ----------

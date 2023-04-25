@@ -173,7 +173,7 @@ class two_d_CXN(nn.Module):
 
 
 class two_d_CXN_AMPS(nn.Module):
-    """AMPS has two main charactersitics:
+    """AMPS has two main characteristics:
     (1) uses the adjacency/Hodge Laplacian
         matrices to move signal among simplices
         of the same dimension. That is, a cochain
@@ -181,9 +181,9 @@ class two_d_CXN_AMPS(nn.Module):
     (2) uses boundary maps to move signal down.
         In the figure below, signal moves from
         edges->nodes, and from faces->edges via
-        the first and second bounary maps respectivly.
+        the first and second boundary maps respectivly.
     In the case of 2d simplicial complex,
-    AMPS can be summerized via the figure below.
+    AMPS can be summarized via the figure below.
     Note that you need 5 maps to define an AMPS
     Furthermore, you need two merge
     operations : (a) (v, e)->v and (b) (e,f)->e"""
@@ -292,17 +292,17 @@ class two_d_CXN_AMPS(nn.Module):
 
 
 class two_d_CXN_CMPS(nn.Module):
-    """CMPS has two main charactersitics:
+    """CMPS has two main characteristics:
     (1) uses the coadjacency/Hodge Laplacian matrices to move
         signal among simplices of the same dimension.
         That is, a cochain map between C^i->C^i.
     (2) uses coboundary maps to move signal up
         (in the diagonal part). In the figure below,
-        signal moves from nodes->edges, and from edges->facces
+        signal moves from nodes->edges, and from edges->faces
         via the first and second coboundary maps respectivly.
 
     In the case of 2d simplicial complex, CMPS can be
-    summerized via the figure below.
+    summarized via the figure below.
     Note that you need 5 maps to define an CMPS.
     Furthermore, you need two
     merge operations : (a) (v,e)->e and (b) (e,f)->f."""
@@ -408,11 +408,11 @@ class two_d_CXN_CMPS(nn.Module):
 
 
 class two_d_CXN_HCMPS(nn.Module):
-    """HCMPS has one main charactersitic:
+    """HCMPS has one main characteristic:
     (*) uses only boundary and coboundary
         maps to move signal up and down (in the diagonal part).
     In the case of 2d simplicial complex,
-    HCMPS can be summerized via the figure below.
+    HCMPS can be summarized via the figure below.
     Note that you need 2 maps to define an HCMPS.
     Two of these maps are the boundary maps and the
     other two are simply the tranpose of these maps.
