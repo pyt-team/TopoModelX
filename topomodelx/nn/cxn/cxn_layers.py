@@ -245,7 +245,7 @@ class CXN_CMPS(nn.Module):
                 typically this map is a coboundary matrix
         Return:
             zj_out: torch tensor of shape
-                    [batch_size,num_nodes,target_ch]
+                    [batch_size,n_nodes,target_ch]
                     representing the input feature vector
                     on the nodes of the input SC/CX
         """
@@ -306,7 +306,7 @@ class CXN_HCMPS(nn.Module):
             representing the a cochain operator C^j -> C^k
         Return:
             zk_out: torch tensor of shape
-            [num_nodes, target_ch_v]
+            [n_nodes, target_ch_v]
             representing the input feature vector on
             the nodes of the input SC/CX.
         """

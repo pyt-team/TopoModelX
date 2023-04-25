@@ -91,52 +91,52 @@ class two_d_CXN(nn.Module):
         """
         Args:
             xv: torch tensor of shape
-                [ num_nodes, num_node_features]
+                [ n_nodes, n_node_features]
                 representing the input feature
                 vector on the nodes of the input SC/CX
             xe: torch tensor of shape
-                [num_edges, num_edges_features]
+                [n_edges, n_edges_features]
                 representing the input feature vector
                 on the edges of the input SC/CX
             xf: torch tensor of shape
-                [ num_faces, num_faces_features]
+                [ n_faces, n_faces_features]
                 representing the input feature vector
                 on the faces of the input SC/CX
             Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
+                [n_nodes , n_nodes ]
                 representing the a cochain
                 operator C^0->C^0
             Ge2v: torch tensor of shape
-                [num_nodes , num_edges]
+                [n_nodes , n_edges]
                 representing the a cochain
                 operator C^1->C^0.
             Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
+                [n_edges , n_edges ]
                 representing the a cochain
                 operator C^1->C^1.
             He2e: torch tensor of shape
-                [num_edges , num_edges ]
+                [n_edges , n_edges ]
                 representing the a cochain
                 operator C^1->C^1.
             Gf2e: torch tensor of shape
-                [num_edges , num_faces]
+                [n_edges , n_faces]
                 representing the a cochain
                 operator C^2->C^1.
             Gf2f: torch tensor of shape
-                [num_faces , num_faces ]
+                [n_faces , n_faces ]
                 representing the a cochain
                 operator C^2->C^2
         Return:
             zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
+                [n_nodes, target_ch_v ]
                 representing the input feature vector
                 on the nodes of the input SC/CX
             ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
+                [n_edges, target_ch_e ]
                 representing the input feature vector
                 on the edges of the input SC/CX
             zf_out: torch tensor of shape
-                [num_edges, target_ch_f]
+                [n_edges, target_ch_f]
                 representing the input feature
                 vector on the faces of the input SC/CX
         """
@@ -227,48 +227,48 @@ class two_d_CXN_AMPS(nn.Module):
         """
         Args:
             xv: torch tensor of shape
-                [ num_nodes, num_node_features]
+                [ n_nodes, n_node_features]
                 representing the input feature
                 vector on the nodes of the input SC/CX
             xe: torch tensor of shape
-                [num_edges, num_edges_features]
+                [n_edges, n_edges_features]
                 representing the input feature vector
                 on the edges of the input SC/CX
             xf: torch tensor of shape
-                [ num_faces, num_faces_features]
+                [ n_faces, n_faces_features]
                 representing the input feature vector
                 on the faces of the input SC/CX
             Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
+                [n_nodes , n_nodes ]
                 representing the a cochain
                 operator C^0->C^0
             Ge2v: torch tensor of shape
-                [num_nodes , num_edges]
+                [n_nodes , n_edges]
                 representing the a cochain
                 operator C^1->C^0.
             Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
+                [n_edges , n_edges ]
                 representing the a cochain
                 operator C^1->C^1.
             Gf2e: torch tensor of shape
-                [num_edges , num_faces]
+                [n_edges , n_faces]
                 representing the a cochain
                 operator C^2->C^1.
             Gf2f: torch tensor of shape
-                [num_faces , num_faces ]
+                [n_faces , n_faces ]
                 representing the a cochain
                 operator C^2->C^2
         Return:
             zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
+                [n_nodes, target_ch_v ]
                 representing the input feature vector
                 on the nodes of the input SC/CX
             ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
+                [n_edges, target_ch_e ]
                 representing the input feature vector
                 on the edges of the input SC/CX
             zf_out: torch tensor of shape
-                [num_edges, target_ch_f]
+                [n_edges, target_ch_f]
                 representing the input feature
                 vector on the faces of the input SC/CX
         """
@@ -342,48 +342,48 @@ class two_d_CXN_CMPS(nn.Module):
         """
         Parameters:
             xv: torch tensor of shape
-                [ num_nodes, num_node_features]
+                [ n_nodes, n_node_features]
                 representing the input feature
                 vector on the nodes of the input SC/CX.
             xe: torch tensor of shape
-                [num_edges, num_edges_features]
+                [n_edges, n_edges_features]
                 representing the input feature
                 vector on the edges of the input SC/CX.
             xf: torch tensor of shape
-                [num_faces, num_faces_features]
+                [n_faces, n_faces_features]
                 representing the input feature
                 vector on the faces of the input SC/CX.
             Gv2v: torch tensor of shape
-                [num_nodes , num_nodes ]
+                [n_nodes , n_nodes ]
                 representing the a cochain
                 operator C^0 -> C^0.
             Gv2e: torch tensor of shape
-                [num_edges , num_nodes ]
+                [n_edges , n_nodes ]
                 representing the a cochain
                 operator C^0 -> C^1.
             Ge2e: torch tensor of shape
-                [num_edges , num_edges ]
+                [n_edges , n_edges ]
                 representing the a cochain
                 operator C^1 -> C^1.
             Ge2f: torch tensor of shape
-                [num_faces , num_edges ]
+                [n_faces , n_edges ]
                 representing the a cochain
                 operator C^1 -> C^2.
             Gf2f: torch tensor of shape
-                [num_faces, num_faces]
+                [n_faces, n_faces]
                 representing the a cochain
                 operator C^2 -> C^2.
         Return:
             zv_out: torch tensor of shape
-                [ num_nodes, target_ch ]
+                [ n_nodes, target_ch ]
                 representing the input feature
                 vector on the nodes of the input SC/CX.
             ze_out: torch tensor of shape
-                [num_edges, target_ch ]
+                [n_edges, target_ch ]
                 representing the input feature
                 vector on the edges of the input SC/CX.
             zf_out: torch tensor of shape
-                [num_edges, target_ch]
+                [n_edges, target_ch]
                 representing the input feature
                 vector on the faces of the input SC/CX.
 
@@ -448,36 +448,36 @@ class two_d_CXN_HCMPS(nn.Module):
         """
         Args:
             xv: torch tensor of shape
-              [batch_size, num_nodes, num_node_features]
+              [batch_size, n_nodes, n_node_features]
               representing the input feature vector on the
               nodes of the input SC/CX.
             xe: torch tensor of shape
-              [num_edges, num_edges_features]
+              [n_edges, n_edges_features]
               representing the input feature vector
               on the edges of the input SC/CX.
             xf: torch tensor of shape
-               [num_faces, num_faces_features]
+               [n_faces, n_faces_features]
                representing the input feature vector
                on the faces of the input SC/CX.
             Ge2v: torch tensor of shape
-               [ num_nodes, num_edges ]
+               [ n_nodes, n_edges ]
                representing the a cochain
                operator C^1-> C^0.
             Gf2e: torch tensor of shape
-               [ num_edges ,num_faces ]
+               [ n_edges ,n_faces ]
                representing the a cochain
                operator C^2 -> C^1.
         Return:
             zv_out: torch tensor of shape
-                [num_nodes, target_ch_v ]
+                [n_nodes, target_ch_v ]
                 representing the input feature vector
                 on the nodes of the input SC/CX.
             ze_out: torch tensor of shape
-                [num_edges, target_ch_e ]
+                [n_edges, target_ch_e ]
                 representing the input feature
                 vector on the edges of the input SC/CX.
             zf_out: torch tensor of shape
-                [ num_edges, target_ch_f ]
+                [ n_edges, target_ch_f ]
                 representing the input feature vector
                 on the faces of the input SC/CX.
         """
