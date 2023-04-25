@@ -76,16 +76,6 @@ Then:
    pre-commit install
    ```
 
-### Unit Testing
-
-The tmx testing suite is located under `test/`.
-Run the entire test suite with
-
-```bash
-pip install pytest
-pytest
-```
-
 ## 🔍 References ##
 
 To learn more about the topological deep learning blueprint:
