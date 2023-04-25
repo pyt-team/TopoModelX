@@ -1,20 +1,29 @@
+"""Utilities related to tensors."""
+
 __all__ = ["sp_softmax", "sp_matmul", "sparse_eye", "batch_mm", "coo_2_torch_tensor"]
 import numpy as np
 import torch
 
 
 def sp_softmax(indices, values, N, dim=0):
-    """
-    Args:
-        indices:
-        values:
-        N:
-        dim: an integer 0 or 1, determines where the sum in the input
-            matrix occurs (on source or target simplices/cells).
-    Return:
-        softmax_v : torch tensor.
-    """
+    """Compute sparse softmax.
 
+    Parameters
+    ----------
+    indices : torch.tensor, shape=[2, K]
+        K is the number of non-zero elements dense matrix corresoponds to the sparse array.
+    values : torch.tensor
+        Tensor of size K.
+    N : int
+    dim : int, optional
+        Integer that is either 0 or 1, and determines where the sum in the input
+        matrix occurs (on source or target simplices/cells).
+        The default is 0.
+
+    Returns
+    -------
+    softmax_v : torch tensor
+    """
     if dim == 0:  # sum is on source simplices/cells
         _, ind = indices
     elif dim == 1:  # sum is on target simplices/cells
@@ -32,19 +41,26 @@ def sp_softmax(indices, values, N, dim=0):
 
 
 def sp_matmul(indices, values, mat, output_size, dim=0):
-    """
-    Purpose:
-        This function performs simple sparse matrix multiplication between a sparse
-        array represented by indices and values, and a dense array represeted by mat
-    Args:
-        indices : torch tensor of shape [2, K] where K is the number of non-zero elements dense matrix corresoponds to the sparse array
-        values  :torch tensor of size K
-        mat : torch dense matrix
-        output_size : tuple of length 2 representing the shape of the output matrix
-    Return:
-        out : a torch tensor of shape output_size
-    """
+    """Compute sparse matrix multiplication.
 
+    This function performs simple sparse matrix multiplication between a sparse
+    array represented by indices and values, and a dense array represeted by mat
+
+    Parameters
+    ----------
+    indices : torch.tensor, shape=[2, K]
+        K is the number of non-zero elements dense matrix corresoponds to the sparse array.
+    values : torch.tensor
+        Tensor of size K.
+    mat : torch dense matrix
+    output_size : tuple of length 2
+        Shape of the output matrix.
+
+    Returns
+    -------
+    out : torch.tensor, shape=output_size
+        Result of the sparse matrix multiplication.
+    """
     source, target = indices
     out = torch.zeros(output_size)
     if dim == 0:
@@ -58,9 +74,19 @@ def sp_matmul(indices, values, mat, output_size, dim=0):
 
 
 def sparse_eye(size):
-    """
-    https://www.programcreek.com/python/example/101243/torch.sparse
-    Returns the identity matrix as a sparse matrix
+    """Return the identity matrix as a sparse matrix.
+
+    See: https://www.programcreek.com/python/example/101243/torch.sparse
+
+    Parameters
+    ----------
+    size : int
+        Size of the identity matrix.
+
+    Returns
+    -------
+    _ : array-like
+        Identity matrix of size `size`.
     """
     indices = torch.arange(0, size).long().unsqueeze(0).expand(2, size)
     values = torch.tensor(1.0).expand(size)
@@ -69,12 +95,20 @@ def sparse_eye(size):
 
 
 def coo_2_torch_tensor(sparse_mx, sparse=True):
-    """
-    Args :
-        scipy matrix
-        sparse: boolean value specifying if the matrix is sparse or not
-    Returns :
-        a torch tensor
+    """Convert a scipy matrix to a torch tensor.
+
+
+    Parameters
+    ----------
+    sparse_mx : scipy matrix
+        Matrix to convert.
+    sparse: bool
+        Specifies if the matrix is sparse or not.
+
+    Returns
+    -------
+    _ : torch.tensor
+        Converted matrix.
     """
 
     if sparse:
@@ -85,20 +119,25 @@ def coo_2_torch_tensor(sparse_mx, sparse=True):
         values = torch.from_numpy(sparse_mx.data)
         shape = torch.Size(sparse_mx.shape)
         return torch.sparse.FloatTensor(indices, values, shape)
-    else:
-        return torch.FloatTensor(sparse_mx.todense())
+    return torch.FloatTensor(sparse_mx.todense())
 
 
 def batch_mm(matrix, matrix_batch):
-    """
+    """Compute a batched matrix-matrix product.
 
-    source : https://github.com/pytorch/pytorch/issues/14489
-    Args
-        param matrix: Sparse or dense matrix, size (m, n).
-        param matrix_batch: Batched dense matrices, size (b, n, k).
-    returns:
+    See: https://github.com/pytorch/pytorch/issues/14489
 
-        The batched matrix-matrix product, size (m, n) x (b, n, k) = (b, m, k).
+    Parameters
+    ----------
+    matrix: Sparse or dense matrix, shape=[m, n]
+        Matrix.
+    matrix_batch: Batched dense matrices, shape=[b, n, k]
+        Batch of matrices.
+
+    Returns
+    -------
+    _ : array-like
+        The batched matrix-matrix product, shape (m, n) x (b, n, k) = (b, m, k).
     """
     batch_size = matrix_batch.shape[0]
     # Stack the vector batch into columns. (b, n, k) -> (n, b, k) -> (n, b*k)
@@ -110,4 +149,16 @@ def batch_mm(matrix, matrix_batch):
 
 
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
+    """Convert a scipy sparse matrix to a torch sparse tensor.
+
+    Parameters
+    ----------
+    sparse_mx : scipy sparse matrix
+        Matrix to convert.
+
+    Returns
+    -------
+    _ : torch.sparse.FloatTensor
+        Converted matrix.
+    """
     return coo_2_torch_tensor(sparse_mx, sparse=True)
