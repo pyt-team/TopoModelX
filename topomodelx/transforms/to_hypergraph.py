@@ -1,3 +1,5 @@
+"""Convert complexes to hypergraphs."""
+
 __all__ = [
     "simplicial_subcomplex_2_hypergraph_incidence_matrix",
     "simplicial_complex_2_hypergraph",
@@ -22,24 +24,25 @@ from toponetx import SimplicialComplex
 def simplicial_subcomplex_2_hypergraph_incidence_matrix(
     simplicial_complex, nodes_dim, edges_dim
 ):
-    """
+    """Convert a simplicial subcomplex to a hypergraph incidence matrix.
+
     Parameters
     ----------
-    simplicial_complex : SimplicialComplex object
-        DESCRIPTION. a simplicial complex object
+    simplicial_complex : SimplicialComplex
+        Simplicial complex.
     nodes_dim : int
-        DESCRIPTION. represent the dimension of the simplicies in the simplices complex that we
-                     to consider as being the the nodes of the output hypergraph
-    nodes_dim : int
-        DESCRIPTION. represent the dimension of the simplicies in the simplices complex that we
-                     to consider as being the the edges of the output hypergraph
+        Dimension of the simplicies in the simplicial complex that we
+        consider as being the the nodes of the output hypergraph.
+    edges_dim : int
+        Dimension of the simplicies in the simplicial complex that we
+        consider as being the the edges of the output hypergraph.
+
     Returns
     -------
-    TYPE
-        an indicence matrix of a hypergraph whose nodes are
-        simplices of dimension nodes_dim and whose edges are simplices of dimension edges_dim
-        a node i is a part of the edge j if the intersection of i and j is not empty.
-
+    _ : np.array
+        Indicence matrix of a hypergraph whose nodes are
+        simplices of dimension nodes_dim and whose edges are simplices of dimension edges_dim.
+        A node i is a part of the edge j if the intersection of i and j is not empty.
     """
     assert isinstance(nodes_dim, int)
     assert isinstance(edges_dim, int)
@@ -66,17 +69,17 @@ def simplicial_subcomplex_2_hypergraph_incidence_matrix(
 
 
 def simplicial_complex_closure_of_hypergraph(H):
-    """
+    """Compute the simplicial complex closure of a hypergraph.
+
     Parameters
     ----------
     H : hyernetx hypergraph
-        DESCRIPTION. hypergraph
+        Hypergraph.
 
     Returns
     -------
-    TYPE
-        simplicial complex closure of the hypergraph
-
+    _ : SimplicialComplex
+        Simplicial complex closure of the hypergraph.
     """
     edges = H.edges
     lst = []
@@ -86,17 +89,18 @@ def simplicial_complex_closure_of_hypergraph(H):
 
 
 def simplicial_complex_2_hypergraph(simplicial_complex):
-    """
+    """Convert a simplicial complex to a hypergraph.
+
     Parameters
     ----------
-    simplicial_complex : SimplicialComplex object
-        DESCRIPTION. a simplicial complex object
+    simplicial_complex : SimplicialComplex
+        Simplicial complex.
+
     Returns
     -------
-    TYPE hypernetx hypergraph
-        a hypergraph whose edges are all sets in the simplicial complex
+    _ : hypernetx hypergraph
+        Hypergraph whose edges are all sets in the simplicial complex
         that have cardinalties larger than or equal to 2.
-
     """
     assert isinstance(simplicial_complex, SimplicialComplex)
     max_dim = simplicial_complex.maxdim
@@ -109,15 +113,17 @@ def simplicial_complex_2_hypergraph(simplicial_complex):
 
 
 def graph_2_neighborhood_hypergraph(G):
-    """
+    """Convert a graph to a hypergraph.
+
     Parameters
     ----------
     G : networkx graph
+        Graph.
 
     Returns
     -------
-    TYPE : hypernetx hypergraph
-
+    _ : hypernetx hypergraph
+        Hypergraph.
     """
     edges = [sorted(list(G.neighbors(v)) + [v]) for v in G.nodes]
 
@@ -145,14 +151,14 @@ def pointcloud_2_knn_graph(pointcloud, num_neighbord):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. a collection of Euclidean points in R^n
+        a collection of Euclidean points in R^n
     num_neighbord : TYPE
         DESCRIPTION.
 
     Returns
     -------
     G : networkx graph
-        DESCRIPTION. the knn weighted graph obtained from the point cloud
+        the knn weighted graph obtained from the point cloud
                      weight is the distance between the points.
     """
     A = kneighbors_graph(pointcloud, num_neighbord, mode="distance")
@@ -168,7 +174,7 @@ def pointcloud_2_knn_hypergraph(pointcloud, num_neighbord):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. a collection of Euclidean points in R^n
+        a collection of Euclidean points in R^n
     num_neighbord : TYPE
         DESCRIPTION.
 
@@ -190,9 +196,9 @@ def pointcloud_2_eps_neighborhood_hypergraph(pointcloud, eps):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. a collection of Euclidean points in R^n
+        a collection of Euclidean points in R^n
     eps : float,
-        DESCRIPTION. real nymber representing the thinkness around each point
+        real nymber representing the thinkness around each point
                      in the metric space
 
     Returns
@@ -213,9 +219,9 @@ def distance_matrix_2_eps_neighborhood_hypergraph(distance_matrix, eps):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. sparse coo_matrix distance matrix
+        sparse coo_matrix distance matrix
     eps : float,
-        DESCRIPTION. real nymber representing the thinkness around each point
+        real nymber representing the thinkness around each point
                      in the metric space
 
     Returns
@@ -235,9 +241,9 @@ def distance_matrix_2_knn_graph(distance_matrix, num_neighbords):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. sparse coo_matrix distance matrix
+        sparse coo_matrix distance matrix
     eps : float,
-        DESCRIPTION. real nymber representing the thinkness around each point
+        real nymber representing the thinkness around each point
                      in the metric space
 
     Returns
@@ -259,9 +265,9 @@ def distance_matrix_2_knn_hypergraph(distance_matrix, num_neighbords):
     Parameters
     ----------
     pointcloud : numpy array
-        DESCRIPTION. sparse coo_matrix distance matrix
+        sparse coo_matrix distance matrix
     eps : float,
-        DESCRIPTION. real nymber representing the thinkness around each point
+        real nymber representing the thinkness around each point
                      in the metric space
 
     Returns
