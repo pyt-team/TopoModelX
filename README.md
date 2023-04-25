@@ -17,6 +17,7 @@ TMX can reproduce and extend the topological neural networks (TNNs) surveyed in:
 
 See [our graphical literature review](https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg) with equations available at [https://github.com/awesome-tnns/awesome-tnns](https://github.com/awesome-tnns/awesome-tnns).
 
+_**Note:** TMX is still under development. Use at your own risk._
 
 ## 🦾 Contributing to TMX
 
