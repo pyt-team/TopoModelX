@@ -43,10 +43,10 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
         to a signal in :math:`C^{in}(X)`.
         Given the operator A_opt, the LTN operator induced by it
         is also a map that operates between the same cochain spaces.
-         Assuming x is of shape [num_in_cell, num_features_in ]
+         Assuming x is of shape [n_in_cell, num_features_in ]
         then typically A_operator is a
         (co)boundary matrix/ k-Hodge Laplacian/k-(co)adjacency/
-        matrix of shape [num_out_cell,num_in_cell ].
+        matrix of shape [num_out_cell,n_in_cell ].
         Args:
             in_ft (int): dimension of input features.
             out_ft (int): positive int, dimension of out features.
@@ -140,10 +140,10 @@ class _LTNMessagePassing(HigherOrderMessagePassing):
             if batch_cochain is True:
                 x : cellular/simplicial features - Tensor with cell
                     features of shape
-                    [ num_in_cell, num_features_in]
+                    [ n_in_cell, num_features_in]
             if batch_cochain is False:
                 x : cellular/simplicial features - Tensor with cell
-                    features of shape [num_in_cell, num_features_in]
+                    features of shape [n_in_cell, num_features_in]
             A_operator : a cochain matrix that represents a
             cochain map C^i->C^j . Entry A_operator[i,j]=1 means there
             is a message from cell/simplex i to cell/simplex j .

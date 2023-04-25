@@ -95,10 +95,10 @@ class _LTN(nn.Module):
         to a signal in :math:`C^{in}(X)`.
         Given the operator A_opt, the LTN operator induced by it
         is also a map that operates between the same cochain spaces.
-         Assuming x is of shape [num_in_cell, num_features_in ]
+         Assuming x is of shape [n_in_cell, num_features_in ]
         then typically A_operator is a
         (co)boundary matrix/ k-Hodge Laplacian/k-(co)adjacency/
-        matrix of shape [num_out_cell,num_in_cell ].
+        matrix of shape [num_out_cell,n_in_cell ].
         Args:
             in_ft (int): dimension of input features.
             out_ft (int): positive int, dimension of out features.
@@ -190,7 +190,7 @@ class _LTN(nn.Module):
             if batch_cochain is True:
                 x : cellular/simplicial features - Tensor with cell
                     features of shape
-                    [batch_size, num_in_cell, num_features_in]
+                    [batch_size, n_in_cell, num_features_in]
             if batch_cochain is False:
                 x : cellular/simplicial features - Tensor with cell
                     features of shape [um_in_cell, num_features_in]
@@ -397,10 +397,10 @@ class LTN(_LTN):
          to a signal in :math:`C^{in}(X)`.
          Given the operator A_opt, the LTN operator induced by it
          is also a map that operates between the same cochain spaces.
-          Assuming x is of shape [num_in_cell, num_features_in ]
+          Assuming x is of shape [n_in_cell, num_features_in ]
          then typically A_operator is a
          (co)boundary matrix/ k-Laplacian/k-adjacency
-         matrix of shape [num_out_cell,num_in_cell ].
+         matrix of shape [num_out_cell,n_in_cell ].
      Ref:
      ----
      [2] Roddenberry, T. Mitchell, Nicholas Glaze, and Santiago Segarra.
@@ -462,10 +462,10 @@ class BatchLTN(_LTN):
          to a signal in :math:`C^{in}(X)`.
          Given the operator A_opt, the LTN operator induced by it
          is also a map that operates between the same cochain spaces.
-          Assuming x is of shape [num_in_cell, num_features_in ]
+          Assuming x is of shape [n_in_cell, num_features_in ]
          then typically A_operator is a
          (co)boundary matrix/ k-Laplacian/k-adjacency
-         matrix of shape [num_out_cell,num_in_cell ].
+         matrix of shape [num_out_cell,n_in_cell ].
      Ref:
      ----
      [2] Roddenberry, T. Mitchell, Nicholas Glaze, and Santiago Segarra.
@@ -627,11 +627,11 @@ class _MergeOper(nn.Module):
             G1 - torch tensor representing a cochain matrix that
             represents a cochain map C^i1->C^j . Entry A_operator[i,j]=1
             means there is a message from cell/simplex i to cell j .
-                         Shape: [ num_target_cells, num_source_cells_1]
+                         Shape: [ n_target_cells, num_source_cells_1]
             G2 - torch tensor representing a cochain matrix that represents
             a cochain map C^i1->C^j . Entry A_operator[i,j]=1 means there is
             a message from cell/simplex i to cell j.
-                         Shape: [ num_target_cells, num_source_cells_2]
+                         Shape: [ n_target_cells, num_source_cells_2]
         output:
         ------
             pytorch tensor x:
@@ -932,23 +932,23 @@ class _SplitOper(nn.Module):
         Args:
         ------
             x: torch tensor representing cell/simplicial features -
-                x is of shape [batch_size, num_in_cell, num_features_in]
+                x is of shape [batch_size, n_in_cell, num_features_in]
             G1 - torch tensor representing a cochain matrix
                 that represents a cochain map C^i1->C^j.
                 Entry A_operator[i,j]=1 means there is a message from
                 cell/simplex i to cell/simplex j .
-                         Shape: [ num_target_cells_1, num_source_cells]
+                         Shape: [ n_target_cells_1, num_source_cells]
             G2 - torch tensor representing a cochain matrix that
                 represents a cochain map C^i1->C^j.
                 Entry A_operator[i,j]=1 means there is a message
                 from cell/simplex i to cell/simplex j .
-                         Shape: [ num_target_cells_2,num_source_cells]
+                         Shape: [ n_target_cells_2,num_source_cells]
         output:
         -------
             a pytorch tensors x1:
-                 x1 Shape : [batch_size,num_target_cells_1,target_ch_1  ]
+                 x1 Shape : [batch_size,n_target_cells_1,target_ch_1  ]
             a pytorch tensors x2:
-                 x2 Shape : [batch_size,num_target_cells_2,target_ch_2  ]
+                 x2 Shape : [batch_size,n_target_cells_2,target_ch_2  ]
         """
         if G1 is None and G2 is None:
             if not (self.target_ch_1 == self.target_ch_2 == self.num_features_in):
@@ -1210,11 +1210,11 @@ class _MultiMergeOper(nn.Module):
                 xi is of shape [batch_size, num_source_cells_k, in_ch_k]
             Gi_input_list - list of torch tensor representing
                 a cochain matrix that represents a cochain map :math:`G_k: C^{i_k}->C^j`.
-                Shape: [ num_target_cells, num_source_cells_k]
+                Shape: [ n_target_cells, num_source_cells_k]
         output:
         ------
             pytorch tensor x:
-                 Shape : [batch_size,num_target_cells,target_ch  ]
+                 Shape : [batch_size,n_target_cells,target_ch  ]
         """
 
         """
@@ -1487,15 +1487,15 @@ class _MultiSplitOper(nn.Module):
         Args:
         ------
             x: torch tensor representing cell/simplicial features -
-                x is of shape [num_in_cell, num_features_in]
+                x is of shape [n_in_cell, num_features_in]
             G_list - list of torch tensor representing a
                 cochain matrices, each operator G_{j_k} in this list that
                 represents a cochain map C^i->C^{j_k} .
-                         Shape: [ num_target_feature_j, num_in_cell]
+                         Shape: [ num_target_feature_j, n_in_cell]
         output:
         -------
             list of pytorch tensors xi of length n
-                 xi Shape : [num_target_cells,num_features_out]
+                 xi Shape : [n_target_cells,num_features_out]
         """
         if x is None:
             raise ValueError("input tensor cannot be None")

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 12 16:16:44 2022
+"""Multi-head Attention.
 
-@author: Mustafa Hajij
+This module proposes two functionaly identical versions, one sparse and one dense implementations.
 """
 
 import torch
@@ -11,17 +9,30 @@ import torch.nn.functional as F
 
 from .hoan import HigherOrderAttentionLayer, SparseHigherOrderAttentionLayer
 
-"""
-    Simplicial/Cellular/hypergraph Mutli-head Attention , sparse and dense implementations
-"""
-
 
 class MultiHeadHigherOrderAttention(nn.Module):
-    """
-    Simplicial/Cellular Mutli-head Attention
+    """Multi-head High-Order Attention.
+
+    This is the dense implementation.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for the source cells.
+    target_in_features : int
+        Number of input features for the target cells.
+    source_out_features : int
+        Number of output features for the source cells.
+    target_out_features : int
+        Number of output features for the target cells.
+    num_heads : int, optional
+        Number of attention heads, by default 5.
+    alpha : float, optional
+        Alpha value for the leaky_relu, by default 0.1.
+    concatenate : bool, optional
+        Whether to concatenate or average the attention heads, by default True.
     """
 
-    # multi head attention
     def __init__(
         self,
         source_in_features,
@@ -30,10 +41,10 @@ class MultiHeadHigherOrderAttention(nn.Module):
         target_out_features,
         num_heads=5,
         alpha=0.1,
-        concatinate=True,
+        concatenate=True,
     ):
         super(MultiHeadHigherOrderAttention, self).__init__()
-        self.concatinate = concatinate
+        self.concatenate = concatenate
         self.attentions = nn.ModuleList(
             [
                 HigherOrderAttentionLayer(
@@ -49,21 +60,27 @@ class MultiHeadHigherOrderAttention(nn.Module):
         )
 
     def forward(self, input1, input2, A_opt):
-        """
-        Parameters:
+        """Forward pass.
 
-            input1. A torch tensor of shape [num_in_cell, num_source_in_features]
-            input2. A torch tensor of shape [num_target_cell, num_target_in_features]
-            A_opt.  A torch tensor of shape [num_target_cell, num_in_cell]. Typically this can be a boundary matrix when the operator is asymmetrical, the adjacency, laplacian matrix when the operator is symmetric.
+        This layer is inspired by:
+        https://github.com/psh150204/GAT/blob/master/layer.py
 
-        Return :
+        Parameters
+        ----------
+        input1 : torch.tensor, shape=[n_in_cell, source_in_features]
+            Input features for the source cells.
+        input2: torch.tensor, shape=[n_target_cell, target_in_features]
+            Input features for the target cells.
+        A_opt: torch.tensor, shape=[n_target_cell, n_in_cell]
+            This can be the adjacency, laplacian matrix when the operator is symmetric.
+            This can be a boundary matrix when the operator is asymmetric.
 
-            h_prime_st. A torch tensor of shape [num_in_cell, num_source_out_features * num_heads]
-            h_prime_ts. A torch tensor of shape [num_target_cell, num_target_out_features * num_heads]
-        """
-
-        """
-        layer built based on  https://github.com/psh150204/GAT/blob/master/layer.py
+        Returns
+        -------
+        h_prime_st: torch.tensor, shape=[n_in_cell, source_out_features * num_heads]
+            Output features for the source cells.
+        h_prime_ts: torch.tensor, shape=[n_target_cell, target_out_features * num_heads]
+            Output features for the target cells.
         """
 
         if input2 is None:
@@ -77,7 +94,7 @@ class MultiHeadHigherOrderAttention(nn.Module):
                     "the target features cannot must be None when the operator A is symmetric."
                 )
 
-        if self.concatinate:
+        if self.concatenate:
             # concatenate
             outputs_st = []
             outputs_ts = []
@@ -88,8 +105,7 @@ class MultiHeadHigherOrderAttention(nn.Module):
                     outputs_ts.append(hts)
             if input2 is not None:
                 return torch.cat(outputs_st, dim=-1), torch.cat(outputs_ts, dim=-1)
-            else:
-                return torch.cat(outputs_st, dim=-1), None
+            return torch.cat(outputs_st, dim=-1), None
 
         else:
             # average
@@ -111,16 +127,32 @@ class MultiHeadHigherOrderAttention(nn.Module):
                     outputs_st / len(self.attentions),
                     outputs_ts / len(self.attentions),
                 )
-            else:
-                return outputs_st / len(self.attentions), None
+            return outputs_st / len(self.attentions), None
 
 
 class SpMultiHeadHigherOrderAttention(nn.Module):
-    """
-    Simplicial/Cellular Mutli-head Attention
+    """Multi-head High-Order Attention.
+
+    This is the sparse implementation.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for the source cells.
+    target_in_features : int
+        Number of input features for the target cells.
+    source_out_features : int
+        Number of output features for the source cells.
+    target_out_features : int
+        Number of output features for the target cells.
+    num_heads : int, optional
+        Number of attention heads, by default 5.
+    alpha : float, optional
+        Alpha value for the leaky_relu, by default 0.1.
+    concatenate : bool, optional
+        Whether to concatenate or average the attention heads, by default True.
     """
 
-    # multi head attention
     def __init__(
         self,
         source_in_features,
@@ -129,10 +161,10 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
         target_out_features,
         num_heads=5,
         alpha=0.1,
-        concatinate=True,
+        concatenate=True,
     ):
         super(SpMultiHeadHigherOrderAttention, self).__init__()
-        self.concatinate = concatinate
+        self.concatenate = concatenate
         self.attentions = nn.ModuleList(
             [
                 SparseHigherOrderAttentionLayer(
@@ -148,33 +180,29 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
         )
 
     def forward(self, input1, input2, A_opt, operator_symmetry=False):
-        """
-        Parameters:
+        """Forward pass.
 
-            -input1. A torch tensor of shape [num_in_cell, num_source_in_features]
-            -input2. A torch tensor of shape [num_target_cell, num_target_in_features]
+        Parameters
+        ----------
+        input1 : torch.tensor, shape=[n_in_cell, source_in_features]
+            Input features for the source cells.
+        input2: torch.tensor, shape=[n_target_cell, target_in_features]
+            Input features for the target cells.
+        A_opt: torch.tensor, shape=[n_target_cell, n_in_cell]
+            This can be the adjacency, laplacian matrix when the operator is symmetric.
+            This can be a boundary matrix when the operator is asymmetric.
+        operator_symmetry: bool
+            Indicates if the A is symmetric or not.
 
-            -operator_list. A torch tensor of size represents the cochain map C^s -> C^t.
-             Operator_list expect a sparse rep of this operator and in this case we use the sparse rep to be a torch tensor  of
-             the shape [2, K] where K is the number of non-zero elements dense matrix corresoponds to the sparse array.
-             First row in this matrix is the rows_indices of the sparse rep and the second row is the column_indices
-             In other words, if there is a message between cell i and a cell j then there the sparse representation that stores the indices i and j.
-             For exampl the dense operator A_opt= tensor([[1., 1., 0.],
-                                                         [0., 1., 1.]]) can be written as
-                                       operator_list= tensor([[0, 0, 1, 1],
-                                                              [0, 1, 1, 2]]) which stores the positions of the nonzero elements in the (dense representation ) of the operator_list
-             Typically operator_list  can be a boundary matrix when the operator is asymmetrical,
-             the adjacency, laplacian matrix when the operator is symmetric.
-
-            -operator_symmetry. bool, indicating if the is symmetric or not.
-
-        Return :
-
-            -h_prime_st. A torch tensor of shape [num_in_cell, num_source_out_features * num_heads]
-            -h_prime_ts. A torch tensor of shape [num_target_cell, num_target_out_features * num_heads]
+        Returns
+        -------
+        h_prime_st: torch.tensor, shape=[n_in_cell, source_out_features * num_heads]
+            Output features for the source cells.
+        h_prime_ts: torch.tensor, shape=[n_target_cell, target_out_features * num_heads]
+            Output features for the target cells.
         """
 
-        if self.concatinate:
+        if self.concatenate:
             # concatenate
             outputs_st = []
             outputs_ts = []
@@ -214,12 +242,31 @@ class SpMultiHeadHigherOrderAttention(nn.Module):
                 return outputs_st / len(self.attentions), None
 
 
-class MultiHeadHigherOrderAttentionClassifer(nn.Module):
-    """
-    Simplicial/Cellular Mutli-head Attention
+class MultiHeadHigherOrderAttentionClassifier(nn.Module):
+    """Multi-head Attention Classifier.
+
+    This the dense implementation.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for the source cells.
+    target_in_features : int
+        Number of input features for the target cells.
+    source_out_features : int
+        Number of output features for the source cells.
+    target_out_features : int
+        Number of output features for the target cells.
+    num_heads : int, optional
+        Number of attention heads, by default 5.
+    source_n_classes : int, optional
+        Number of classes for the source cells, by default 5.
+    target_n_classes : int, optional
+        Number of classes for the target cells, by default 5.
+    alpha : float, optional
+        Alpha value for the leaky_relu, by default 0.1.
     """
 
-    # multi head attention
     def __init__(
         self,
         source_in_features,
@@ -231,7 +278,7 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
         target_n_classes=5,
         alpha=0.1,
     ):
-        super(MultiHeadHigherOrderAttentionClassifer, self).__init__()
+        super(MultiHeadHigherOrderAttentionClassifier, self).__init__()
         self.attentions = nn.ModuleList(
             [
                 HigherOrderAttentionLayer(
@@ -255,21 +302,26 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
         )
 
     def forward(self, input1, input2, A_opt):
-        """
-        Parameters:
+        """Forward pass.
 
-            input1. A torch tensor of shape [num_in_cell, num_source_in_features]
-            input2. A torch tensor of shape [num_target_cell, num_target_in_features]
-            A_opt.  A torch tensor of shape [num_target_cell, num_in_cell]. Typically this can be a boundary matrix when the operator is asymmetrical, the adjacency, laplacian matrix when the operator is symmetric.
+        Inspired from: https://github.com/psh150204/GAT/blob/master/layer.py.
 
-        Return :
+        Parameters
+        ----------
+        input1 : torch.tensor, shape=[n_in_cell, source_in_features]
+            Input features for the source cells.
+        input2: torch.tensor, shape=[n_target_cell, target_in_features]
+            Input features for the target cells.
+        A_opt: torch.tensor, shape=[n_target_cell, n_in_cell]
+            This can be the adjacency, laplacian matrix when the operator is symmetric.
+            This can be a boundary matrix when the operator is asymmetric.
 
-            h_prime_st. A torch tensor of shape [num_in_cell, num_source_out_features * num_heads]
-            h_prime_ts. A torch tensor of shape [num_target_cell, num_target_out_features * num_heads]
-        """
-
-        """
-        layer built based on  https://github.com/psh150204/GAT/blob/master/layer.py
+        Returns
+        -------
+        h_prime_st: torch.tensor, shape=[n_in_cell, source_out_features * num_heads]
+            Output features for the source cells.
+        h_prime_ts: torch.tensor, shape=[n_target_cell, target_out_features * num_heads]
+            Output features for the target cells.
         """
 
         if input2 is None:
@@ -309,12 +361,31 @@ class MultiHeadHigherOrderAttentionClassifer(nn.Module):
             return F.log_softmax(outputs_st, dim=1), None
 
 
-class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
-    """
-    Sparse Simplicial/Cellular Mutli-head Attention
+class SpMultiHeadHigherOrderAttentionClassifier(nn.Module):
+    """Multi-head Attention Classifier.
+
+    This the sparse implementation.
+
+    Parameters
+    ----------
+    source_in_features : int
+        Number of input features for the source cells.
+    target_in_features : int
+        Number of input features for the target cells.
+    source_out_features : int
+        Number of output features for the source cells.
+    target_out_features : int
+        Number of output features for the target cells.
+    num_heads : int, optional
+        Number of attention heads, by default 5.
+    source_n_classes : int, optional
+        Number of classes for the source cells, by default 5.
+    target_n_classes : int, optional
+        Number of classes for the target cells, by default 5.
+    alpha : float, optional
+        Alpha value for the leaky_relu, by default 0.1.
     """
 
-    # multi head attention
     def __init__(
         self,
         source_in_features,
@@ -326,7 +397,7 @@ class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
         target_n_classes=5,
         alpha=0.1,
     ):
-        super(SpMultiHeadHigherOrderAttentionClassifer, self).__init__()
+        super(SpMultiHeadHigherOrderAttentionClassifier, self).__init__()
 
         self.attentions = nn.ModuleList(
             [
@@ -351,30 +422,28 @@ class SpMultiHeadHigherOrderAttentionClassifer(nn.Module):
         )
 
     def forward(self, input1, input2, A_opt, operator_symmetry=False):
-        """
-        Parameters:
+        """Forward pass.
 
-            -input1. A torch tensor of shape [num_in_cell, num_source_in_features]
-            -input2. A torch tensor of shape [num_target_cell, num_target_in_features]
+        Inspired from: https://github.com/psh150204/GAT/blob/master/layer.py.
 
-            -operator_list. A torch tensor of size represents the cochain map C^s -> C^t.
-             Operator_list expect a sparse rep of this operator and in this case we use the sparse rep to be a torch tensor  of
-             the shape [2, K] where K is the number of non-zero elements dense matrix corresoponds to the sparse array.
-             First row in this matrix is the rows_indices of the sparse rep and the second row is the column_indices
-             In other words, if there is a message between cell i and a cell j then there the sparse representation that stores the indices i and j.
-             For exampl the dense operator A_opt= tensor([[1., 1., 0.],
-                                                         [0., 1., 1.]]) can be written as
-                                       operator_list= tensor([[0, 0, 1, 1],
-                                                              [0, 1, 1, 2]]) which stores the positions of the nonzero elements in the (dense representation ) of the operator_list
-             Typically operator_list  can be a boundary matrix when the operator is asymmetrical,
-             the adjacency, laplacian matrix when the operator is symmetric.
+        Parameters
+        ----------
+        input1 : torch.tensor, shape=[n_in_cell, source_in_features]
+            Input features for the source cells.
+        input2: torch.tensor, shape=[n_target_cell, target_in_features]
+            Input features for the target cells.
+        A_opt: torch.tensor, shape=[n_target_cell, n_in_cell]
+            This can be the adjacency, laplacian matrix when the operator is symmetric.
+            This can be a boundary matrix when the operator is asymmetric.
+        operator_symmetry: bool
+            Indicates if the A is symmetric or not.
 
-            -operator_symmetry. bool, indicating if the is symmetric or not.
-
-        Return :
-
-            -h_prime_st. A torch tensor of shape [num_in_cell, num_source_out_features * num_heads]
-            -h_prime_ts. A torch tensor of shape [num_target_cell, num_target_out_features * num_heads]
+        Returns
+        -------
+        h_prime_st: torch.tensor, shape=[n_in_cell, source_out_features * num_heads]
+            Output features for the source cells.
+        h_prime_ts: torch.tensor, shape=[n_target_cell, target_out_features * num_heads]
+            Output features for the target cells.
         """
 
         outputs_st = []
