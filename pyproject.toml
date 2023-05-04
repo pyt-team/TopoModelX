@@ -1,0 +1,137 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "TopoModelX"
+dynamic = ["version"]
+authors = [
+    {name = "PyT-Team Authors", email = "mustafahajij@gmail.com"}
+]
+readme = "README.md"
+description = "Topological Deep Learning"
+license = {file = "LICENSE.txt"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10"
+]
+requires-python = ">= 3.9"
+dependencies=[
+    "tqdm",
+    "numpy",
+    "scipy",
+    "requests",
+    "scikit-learn",
+    "matplotlib",
+    "networkx",
+    "gudhi",
+    "torch_geometric",
+    "pandas",
+    "pyg-nightly",
+    "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
+]
+
+[project.optional-dependencies]
+doc = [
+    "jupyter",
+    "nbsphinx",
+    "nbsphinx_link",
+    "sphinx <= 5.3.0",
+    "sphinx_gallery",
+    "pydata-sphinx-theme"
+]
+lint = [
+    "black < 23.0",
+    "black[jupyter]",
+    "flake8",
+    "flake8-docstrings",
+    "Flake8-pyproject",
+    "isort",
+    "pre-commit"
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "jupyter"
+]
+
+dev = ["TopoModelX[test, lint]"]
+all = ["TopoModelX[dev]"]
+
+[project.urls]
+homepage="https://github.com/pyt-team/TopoModelX"
+repository="https://github.com/pyt-team/TopoModelX"
+
+[tool.setuptools.dynamic]
+version = {attr = "topomodelx.__version__"}
+
+[tool.setuptools.packages.find]
+include = [
+    "topomodelx",
+    "topomodelx.*"
+]
+
+[tool.pytest.ini_options]
+addopts = "--capture=no"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+skip = [".gitignore", "__init__.py"]
+
+[tool.flake8]
+application_import_names = "topomodelx"
+docstring-convention = "numpy"
+exclude = ["examples/*.ipynb"]
+ignore = [
+    "E203",
+    "F811",
+    "W503",
+    "W504",
+    "W605",
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D105",
+    "D106",
+    "D200",
+    "D201",
+    "D202",
+    "D205",
+    "D208",
+    "D209",
+    "D210",
+    "D211",
+    "D214",
+    "D215",
+    "D400",
+    "D401",
+    "D403",
+    "D404",
+    "D405",
+    "D406",
+    "D407",
+    "D409",
+    "D410",
+    "D411",
+    "D412",
+    "D414",
+    "D419",
+]
+import_order_style = "smarkets"
+max-line-length = 88
+extend-ignore = ["E501", "F401"]
+per-file-ignores = [
+    "*/__init__.py: F401,F403"
+]
