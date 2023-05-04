@@ -51,11 +51,12 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install -e .[full,test]
-      - name: Run tests
+      - name: Run tests [pytest]
         run: |
-          pytest --cov --cov-report=xml
+          pytest --cov --cov-report=xml:coverage.xml
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.xml
           fail_ci_if_error: false
