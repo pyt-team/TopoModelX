@@ -27,7 +27,7 @@ jobs:
 
       - name: install dependencies [pip]
         run:  |
-          pip install black==22.6.0 isort==5.10.1 flake8==6.0.0 flake8-docstrings
+          pip install black==22.6.0 isort==5.10.1 flake8==6.0.0
       - name : linting [black, isort, flake8]
         run: |
           black . --check --extend-exclude 'examples'
