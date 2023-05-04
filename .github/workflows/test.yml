@@ -6,7 +6,6 @@ on:
     paths-ignore:
     - 'docs/**'
     - 'README.md'
-    - 'README.rst'
     - 'LICENSE.txt'
     - '.gitignore'
 
@@ -15,7 +14,6 @@ on:
     paths-ignore:
     - 'docs/**'
     - 'README.md'
-    - 'README.rst'
     - 'LICENSE.txt'
     - '.gitignore'
 
@@ -40,6 +38,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
 
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: Install main package
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install -e .[full,test]
+          pip install -e .[all]
       - name: Run tests [pytest]
         run: |
           pytest --cov --cov-report=xml:coverage.xml
