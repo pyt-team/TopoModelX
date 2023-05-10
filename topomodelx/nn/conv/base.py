@@ -13,8 +13,6 @@ class MessagePassingConv(_MessagePassing):
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    neighborhood : torch.sparse tensors
-        Neighborhood matrix.
     intra_agg : string
         Aggregation method.
         (Inter-neighborhood).
@@ -26,21 +24,20 @@ class MessagePassingConv(_MessagePassing):
         self,
         in_channels,
         out_channels,
-        neighborhood,
         intra_agg="sum",
         initialization="xavier_uniform",
     ):
-        self.in_channels = in_channels
-        self.out_channels = out_channels
-        self.neighborhood = neighborhood
-        self.intra_agg = intra_agg
+        super().__init__(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            intra_agg=intra_agg,
+        )
         self.initialization = initialization
-        self.weights = self.init_weights()
 
-    def forward(self, h):
-        weighted_h = torch.mm(h, self.weight)
-        message = torch.spmm(self.neighborhood, weighted_h)
+    def forward(self, x, neighborhood):
+        weighted_h = torch.mm(x, self.weight)
+        message = torch.spmm(neighborhood, weighted_h)
         if self.intra_agg == "sum":
             return message
-        neighborhood_size = torch.sum(self.neighborhood, axis=1)
+        neighborhood_size = torch.sum(neighborhood, axis=1)
         return torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
