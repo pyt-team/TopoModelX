@@ -1,6 +1,7 @@
-"""Base class for higher order message passing on topological domains."""
+"""Base classes for higher order message passing on topological domains."""
 
 import torch
+
 from topomodelx.utils import scatter
 
 
@@ -9,8 +10,8 @@ class _Level(torch.nn.Module):
         """
         Parameters
         ----------
-        message_passings : list
-            _MessagePassing objects where messages to be aggregated are in sublists
+        message_passings : list of MessagePassing and Merge objects
+            TODO.
         inter_aggr : string
             Aggregation method.
             (Inter-neighborhood).
@@ -77,6 +78,7 @@ class _Merge(torch.nn.Module):
         ----------
         h : array-like, shape=[n_skleton_out, out_channels]
             Features on the skeleton out.
+
         Returns
         -------
         _ : array-like, shape=[n_skleton_out, out_channels]
@@ -138,12 +140,18 @@ class _MessagePassing(torch.nn.Module):
         return output
 
     def message(self, x, neighborhood):
-        r"""Construct message going from cell j to cell i.
+        r"""Construct message from feature x on source/sender cell.
+
+        Note that this is different from the convention
+        in pytorch-geometry which uses x as the features
+        that are going to be updated, i.e. on the receiver
+        cells.
 
         Parameters
         ----------
         x : Tensor
-            Features on the cells.
+            Features on the source cells, that is: the cells
+            sending the messages.
         """
         pass
 
