@@ -74,7 +74,8 @@ class HSNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.tensor, shape=[n_nodes, channels]
+        x: torch.tensor
+            shape=[n_nodes, channels]
             Input features on the nodes of the simplicial complex.
         """
         x_nodes_level1 = self.message_passing_level1_0_to_0(x)
@@ -83,5 +84,5 @@ class HSNLayer(torch.nn.Module):
         x_nodes_level2 = self.message_passing_level2_0_to_0(x_nodes_level1)
         x_edges_level2 = self.message_passing_level2_1_to_0(x_edges_level1)
 
-        x_nodes = self.merge_on_nodes([x_nodes_level2, x_edges_level2])
-        return x_nodes
+        x = self.merge_on_nodes([x_nodes_level2, x_edges_level2])
+        return x
