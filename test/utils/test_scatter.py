@@ -41,8 +41,6 @@ class TestScatter(unittest.TestCase):
                 computed=sc(torch.tensor(tests[i]['src']),
                        torch.tensor(tests[i]['index']),
                        dim=0)
-                #print("c",computed)
-                #print("e",torch.tensor(tests[i][scat]))
                 assert ( torch.all(computed == torch.tensor(tests[i][scat])))
                 
 
