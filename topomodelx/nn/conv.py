@@ -1,24 +1,25 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import _MessagePassing
 
 
 class MessagePassingConv(_MessagePassing):
     """Message passing: steps 1, 2, and 3.
-    Everything that is intra neighborhood.
-    We will have one of this per neighborhood.
+    Builds the message passing route given by one neighborhood matrix.
+    Includes an option for a message-specific update function.
+
     Parameters
     ----------
     in_channels : int
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    intra_aggr: string
-        Aggregation method.
-        (Inter-neighborhood).
+    neighborhood : torch.sparse
+        Neighborhood matrix.
+    inter_agg_norm : bool
+        Whether to normalize the aggregated message by the neighborhood size.
+    update_on_message : string
+        Update method to apply to message.
     initialization : string
         Initialization method.
     """
@@ -28,46 +29,38 @@ class MessagePassingConv(_MessagePassing):
         in_channels,
         out_channels,
         neighborhood,
+        inter_agg_norm=False,
+        update_on_message=None,
         initialization="xavier_uniform",
-        update="sigmoid",
     ):
         super().__init__(
             in_channels=in_channels,
             out_channels=out_channels,
+            update_on_message=update_on_message,
+            initialization=initialization,
         )
         self.neighborhood = neighborhood
-        self.initialization = initialization
-        self.update = update
+        self.inter_agg_norm = inter_agg_norm
+        self.update_on_message = update_on_message
 
-        self.weight = Parameter(torch.Tensor(in_channels, out_channels))
-        self.reset_parameters()
-
-    def reset_parameters(self, gain=1.414):
-        if self.initialization == "xavier_uniform":
-            nn.init.xavier_uniform_(self.weight, gain=gain)
-
-        elif self.initialization == "xavier_normal":
-            nn.init.xavier_normal_(self.weight, gain=gain)
-
-        elif self.initialization == "uniform":
-            stdv = 1.0 / torch.sqrt(self.weight.size(1))
-            self.weight.data.uniform_(-stdv, stdv)
-
-        else:
-            raise RuntimeError(
-                f" weight initializer " f"'{self.initialization}' is not supported"
-            )
-
-        return self.weight
+        self.weight = self.make_weights()
+        self.reset_parameters(self.weight)
 
     def forward(self, x):
+        """Forward computation.
+
+        Parameters
+        ----------
+        x: torch.tensor
+            shape=[n_cells, in_channels]
+            Input features on the cells.
+        """
         weighted_x = torch.mm(x, self.weight)
-        print("weighted_x", weighted_x.shape)
-        print("neighborhood", self.neighborhood.shape)
         message = torch.mm(self.neighborhood, weighted_x)
-        if self.intra_aggr == "sum":
-            return message
-        neighborhood_size = torch.sum(self.neighborhood, axis=1)
-        if self.update == "sigmoid":
-            return F.sigmoid(torch.einsum("i,ij->ij", 1 / neighborhood_size))
-        return torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
+        if self.inter_agg_norm:
+            neighborhood_size = torch.sum(self.neighborhood.to_dense(), dim=1)
+            message = torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
+        if self.update_on_message is not None:
+            message = self.update(message)
+
+        return message

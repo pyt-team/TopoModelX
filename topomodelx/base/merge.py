@@ -8,22 +8,21 @@ class _Merge(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels : int
-         Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    message_passings : list of _MessagePassing objects  # MessagePassingConv objects
-        List of (step1, Step2) per neighborhood.
+    inter_aggr : string
+        Aggregation method.
+        (Inter-neighborhood).
+    update_on_merge : string
+        Update method to apply to merged message.
     """
 
     def __init__(
         self,
-        message_passings,
         inter_aggr="sum",
+        update_on_merge="sigmoid",
     ):
         super().__init__()
-        self.message_passings = message_passings
         self.inter_aggr = inter_aggr
+        self.update_on_merge = update_on_merge
 
     def aggregate(self, inputs):
         """Aggregate (Step 3).
@@ -39,8 +38,8 @@ class _Merge(torch.nn.Module):
             Aggregated message on one skeleton (out).
         """
         if self.inter_aggr == "sum":
-            return torch.sum(inputs, axis=0)
-        return torch.mean(inputs, axis=0)
+            return torch.sum(torch.stack(inputs), axis=0)
+        return torch.mean(torch.stack(inputs), axis=0)
 
     def update(self, inputs):
         """Update (Step 4).
@@ -55,17 +54,21 @@ class _Merge(torch.nn.Module):
         _ : array-like, shape=[n_skleton_out, out_channels]
             Updated features on the skeleton out.
         """
-        return torch.functional.sigmoid(inputs)
+        if self.update_on_merge == "sigmoid":
+            return torch.sigmoid(inputs)
+        if self.update_on_merge == "relu":
+            return torch.nn.functional.relu(inputs)
 
-    def forward(self, h):
-        # Step 1 and 2
-        inputs = []
-        for message_passing in self.message_passings:
-            inputs.append(
-                message_passing(h)
-            )  # .forward(h): TODO change neighborhood name
-        # Step 3
-        message_x = self.aggregate(inputs)
-        # Step 4
-        output_feature_x = self.update(message_x)
-        return output_feature_x
+    def forward(self, x):
+        """Forward pass.
+
+        Parameters
+        ----------
+        x : list
+            len = n_messages_to_merge
+            Each message has shape [n_skeleton_in, channels]
+        """
+        x = self.aggregate(x)
+        if self.update_on_merge is not None:
+            x = self.update(x)
+        return x
