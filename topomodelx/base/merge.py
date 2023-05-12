@@ -8,12 +8,11 @@ class _Merge(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels : int
-         Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    message_passings : list of _MessagePassing objects  # MessagePassingConv objects
-        List of (step1, Step2) per neighborhood.
+    inter_aggr : string
+        Aggregation method.
+        (Inter-neighborhood).
+    update_on_merge : string
+        Update method to apply to merged message.
     """
 
     def __init__(
@@ -56,7 +55,9 @@ class _Merge(torch.nn.Module):
             Updated features on the skeleton out.
         """
         if self.update_on_merge == "sigmoid":
-            return torch.nn.functional.sigmoid(inputs)
+            return torch.sigmoid(inputs)
+        if self.update_on_merge == "relu":
+            return torch.nn.functional.relu(inputs)
 
     def forward(self, x):
         """Forward pass.
@@ -67,6 +68,7 @@ class _Merge(torch.nn.Module):
             len = n_messages_to_merge
             Each message has shape [n_skeleton_in, channels]
         """
-        merged_x = self.aggregate(x)
-        output_x = self.update(merged_x)
-        return output_x
+        x = self.aggregate(x)
+        if self.update_on_merge is not None:
+            x = self.update(x)
+        return x

@@ -1,23 +1,26 @@
 import torch
-import torch.nn.functional as F
 
-from topomodelx.base.level import Level
 from topomodelx.base.merge import _Merge
 from topomodelx.nn.conv import MessagePassingConv
 
 
 class HSNLayer(torch.nn.Module):
-    """Template Layer.
+    """High Skip Network Layer.
+    Implementation of the HSN layer from the paper by Hajij et. al:
+    High Skip Networks: A Higher Order Generalization of Skip Connections
+    https://openreview.net/pdf?id=Sc8glB-k6e9
+    Note: this is the architecture proposed for node classification on simplicial complices.
 
     Parameters
     ----------
     channels : int
-        Dimension of input features.
-    channels : int
-        Dimension of output features.
-    intra_aggr : string
-        Aggregation method.
-        (Inter-neighborhood).
+        Dimension of features on each simplicial cell.
+    incidence_matrix_1 : torch.sparse
+        Incidence matrix mapping edges to nodes (B_1).
+    adjacency_matrix_0 : torch.sparse
+        Adjacency matrix mapping nodes to nodes (A_0_up).
+    initialization : string
+        Initialization method.
     """
 
     def __init__(
@@ -25,39 +28,37 @@ class HSNLayer(torch.nn.Module):
         channels,
         incidence_matrix_1,
         adjacency_matrix_0,
-        initialization="xavier_uniform",
     ):
         super().__init__()
         self.channels = channels
         self.incidence_matrix_1 = incidence_matrix_1
         incidence_matrix_1_transpose = incidence_matrix_1.to_dense().T.to_sparse()
         self.adjacency_matrix_0 = adjacency_matrix_0
-        self.initialization = initialization
 
         self.message_passing_level1_0_to_0 = MessagePassingConv(
             in_channels=channels,
             out_channels=channels,
             neighborhood=adjacency_matrix_0,
-            update="sigmoid",
+            update_on_message="sigmoid",
         )
         self.message_passing_level1_0_to_1 = MessagePassingConv(
             in_channels=channels,
             out_channels=channels,
             neighborhood=incidence_matrix_1_transpose,
-            update="sigmoid",
+            update_on_message="sigmoid",
         )
 
         self.message_passing_level2_0_to_0 = MessagePassingConv(
             in_channels=channels,
             out_channels=channels,
             neighborhood=adjacency_matrix_0,
-            update=None,
+            update_on_message=None,
         )
         self.message_passing_level2_1_to_0 = MessagePassingConv(
             in_channels=channels,
             out_channels=channels,
             neighborhood=incidence_matrix_1,
-            update=None,
+            update_on_message=None,
         )
 
         self.merge_on_nodes = _Merge(inter_aggr="sum", update_on_merge="sigmoid")
@@ -70,7 +71,7 @@ class HSNLayer(torch.nn.Module):
         self.message_passing_level2_1_to_0.reset_parameters()
 
     def forward(self, x):
-        r"""Forward computation.
+        r"""Forward computation of one layer.
 
         Parameters
         ----------
