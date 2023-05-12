@@ -35,11 +35,10 @@ class _MessagePassing(torch.nn.Module):
         self.update_on_message = update_on_message
         self.initialization = initialization
 
-    def make_weights(self):
-        r"""Make weight matrix."""
-        return Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        self.reset_parameters()
 
-    def message(self, x):
+    def message(self, x, neighborhood):
         r"""Construct message from feature x on source/sender cell.
 
         Note that this is different from the convention
@@ -53,9 +52,11 @@ class _MessagePassing(torch.nn.Module):
             Features on the source cells, that is: the cells
             sending the messages.
         """
-        pass
+        weighted_x = torch.mm(x, self.weight)
+        message = torch.mm(neighborhood, weighted_x)
+        return message
 
-    def reset_parameters(self, weight, gain=1.414):
+    def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
         Parameters
@@ -66,21 +67,21 @@ class _MessagePassing(torch.nn.Module):
             Gain for the weight initialization.
         """
         if self.initialization == "xavier_uniform":
-            nn.init.xavier_uniform_(weight, gain=gain)
+            nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
-            nn.init.xavier_normal_(weight, gain=gain)
+            nn.init.xavier_normal_(self.weight, gain=gain)
 
         elif self.initialization == "uniform":
-            stdv = 1.0 / torch.sqrt(weight.size(1))
-            weight.data.uniform_(-stdv, stdv)
+            stdv = 1.0 / torch.sqrt(self.weight.size(1))
+            self.weight.data.uniform_(-stdv, stdv)
 
         else:
             raise RuntimeError(
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
-        return weight
+        return self.weight
 
     def update(self, inputs):
         """Update embeddings on each cell (step 4).

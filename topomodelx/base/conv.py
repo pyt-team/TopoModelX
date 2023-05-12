@@ -1,3 +1,5 @@
+"""Convolutional layer for message passing."""
+
 import torch
 
 from topomodelx.base.message_passing import _MessagePassing
@@ -5,6 +7,7 @@ from topomodelx.base.message_passing import _MessagePassing
 
 class MessagePassingConv(_MessagePassing):
     """Message passing: steps 1, 2, and 3.
+
     Builds the message passing route given by one neighborhood matrix.
     Includes an option for a message-specific update function.
 
@@ -42,9 +45,6 @@ class MessagePassingConv(_MessagePassing):
         self.neighborhood = neighborhood
         self.inter_agg_norm = inter_agg_norm
         self.update_on_message = update_on_message
-
-        self.weight = self.make_weights()
-        self.reset_parameters(self.weight)
 
     def forward(self, x):
         """Forward computation.
