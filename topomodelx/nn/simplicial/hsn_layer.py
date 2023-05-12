@@ -1,7 +1,7 @@
 import torch
 
+from topomodelx.base.conv import MessagePassingConv
 from topomodelx.base.merge import _Merge
-from topomodelx.nn.conv import MessagePassingConv
 
 
 class HSNLayer(torch.nn.Module):

@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from topomodelx.nn.conv import MessagePassingConv
+from topomodelx.base.conv import MessagePassingConv
 
 
 class TemplateLayer(torch.nn.Module):
