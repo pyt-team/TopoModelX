@@ -34,17 +34,17 @@ class TemplateLayer(torch.nn.Module):
         self.incidence_matrix_2_transpose = incidence_matrix_2.to_dense().T.to_sparse()
         self.initialization = initialization
 
-        self.level1 = MessagePassingConv(
-            in_channels, intermediate_channels, update="sigmoid"
+        self.message_level1_2_to_1 = MessagePassingConv(
+            in_channels, intermediate_channels, update_on_message="sigmoid"
         )
-        self.level2 = MessagePassingConv(
-            intermediate_channels, out_channels, update="sigmoid"
+        self.mesage_level2_1_to_2 = MessagePassingConv(
+            intermediate_channels, out_channels, update_on_message="sigmoid"
         )
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""
-        self.level1.reset_parameters()
-        self.level2.reset_parameters()
+        self.message_level1_2_to_1.reset_parameters()
+        self.mesage_level2_1_to_2.reset_parameters()
 
     def forward(self, x):
         r"""Forward computation.
@@ -58,9 +58,6 @@ class TemplateLayer(torch.nn.Module):
             raise ValueError(
                 f"Shape of input face features does not have the correct number of faces {self.incidence_matrix_2.shape[-1]}."
             )
-
-        x = self.level1(x, self.incidence_matrix_2)
-
-        x = self.level2(x, self.incidence_matrix_2_transpose)
-
+        x_edges = self.message_level1_2_to_1(x, self.incidence_matrix_2)
+        x = self.mesage_level2_1_to_2(x_edges, self.incidence_matrix_2_transpose)
         return x

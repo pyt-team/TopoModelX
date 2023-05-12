@@ -29,7 +29,7 @@ class MessagePassingConv(_MessagePassing):
         out_channels,
         neighborhood,
         initialization="xavier_uniform",
-        update="sigmoid",
+        update_on_message="sigmoid",
     ):
         super().__init__(
             in_channels=in_channels,
@@ -37,7 +37,7 @@ class MessagePassingConv(_MessagePassing):
         )
         self.neighborhood = neighborhood
         self.initialization = initialization
-        self.update = update
+        self.update_on_message = update_on_message
 
         self.weight = Parameter(torch.Tensor(in_channels, out_channels))
         self.reset_parameters()
@@ -61,13 +61,19 @@ class MessagePassingConv(_MessagePassing):
         return self.weight
 
     def forward(self, x):
+        """Forward computation.
+
+        Parameters
+        ----------
+        x: torch.tensor
+            shape=[n_cells, in_channels]
+            Input features on the cells.
+        """
         weighted_x = torch.mm(x, self.weight)
-        print("weighted_x", weighted_x.shape)
-        print("neighborhood", self.neighborhood.shape)
         message = torch.mm(self.neighborhood, weighted_x)
         if self.intra_aggr == "sum":
             return message
         neighborhood_size = torch.sum(self.neighborhood, axis=1)
-        if self.update == "sigmoid":
+        if self.update_on_message == "sigmoid":
             return F.sigmoid(torch.einsum("i,ij->ij", 1 / neighborhood_size))
         return torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
