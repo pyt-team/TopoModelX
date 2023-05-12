@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 
-from topomodelx.nn.base import _MessagePassing
+from topomodelx.base.message_passing import _MessagePassing
 
 
 class MessagePassingConv(_MessagePassing):
@@ -27,6 +27,7 @@ class MessagePassingConv(_MessagePassing):
         self,
         in_channels,
         out_channels,
+        neighborhood,
         initialization="xavier_uniform",
         update="sigmoid",
     ):
@@ -34,6 +35,7 @@ class MessagePassingConv(_MessagePassing):
             in_channels=in_channels,
             out_channels=out_channels,
         )
+        self.neighborhood = neighborhood
         self.initialization = initialization
         self.update = update
 
@@ -58,14 +60,14 @@ class MessagePassingConv(_MessagePassing):
 
         return self.weight
 
-    def forward(self, x, neighborhood):
+    def forward(self, x):
         weighted_x = torch.mm(x, self.weight)
-        print(weighted_x.shape)
-        print(x.shape)
-        message = torch.mm(neighborhood, weighted_x)
+        print("weighted_x", weighted_x.shape)
+        print("neighborhood", self.neighborhood.shape)
+        message = torch.mm(self.neighborhood, weighted_x)
         if self.intra_aggr == "sum":
             return message
-        neighborhood_size = torch.sum(neighborhood, axis=1)
+        neighborhood_size = torch.sum(self.neighborhood, axis=1)
         if self.update == "sigmoid":
             return F.sigmoid(torch.einsum("i,ij->ij", 1 / neighborhood_size))
         return torch.einsum("i,ij->ij", 1 / neighborhood_size, message)

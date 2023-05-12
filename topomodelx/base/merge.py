@@ -21,6 +21,7 @@ class _Merge(torch.nn.Module):
         message_passings,
         inter_aggr="sum",
     ):
+        super().__init__()
         self.message_passings = message_passings
         self.inter_aggr = inter_aggr
 

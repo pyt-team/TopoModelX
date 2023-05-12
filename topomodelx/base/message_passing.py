@@ -31,7 +31,6 @@ class _MessagePassing(torch.nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.intra_aggr = intra_aggr
-        self.initi
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""

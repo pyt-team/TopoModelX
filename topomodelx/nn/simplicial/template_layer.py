@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from topomodelx.nn.conv import MessagePassingConv
 
 
-class Template(torch.nn.Module):
+class TemplateLayer(torch.nn.Module):
     """Template Layer.
 
     Parameters
@@ -31,6 +31,7 @@ class Template(torch.nn.Module):
         self.intermediate_channels = intermediate_channels
         self.out_channels = out_channels
         self.incidence_matrix_2 = incidence_matrix_2
+        self.incidence_matrix_2_transpose = incidence_matrix_2.to_dense().T.to_sparse()
         self.initialization = initialization
 
         self.level1 = MessagePassingConv(
@@ -60,6 +61,6 @@ class Template(torch.nn.Module):
 
         x = self.level1(x, self.incidence_matrix_2)
 
-        x = self.level2(x, self.incidence_matrix_2.T)
+        x = self.level2(x, self.incidence_matrix_2_transpose)
 
         return x
