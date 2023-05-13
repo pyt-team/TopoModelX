@@ -6,7 +6,8 @@ from topomodelx.base.conv import Conv
 
 class TemplateLayer(torch.nn.Module):
     """Template Layer with two conv passing steps.
-    We show how to
+
+    A two-step message passing layer.
 
     Parameters
     ----------

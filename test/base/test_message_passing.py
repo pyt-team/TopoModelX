@@ -14,9 +14,7 @@ class TestMessagePassing:
         out_channels = 5
         update_func = "relu"
         initialization = "xavier_uniform"
-        mp = MessagePassing(
-            in_channels, out_channels, update_func, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         assert mp.in_channels == in_channels
         assert mp.out_channels == out_channels
@@ -29,9 +27,7 @@ class TestMessagePassing:
         out_channels = 5
         update_func = "relu"
         initialization = "xavier_uniform"
-        mp = MessagePassing(
-            in_channels, out_channels, update_func, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         weight = mp.weight
         assert weight.shape == (in_channels, out_channels)
@@ -43,9 +39,7 @@ class TestMessagePassing:
         out_channels = 5
         update_func = "relu"
         initialization = "xavier_uniform"
-        mp = MessagePassing(
-            in_channels, out_channels, update_func, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         weight = mp.reset_parameters()
         assert torch.is_tensor(weight)
@@ -58,9 +52,7 @@ class TestMessagePassing:
         out_channels = 5
         update_func = "sigmoid"
         initialization = "xavier_uniform"
-        mp = MessagePassing(
-            in_channels, out_channels, update_func, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         inputs = torch.randn(10, out_channels)
         updated = mp.update(inputs)
@@ -74,9 +66,7 @@ class TestMessagePassing:
         n_cells = 10
         update_func = "relu"
         initialization = "xavier_uniform"
-        mp = MessagePassing(
-            in_channels, out_channels, update_func, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         x = torch.randn(n_cells, in_channels)
         neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
