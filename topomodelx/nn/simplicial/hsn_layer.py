@@ -1,11 +1,13 @@
+"""High Skip Network Layer."""
 import torch
 
-from topomodelx.base.conv import Conv
 from topomodelx.base.aggregation import Aggregation
+from topomodelx.base.conv import Conv
 
 
 class HSNLayer(torch.nn.Module):
     """High Skip Network Layer.
+
     Implementation of the HSN layer from the paper by Hajij et. al:
     High Skip Networks: A Higher Order Generalization of Skip Connections
     https://openreview.net/pdf?id=Sc8glB-k6e9
@@ -21,6 +23,7 @@ class HSNLayer(torch.nn.Module):
         Adjacency matrix mapping nodes to nodes (A_0_up).
     initialization : string
         Initialization method.
+
     """
 
     def __init__(
