@@ -2,7 +2,7 @@
 
 import torch
 
-from topomodelx.base.message_passing import _MessagePassing
+from topomodelx.base.message_passing import MessagePassing
 
 
 class TestMessagePassing:
@@ -12,26 +12,22 @@ class TestMessagePassing:
         """Test the initialization of the message passing module."""
         in_channels = 3
         out_channels = 5
-        update_on_message = "relu"
+        update_func = "relu"
         initialization = "xavier_uniform"
-        mp = _MessagePassing(
-            in_channels, out_channels, update_on_message, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         assert mp.in_channels == in_channels
         assert mp.out_channels == out_channels
-        assert mp.update_on_message == update_on_message
+        assert mp.update_func == update_func
         assert mp.initialization == initialization
 
     def test_weights(self):
         """Test the weights."""
         in_channels = 3
         out_channels = 5
-        update_on_message = "relu"
+        update_func = "relu"
         initialization = "xavier_uniform"
-        mp = _MessagePassing(
-            in_channels, out_channels, update_on_message, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         weight = mp.weight
         assert weight.shape == (in_channels, out_channels)
@@ -41,11 +37,9 @@ class TestMessagePassing:
         """Test the reset of the parameters."""
         in_channels = 3
         out_channels = 5
-        update_on_message = "relu"
+        update_func = "relu"
         initialization = "xavier_uniform"
-        mp = _MessagePassing(
-            in_channels, out_channels, update_on_message, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         weight = mp.reset_parameters()
         assert torch.is_tensor(weight)
@@ -56,11 +50,9 @@ class TestMessagePassing:
         """Test the update function."""
         in_channels = 3
         out_channels = 5
-        update_on_message = "sigmoid"
+        update_func = "sigmoid"
         initialization = "xavier_uniform"
-        mp = _MessagePassing(
-            in_channels, out_channels, update_on_message, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         inputs = torch.randn(10, out_channels)
         updated = mp.update(inputs)
@@ -72,11 +64,9 @@ class TestMessagePassing:
         in_channels = 3
         out_channels = 5
         n_cells = 10
-        update_on_message = "relu"
+        update_func = "relu"
         initialization = "xavier_uniform"
-        mp = _MessagePassing(
-            in_channels, out_channels, update_on_message, initialization
-        )
+        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
 
         x = torch.randn(n_cells, in_channels)
         neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()

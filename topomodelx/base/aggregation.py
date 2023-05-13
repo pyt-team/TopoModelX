@@ -1,45 +1,28 @@
-"""Merge module."""
+"""Aggregation module."""
 
 import torch
 
 
-class _Merge(torch.nn.Module):
+class Aggregation(torch.nn.Module):
     """Message passing layer.
 
     Parameters
     ----------
-    inter_aggr : string
+    aggr_func : string
         Aggregation method.
         (Inter-neighborhood).
-    update_on_merge : string
+    update_func : string
         Update method to apply to merged message.
     """
 
     def __init__(
         self,
-        inter_aggr="sum",
-        update_on_merge="sigmoid",
+        aggr_func="sum",
+        update_func="sigmoid",
     ):
         super().__init__()
-        self.inter_aggr = inter_aggr
-        self.update_on_merge = update_on_merge
-
-    def aggregate(self, inputs):
-        """Aggregate (Step 3).
-
-        Parameters
-        ----------
-        inputs : array-like, shape=[n_neighborhoods, n_skeleton_out, out_channels]
-            Messages on one skeleton (out) per neighborhood.
-
-        Returns
-        -------
-        _ : array-like, shape=[n_skeleton_out, out_channels]
-            Aggregated message on one skeleton (out).
-        """
-        if self.inter_aggr == "sum":
-            return torch.sum(torch.stack(inputs), axis=0)
-        return torch.mean(torch.stack(inputs), axis=0)
+        self.aggr_func = aggr_func
+        self.update_func = update_func
 
     def update(self, inputs):
         """Update (Step 4).
@@ -54,9 +37,9 @@ class _Merge(torch.nn.Module):
         _ : array-like, shape=[n_skleton_out, out_channels]
             Updated features on the skeleton out.
         """
-        if self.update_on_merge == "sigmoid":
+        if self.update_func == "sigmoid":
             return torch.sigmoid(inputs)
-        if self.update_on_merge == "relu":
+        if self.update_func == "relu":
             return torch.nn.functional.relu(inputs)
 
     def forward(self, x):
@@ -68,7 +51,10 @@ class _Merge(torch.nn.Module):
             len = n_messages_to_merge
             Each message has shape [n_skeleton_in, channels]
         """
-        x = self.aggregate(x)
-        if self.update_on_merge is not None:
+        if self.aggr_func == "sum":
+            x = torch.sum(torch.stack(x), axis=0)
+        x = torch.mean(torch.stack(x), axis=0)
+
+        if self.update_func is not None:
             x = self.update(x)
         return x

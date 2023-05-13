@@ -7,8 +7,8 @@ from torch.nn.parameter import Parameter
 from topomodelx.utils.scatter import scatter
 
 
-class _MessagePassing(torch.nn.Module):
-    """_MessagePassing.
+class MessagePassing(torch.nn.Module):
+    """MessagePassing.
 
     This corresponds to Steps 1 & 2 of the 4-step scheme.
 
@@ -26,13 +26,13 @@ class _MessagePassing(torch.nn.Module):
         self,
         in_channels,
         out_channels,
-        update_on_message,
+        update_func,
         initialization,
     ):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.update_on_message = update_on_message
+        self.update_func = update_func
         self.initialization = initialization
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
@@ -96,14 +96,14 @@ class _MessagePassing(torch.nn.Module):
         _ : array-like, shape=[n_skleton_out, out_channels]
             Updated features on the skeleton out.
         """
-        if self.update_on_message == "sigmoid":
+        if self.update_func == "sigmoid":
             return torch.sigmoid(inputs)
-        if self.update_on_message == "relu":
+        if self.update_func == "relu":
             return torch.nn.functional.relu(inputs)
 
     def forward(self, x, neighborhood):
         r"""Run the forward pass of the module."""
         x = self.message(x, neighborhood)
-        if self.update_on_message is not None:
+        if self.update_func is not None:
             x = self.update(x)
         return x

@@ -97,19 +97,10 @@ exclude = [
     "topomodelx/version.py",
     "docs/source/conf.py"
 ]
-ignore = [
-    "E203",
-    "F811",
-    "W503",
-    "W504",
-    "W605"
-]
+
 import_order_style = "smarkets"
 max-line-length = 88
 extend-ignore = ["E501", "F401"]
 per-file-ignores = [
     "*/__init__.py: D104, F401",
-    "topomodelx/nn/*: D100, D101, D102, D103, D104, D105, D106, D200, D201, D202, D205, D208, D209, D211, D214, D215, D400, D404, D407, D409, D411, I100, I101, I201, I202, I214",
-    "test/normalization/test_normalization.py: I100, I202",
-    "test/transforms/test_graph_to_simplicial_complex.py: I100, I202"
 ]

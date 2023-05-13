@@ -2,11 +2,11 @@
 
 import torch
 
-from topomodelx.base.conv import MessagePassingConv
+from topomodelx.base.conv import Conv
 
 
-class TestMessagePassingConv:
-    """Test the MessagePassingConv class."""
+class TestConv:
+    """Test the Conv class."""
 
     def test_message_passing_conv_forward(self):
         """Test the forward pass of the message passing convolution layer."""
@@ -21,12 +21,12 @@ class TestMessagePassingConv:
         neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
 
         # Create a message passing convolution layer
-        mp_conv = MessagePassingConv(
+        mp_conv = Conv(
             in_channels=in_channels,
             out_channels=out_channels,
             neighborhood=neighborhood,
-            inter_agg_norm=True,
-            update_on_message="sigmoid",
+            aggr_norm=True,
+            update_func="sigmoid",
             initialization="xavier_uniform",
         )
 
