@@ -2,10 +2,10 @@
 
 import torch
 
-from topomodelx.base.message_passing import _MessagePassing
+from topomodelx.base.message_passing import MessagePassing
 
 
-class MessagePassingConv(_MessagePassing):
+class Conv(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
     Builds the message passing route given by one neighborhood matrix.
@@ -19,9 +19,9 @@ class MessagePassingConv(_MessagePassing):
         Dimension of output features.
     neighborhood : torch.sparse
         Neighborhood matrix.
-    inter_agg_norm : bool
+    aggr_norm : bool
         Whether to normalize the aggregated message by the neighborhood size.
-    update_on_message : string
+    update_func : string
         Update method to apply to message.
     initialization : string
         Initialization method.
@@ -32,19 +32,19 @@ class MessagePassingConv(_MessagePassing):
         in_channels,
         out_channels,
         neighborhood,
-        inter_agg_norm=False,
-        update_on_message=None,
+        aggr_norm=False,
+        update_func=None,
         initialization="xavier_uniform",
     ):
         super().__init__(
             in_channels=in_channels,
             out_channels=out_channels,
-            update_on_message=update_on_message,
+            update_func=update_func,
             initialization=initialization,
         )
         self.neighborhood = neighborhood
-        self.inter_agg_norm = inter_agg_norm
-        self.update_on_message = update_on_message
+        self.aggr_norm = aggr_norm
+        self.update_func = update_func
 
     def forward(self, x):
         """Forward computation.
@@ -57,10 +57,10 @@ class MessagePassingConv(_MessagePassing):
         """
         weighted_x = torch.mm(x, self.weight)
         message = torch.mm(self.neighborhood, weighted_x)
-        if self.inter_agg_norm:
+        if self.aggr_norm:
             neighborhood_size = torch.sum(self.neighborhood.to_dense(), dim=1)
             message = torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
-        if self.update_on_message is not None:
+        if self.update_func is not None:
             message = self.update(message)
 
         return message

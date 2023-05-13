@@ -3,30 +3,18 @@
 
 import torch
 
-from topomodelx.base.merge import _Merge
+from topomodelx.base.aggregation import Aggregation
 
 
-class TestMerge:
-    """Test the Merge class."""
-
-    def test_aggregate(self):
-        """Test the aggregation of messages."""
-        n_neighborhoods = 2
-        n_skeleton_out = 4
-        out_channels = 8
-        inputs = [
-            torch.randn(n_skeleton_out, out_channels) for _ in range(n_neighborhoods)
-        ]
-        merge_layer = _Merge()
-        aggregated = merge_layer.aggregate(inputs)
-        assert aggregated.shape == (n_skeleton_out, out_channels)
+class TestAggregation:
+    """Test the Aggregation class."""
 
     def test_update(self):
         """Test the update of messages."""
         n_skeleton_out = 4
         out_channels = 8
         inputs = torch.randn(n_skeleton_out, out_channels)
-        merge_layer = _Merge(update_on_merge="sigmoid")
+        merge_layer = Aggregation(update_func="sigmoid")
         updated = merge_layer.update(inputs)
         assert updated.shape == (n_skeleton_out, out_channels)
 
@@ -39,6 +27,6 @@ class TestMerge:
             torch.randn(n_cells_on_merging_rank, out_channels)
             for _ in range(n_messages_to_merge)
         ]
-        merge_layer = _Merge()
+        merge_layer = Aggregation()
         merged = merge_layer.forward(inputs)
         assert merged.shape == (n_cells_on_merging_rank, out_channels)

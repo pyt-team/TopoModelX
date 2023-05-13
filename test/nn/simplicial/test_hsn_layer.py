@@ -13,13 +13,13 @@ class TestHSNLayer:
         channels = 5
         n_nodes = 10
         n_edges = 20
-        incidence_matrix_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
+        incidence_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
 
-        adjacency_matrix_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
+        adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
 
         x = torch.randn(n_nodes, channels)
 
-        hsn = HSNLayer(channels, incidence_matrix_1_t, adjacency_matrix_0)
+        hsn = HSNLayer(channels, incidence_1_t, adjacency_0)
         output = hsn(x)
 
         assert output.shape == (n_nodes, channels)
@@ -29,10 +29,10 @@ class TestHSNLayer:
         channels = 5
         n_nodes = 10
         n_edges = 20
-        incidence_matrix_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
-        adjacency_matrix_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
+        incidence_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
+        adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
 
-        hsn = HSNLayer(channels, incidence_matrix_1_t, adjacency_matrix_0)
+        hsn = HSNLayer(channels, incidence_1_t, adjacency_0)
         hsn.reset_parameters()
 
         for module in hsn.modules():
