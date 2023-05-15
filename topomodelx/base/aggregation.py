@@ -53,7 +53,8 @@ class Aggregation(torch.nn.Module):
         """
         if self.aggr_func == "sum":
             x = torch.sum(torch.stack(x), axis=0)
-        x = torch.mean(torch.stack(x), axis=0)
+        if self.aggr_func == "mean":
+            x = torch.mean(torch.stack(x), axis=0)
 
         if self.update_func is not None:
             x = self.update(x)
