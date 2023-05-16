@@ -13,26 +13,21 @@ class TestHSNLayer:
         channels = 5
         n_nodes = 10
         n_edges = 20
-        incidence_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
-
+        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
         adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
 
-        x = torch.randn(n_nodes, channels)
+        x_0 = torch.randn(n_nodes, channels)
 
-        hsn = HSNLayer(channels, incidence_1_t, adjacency_0)
-        output = hsn(x)
+        hsn = HSNLayer(channels)
+        output = hsn.forward(x_0, incidence_1, adjacency_0)
 
         assert output.shape == (n_nodes, channels)
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
         channels = 5
-        n_nodes = 10
-        n_edges = 20
-        incidence_1_t = torch.randint(0, 2, (n_nodes, n_edges)).float()
-        adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
 
-        hsn = HSNLayer(channels, incidence_1_t, adjacency_0)
+        hsn = HSNLayer(channels)
         hsn.reset_parameters()
 
         for module in hsn.modules():

@@ -17,8 +17,6 @@ class Conv(MessagePassing):
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    neighborhood : torch.sparse
-        Neighborhood matrix.
     aggr_norm : bool
         Whether to normalize the aggregated message by the neighborhood size.
     update_func : string
@@ -31,7 +29,6 @@ class Conv(MessagePassing):
         self,
         in_channels,
         out_channels,
-        neighborhood,
         aggr_norm=False,
         update_func=None,
         initialization="xavier_uniform",
@@ -42,11 +39,10 @@ class Conv(MessagePassing):
             update_func=update_func,
             initialization=initialization,
         )
-        self.neighborhood = neighborhood
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
-    def forward(self, x):
+    def forward(self, x, neighborhood):
         """Forward computation.
 
         Parameters
@@ -54,11 +50,19 @@ class Conv(MessagePassing):
         x: torch.tensor
             shape=[n_cells, in_channels]
             Input features on the cells.
+        neighborhood : torch.sparse
+            Neighborhood matrix.
+
+        Returns
+        -------
+        _ : torch.tensor
+            shape=[n_cells, out_channels]
+            Output features on the cells.
         """
         weighted_x = torch.mm(x, self.weight)
-        message = torch.mm(self.neighborhood, weighted_x)
+        message = torch.mm(neighborhood, weighted_x)
         if self.aggr_norm:
-            neighborhood_size = torch.sum(self.neighborhood.to_dense(), dim=1)
+            neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
             message = torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
         if self.update_func is not None:
             message = self.update(message)
