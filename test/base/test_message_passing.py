@@ -1,76 +1,109 @@
 """Test the message passing module."""
 
 import torch
+import numpy as np
+import unittest
+
 
 from topomodelx.base.message_passing import MessagePassing
 
+import toponetx as tnx
 
-class TestMessagePassing:
+
+class TestMessagePassing(unittest.TestCase):
     """Test the message passing module."""
 
     def test_init(self):
         """Test the initialization of the message passing module."""
-        in_channels = 3
-        out_channels = 5
-        update_func = "relu"
-        initialization = "xavier_uniform"
-        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
+        mp = MessagePassing()
+        
 
-        assert mp.in_channels == in_channels
-        assert mp.out_channels == out_channels
-        assert mp.update_func == update_func
-        assert mp.initialization == initialization
-
-    def test_weights(self):
-        """Test the weights."""
-        in_channels = 3
-        out_channels = 5
-        update_func = "relu"
-        initialization = "xavier_uniform"
-        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
-
-        weight = mp.weight
-        assert weight.shape == (in_channels, out_channels)
-        assert weight.requires_grad
-
-    def test_reset_parameters(self):
-        """Test the reset of the parameters."""
-        in_channels = 3
-        out_channels = 5
-        update_func = "relu"
-        initialization = "xavier_uniform"
-        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
-
-        weight = mp.reset_parameters()
-        assert torch.is_tensor(weight)
-        assert weight.requires_grad
-        assert weight.shape == (in_channels, out_channels)
-
-    def test_update(self):
-        """Test the update function."""
-        in_channels = 3
-        out_channels = 5
-        update_func = "sigmoid"
-        initialization = "xavier_uniform"
-        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
-
-        inputs = torch.randn(10, out_channels)
-        updated = mp.update(inputs)
-        assert torch.is_tensor(updated)
-        assert updated.shape == (10, out_channels)
 
     def test_forward(self):
-        """Test the forward pass of the message passing module."""
-        in_channels = 3
-        out_channels = 5
-        n_cells = 10
-        update_func = "relu"
-        initialization = "xavier_uniform"
-        mp = MessagePassing(in_channels, out_channels, update_func, initialization)
+        """Test the weights."""
+        a = np.array([[-1.,  0. ],
+                      [ 1.,- 1],
+                      [ 0.,  1.]])
+        
+        a_ = np.array([[-1.,  0. ],
+                      [ 1.,- 0.5],
+                      [ 0.,  1.]])
+        mp = MessagePassing()
+        x = torch.rand(2,10)
+        x_out = mp(x,a)
+        expected = np.matmul(a,x.numpy())
+        np.testing.assert_array_almost_equal( x_out.numpy() ,expected)
 
-        x = torch.randn(n_cells, in_channels)
-        neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
+    def test__propagate(self):
+        """Test the _propagate function ."""
+        a = np.array([[-1.,  0. ],
+                      [ 1.,- 1],
+                      [ 0.,  1.]])
+        
+        a_ = np.array([[-1.,  0. ],
+                      [ 1.,- 0.5],
+                      [ 0.,  1.]])
+        mp = MessagePassing()
+        x = torch.rand(2,10)
+        x_out = mp._propagate(x,a)
+        expected = np.matmul(a,x.numpy())
+        np.testing.assert_array_almost_equal( x_out.numpy() ,expected)
+       
+        # test without sign
+        x_out = mp._propagate(x,a,aggregate_sign=False)
+        expected = np.matmul(abs(a) ,x.numpy())
+        np.testing.assert_array_almost_equal( x_out.numpy() ,expected)
 
-        out = mp.forward(x, neighborhood)
-        assert torch.is_tensor(out)
-        assert out.shape == (10, out_channels)
+
+        # test without value 
+        x_out = mp._propagate(x,a_, aggregate_value= False ) 
+        expected = np.matmul(a ,x.numpy()) 
+        np.testing.assert_array_almost_equal( x_out.numpy() ,expected) 
+
+
+        # test without value and without sign
+        x_out = mp._propagate(x,a_, aggregate_sign=False, aggregate_value= False ) # vaules of a_ will be ignored
+        expected = np.matmul(abs(a) ,x.numpy()) 
+        np.testing.assert_array_almost_equal( x_out.numpy() ,expected)
+
+       
+
+    def test_propagate(self):
+        """Test the propagate function ."""
+
+        a = np.array([[-1.,  0.],
+                      [ 1., -1.],
+                      [ 0.,  1.]])
+
+        b = np.array([[1., 1.],
+                      [1., 1.],
+                      [0., 1.]])
+
+        mp = MessagePassing()
+        x = torch.rand(2,10)
+        x_out = mp.propagate(x,[a,b])
+        
+        expected_a = np.matmul(a,x.numpy())
+        expected_b = np.matmul(b,x.numpy())
+        
+        np.testing.assert_array_almost_equal( x_out[0].numpy() ,expected_a)
+        np.testing.assert_array_almost_equal( x_out[1].numpy() ,expected_b)
+  
+        
+        pass
+
+    def test_update(self):
+        pass
+
+    def test_message(self):
+        pass
+    
+    def test_aggregate(self):
+        pass
+    def test_get_i(self):
+        pass    
+    def test_get_j(self):
+        pass 
+    
+if __name__ == "__main__":
+    unittest.main()    
