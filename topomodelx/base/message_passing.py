@@ -1,8 +1,6 @@
 """Message passing module."""
-
 import torch
 import torch.nn as nn
-from torch.nn.parameter import Parameter
 
 from topomodelx.utils.scatter import scatter
 
@@ -11,70 +9,40 @@ class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
     This corresponds to Steps 1 & 2 of the 4-step scheme.
-
-    Parameters
-    ----------
-    in_channels : int
-        Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    neighborhood : torch.sparse
-        Neighborhood matrix.
     """
 
     def __init__(
         self,
-        in_channels,
-        out_channels,
-        update_func,
-        initialization,
+        aggr_func="sum",
+        update_func="sigmoid",
+        initialization="xavier_uniform",
     ):
         super().__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+        self.aggr_func = aggr_func
         self.update_func = update_func
         self.initialization = initialization
-
-        self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
-        self.reset_parameters()
-
-    def message(self, x, neighborhood):
-        r"""Construct message from feature x on source/sender cell.
-
-        Note that this is different from the convention
-        in pytorch-geometry which uses x as the features
-        that are going to be updated, i.e. on the receiver
-        cells.
-
-        Parameters
-        ----------
-        x : Tensor
-            Features on the source cells, that is: the cells
-            sending the messages.
-        """
-        weighted_x = torch.mm(x, self.weight)
-        message = torch.mm(neighborhood, weighted_x)
-        return message
 
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
+        This function will be called by children classes of
+        MessagePassing that will define their weights.
+
         Parameters
         ----------
-        weight : Tensor
-            Weight tensor to be initialized.
         gain : float
             Gain for the weight initialization.
+
+        Returns
+        -------
+        _ : Tensor
+            Weight tensor to be initialized.
         """
         if self.initialization == "xavier_uniform":
             nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
             nn.init.xavier_normal_(self.weight, gain=gain)
-
-        elif self.initialization == "uniform":
-            stdv = 1.0 / torch.sqrt(self.weight.size(1))
-            self.weight.data.uniform_(-stdv, stdv)
 
         else:
             raise RuntimeError(
@@ -83,12 +51,120 @@ class MessagePassing(torch.nn.Module):
 
         return self.weight
 
-    def update(self, inputs):
+    def propagate(self, x, neighborhood):
+        """Propagate messages from source cells to target cells.
+
+        This only propagates the values in x using the neighborhood matrix.
+
+        There is no weight in this function.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_cells, in_channels]
+            Features on all cells of a given rank.
+        neighborhood : torch.sparse
+            Neighborhood matrix.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_cells, out_channels]
+            Features on all cells of a given rank.
+        """
+        assert isinstance(x, torch.Tensor)
+        assert isinstance(neighborhood, torch.Tensor)
+        assert neighborhood.ndim == 2
+
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+        print(x.shape)
+        print(self.target_index_i.shape)
+
+        x = self.message(x)
+        x = self.sparsify_message(x)
+        neighborhood_values = neighborhood.values().unsqueeze(-1)
+        x = torch.mul(neighborhood_values, x)
+        # TODO: what is the shape of the output of the above line?
+        x = self.aggregate(x)
+        x = self.update(x)
+        return x
+
+    def sparsify_message(self, x):
+        """Construct message from source cells, indexed by j.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_cells, out_channels]
+            Features (potentially transformed and weighted)
+            on all cells of a given rank.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_cells, out_channels]
+            Values of x that are only at indexes j, i.e. that
+            are on the source cells.
+        """
+        source_index_j = self.source_index_j
+        return x.index_select(-2, source_index_j)
+
+    def message(self, x):
+        """Construct message from source cells with weights.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_cells, in_channels]
+            Features (potentially transformed and weighted)
+            on all cells of a given rank.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_cells, out_channels]
+            Weighted features of all cells of a given rank.
+        """
+        pass
+
+    def get_x_i(self, x):
+        """Get value in tensor x at index i.
+
+        Note that index i is a tuple of indices, that
+        represent the indices of the target cells.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_cells, out_channels]
+            Input tensor.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Values of x that are only at indexes i, i.e. values
+            that are on the target cells.
+        """
+        return x.index_select(-2, self.target_index_i)
+
+    def aggregate(self, x):
+        """Aggregate values in input tensor.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_target_cells, n_source_cells, out_channels]
+            Input tensor. Each target cells is receiving several messages
+            from several source cells.
+
+        Returns
+        -------
+        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+            Aggregated tensor. Each target cell has aggregated the several messages
+            from several source cells.
+        """
+        aggr = scatter(self.aggr_func)
+        return aggr(x, self.target_index_i, 0)
+
+    def update(self, x):
         """Update embeddings on each cell (step 4).
 
         Parameters
         ----------
-        inputs : array-like, shape=[n_skleton_out, out_channels]
+        x : array-like, shape=[n_skleton_out, out_channels]
             Features on the skeleton out.
 
         Returns
@@ -97,13 +173,10 @@ class MessagePassing(torch.nn.Module):
             Updated features on the skeleton out.
         """
         if self.update_func == "sigmoid":
-            return torch.sigmoid(inputs)
+            return torch.sigmoid(x)
         if self.update_func == "relu":
-            return torch.nn.functional.relu(inputs)
+            return torch.nn.functional.relu(x)
 
     def forward(self, x, neighborhood):
         r"""Run the forward pass of the module."""
-        x = self.message(x, neighborhood)
-        if self.update_func is not None:
-            x = self.update(x)
-        return x
+        return self.propagate(x, neighborhood)

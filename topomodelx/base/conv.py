@@ -1,6 +1,7 @@
-"""Convolutional layer for message passing."""
+"""Convolutional layer for x passing."""
 
 import torch
+from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
 
@@ -8,8 +9,8 @@ from topomodelx.base.message_passing import MessagePassing
 class Conv(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
-    Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a message-specific update function.
+    Builds the x passing route given by one neighborhood matrix.
+    Includes an option for a x-specific update function.
 
     Parameters
     ----------
@@ -18,9 +19,9 @@ class Conv(MessagePassing):
     out_channels : int
         Dimension of output features.
     aggr_norm : bool
-        Whether to normalize the aggregated message by the neighborhood size.
+        Whether to normalize the aggregated x by the neighborhood size.
     update_func : string
-        Update method to apply to message.
+        Update method to apply to x.
     initialization : string
         Initialization method.
     """
@@ -34,13 +35,16 @@ class Conv(MessagePassing):
         initialization="xavier_uniform",
     ):
         super().__init__(
-            in_channels=in_channels,
-            out_channels=out_channels,
             update_func=update_func,
             initialization=initialization,
         )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
         self.aggr_norm = aggr_norm
         self.update_func = update_func
+
+        self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        self.reset_parameters()
 
     def forward(self, x, neighborhood):
         """Forward computation.
@@ -59,12 +63,11 @@ class Conv(MessagePassing):
             shape=[n_cells, out_channels]
             Output features on the cells.
         """
-        weighted_x = torch.mm(x, self.weight)
-        message = torch.mm(neighborhood, weighted_x)
+        x = torch.mm(x, self.weight)
+        x = torch.mm(neighborhood, x)
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
-            message = torch.einsum("i,ij->ij", 1 / neighborhood_size, message)
+            x = torch.einsum("i,ij->ij", 1 / neighborhood_size, x)
         if self.update_func is not None:
-            message = self.update(message)
-
-        return message
+            x = self.update(x)
+        return x
