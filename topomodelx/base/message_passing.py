@@ -77,7 +77,6 @@ class MessagePassing(torch.nn.Module):
         ------
         Tensor
             Updated embeddings for each i-cell in the topological domain.
-    
         Notes
         -----
         This method performs message passing in the topological domain. 

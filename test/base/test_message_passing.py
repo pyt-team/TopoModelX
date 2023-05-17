@@ -16,8 +16,7 @@ class TestMessagePassing(unittest.TestCase):
     def test_init(self):
         """Test the initialization of the message passing module."""
         mp = MessagePassing()
-        
-
+    
 
     def test_forward(self):
         """Test the weights."""
