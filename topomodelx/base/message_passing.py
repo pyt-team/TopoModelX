@@ -74,7 +74,7 @@ class MessagePassing(torch.nn.Module):
             Default is True.
     
         Returns
-        -------
+        ------
         Tensor
             Updated embeddings for each i-cell in the topological domain.
     
