@@ -24,10 +24,7 @@ class TestMessagePassing(unittest.TestCase):
         a = np.array([[-1.,  0. ],
                       [ 1.,- 1],
                       [ 0.,  1.]])
-        
-        a_ = np.array([[-1.,  0. ],
-                      [ 1.,- 0.5],
-                      [ 0.,  1.]])
+
         mp = MessagePassing()
         x = torch.rand(2,10)
         x_out = mp(x,a)
