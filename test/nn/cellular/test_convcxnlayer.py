@@ -1,20 +1,19 @@
 """Unit tests for the CXNLayer class."""
 import pytest
 import torch
-from scipy.sparse import coo_matrix
 
-from topomodelx.nn.cellular.cxn_layer import CXNLayer
+from topomodelx.nn.cellular.convcxn_layer import ConvCXNLayer
 
 
-class TestCXNLayer:
+class TesConvCXNLayer:
     """Unit tests for the CXNLayer class."""
 
-    @pytest.fixture
-    def cxn_layer(self):
-        """Fixture to create an instance of CXNLayer for testing."""
-        channels = 10
-        num_classes = 5
-        return CXNLayer(channels, num_classes)
+    # @pytest.fixture
+    # def cxn_layer(self):
+    #     """Fixture to create an instance of CXNLayer for testing."""
+    #     channels = 10
+    #     num_classes = 5
+    #     return ConvCXNLayer(channels, num_classes)
 
     def test_forward(self):
         """Test the forward method of CXNLayer."""
@@ -34,7 +33,7 @@ class TestCXNLayer:
             n_2_cells, n_1_cells
         )  # Neighborhood matrix as torch.Tensor
 
-        cxn_layer = CXNLayer(channels, num_classes)
+        cxn_layer = ConvCXNLayer(channels, num_classes)
         output = cxn_layer.forward(
             x_0, x_a_1, x_b_1, neighborhood_0_to_0, neighborhood_1_to_2
         )
