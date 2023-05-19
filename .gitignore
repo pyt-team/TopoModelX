@@ -17,3 +17,4 @@ docs/build/
 
 TopoNetX/
 topomodelx/nn/cellular/attcxn_layer.py
+topomodelx/base/debug.ipynb

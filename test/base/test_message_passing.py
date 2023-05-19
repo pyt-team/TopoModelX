@@ -32,27 +32,45 @@ class TestMessagePassing:
         self.message_passing.reset_parameters(gain=gain)
         assert self.message_passing.weight.shape == (3, 3)
 
-    def test_sparsify_message(self):
-        """Test sparsify_message."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+    def custom_message(self, x):
+        """Make custom message function."""
+        return x
 
-        # Overwrite message function
-        def custom_message(self, x):
-            """Make custom message function."""
-            return x * 2
-
-        original_message_func = self.message_passing.message
-        self.message_passing.message = custom_message.__get__(self.message_passing)
+    def test_propagate(self):
+        """Test propagate."""
+        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
         neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 1, 2], [1, 2, 0]]),
-            torch.tensor([0.5, 0.6, 0.7]),
+            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
         )
-        self.message_passing.propagate(x, neighborhood)
-        self.message_passing.message = original_message_func
-        result = self.message_passing.sparsify_message(x)
-        expected = x * 2
-        assert torch.allclose(result, expected)
+        self.message_passing.message = self.custom_message.__get__(self.message_passing)
+        result = self.message_passing.propagate(x, neighborhood)
+        expected_shape = (3, 2)
+        assert result.shape == expected_shape
+
+    def test_sparsify_message(self):
+        """Test sparsify_message."""
+        x = torch.tensor(
+            [
+                [
+                    1,
+                    2,
+                ],
+                [3, 4],
+                [5, 6],
+            ]
+        )
+        neighborhood = torch.sparse_coo_tensor(
+            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            torch.tensor([1, 2, 3, 4, 5, 6]),
+            size=(3, 3),
+        )
+        self.message_passing.message = self.custom_message.__get__(self.message_passing)
+        _ = self.message_passing.propagate(x, neighborhood)
+        x_sparse = self.message_passing.sparsify_message(x)
+        expected = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
+        assert torch.allclose(x_sparse, expected)
 
     def test_get_x_i(self):
         """Test get_x_i."""
@@ -64,38 +82,30 @@ class TestMessagePassing:
 
     def test_aggregate(self):
         """Test aggregate."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
-        self.message_passing.target_index_i = torch.LongTensor([1, 2, 0])
-        result = self.message_passing.aggregate(x)
-        expected = scatter(
-            x,
-            self.message_passing.target_index_i,
-            dim=-2,
-            reduce=self.message_passing.aggr_func,
+        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+        neighborhood = torch.sparse_coo_tensor(
+            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            torch.tensor([1, 2, 3, 4, 5, 6]),
+            size=(3, 3),
         )
-        assert torch.allclose(result, expected)
-
-    def test_update(self):
-        """Test update."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
-        self.message_passing.update_func = "sigmoid"
-        result = self.message_passing.update(x)
-        expected = torch.sigmoid(x)
-        assert torch.allclose(result, expected)
-
-        self.message_passing.update_func = "relu"
-        result = self.message_passing.update(x)
-        expected = torch.relu(x)
+        neighborhood_values = neighborhood.coalesce().values()
+        self.message_passing.message = self.custom_message.__get__(self.message_passing)
+        _ = self.message_passing.propagate(x, neighborhood)
+        x = self.message_passing.sparsify_message(x)
+        x = neighborhood_values.view(-1, 1) * x
+        result = self.message_passing.aggregate(x)
+        expected = torch.tensor([[22, 28], [37, 46], [30, 36]])
         assert torch.allclose(result, expected)
 
     def test_forward(self):
         """Test forward."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
         neighborhood = torch.sparse_coo_tensor(
-            torch.LongTensor([[0, 1, 2], [2, 0, 1]]),
-            torch.Tensor([1, 1, 1]),
+            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
         )
+        self.message_passing.message = self.custom_message.__get__(self.message_passing)
         result = self.message_passing.forward(x, neighborhood)
-        expected = self.message_passing.propagate(x, neighborhood)
-        assert torch.allclose(result, expected)
+        expected_shape = (3, 2)
+        assert result.shape == expected_shape

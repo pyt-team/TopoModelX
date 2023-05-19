@@ -14,12 +14,10 @@ class MessagePassing(torch.nn.Module):
     def __init__(
         self,
         aggr_func="sum",
-        update_func="sigmoid",
         initialization="xavier_uniform",
     ):
         super().__init__()
         self.aggr_func = aggr_func
-        self.update_func = update_func
         self.initialization = initialization
 
     def reset_parameters(self, gain=1.414):
@@ -76,16 +74,11 @@ class MessagePassing(torch.nn.Module):
 
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
-        print(x.shape)
-        print(self.target_index_i.shape)
-
         x = self.message(x)
         x = self.sparsify_message(x)
-        neighborhood_values = neighborhood.values().unsqueeze(-1)
-        x = torch.mul(neighborhood_values, x)
-        # TODO: what is the shape of the output of the above line?
+        neighborhood_values = neighborhood.values()
+        x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
-        x = self.update(x)
         return x
 
     def sparsify_message(self, x):
@@ -158,24 +151,6 @@ class MessagePassing(torch.nn.Module):
         """
         aggr = scatter(self.aggr_func)
         return aggr(x, self.target_index_i, 0)
-
-    def update(self, x):
-        """Update embeddings on each cell (step 4).
-
-        Parameters
-        ----------
-        x : array-like, shape=[n_skleton_out, out_channels]
-            Features on the skeleton out.
-
-        Returns
-        -------
-        _ : array-like, shape=[n_skleton_out, out_channels]
-            Updated features on the skeleton out.
-        """
-        if self.update_func == "sigmoid":
-            return torch.sigmoid(x)
-        if self.update_func == "relu":
-            return torch.nn.functional.relu(x)
 
     def forward(self, x, neighborhood):
         r"""Run the forward pass of the module."""

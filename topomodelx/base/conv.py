@@ -35,7 +35,6 @@ class Conv(MessagePassing):
         initialization="xavier_uniform",
     ):
         super().__init__(
-            update_func=update_func,
             initialization=initialization,
         )
         self.in_channels = in_channels
@@ -45,6 +44,24 @@ class Conv(MessagePassing):
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
         self.reset_parameters()
+
+    def update(self, inputs):
+        """Update embeddings on each cell (step 4).
+
+        Parameters
+        ----------
+        inputs : array-like, shape=[n_skleton_out, out_channels]
+            Features on the skeleton out.
+
+        Returns
+        -------
+        _ : array-like, shape=[n_skleton_out, out_channels]
+            Updated features on the skeleton out.
+        """
+        if self.update_func == "sigmoid":
+            return torch.sigmoid(inputs)
+        if self.update_func == "relu":
+            return torch.nn.functional.relu(inputs)
 
     def forward(self, x, neighborhood):
         """Forward computation.
