@@ -17,10 +17,6 @@ class HSNLayer(torch.nn.Module):
     ----------
     channels : int
         Dimension of features on each simplicial cell.
-    incidence_1 : torch.sparse
-        Incidence matrix mapping edges to nodes (B_1).
-    adjacency_0 : torch.sparse
-        Adjacency matrix mapping nodes to nodes (A_0_up).
     initialization : string
         Initialization method.
 
@@ -29,38 +25,29 @@ class HSNLayer(torch.nn.Module):
     def __init__(
         self,
         channels,
-        incidence_1,
-        adjacency_0,
     ):
         super().__init__()
         self.channels = channels
-        self.incidence_1 = incidence_1
-        incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
-        self.adjacency_0 = adjacency_0
 
         self.conv_level1_0_to_0 = Conv(
             in_channels=channels,
             out_channels=channels,
-            neighborhood=adjacency_0,
             update_func="sigmoid",
         )
         self.conv_level1_0_to_1 = Conv(
             in_channels=channels,
             out_channels=channels,
-            neighborhood=incidence_1_transpose,
             update_func="sigmoid",
         )
 
         self.conv_level2_0_to_0 = Conv(
             in_channels=channels,
             out_channels=channels,
-            neighborhood=adjacency_0,
             update_func=None,
         )
         self.conv_level2_1_to_0 = Conv(
             in_channels=channels,
             out_channels=channels,
-            neighborhood=incidence_1,
             update_func=None,
         )
 
@@ -73,7 +60,7 @@ class HSNLayer(torch.nn.Module):
         self.conv_level2_0_to_0.reset_parameters()
         self.conv_level2_1_to_0.reset_parameters()
 
-    def forward(self, x):
+    def forward(self, x_0, incidence_1, adjacency_0):
         r"""Forward computation of one layer.
 
         Parameters
@@ -81,12 +68,26 @@ class HSNLayer(torch.nn.Module):
         x: torch.tensor
             shape=[n_nodes, channels]
             Input features on the nodes of the simplicial complex.
+        incidence_1 : torch.sparse
+            shape=[n_nodes, n_edges]
+            Incidence matrix mapping edges to nodes (B_1).
+        adjacency_0 : torch.sparse
+            shape=[n_nodes, n_nodes]
+            Adjacency matrix mapping nodes to nodes (A_0_up).
+
+        Returns
+        -------
+        _ : torch.tensor
+            shape=[n_nodes, channels]
+            Output features on the nodes of the simplicial complex.
         """
-        x_nodes_level1 = self.conv_level1_0_to_0(x)
-        x_edges_level1 = self.conv_level1_0_to_1(x)
+        incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
 
-        x_nodes_level2 = self.conv_level2_0_to_0(x_nodes_level1)
-        x_edges_level2 = self.conv_level2_1_to_0(x_edges_level1)
+        x_0_level1 = self.conv_level1_0_to_0(x_0, adjacency_0)
+        x_1_level1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
 
-        x = self.aggr_on_nodes([x_nodes_level2, x_edges_level2])
-        return x
+        x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
+        x_1_level2 = self.conv_level2_1_to_0(x_1_level1, incidence_1)
+
+        x_0 = self.aggr_on_nodes([x_0_level2, x_1_level2])
+        return x_0
