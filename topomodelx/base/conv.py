@@ -1,4 +1,4 @@
-"""Convolutional layer for x passing."""
+"""Convolutional layer for message passing."""
 
 import torch
 from torch.nn.parameter import Parameter
@@ -9,7 +9,7 @@ from topomodelx.base.message_passing import MessagePassing
 class Conv(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
-    Builds the x passing route given by one neighborhood matrix.
+    Builds the message passing route given by one neighborhood matrix.
     Includes an option for a x-specific update function.
 
     Parameters
@@ -19,9 +19,9 @@ class Conv(MessagePassing):
     out_channels : int
         Dimension of output features.
     aggr_norm : bool
-        Whether to normalize the aggregated x by the neighborhood size.
+        Whether to normalize the aggregated message by the neighborhood size.
     update_func : string
-        Update method to apply to x.
+        Update method to apply to message.
     initialization : string
         Initialization method.
     """
