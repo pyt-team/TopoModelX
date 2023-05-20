@@ -10,5 +10,4 @@ Welcome! Check out our tutorials to get started.
    :hidden:
 
    api/index
-   tutorials/index
    contributing/index
