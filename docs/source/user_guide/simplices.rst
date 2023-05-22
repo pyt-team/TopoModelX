@@ -1,4 +1,0 @@
-Simplices
-==================================
-
-Simplices go here.
