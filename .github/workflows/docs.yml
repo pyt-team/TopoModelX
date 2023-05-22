@@ -39,7 +39,7 @@ jobs:
         with:
           branch: main
           folder: docs/_build
-          token: ${{ secrets.DOCUMENTATION_KEY }}
+          token: ${{ secrets.TMX_DOCUMENTATION_KEY }}
           repository-name: pyt-team/pyt-team.github.io
           target-folder: topomodelx
           clean: true
