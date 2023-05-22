@@ -10,7 +10,7 @@ process for both novice and experienced contributors.
 `TopoModelX <https://github.com/pyt-team/TopoModelX>`_ is a
 community effort, and everyone is welcome to contribute.
 
-Making changes
+Making Changes
 --------------
 
 The preferred way to contribute to topomodelx is to fork the `upstream
@@ -51,7 +51,7 @@ Follow these steps before submitting a PR:
 
 #. Repeat 3. and 4. following the reviewers requests.
 
-Write tests
+Write Tests
 -----------
 
 The tests consist of classes appropriately named, located in the `test` folder, that check the validity of the code.
@@ -70,7 +70,7 @@ Test functions should be located in files whose filenames start with `test_`. Fo
 
 Use an `assert` statement to check that the function under test returns the correct output. 
 
-Run tests
+Run Tests
 ~~~~~~~~~
 
 Install `pytest` which is the software tools used to run tests:
