@@ -59,6 +59,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
 pygments_style = None
 
+html_theme = "pydata_sphinx_theme"
 html_baseurl = "pyt-team.github.io"
 htmlhelp_basename = "pyt-teamdoc"
 html_last_updated_fmt = "%c"
