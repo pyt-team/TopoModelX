@@ -43,7 +43,7 @@ Then:
 3. Install tmx in editable mode:
 
    ```bash
-   pip install -e ".[all]"
+   pip install -e .[all]
    ```
 
    This mode will symlink the Python files from the current local source tree into the Python install. Hence, if you modify a Python file, you do not need to reinstall tmx again and again.
