@@ -1,6 +1,6 @@
 """Message passing module."""
+
 import torch
-import torch.nn as nn
 
 from topomodelx.utils.scatter import scatter
 
@@ -37,10 +37,10 @@ class MessagePassing(torch.nn.Module):
             Weight tensor to be initialized.
         """
         if self.initialization == "xavier_uniform":
-            nn.init.xavier_uniform_(self.weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
-            nn.init.xavier_normal_(self.weight, gain=gain)
+            torch.nn.init.xavier_normal_(self.weight, gain=gain)
 
         else:
             raise RuntimeError(
@@ -112,6 +112,22 @@ class MessagePassing(torch.nn.Module):
         -------
         _ : Tensor, shape=[..., n_cells, out_channels]
             Weighted features of all cells of a given rank.
+        """
+        pass
+
+    def attention(self, x):
+        """Compute attention weights from source cells with weights.
+        
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_cells, in_channels]
+            Features (potentially transformed and weighted)
+            on all cells of a given rank.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_cells, n_cells]
+            Attention weights of all cells of a given rank.
         """
         pass
 
