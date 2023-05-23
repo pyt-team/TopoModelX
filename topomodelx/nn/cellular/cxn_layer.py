@@ -6,8 +6,12 @@ from topomodelx.base.conv import Conv
 
 
 class AttConv(Conv):
+    """Attention convolutional layer for message passing."""
+
     def attention(self, x, neighborhood):
-        return 1.
+        """Compute attention."""
+        return 1.0
+
 
 class CXNLayer(torch.nn.Module):
     """Layer of a CXN.
@@ -38,8 +42,8 @@ class CXNLayer(torch.nn.Module):
         in_channels_2,
     ):
         super().__init__()
-        self.conv_0_to_0 = Conv(in_channels_0, in_channels_0)
-        self.conv_1_to_2 = Conv(in_channels_1, in_channels_2)
+        self.conv_0_to_0 = AttConv(in_channels_0, in_channels_0)
+        self.conv_1_to_2 = AttConv(in_channels_1, in_channels_2)
 
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2):
         """Forward computation.
