@@ -92,9 +92,7 @@ skip = [".gitignore", "__init__.py"]
 application_import_names = "topomodelx"
 docstring-convention = "numpy"
 exclude = [
-    "examples/*.ipynb",
     "topomodelx/__init__.py",
-    "topomodelx/version.py",
     "docs/source/conf.py"
 ]
 

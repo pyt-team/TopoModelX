@@ -1,6 +1,5 @@
 """Message passing module."""
 import torch
-import torch.nn as nn
 
 from topomodelx.utils.scatter import scatter
 
@@ -37,10 +36,10 @@ class MessagePassing(torch.nn.Module):
             Weight tensor to be initialized.
         """
         if self.initialization == "xavier_uniform":
-            nn.init.xavier_uniform_(self.weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
-            nn.init.xavier_normal_(self.weight, gain=gain)
+            torch.nn.init.xavier_normal_(self.weight, gain=gain)
 
         else:
             raise RuntimeError(
