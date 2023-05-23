@@ -5,6 +5,10 @@ import torch
 from topomodelx.base.conv import Conv
 
 
+class AttConv(Conv):
+    def attention(self, x, neighborhood):
+        return 1.
+
 class CXNLayer(torch.nn.Module):
     """Layer of a CXN.
 

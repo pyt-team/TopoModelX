@@ -76,6 +76,7 @@ class MessagePassing(torch.nn.Module):
         self.target_index_i, self.source_index_j = neighborhood.indices()
         x = self.message(x)
         x = self.sparsify_message(x)
+        x = self.attention(x, neighborhood) * x
         neighborhood_values = neighborhood.values()
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
@@ -115,7 +116,7 @@ class MessagePassing(torch.nn.Module):
         """
         pass
 
-    def attention(self, x):
+    def attention(self, x, neighborhood):
         """Compute attention weights from source cells with weights.
         
         Parameters
@@ -123,13 +124,15 @@ class MessagePassing(torch.nn.Module):
         x : Tensor, shape=[..., n_cells, in_channels]
             Features (potentially transformed and weighted)
             on all cells of a given rank.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_cells, n_cells]
+        _ : Tensor, shape=[..., n_target_cells, n_source_cells]
             Attention weights of all cells of a given rank.
         """
-        pass
+        return 1.
 
     def get_x_i(self, x):
         """Get value in tensor x at index i.
