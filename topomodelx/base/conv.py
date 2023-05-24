@@ -46,9 +46,7 @@ class Conv(MessagePassing):
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
         if self.att:
-            self.att_weight = Parameter(
-                torch.Tensor(self.in_channels, self.out_channels)
-            )
+            self.att_weight = Parameter(torch.Tensor(self.in_channels, 1))
 
         self.reset_parameters()
 
@@ -69,13 +67,6 @@ class Conv(MessagePassing):
             return torch.sigmoid(inputs)
         if self.update_func == "relu":
             return torch.nn.functional.relu(inputs)
-
-    def attention(self, x):
-        """Compute attention."""
-        pass
-        # a = torch.cat([h[source], h[target]], dim=1)
-        # e = self.cell_attention_activation(torch.matmul(a, self.att_irr))
-        # return neighborhood_values
 
     def forward(self, x, neighborhood):
         """Forward computation.

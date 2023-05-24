@@ -47,6 +47,50 @@ class MessagePassing(torch.nn.Module):
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
+    def attention(self, x):
+        """Compute attention weights.
+
+        This provides a default attention method to the layer.
+
+        Alternatively, users can choose to inherit from this class and overwrite
+        this method to provide their own attention mechanism.
+
+        Notes
+        -----
+        The attention weights are given in the order of the (source, target) pairs
+        that correspond to non-zero coefficients in the neighborhood matrix.
+
+        In particular, we have:
+
+        n_target_cells = len(self.target_index_i)
+                       = len(self.source_index_j)
+                       = n_source_cells.
+
+        For this reason, the attention weights are computed only after
+        self.target_index_i and self.source_index_j.
+
+        This mechanism works for neighborhood that between cells of same ranks.
+        In that case, we note that the neighborhood matrix is symmetric.
+
+        Parameters
+        ----------
+        x : torch.tensor
+            shape=[n_cells, in_channels]
+            Input features on the cells. All these cells are of the same rank by design.
+
+        Returns
+        -------
+        _ : torch.tensor
+            shape = [n_target_cells, 1] = [n_source_cells, 1]
+            Attention weights.
+        """
+        x_per_source_target_pair = torch.cat(
+            [x[self.source_index_j], x[self.target_index_i]], dim=1
+        )
+        return torch.nn.functional.elu(
+            torch.matmul(x_per_source_target_pair, self.att_weights)
+        )
+
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
 
@@ -70,11 +114,12 @@ class MessagePassing(torch.nn.Module):
         assert isinstance(neighborhood, torch.Tensor)
         assert neighborhood.ndim == 2
 
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+
         if self.att:
             attention_values = self.attention(x)
 
-        neighborhood = neighborhood.coalesce()
-        self.target_index_i, self.source_index_j = neighborhood.indices()
         x = self.message(x)
         x = self.sparsify_message(x)
         neighborhood_values = neighborhood.values()
@@ -115,23 +160,6 @@ class MessagePassing(torch.nn.Module):
         -------
         _ : Tensor, shape=[..., n_cells, out_channels]
             Weighted features of all cells of a given rank.
-        """
-        pass
-
-    def attention(self, x):
-        """Compute attention weights from source cells with weights.
-
-        Parameters
-        ----------
-        x : Tensor, shape=[..., n_cells, in_channels]
-            Features (potentially transformed and weighted)
-            on all cells of a given rank.
-
-        Returns
-        -------
-        _ : Tensor, shape=[..., n_target_cells, n_source_cells]
-            Attention weights of all cells of a given rank.
-            This is the same shape as the neighborhood matrix.
         """
         pass
 
