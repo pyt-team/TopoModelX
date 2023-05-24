@@ -44,9 +44,9 @@ In the case of multiple submissions implementing the same model, earlier Pull Re
 
 Teams are accepted and there is no restriction on the number of team members.
 
-There is no restriction on the amount of submissions (Pull Requests) per participant/team. One model per Pull Request.
+One model per Pull Request. There is no restriction on the amount of submissions (Pull Requests) per participant/team. 
 
-The principal developpers of TopoModelX are not allowed to participate.
+The principal developers of TopoModelX are not allowed to participate.
 
 Submission Requirements
 -------------
@@ -68,8 +68,8 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
 
   1. Pre-processing
         - imports necessary packages as well as {Name of model}Layer class
-        - loads the protein-protein-interaction graph `using TopoNetX <https://github.com/pyt-team/TopoNetX/blob/71e840ea5a475027ca9b4231563834547463cf19/toponetx/datasets/utils.py#LL9C6-L9C6>`_ and assigns labels.
-        - lifts the graph into the domain of choice (hypergraph, simplicial complex, cellular complex, combinatorial complex) using TopoNetX.
+        - loads the protein-protein-interaction dataset `using TopoNetX <https://github.com/pyt-team/TopoNetX/blob/71e840ea5a475027ca9b4231563834547463cf19/toponetx/datasets/utils.py#LL9C6-L9C6>`_ and assigns labels.
+        - lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cellular complex, combinatorial complex) using TopoNetX.
   
   2. Creating the neural network
         - defines a class {Name of model} (ex.: HSN) that inherits from torch.nn.Module and uses {Name of model}Layer along with torch.Linear layers to create a Topological Neural Network.
