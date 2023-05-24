@@ -8,7 +8,7 @@ Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim
 Description of the Challenge
 -------------
 
-The purpose of this challenge is to foster reproducible research in Topological Deep Learning, by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN) and train it on a provided protein interaction dataset. 
+The purpose of this challenge is to foster reproducible research in Topological Deep Learning by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN) and train it on a provided protein interaction dataset. 
 
 Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoModelX/tree/main/topomodelx>`_, a Python package for deep learning on topological domains. Each submission takes the form of a  `Pull Request <https://github.com/pyt-team/TopoModelX/pulls>`_ to TopoModelX containing the necessary code for implementing a TNN from the literature. The implementation leverages the coding infrastructure and building blocks from TopoModelX.
 
@@ -16,11 +16,11 @@ Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoMo
 
 ⭐️ Publication Outcomes for Participants ⭐️
 -------------
-**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through TAG on Machine Learning 2023. All participants with qualifying submissions will have the opportunity to co-author this publication.
+**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through the  ` 2023 TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. All participants with qualifying submissions will have the opportunity to co-author this publication.
 
 Participants with the top 8 best submissions will have the opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
 
-🏆 The best submissions in each topological domain (hypergraph, simplicial, cellular, combinatorial) will receive special recognition at the  `TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. 
+🏆 The best submissions in each topological domain (hypergraph, simplicial, cellular, combinatorial) will receive special recognition at the ICML TAG in Machine Learning Workshop.
 
 Deadline
 -------------
@@ -32,7 +32,7 @@ How to Submit
 Everyone can participate and participation is free. It is sufficient to:
 
 - send a Pull Request
-- respect `Submission Requirements <https://github.com/mathildepapillon/TopoModelX/blob/82f967dc699f12f47af93b84eb9cf8368471bb80/docs/challenge/index.rst?plain=1#L51>`_.
+- respect Submission Requirements
 
 An acceptable Pull Request automatically subscribes a participant/team to the challenge.
 
@@ -52,9 +52,9 @@ Submission Requirements
 -------------
 The submission must implement a pre-existing model from the literature included in Fig. 11 of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
 
-All submitted code complies with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
+All submitted code must comply with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
 
-The Pull Request contains three new files:
+The submission consists of a Pull Request to TopoModelX that contains three new files:
 
 1. {name of model}_layer.py (ex.: hsn_layer.py) :
 
@@ -101,3 +101,8 @@ Note that these criteria do not reward model performance, nor complexity of trai
 Selected TopoModelX maintainers and collaborators, as well as each team whose submission(s) respect(s) the guidelines, will vote once on Google Form to express their preference for the best submission in each topological domain. Note that each team gets only one vote/domain, even if there are several participants in the team.
 
 A link to a Google Form will be provided to record the votes. It will be required to insert an email address to identify the voter. The voters will remain secret--only the final ranking will be published.
+
+Questions
+-------------
+Feel free to contact us through GitHub issues on this repository, or through the `Geometry and Topology in Machine Learning slack <https://tda-in-ml.slack.com/join/shared_invite/enQtOTIyMTIyNTYxMTM2LTA2YmQyZjVjNjgxZWYzMDUyODY5MjlhMGE3ZTI1MzE4NjI2OTY0MmUyMmQ3NGE0MTNmMzNiMTViMjM2MzE4OTc#/>`_. Alternatively, you can contact Mathilde Papillon at papillon@ucsb.edu.
+
