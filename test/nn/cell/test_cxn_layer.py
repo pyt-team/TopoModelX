@@ -40,7 +40,7 @@ class TestCXNLayer:
         neighborhood_0_to_0 = neighborhood_0_to_0.to_sparse().float()
         neighborhood_1_to_2 = neighborhood_1_to_2.to_sparse().float()
         cxn_layer = CXNLayer(
-            cin_channels_0=channels,
+            in_channels_0=channels,
             in_channels_1=channels,
             in_channels_2=channels,
             att=True,
