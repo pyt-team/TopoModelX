@@ -25,10 +25,15 @@ class MessagePassing(torch.nn.Module):
         aggr_func="sum",
         att=False,
         initialization="xavier_uniform",
+        in_channels=None,
     ):
         super().__init__()
         self.aggr_func = aggr_func
         self.att = att
+        if att:
+            if in_channels is None:
+                raise ValueError("in_channels must be specified when att=True")
+            self.att_weight = torch.nn.Parameter(torch.Tensor(2 * in_channels, 1))
         self.initialization = initialization
 
     def reset_parameters(self, gain=1.414):

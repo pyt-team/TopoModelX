@@ -12,6 +12,7 @@ class TestMessagePassing:
     def setup_method(self, method):
         """Make message_passing object."""
         self.message_passing = MessagePassing()
+        self.message_passing_with_attention = MessagePassing(att=True, in_channels=2)
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
@@ -46,6 +47,21 @@ class TestMessagePassing:
         )
         self.message_passing.message = self.custom_message.__get__(self.message_passing)
         result = self.message_passing.propagate(x, neighborhood)
+        expected_shape = (3, 2)
+        assert result.shape == expected_shape
+
+    def test_propagate_with_attention(self):
+        """Test propagate with attention."""
+        x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+        neighborhood = torch.sparse_coo_tensor(
+            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            torch.tensor([1, 2, 3, 4, 5, 6]),
+            size=(3, 3),
+        )
+        self.message_passing_with_attention.message = self.custom_message.__get__(
+            self.message_passing
+        )
+        result = self.message_passing_with_attention.propagate(x, neighborhood)
         expected_shape = (3, 2)
         assert result.shape == expected_shape
 
