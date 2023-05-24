@@ -8,7 +8,16 @@ from topomodelx.utils.scatter import scatter
 class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
-    This corresponds to Steps 1 & 2 of the 4-step scheme.
+    This class abstractly defines the mechanisms of message passing.
+
+    Notes
+    -----
+    This class is not meant to be instantiated directly.
+    Instead, it is meant to be inherited by other classes that will
+    effectively define the message passing mechanism.
+
+    For example, this class does not have trainable weights.
+    The classes that inherit from it will define these weights.
 
     Parameters
     ----------
@@ -25,20 +34,17 @@ class MessagePassing(torch.nn.Module):
         aggr_func="sum",
         att=False,
         initialization="xavier_uniform",
-        in_channels=None,
     ):
         super().__init__()
         self.aggr_func = aggr_func
         self.att = att
-        if att:
-            if in_channels is None:
-                raise ValueError("in_channels must be specified when att=True")
-            self.att_weight = torch.nn.Parameter(torch.Tensor(2 * in_channels, 1))
         self.initialization = initialization
 
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
+        Notes
+        -----
         This function will be called by children classes of
         MessagePassing that will define their weights.
 

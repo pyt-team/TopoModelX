@@ -6,13 +6,25 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter
 
 
+class AttentionMessagePassing(MessagePassing):
+    """Custom class that inherits from MessagePassing to define attention."""
+
+    def __init__(self, in_channels=None, att=False):
+        super().__init__(att=att)
+        self.in_channels = in_channels
+        if att:
+            self.att_weight = torch.nn.Parameter(torch.Tensor(2 * in_channels, 1))
+
+
 class TestMessagePassing:
     """Test the MessagePassing class."""
 
     def setup_method(self, method):
         """Make message_passing object."""
         self.message_passing = MessagePassing()
-        self.message_passing_with_attention = MessagePassing(att=True, in_channels=2)
+        self.message_passing_with_attention = AttentionMessagePassing(
+            in_channels=2, att=True
+        )
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
