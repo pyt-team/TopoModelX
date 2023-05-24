@@ -1,11 +1,11 @@
-"""Implementation of a simplified, convolutional version of CXN layer from the paper by Hajij et. al: Cell Complex Neural Networks."""
+"""Implementation of a simplified, convolutional version of CXN layer from Hajij et. al: Cell Complex Neural Networks."""
+
 import torch
-import torch.nn as nn
 
 from topomodelx.base.conv import Conv
 
 
-class ConvCXNLayer(nn.Module):
+class CXNLayer(torch.nn.Module):
     """Layer of a simplified CXN.
 
     Implementation of a convolutional version of the CXN layer (no attention)
@@ -23,14 +23,9 @@ class ConvCXNLayer(nn.Module):
         Dimension of input features on faces.
     """
 
-    def __init__(
-        self,
-        in_channels_0,
-        in_channels_1,
-        in_channels_2,
-    ):
+    def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
         super().__init__()
-        self.conv_0_to_0 = Conv(in_channels_0, in_channels_0)
+        self.conv_0_to_0 = Conv(in_channels_0, in_channels_0, att=att)
         self.conv_1_to_2 = Conv(in_channels_1, in_channels_2)
 
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2):

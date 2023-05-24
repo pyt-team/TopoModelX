@@ -22,6 +22,9 @@ class Conv(MessagePassing):
         Whether to normalize the aggregated message by the neighborhood size.
     update_func : string
         Update method to apply to message.
+    att : bool
+        Whether to use attention.
+        Optional, default: False.
     initialization : string
         Initialization method.
     """
@@ -32,9 +35,11 @@ class Conv(MessagePassing):
         out_channels,
         aggr_norm=False,
         update_func=None,
+        att=False,
         initialization="xavier_uniform",
     ):
         super().__init__(
+            att=att,
             initialization=initialization,
         )
         self.in_channels = in_channels
@@ -43,6 +48,9 @@ class Conv(MessagePassing):
         self.update_func = update_func
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        if self.att:
+            self.att_weight = Parameter(torch.Tensor(2 * self.in_channels, 1))
+
         self.reset_parameters()
 
     def update(self, inputs):
@@ -80,8 +88,15 @@ class Conv(MessagePassing):
             shape=[n_cells, out_channels]
             Output features on the cells.
         """
+        if self.att:
+            neighborhood = neighborhood.coalesce()
+            self.target_index_i, self.source_index_j = neighborhood.indices()
+            attention_values = self.attention(x)
+            attention = attention_values.view(*neighborhood.shape).to_sparse()
         x = torch.mm(x, self.weight)
         x = torch.mm(neighborhood, x)
+        if self.att:
+            neighborhood = torch.mul(neighborhood, attention)
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
             x = torch.einsum("i,ij->ij", 1 / neighborhood_size, x)
