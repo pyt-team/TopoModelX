@@ -9,6 +9,15 @@ class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
     This corresponds to Steps 1 & 2 of the 4-step scheme.
+
+    Parameters
+    ----------
+    aggr_func : string
+        Aggregation function to use.
+    att : bool
+        Whether to use attention.
+    initialization : string
+        Initialization method for the weights of the layer.
     """
 
     def __init__(
@@ -100,14 +109,14 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_cells, in_channels]
+        x : Tensor, shape=[..., n_source_cells, in_channels]
             Features on all cells of a given rank.
-        neighborhood : torch.sparse
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_cells, out_channels]
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
             Features on all cells of a given rank.
         """
         assert isinstance(x, torch.Tensor)
