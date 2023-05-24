@@ -35,10 +35,10 @@ class CXNLayer(torch.nn.Module):
         ----------
         x_0 : torch.tensor
             shape=[n_0_cells, channels]
-            Input features on the nodes of the cellular complex.
+            Input features on the nodes of the cell complex.
         x_1 : torch.tensor
             shape=[n_1_cells, channels]
-            Input features on the edges of the cellular complex.
+            Input features on the edges of the cell complex.
         neighborhood_0_to_0 : torch.sparse
             shape=[n_0_cells, n_0_cells]
             Neighborhood matrix mapping nodes to nodes (A_0_up).
@@ -50,7 +50,7 @@ class CXNLayer(torch.nn.Module):
         -------
         _ : torch.tensor
             shape=[1, num_classes]
-            Output prediction on the entire cellular complex.
+            Output prediction on the entire cell complex.
         """
         x_0 = torch.nn.functional.relu(x_0)
         x_1 = torch.nn.functional.relu(x_1)
