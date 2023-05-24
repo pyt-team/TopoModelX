@@ -103,7 +103,7 @@ class MessagePassing(torch.nn.Module):
         )
         return torch.nn.functional.elu(
             torch.matmul(x_per_source_target_pair, self.att_weight)
-        )
+        ).squeeze(axis=1)
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
@@ -144,10 +144,7 @@ class MessagePassing(torch.nn.Module):
         x = self.sparsify_message(x)
         neighborhood_values = neighborhood.values()
         if self.att:
-            print(f"neighborhood_values.shape = {neighborhood_values.shape}")
-            print(f"attention_values.shape = {attention_values.shape}")
-            neighborhood_values = torch.mul(neighborhood_values, attention_values)
-            print(f"neighborhood_values.shape = {neighborhood_values.shape}")
+            neighborhood_values = torch.multiply(neighborhood_values, attention_values)
 
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
