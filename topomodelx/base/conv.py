@@ -46,7 +46,7 @@ class Conv(MessagePassing):
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
         if self.att:
-            self.att_weight = Parameter(torch.Tensor(self.in_channels, 1))
+            self.att_weight = Parameter(torch.Tensor(2 * self.in_channels, 1))
 
         self.reset_parameters()
 
@@ -89,7 +89,7 @@ class Conv(MessagePassing):
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
             attention_values = self.attention(x)
-            attention = attention_values.view(-1, 1)
+            attention = attention_values.view(*neighborhood.shape).to_sparse()
         x = torch.mm(x, self.weight)
         x = torch.mm(neighborhood, x)
         if self.att:

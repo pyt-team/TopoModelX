@@ -5,7 +5,7 @@ import torch
 from topomodelx.base.conv import Conv
 
 
-class ConvCXNLayer(torch.nn.Module):
+class CXNLayer(torch.nn.Module):
     """Layer of a simplified CXN.
 
     Implementation of a convolutional version of the CXN layer (no attention)
@@ -26,7 +26,7 @@ class ConvCXNLayer(torch.nn.Module):
     def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
         super().__init__()
         self.conv_0_to_0 = Conv(in_channels_0, in_channels_0, att=att)
-        self.conv_1_to_2 = Conv(in_channels_1, in_channels_2, att=att)
+        self.conv_1_to_2 = Conv(in_channels_1, in_channels_2)
 
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2):
         """Forward computation.

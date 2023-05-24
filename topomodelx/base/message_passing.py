@@ -88,7 +88,7 @@ class MessagePassing(torch.nn.Module):
             [x[self.source_index_j], x[self.target_index_i]], dim=1
         )
         return torch.nn.functional.elu(
-            torch.matmul(x_per_source_target_pair, self.att_weights)
+            torch.matmul(x_per_source_target_pair, self.att_weight)
         )
 
     def propagate(self, x, neighborhood):
