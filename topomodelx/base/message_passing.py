@@ -14,10 +14,12 @@ class MessagePassing(torch.nn.Module):
     def __init__(
         self,
         aggr_func="sum",
+        att=False,
         initialization="xavier_uniform",
     ):
         super().__init__()
         self.aggr_func = aggr_func
+        self.att = att
         self.initialization = initialization
 
     def reset_parameters(self, gain=1.414):
@@ -30,24 +32,20 @@ class MessagePassing(torch.nn.Module):
         ----------
         gain : float
             Gain for the weight initialization.
-
-        Returns
-        -------
-        _ : Tensor
-            Weight tensor to be initialized.
         """
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight, gain=gain)
+            if self.att:
+                torch.nn.init.xavier_uniform_(self.att_weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
             torch.nn.init.xavier_normal_(self.weight, gain=gain)
-
+            if self.att:
+                torch.nn.init.xavier_normal_(self.att_weight, gain=gain)
         else:
             raise RuntimeError(
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
-
-        return self.weight
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
@@ -72,12 +70,16 @@ class MessagePassing(torch.nn.Module):
         assert isinstance(neighborhood, torch.Tensor)
         assert neighborhood.ndim == 2
 
+        if self.att:
+            attention_values = self.attention(x)
+
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
         x = self.message(x)
         x = self.sparsify_message(x)
-        x = self.attention(x, neighborhood) * x
         neighborhood_values = neighborhood.values()
+        if self.att:
+            neighborhood_values = torch.mul(neighborhood_values, attention_values)
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
         return x
@@ -116,23 +118,22 @@ class MessagePassing(torch.nn.Module):
         """
         pass
 
-    def attention(self, x, neighborhood):
+    def attention(self, x):
         """Compute attention weights from source cells with weights.
-        
+
         Parameters
         ----------
         x : Tensor, shape=[..., n_cells, in_channels]
             Features (potentially transformed and weighted)
             on all cells of a given rank.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
 
         Returns
         -------
         _ : Tensor, shape=[..., n_target_cells, n_source_cells]
             Attention weights of all cells of a given rank.
+            This is the same shape as the neighborhood matrix.
         """
-        return 1.
+        pass
 
     def get_x_i(self, x):
         """Get value in tensor x at index i.

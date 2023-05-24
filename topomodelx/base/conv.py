@@ -32,9 +32,11 @@ class Conv(MessagePassing):
         out_channels,
         aggr_norm=False,
         update_func=None,
+        att=False,
         initialization="xavier_uniform",
     ):
         super().__init__(
+            att=att,
             initialization=initialization,
         )
         self.in_channels = in_channels
@@ -43,6 +45,11 @@ class Conv(MessagePassing):
         self.update_func = update_func
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        if self.att:
+            self.att_weight = Parameter(
+                torch.Tensor(self.in_channels, self.out_channels)
+            )
+
         self.reset_parameters()
 
     def update(self, inputs):
@@ -63,6 +70,13 @@ class Conv(MessagePassing):
         if self.update_func == "relu":
             return torch.nn.functional.relu(inputs)
 
+    def attention(self, x):
+        """Compute attention."""
+        pass
+        # a = torch.cat([h[source], h[target]], dim=1)
+        # e = self.cell_attention_activation(torch.matmul(a, self.att_irr))
+        # return neighborhood_values
+
     def forward(self, x, neighborhood):
         """Forward computation.
 
@@ -80,9 +94,12 @@ class Conv(MessagePassing):
             shape=[n_cells, out_channels]
             Output features on the cells.
         """
+        if self.att:
+            attention_mat = self.attention(x)
         x = torch.mm(x, self.weight)
         x = torch.mm(neighborhood, x)
-        x = self.attention(x, neighborhood) * x
+        if self.att:
+            neighborhood = torch.mul(neighborhood, attention_mat)
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
             x = torch.einsum("i,ij->ij", 1 / neighborhood_size, x)
