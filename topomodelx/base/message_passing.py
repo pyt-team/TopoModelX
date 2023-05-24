@@ -144,7 +144,11 @@ class MessagePassing(torch.nn.Module):
         x = self.sparsify_message(x)
         neighborhood_values = neighborhood.values()
         if self.att:
+            print(f"neighborhood_values.shape = {neighborhood_values.shape}")
+            print(f"attention_values.shape = {attention_values.shape}")
             neighborhood_values = torch.mul(neighborhood_values, attention_values)
+            print(f"neighborhood_values.shape = {neighborhood_values.shape}")
+
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
         return x
