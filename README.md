@@ -5,11 +5,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7958513.svg)](https://doi.org/10.5281/zenodo.7958513)
 
 # 🌐 TopoModelX (TMX) 🍩
-# Topological Deep Learning
+## Topological Deep Learning
 
 ![tnns_network_with_layers](https://user-images.githubusercontent.com/8267869/234084036-f7d6585e-b7c2-4156-a825-cfa5b9658d71.png)
 
-`TopoModelX` (TMX) is a Python module for topological deep learning, which simple and efficient solutions for science and engineering. 
+`TopoModelX` (TMX) is a Python module for topological deep learning. It offers simple and efficient tools to implement topological neural networks for science and engineering. 
 
 TMX's development follows the topological deep learning (TDL) blue print laid out in:
 - [Hajij et al. 2023. Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606). 
@@ -17,9 +17,9 @@ TMX's development follows the topological deep learning (TDL) blue print laid ou
 TMX can reproduce and extend the topological neural networks (TNNs) surveyed in:
 - [Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks](https://arxiv.org/abs/2304.10031).
 
-See [our graphical literature review](https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg) with equations available at [https://github.com/awesome-tnns/awesome-tnns](https://github.com/awesome-tnns/awesome-tnns).
+See [our graphical literature review](https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg) with message-passing equations available at [https://github.com/awesome-tnns/awesome-tnns](https://github.com/awesome-tnns/awesome-tnns).
 
-_**Note:** TMX is still under development. Use at your own risk._
+_**Note:** TMX is still under development._
 
 ## 🦾 Contributing to TMX
 
