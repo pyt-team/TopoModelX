@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.cellular.cxn_layer import CXNLayer
+from topomodelx.nn.cell.cxn_layer import CXNLayer
 
 
 class TestCXNLayer:
@@ -22,7 +22,12 @@ class TestCXNLayer:
         neighborhood_1_to_2 = torch.randn(n_2_cells, n_1_cells)
 
         # Without attention
-        cxn_layer = CXNLayer(channels, channels, channels, att=False)
+        cxn_layer = CXNLayer(
+            in_channels_0=channels,
+            in_channels_1=channels,
+            in_channels_2=channels,
+            att=False,
+        )
         x_0, x_1, x_2 = cxn_layer.forward(
             x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2
         )
@@ -34,7 +39,12 @@ class TestCXNLayer:
         # With attention
         neighborhood_0_to_0 = neighborhood_0_to_0.to_sparse().float()
         neighborhood_1_to_2 = neighborhood_1_to_2.to_sparse().float()
-        cxn_layer = CXNLayer(channels, channels, channels, att=True)
+        cxn_layer = CXNLayer(
+            in_channels_0=channels,
+            in_channels_1=channels,
+            in_channels_2=channels,
+            att=True,
+        )
         x_0, x_1, x_2 = cxn_layer.forward(
             x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2
         )

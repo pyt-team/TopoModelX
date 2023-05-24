@@ -16,5 +16,5 @@ __pycache__/
 docs/build/
 
 TopoNetX/
-topomodelx/nn/cellular/attcxn_layer.py
+topomodelx/nn/cell/attcxn_layer.py
 topomodelx/base/debug.ipynb
