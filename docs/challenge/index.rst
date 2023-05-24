@@ -8,20 +8,19 @@ Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim
 Description of the Challenge
 -------------
 
-The purpose of this challenge is to foster reproducible reasearch in Topological Deep Learning, by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN), and test it on a toy dataset. 
+The purpose of this challenge is to foster reproducible reasearch in Topological Deep Learning, by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN), and train it on a protein interaction dataset. 
 
-Implementations are built using TopoModelX, a Python package for deep learning on topological domains. Each submission takes the form of a Python script defining a layer of a given TNN, and a Jupyter Notebook implementing and testing a TNN built with this layer. The TNN layer leverages the coding infrastructure and building blocks from the package `TopoModelX <https://github.com/pyt-team/TopoModelX/tree/main/topomodelx>`_. Participants submit their Python script and Jupyter Notebook via `Pull Requests <https://github.com/pyt-team/TopoModelX/pulls>`_ to this GitHub repository, see Guidelines below.
+Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoModelX/tree/main/topomodelx>`_, a Python package for deep learning on topological domains. Each submission takes the form of a  `Pull Request <https://github.com/pyt-team/TopoModelX/pulls>`_ to TopoModelX containing the necesary code for implementing a TNN from the literature. The implementation leverages the coding infrastructure and building blocks from TopoModelX.
 
 *Note:* *We invite participants to review this file regularly, as details are added to the guidelines when questions are submitted to the organizers.*
 
 ⭐️ Publication Outcomes for Participants ⭐️
 -------------
-**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge. Participants will have the opportunity to co-author this publication.
+**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge. All participants with qualifying submissions will have the opportunity to co-author this publication.
 
 Participants with the top 8 best submissions will have the opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
 
-🏆 The best submisison in every topoglogical domain (hypergraph, simplcial, cellular, combinatorial) will recieve special recognition at the  `TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. 
-
+🏆 The best submisisons in each topoglogical domain (hypergraph, simplcial, cellular, combinatorial) will recieve special recognition at the  `TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. 
 
 Deadline
 -------------
@@ -53,7 +52,7 @@ Submission Requirements
 -------------
 The submisison must implement a pre-exisitng model from the literature included in Fig. 11 of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
 
-All submitted code complies with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (e.g., Black, isort, flake8).
+All submitted code complies with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
 
 The Pull Request contains three new files:
 
@@ -86,19 +85,19 @@ The Pull Request contains three new files:
   - contains one class, Test{Name of model}Layer (ex.: TestHSNLayer), which contains unit tests for all of the functions contianed in the {Name of model}Layer class. Please use pytest (not unittest).
   - examples are provided in test/nn/simplicial and test/nn/cellular.
   
-  **Note :** in the case that your {Name of model}Layer requires further manipulation of the computational primitives in topomodelx/base, you may include modifications to the files in topomodelx/base or new files. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to value simplicity and make the most of the computational primitives as is.
+  **Note :** in the case that {Name of model}Layer requires further manipulation of the computational primitives in topomodelx/base, a Pull Request may include modifications to the files in topomodelx/base or new files in topomodelx/base. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to make the most of TopoModelX's computational primitives as is and only resort to this option if absolutely necessary (ex.: implementing a new attention function or aggregation method).
   
 Evaluation
 -------------
 
-The `Condorcet method <https://en.wikipedia.org/wiki/Condorcet_method>`_ will be used to rank the submissions and decide on the winners. The evaluation criteria will be:
+The `Condorcet method <https://en.wikipedia.org/wiki/Condorcet_method>`_ will be used to rank the submissions and decide on the winners in each topological domain. The evaluation criteria will be:
 
 - Does the submission implement the chosen model correctly, specifically in terms of its message passing scheme? (The training schemes do not need to match that of the original model).
 - How readable/clean is the implementation? How well does the submission respect TopoModelX's APIs?
-- Is the submission well-written? Do the docstrings help understand the methods? Are the unit tests robust?
+- Is the submission well-written? Do the docstrings clearly explain the methods? Are the unit tests robust?
 
 Note that these criteria do not reward model performance, nor complexity of training. Rather, the goal is to implement well-written and accurate model architectures that will foster reproducible research in our field.
 
-Selected TopoModelX maintainers and collaborators, as well as each team whose submission(s) respect(s) the guidelines, will vote once on Google Form to express their preference for the best submission in every topological domain. Note that each team gets only one vote, even if there are several participants in the team.
+Selected TopoModelX maintainers and collaborators, as well as each team whose submission(s) respect(s) the guidelines, will vote once on Google Form to express their preference for the best submission in each topological domain. Note that each team gets only one vote/domain, even if there are several participants in the team.
 
-The 3 preferences must all be distinct: e.g. one cannot select the same submission for both first and second place. Such irregular votes will be discarded. A link to a Google Form will be provided to record the votes. It will be required to insert an email address to identify the voter. The voters will remain secret--only the final ranking will be published.
+A link to a Google Form will be provided to record the votes. It will be required to insert an email address to identify the voter. The voters will remain secret--only the final ranking will be published.
