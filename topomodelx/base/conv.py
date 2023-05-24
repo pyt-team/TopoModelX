@@ -22,6 +22,9 @@ class Conv(MessagePassing):
         Whether to normalize the aggregated message by the neighborhood size.
     update_func : string
         Update method to apply to message.
+    att : bool
+        Whether to use attention.
+        Optional, default: False.
     initialization : string
         Initialization method.
     """
