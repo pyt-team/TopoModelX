@@ -12,7 +12,7 @@ The purpose of this challenge is to foster reproducible research in Topological 
 
 Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoModelX/tree/main/topomodelx>`_, a Python package for deep learning on topological domains. Each submission takes the form of a  `Pull Request <https://github.com/pyt-team/TopoModelX/pulls>`_ to TopoModelX containing the necessary code for implementing a TNN from the literature. The implementation leverages the coding infrastructure and building blocks from TopoModelX.
 
-*Note:* *We invite participants to review this file regularly, as details are added to the guidelines when questions are submitted to the organizers.*
+*Note:* *We invite participants to review this file regularly, as details are added when questions are submitted to the organizers.*
 
 ⭐️ Publication Outcomes for Participants ⭐️
 -------------
