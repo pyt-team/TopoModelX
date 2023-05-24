@@ -32,7 +32,7 @@ How to Submit
 Everyone can participate and participation is free. It is sufficient to:
 
 - send a Pull Request
-- respect Submission Requirements.
+- respect `Submission Requirements <https://github.com/mathildepapillon/TopoModelX/blob/82f967dc699f12f47af93b84eb9cf8368471bb80/docs/challenge/index.rst?plain=1#L51>`_.
 
 An acceptable Pull Request automatically subscribes a participant/team to the challenge.
 
