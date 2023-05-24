@@ -48,7 +48,7 @@ class MessagePassing(torch.nn.Module):
             )
 
     def attention(self, x):
-        """Compute attention weights.
+        """Compute attention weights for messages between cells of same rank.
 
         This provides a default attention method to the layer.
 
@@ -70,7 +70,7 @@ class MessagePassing(torch.nn.Module):
         self.target_index_i and self.source_index_j.
 
         This mechanism works for neighborhood that between cells of same ranks.
-        In that case, we note that the neighborhood matrix is symmetric.
+        In that case, we note that the neighborhood matrix is square.
 
         Parameters
         ----------
@@ -118,6 +118,12 @@ class MessagePassing(torch.nn.Module):
         self.target_index_i, self.source_index_j = neighborhood.indices()
 
         if self.att:
+            if neighborhood.shape[0] != neighborhood.shape[1]:
+                raise RuntimeError(
+                    "Attention mechanism is only implemented for messages passing "
+                    "between cells of same rank, i.e. for neighborhood matrices "
+                    "that are square."
+                )
             attention_values = self.attention(x)
 
         x = self.message(x)

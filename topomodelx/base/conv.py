@@ -86,11 +86,14 @@ class Conv(MessagePassing):
             Output features on the cells.
         """
         if self.att:
-            attention_mat = self.attention(x)
+            neighborhood = neighborhood.coalesce()
+            self.target_index_i, self.source_index_j = neighborhood.indices()
+            attention_values = self.attention(x)
+            attention = attention_values.view(-1, 1)
         x = torch.mm(x, self.weight)
         x = torch.mm(neighborhood, x)
         if self.att:
-            neighborhood = torch.mul(neighborhood, attention_mat)
+            neighborhood = torch.mul(neighborhood, attention)
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
             x = torch.einsum("i,ij->ij", 1 / neighborhood_size, x)
