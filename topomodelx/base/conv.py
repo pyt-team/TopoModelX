@@ -92,7 +92,12 @@ class Conv(MessagePassing):
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
             attention_values = self.attention(x)
-            attention = attention_values.view(*neighborhood.shape).to_sparse()
+            attention = torch.zeros_like(neighborhood).to_dense()
+            attention[
+                self.target_index_i, self.source_index_j
+            ] = attention_values.squeeze()
+            attention = attention.to_sparse()
+
         x = torch.mm(x, self.weight)
         x = torch.mm(neighborhood, x)
         if self.att:

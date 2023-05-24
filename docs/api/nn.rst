@@ -3,13 +3,13 @@ Neural Networks
 ***************
 
 Simplicial Complex Neural Networks
-================================
+==================================
 
 .. automodule:: topomodelx.nn.simplicial
    :members:
 
-Cellular Complex Neural Networks
-================================
+Cell Complex Neural Networks
+============================
 
-.. automodule:: topomodelx.nn.cellular
+.. automodule:: topomodelx.nn.cell
    :members:
