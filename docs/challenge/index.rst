@@ -16,7 +16,7 @@ Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoMo
 
 ⭐️ Publication Outcomes for Participants ⭐️
 -------------
-**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge. All participants with qualifying submissions will have the opportunity to co-author this publication.
+**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through TAG on Machine Learning 2023. All participants with qualifying submissions will have the opportunity to co-author this publication.
 
 Participants with the top 8 best submissions will have the opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
 
