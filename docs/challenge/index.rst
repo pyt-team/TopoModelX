@@ -8,7 +8,7 @@ Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim
 Description of the Challenge
 -------------
 
-The purpose of this challenge is to foster reproducible reasearch in Topological Deep Learning, by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN), and train it on a protein interaction dataset. 
+The purpose of this challenge is to foster reproducible reasearch in Topological Deep Learning, by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN) and train it on a provided protein interaction dataset. 
 
 Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoModelX/tree/main/topomodelx>`_, a Python package for deep learning on topological domains. Each submission takes the form of a  `Pull Request <https://github.com/pyt-team/TopoModelX/pulls>`_ to TopoModelX containing the necesary code for implementing a TNN from the literature. The implementation leverages the coding infrastructure and building blocks from TopoModelX.
 
