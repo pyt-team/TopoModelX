@@ -8,7 +8,16 @@ from topomodelx.utils.scatter import scatter
 class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
-    This corresponds to Steps 1 & 2 of the 4-step scheme.
+    This class abstractly defines the mechanisms of message passing.
+
+    Notes
+    -----
+    This class is not meant to be instantiated directly.
+    Instead, it is meant to be inherited by other classes that will
+    effectively define the message passing mechanism.
+
+    For example, this class does not have trainable weights.
+    The classes that inherit from it will define these weights.
 
     Parameters
     ----------
@@ -34,6 +43,8 @@ class MessagePassing(torch.nn.Module):
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
+        Notes
+        -----
         This function will be called by children classes of
         MessagePassing that will define their weights.
 
@@ -45,7 +56,7 @@ class MessagePassing(torch.nn.Module):
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight, gain=gain)
             if self.att:
-                torch.nn.init.xavier_uniform_(self.att_weight, gain=gain)
+                torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
 
         elif self.initialization == "xavier_normal":
             torch.nn.init.xavier_normal_(self.weight, gain=gain)
@@ -98,7 +109,7 @@ class MessagePassing(torch.nn.Module):
         )
         return torch.nn.functional.elu(
             torch.matmul(x_per_source_target_pair, self.att_weight)
-        )
+        )  # .squeeze(axis=1)
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
@@ -139,7 +150,8 @@ class MessagePassing(torch.nn.Module):
         x = self.sparsify_message(x)
         neighborhood_values = neighborhood.values()
         if self.att:
-            neighborhood_values = torch.mul(neighborhood_values, attention_values)
+            neighborhood_values = torch.multiply(neighborhood_values, attention_values)
+
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
         return x
