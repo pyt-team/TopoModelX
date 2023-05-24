@@ -16,9 +16,9 @@ Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoMo
 
 ⭐️ Publication Outcomes for Participants ⭐️
 -------------
-**Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through the  ` 2023 TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. All participants with qualifying submissions will have the opportunity to co-author this publication.
+🎉 **Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through the  `2023 TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. All participants with qualifying submissions will have the opportunity to co-author this publication.
 
-Participants with the top 8 best submissions will have the opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
+📘 Participants with the top 8 best submissions will have the additional opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
 
 🏆 The best submissions in each topological domain (hypergraph, simplicial, cellular, combinatorial) will receive special recognition at the ICML TAG in Machine Learning Workshop.
 
@@ -100,7 +100,7 @@ Note that these criteria do not reward model performance, nor complexity of trai
 
 Selected TopoModelX maintainers and collaborators, as well as each team whose submission(s) respect(s) the guidelines, will vote once on Google Form to express their preference for the best submission in each topological domain. Note that each team gets only one vote/domain, even if there are several participants in the team.
 
-A link to a Google Form will be provided to record the votes. It will be required to insert an email address to identify the voter. The voters will remain secret--only the final ranking will be published.
+A link to a Google Form will be provided to record the votes. While the form will ask for an email address to identify the voter, voters' identities will remain secret--only the final ranking will be shared.
 
 Questions
 -------------
