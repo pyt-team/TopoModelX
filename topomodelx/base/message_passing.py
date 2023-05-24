@@ -56,7 +56,7 @@ class MessagePassing(torch.nn.Module):
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight, gain=gain)
             if self.att:
-                torch.nn.init.xavier_uniform_(self.att_weight, gain=gain)
+                torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
 
         elif self.initialization == "xavier_normal":
             torch.nn.init.xavier_normal_(self.weight, gain=gain)
@@ -109,7 +109,7 @@ class MessagePassing(torch.nn.Module):
         )
         return torch.nn.functional.elu(
             torch.matmul(x_per_source_target_pair, self.att_weight)
-        ).squeeze(axis=1)
+        )  # .squeeze(axis=1)
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
