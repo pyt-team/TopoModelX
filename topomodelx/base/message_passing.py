@@ -1,6 +1,6 @@
 """Message passing module."""
+
 import torch
-import torch.nn as nn
 
 from topomodelx.utils.scatter import scatter
 
@@ -9,15 +9,26 @@ class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
     This corresponds to Steps 1 & 2 of the 4-step scheme.
+
+    Parameters
+    ----------
+    aggr_func : string
+        Aggregation function to use.
+    att : bool
+        Whether to use attention.
+    initialization : string
+        Initialization method for the weights of the layer.
     """
 
     def __init__(
         self,
         aggr_func="sum",
+        att=False,
         initialization="xavier_uniform",
     ):
         super().__init__()
         self.aggr_func = aggr_func
+        self.att = att
         self.initialization = initialization
 
     def reset_parameters(self, gain=1.414):
@@ -30,24 +41,64 @@ class MessagePassing(torch.nn.Module):
         ----------
         gain : float
             Gain for the weight initialization.
-
-        Returns
-        -------
-        _ : Tensor
-            Weight tensor to be initialized.
         """
         if self.initialization == "xavier_uniform":
-            nn.init.xavier_uniform_(self.weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.weight, gain=gain)
+            if self.att:
+                torch.nn.init.xavier_uniform_(self.att_weight, gain=gain)
 
         elif self.initialization == "xavier_normal":
-            nn.init.xavier_normal_(self.weight, gain=gain)
-
+            torch.nn.init.xavier_normal_(self.weight, gain=gain)
+            if self.att:
+                torch.nn.init.xavier_normal_(self.att_weight, gain=gain)
         else:
             raise RuntimeError(
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
-        return self.weight
+    def attention(self, x):
+        """Compute attention weights for messages between cells of same rank.
+
+        This provides a default attention method to the layer.
+
+        Alternatively, users can choose to inherit from this class and overwrite
+        this method to provide their own attention mechanism.
+
+        Notes
+        -----
+        The attention weights are given in the order of the (source, target) pairs
+        that correspond to non-zero coefficients in the neighborhood matrix.
+
+        In particular, we have:
+
+        n_target_cells = len(self.target_index_i)
+                       = len(self.source_index_j)
+                       = n_source_cells.
+
+        For this reason, the attention weights are computed only after
+        self.target_index_i and self.source_index_j.
+
+        This mechanism works for neighborhood that between cells of same ranks.
+        In that case, we note that the neighborhood matrix is square.
+
+        Parameters
+        ----------
+        x : torch.tensor
+            shape=[n_cells, in_channels]
+            Input features on the cells. All these cells are of the same rank by design.
+
+        Returns
+        -------
+        _ : torch.tensor
+            shape = [n_target_cells, 1] = [n_source_cells, 1]
+            Attention weights.
+        """
+        x_per_source_target_pair = torch.cat(
+            [x[self.source_index_j], x[self.target_index_i]], dim=1
+        )
+        return torch.nn.functional.elu(
+            torch.matmul(x_per_source_target_pair, self.att_weight)
+        )
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
@@ -58,14 +109,14 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_cells, in_channels]
+        x : Tensor, shape=[..., n_source_cells, in_channels]
             Features on all cells of a given rank.
-        neighborhood : torch.sparse
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_cells, out_channels]
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
             Features on all cells of a given rank.
         """
         assert isinstance(x, torch.Tensor)
@@ -74,9 +125,21 @@ class MessagePassing(torch.nn.Module):
 
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
+
+        if self.att:
+            if neighborhood.shape[0] != neighborhood.shape[1]:
+                raise RuntimeError(
+                    "Attention mechanism is only implemented for messages passing "
+                    "between cells of same rank, i.e. for neighborhood matrices "
+                    "that are square."
+                )
+            attention_values = self.attention(x)
+
         x = self.message(x)
         x = self.sparsify_message(x)
         neighborhood_values = neighborhood.values()
+        if self.att:
+            neighborhood_values = torch.mul(neighborhood_values, attention_values)
         x = neighborhood_values.view(-1, 1) * x
         x = self.aggregate(x)
         return x
