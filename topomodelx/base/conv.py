@@ -75,20 +75,19 @@ class Conv(MessagePassing):
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_target)
 
-    def forward(self, x_source, neighborhood):
+    def forward(self, x_source, neighborhood, x_target=None):
         """Forward computation.
 
         Parameters
         ----------
-        x_source : torch.tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
             Input features on the source cells.
         neighborhood : torch.sparse
             Neighborhood matrix.
 
         Returns
         -------
-        _ : torch.tensor
-            shape=[n_cells, out_channels]
+        _ : torch.Tensor, shape=[n_cells, out_channels]
             Output features on the cells.
         """
         if self.att:

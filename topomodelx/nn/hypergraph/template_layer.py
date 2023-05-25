@@ -51,7 +51,7 @@ class TemplateLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_1 : torch.tensor, shape=[n_edges, in_channels]
+        x_1 : torch.Tensor, shape=[n_edges, in_channels]
             Input features on the edges of the simplicial complex.
         incidence_1 : torch.sparse
             shape=[n_edges, n_edges]

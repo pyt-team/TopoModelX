@@ -104,16 +104,16 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : torch.tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : torch.tensor, shape=[n_target_cells, in_channels]
+        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        _ : torch.tensor, shape = [n_messages, 1]
+        _ : torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_source_per_message = x_source[self.source_index_j]
