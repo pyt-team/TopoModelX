@@ -60,11 +60,11 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
 
 - stored in the directory topomodelx/nn/{domain of model}, where {domain of model} is simplicial, cellular, or hypergraph.
 - contains one class, {Name of model}Layer (ex.: HSNLayer), which uses TopoModelX computational primitives to implement one layer of the model. One layer is equivalent to the message passing depicted in the tensor diagram representation for the model (Fig. 11, Architectures of Topological Deep Learning).
-- examples are provided in topomodelx/nn/simplicial and topomodelx/nn/cellular. 
+- for examples, check out example layers in topomodelx/nn/simplicial, topomodelx/nn/cell, and topomodelx/nn/hypergraph. 
 
 2. {name of model}_train.ipynb (ex.: hsn_train.ipynb) :
 
-- stored in the directory tutorials/ and contains the following steps:
+- stored in the directory tutorials/{domain of model} and contains the following steps:
 
   1. Pre-processing
         - imports necessary packages as well as {Name of model}Layer class
@@ -83,7 +83,7 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
   
 - stored in directory test/nn/{domain of model}
 - contains one class, Test{Name of model}Layer (ex.: TestHSNLayer), which contains unit tests for all of the functions contained in the {Name of model}Layer class. Please use pytest (not unittest).
-  - examples are provided in test/nn/simplicial and test/nn/cellular.
+  - for examples, check out test/nn/simplicial, test/nn/cell, and test/nn/hypergraph.
   
   **Note :** in the case that {Name of model}Layer requires further manipulation of the computational primitives in topomodelx/base, a Pull Request may include modifications to the files in topomodelx/base or new files in topomodelx/base. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to make the most of TopoModelX's computational primitives as is and only resort to this option if absolutely necessary (ex.: implementing a new attention function or aggregation method).
   
