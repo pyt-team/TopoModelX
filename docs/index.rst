@@ -60,3 +60,4 @@ Check out our tutorials to get started!
    api/index
    contributing/index
    tutorials/index
+   challenge/index
