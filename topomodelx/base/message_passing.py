@@ -67,73 +67,6 @@ class MessagePassing(torch.nn.Module):
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
-    # def attention_between_cells_of_different_ranks(self, x_source, x_target):
-    #     """Compute attention weights for messages between cells of different ranks.
-
-    #     Notes
-    #     -----
-    #     The attention weights are given in the order of the (source, target) pairs
-    #     that correspond to non-zero coefficients in the neighborhood matrix.
-
-    #     For this reason, the attention weights are computed only after
-    #     self.target_index_i and self.source_index_j.
-
-    #     This mechanism works for neighborhood that between cells of same ranks.
-    #     In that case, we note that the neighborhood matrix is square.
-
-    #     Parameters
-    #     ----------
-    #     x_source : torch.tensor, shape=[n_source_cells, in_channels]
-    #         Input features on source cells.
-    #         Assumes that all source cells have the same rank r.
-    #     x_target : torch.tensor, shape=[n_target_cells, in_channels]
-    #         Input features on target cells.
-    #         Assumes that all target cells have the same rank s.
-
-    #     Returns
-    #     -------
-    #     _ : torch.tensor, shape = [n_messages, 1]
-    #         Attention weights.
-    #     """
-
-    # def attention_between_cells_of_same_rank(self, x):
-    #     """Compute attention weights for messages between cells of same rank.
-
-    #     This provides a default attention method to the layer.
-
-    #     Alternatively, users can choose to inherit from this class and overwrite
-    #     this method to provide their own attention mechanism.
-
-    #     Notes
-    #     -----
-    #     The attention weights are given in the order of the (source, target) pairs
-    #     that correspond to non-zero coefficients in the neighborhood matrix.
-
-    #     For this reason, the attention weights are computed only after
-    #     self.target_index_i and self.source_index_j.
-
-    #     This mechanism works for neighborhood that between cells of same ranks.
-    #     In that case, we note that the neighborhood matrix is square.
-
-    #     Parameters
-    #     ----------
-    #     x : torch.tensor, shape=[n_source_cells, in_channels]
-    #         Input features on source cells.
-    #         Assumes that all source cells have the same rank r.
-
-    #     Returns
-    #     -------
-    #     _ : torch.tensor
-    #         shape = [n_messages, 1]
-    #         Attention weights: one scalar per message between a source and a target cell.
-    #     """
-    #     x_per_source_target_pair = torch.cat(
-    #         [x[self.source_index_j], x[self.target_index_i]], dim=1
-    #     )
-    #     return torch.nn.functional.elu(
-    #         torch.matmul(x_per_source_target_pair, self.att_weight)
-    #     )
-
     def attention(self, x_source, x_target=None):
         """Compute attention weights for messages between cells of same rank.
 
@@ -207,10 +140,6 @@ class MessagePassing(torch.nn.Module):
             Assumes that all target cells have the same rank s.
         """
         aggr = scatter(self.aggr_func)
-        print("hello")
-        print(x_message.shape)
-        print(x_message)
-        print(self.target_index_i)
         out = aggr(x_message, self.target_index_i, 0)
         return out
 
