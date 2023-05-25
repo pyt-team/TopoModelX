@@ -6,8 +6,8 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter
 
 
-class AttentionSameRankMP(MessagePassing):
-    """Custom class that inherits from MessagePassing to define attention."""
+class AttentionMessagePassing(MessagePassing):
+    """Class to test message passing with attention between cells of same ranks."""
 
     def __init__(self, in_channels=None, att=False, initialization="xavier_uniform"):
         super().__init__(att=att, initialization=initialization)
@@ -18,40 +18,19 @@ class AttentionSameRankMP(MessagePassing):
                     2 * in_channels,
                 )
             )
-
-
-class AttentionDifferentRanksMP(MessagePassing):
-    """Custom class that inherits from MessagePassing to define attention."""
-
-    def __init__(self, in_channels=None, att=False, initialization="xavier_uniform"):
-        super().__init__(att=att, initialization=initialization)
-        self.in_channels = in_channels
-        if att:
-            self.att_weight = torch.nn.Parameter(
-                torch.Tensor(
-                    2 * in_channels,
-                )
-            )
-
-    def attention(self, x_r, x_s):
-        """Compute attention weights for messages between cells of different ranks."""
-        return self.attention_between_cells_of_different_ranks(x_r, x_s)
 
 
 class TestMessagePassing:
     """Test the MessagePassing class."""
 
-    def setup_method(self, method):
+    def setup_method(self):
         """Make message_passing object."""
         self.mp = MessagePassing()
-        self.att_mp_xavier_uniform = AttentionSameRankMP(
+        self.att_mp_xavier_uniform = AttentionMessagePassing(
             in_channels=2, att=True, initialization="xavier_uniform"
         )
-        self.att_mp_xavier_normal = AttentionSameRankMP(
+        self.att_mp_xavier_normal = AttentionMessagePassing(
             in_channels=2, att=True, initialization="xavier_normal"
-        )
-        self.att_mp_different_ranks = AttentionDifferentRanksMP(
-            in_channels=2, att=True, initialization="xavier_uniform"
         )
 
     def test_reset_parameters(self):
@@ -139,10 +118,10 @@ class TestMessagePassing:
 
         neighborhood = neighborhood.coalesce()
         target_index_i, source_index_j = neighborhood.indices()
-        self.att_mp_different_ranks.target_index_i = target_index_i
-        self.att_mp_different_ranks.source_index_j = source_index_j
+        self.att_mp_xavier_uniform.target_index_i = target_index_i
+        self.att_mp_xavier_uniform.source_index_j = source_index_j
 
-        result = self.att_mp_different_ranks.attention_between_cells_of_different_ranks(
+        result = self.att_mp_xavier_uniform.attention_between_cells_of_different_ranks(
             x_source, x_target
         )
         assert result.shape == (n_messages,)

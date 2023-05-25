@@ -195,9 +195,7 @@ class MessagePassing(torch.nn.Module):
         if self.att:
             if neighborhood.shape[0] != neighborhood.shape[1]:
                 raise RuntimeError(
-                    "Attention mechanism is only implemented for messages passing "
-                    "between cells of same rank, i.e. for neighborhood matrices "
-                    "that are square."
+                    "Use attention mechanism between cells of different ranks."
                 )
             attention_values = self.attention(x)
 
