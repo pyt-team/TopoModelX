@@ -94,12 +94,11 @@ class Conv(MessagePassing):
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
             attention_values = self.attention(x_source, x_target)
-            attention = torch.sparse_coo_tensor(
+            neighborhood = torch.sparse_coo_tensor(
                 indices=neighborhood.indices(),
-                values=attention_values,
+                values=attention_values * neighborhood.values(),
                 size=neighborhood.shape,
             )
-            neighborhood = torch.multiply(neighborhood, attention)
 
         x_message = torch.mm(x_source, self.weight)
         x_message_on_target = torch.mm(neighborhood, x_message)
