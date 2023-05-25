@@ -64,22 +64,6 @@ class TestMessagePassing:
         self.mp_with_att.reset_parameters(gain=gain)
         assert self.mp_with_att.att_weight.shape == (4,)
 
-    def test_propagate(self):
-        """Test propagate."""
-        # Test without attention
-        result = self.mp.propagate(self.x_source, self.neighborhood)
-        assert result.shape == (3, 2)
-
-        # Test with attention (source & target on the same cells)
-        result = self.mp_with_att.propagate(self.x_source, self.neighborhood)
-        assert result.shape == (3, 2)
-
-        # Test with attention (source & target on different cells)
-        result = self.mp_with_att.propagate(
-            self.x_source, self.neighborhood_r_to_s, self.x_target
-        )
-        assert result.shape == (2, 2)
-
     def test_attention(self):
         """Test attention."""
         # Test with source & target on the same cells

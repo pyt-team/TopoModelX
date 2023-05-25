@@ -8,13 +8,14 @@ from topomodelx.utils.scatter import scatter
 class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
-    This class abstractly defines the mechanisms of message passing.
+    This class abstractly defines the mechanism of message passing.
     This class is not meant to be instantiated directly.
-    Instead, it is meant to be inherited by other classes that will
+    Instead, it is meant to be inherited by subclasses that will
     effectively define the message passing mechanism.
 
-    Note that this class does not have trainable weights.
-    The classes that inherit from it will define these weights.
+    The MessagePassing class does not have trainable weights.
+    Its subclasses will define these weights and use the methods
+    from the MessagePassing class.
 
     Parameters
     ----------
@@ -42,8 +43,8 @@ class MessagePassing(torch.nn.Module):
 
         Notes
         -----
-        This function will be called by children classes of
-        MessagePassing that will define their weights.
+        This function will be called by subclasses of
+        MessagePassing that have trainable weights.
 
         Parameters
         ----------
@@ -64,16 +65,39 @@ class MessagePassing(torch.nn.Module):
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
+    def message(self, x_source, x_target=None):
+        """Construct message from source cells to target cells.
+
+        This provides a default message function to the message passing scheme.
+
+        Alternatively, users can subclass MessagePassing and overwrite
+        the message method in order to replace it with their own message mechanism.
+
+        Parameters
+        ----------
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_source_cells, in_channels]
+            Messages on source cells.
+        """
+        return x_source
+
     def attention(self, x_source, x_target=None):
-        """Compute attention weights for messages between cells of same rank.
+        """Compute attention weights for messages.
 
-        This provides a default attention method to the layer.
+        This provides a default attention function to the message passing scheme.
 
-        Alternatively, users can choose to inherit from this class and overwrite
-        this method to provide their own attention mechanism.
-
-        For example, they can choose to use the method
-        attention_between_cells_of_different_ranks instead.
+        Alternatively, users can subclass MessagePassing and overwrite
+        the attention method in order to replace it with their own attention mechanism.
 
         Parameters
         ----------
@@ -104,32 +128,12 @@ class MessagePassing(torch.nn.Module):
             torch.matmul(x_source_target_per_message, self.att_weight)
         )
 
-    def message(self, x_source, x_target=None):
-        """Construct message from source cells.
-
-        Parameters
-        ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
-
-        Returns
-        -------
-        _ : Tensor, shape=[..., n_source_cells, channels]
-            Weighted features on source cells of rank r.
-        """
-        return x_source
-
     def aggregate(self, x_message):
-        """Aggregate values in input tensor.
+        """Aggregate messages on each target cell.
 
-        A given target cell can receive several messages from several source cells.
-        This function aggregates these messages into a single feature per target cell.
+        A target cell receives messages from several source cells.
+        This function aggregates these messages into a single output
+        feature per target cell.
 
         Parameters
         ----------
@@ -147,12 +151,11 @@ class MessagePassing(torch.nn.Module):
         aggr = scatter(self.aggr_func)
         return aggr(x_message, self.target_index_i, 0)
 
-    def propagate(self, x_source, neighborhood, x_target=None):
+    def forward(self, x_source, neighborhood, x_target=None):
         """Propagate messages from source cells to target cells.
 
-        This only propagates the values in x using the neighborhood matrix.
-
-        There is no weight in this function.
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
 
         Parameters
         ----------
@@ -190,29 +193,3 @@ class MessagePassing(torch.nn.Module):
 
         x_message = neighborhood_values.view(-1, 1) * x_message
         return self.aggregate(x_message)
-
-    def forward(self, x_source, neighborhood, x_target=None):
-        r"""Run the forward pass of the module.
-
-        Parameters
-        ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
-
-        Returns
-        -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Output features on target cells.
-            Assumes that all source cells have the same rank s.
-        """
-        return self.propagate(
-            x_source=x_source, neighborhood=neighborhood, x_target=x_target
-        )
