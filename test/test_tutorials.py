@@ -26,10 +26,7 @@ def _exec_tutorial(path):
 
 
 paths = sorted(glob.glob("tutorials/*.ipynb"))
-print(f"paths = {paths}")
 paths.extend(sorted(glob.glob("tutorials/hypergraph/*.ipynb")))
-print(f"paths = {paths}")
-
 paths.extend(sorted(glob.glob("tutorials/simplicial/*.ipynb")))
 
 
