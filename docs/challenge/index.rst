@@ -1,12 +1,12 @@
 ICML 2023 Topological Deep Learning Challenge
-=====================
+=================================================
 Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the second annual `Topology and Geometry (TAG) in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. 
 
 Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.
 
 
 Description of the Challenge
--------------
+----------------------------
 
 The purpose of this challenge is to foster reproducible research in Topological Deep Learning by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN) and train it on a provided protein interaction dataset. 
 
@@ -15,12 +15,12 @@ Implementations are built using  `TopoModelX <https://github.com/pyt-team/TopoMo
 *Note:* *We invite participants to review this file regularly, as details are added when questions are submitted to the organizers.*
 
 ⭐️ Publication Outcomes for Participants ⭐️
--------------
+------------------------------------------
 🎉 **Every submission respecting the submission requirements** will be included in a white paper summarizing findings of the challenge, published through the  `2023 TAG in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML. All participants with qualifying submissions will have the opportunity to co-author this publication.
 
 📘 Participants with the top 8 best submissions will have the additional opportunity to co-author a software paper on TopoModelX submitted to the **Journal of Machine Learning Research**.
 
-🏆 The best submissions in each topological domain (hypergraph, simplicial, cellular, combinatorial) will receive special recognition at the ICML TAG in Machine Learning Workshop.
+🏆 The best submissions in each topological domain (hypergraph, simplicial, cell, combinatorial) will receive special recognition at the ICML TAG in Machine Learning Workshop.
 
 Deadline
 -------------
@@ -40,16 +40,16 @@ Guidelines
 -------------
 We encourage the participants to start submitting their Pull Request early on. This helps debug failing tests and helps address potential issues with the code.
 
-In the case of multiple submissions implementing the same model, earlier Pull Requests will be given priority consideration.
+In the case of multiple submissions of similar quality implementing the same TNN, earlier Pull Requests will be given priority consideration.
 
 Teams are accepted and there is no restriction on the number of team members.
 
-One model per Pull Request. There is no restriction on the amount of submissions (Pull Requests) per participant/team. 
+A Pull Request should contain no more than one model (TNN). There is no restriction on the amount of submissions (Pull Requests) per participant/team. 
 
 The principal developers of TopoModelX are not allowed to participate.
 
 Submission Requirements
--------------
+-----------------------
 The submission must implement a pre-existing model from the literature included in Fig. 11 of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
 
 All submitted code must comply with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
@@ -58,21 +58,21 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
 
 1. {name of model}_layer.py (ex.: hsn_layer.py) :
 
-- stored in the directory topomodelx/nn/{domain of model}, where {domain of model} is simplicial, cellular, or hypergraph.
-- contains one class, {Name of model}Layer (ex.: HSNLayer), which uses TopoModelX computational primitives to implement one layer of the model. One layer is equivalent to the message passing depicted in the tensor diagram representation for the model (Fig. 11, Architectures of Topological Deep Learning).
-- for examples, check out example layers in topomodelx/nn/simplicial, topomodelx/nn/cell, and topomodelx/nn/hypergraph. 
+- stored in the directory ``topomodelx/nn/{domain of model}``, where ``{domain of model}`` is ``simplicial``, ``cell``, ``hypergraph``, or ``combinatorial``.
+- contains one class, ``{Name of model}Layer`` (ex.: ``HSNLayer``), which uses TopoModelX computational primitives to implement one layer of the model. One layer is equivalent to the message passing depicted in the tensor diagram representation for the model (Fig. 11, Architectures of Topological Deep Learning).
+- for examples, check out example layers in ``topomodelx/nn/simplicial``, ``topomodelx/nn/cell``, and ``topomodelx/nn/hypergraph``. 
 
 2. {name of model}_train.ipynb (ex.: hsn_train.ipynb) :
 
-- stored in the directory tutorials/{domain of model} and contains the following steps:
+- stored in the directory ``tutorials/{domain of model}`` and contains the following steps:
 
   1. Pre-processing
-        - imports necessary packages as well as {Name of model}Layer class
-        - loads the protein-protein-interaction dataset `using TopoNetX <https://github.com/pyt-team/TopoNetX/blob/71e840ea5a475027ca9b4231563834547463cf19/toponetx/datasets/utils.py#LL9C6-L9C6>`_ and assigns labels.
-        - lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cellular complex, combinatorial complex) using TopoNetX.
+        - imports necessary packages as well as ``{Name of model}Layer`` class
+        - loads a benchmark dataset `using PyTorch Geometric <https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html>`_ and assigns labels.
+        - lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cell complex, combinatorial complex) using TopoNetX.
   
   2. Creating the neural network
-        - defines a class {Name of model} (ex.: HSN) that inherits from torch.nn.Module and uses {Name of model}Layer along with torch.Linear layers to create a Topological Neural Network.
+        - defines a class ``{Name of model}`` (ex.: ``HSN``) that inherits from ``torch.nn.Module`` and uses ``{Name of model}Layer`` along with ``torch.Linear`` layers to create a Topological Neural Network.
   
   3. Training the neural network on a classification task
         - defines a simple training loop for node/edge/complex classification (depending on which features the model outputs).
@@ -81,11 +81,11 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
   
 3. test_{name_of_model}_layer.py (ex.: test_hsn_layer.py)
   
-- stored in directory test/nn/{domain of model}
-- contains one class, Test{Name of model}Layer (ex.: TestHSNLayer), which contains unit tests for all of the functions contained in the {Name of model}Layer class. Please use pytest (not unittest).
-  - for examples, check out test/nn/simplicial, test/nn/cell, and test/nn/hypergraph.
+- stored in directory ``test/nn/{domain of model}``
+- contains one class, ``Test{Name of model}Layer`` (ex.: ``TestHSNLayer``), which contains unit tests for all of the functions contained in the ``{Name of model}Layer`` class. Please use pytest (not unittest).
+  - for examples, check out ``test/nn/simplicial``, ``test/nn/cell``, and ``test/nn/hypergraph``.
   
-  **Note :** in the case that {Name of model}Layer requires further manipulation of the computational primitives in topomodelx/base, a Pull Request may include modifications to the files in topomodelx/base or new files in topomodelx/base. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to make the most of TopoModelX's computational primitives as is and only resort to this option if absolutely necessary (ex.: implementing a new attention function or aggregation method).
+  **Note :** in the case that ``{Name of model}Layer`` requires further manipulation of the computational primitives in ``topomodelx/base``, a Pull Request may include modifications to the files in ``topomodelx/base`` or new files in ``topomodelx/base``. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to make the most of TopoModelX's computational primitives as is and only resort to this option if absolutely necessary (ex.: implementing a new attention function or aggregation method).
   
 Evaluation
 -------------
