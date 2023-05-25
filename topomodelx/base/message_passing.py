@@ -67,7 +67,42 @@ class MessagePassing(torch.nn.Module):
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
-    def attention(self, x):
+    def attention_between_cells_of_different_ranks(self, x_r, x_s):
+        """Compute attention weights for messages between cells of different ranks.
+
+        Notes
+        -----
+        The attention weights are given in the order of the (source, target) pairs
+        that correspond to non-zero coefficients in the neighborhood matrix.
+
+        For this reason, the attention weights are computed only after
+        self.target_index_i and self.source_index_j.
+
+        This mechanism works for neighborhood that between cells of same ranks.
+        In that case, we note that the neighborhood matrix is square.
+
+        Parameters
+        ----------
+        x_r : torch.tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        x_s : torch.tensor, shape=[n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+
+        Returns
+        -------
+        _ : torch.tensor, shape = [n_messages, 1]
+            Attention weights.
+        """
+        x_per_source_target_pair = torch.cat(
+            [x_r[self.source_index_j], x_s[self.target_index_i]], dim=1
+        )
+        return torch.nn.functional.elu(
+            torch.matmul(x_per_source_target_pair, self.att_weight)
+        )
+
+    def attention_between_cells_of_same_rank(self, x):
         """Compute attention weights for messages between cells of same rank.
 
         This provides a default attention method to the layer.
@@ -80,12 +115,6 @@ class MessagePassing(torch.nn.Module):
         The attention weights are given in the order of the (source, target) pairs
         that correspond to non-zero coefficients in the neighborhood matrix.
 
-        In particular, we have:
-
-        n_target_cells = len(self.target_index_i)
-                       = len(self.source_index_j)
-                       = n_source_cells.
-
         For this reason, the attention weights are computed only after
         self.target_index_i and self.source_index_j.
 
@@ -94,22 +123,46 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.tensor
-            shape=[n_cells, in_channels]
-            Input features on the cells. All these cells are of the same rank by design.
+        x : torch.tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
 
         Returns
         -------
         _ : torch.tensor
-            shape = [n_target_cells, 1] = [n_source_cells, 1]
-            Attention weights.
+            shape = [n_messages, 1]
+            Attention weights: one scalar per message between a source and a target cell.
         """
         x_per_source_target_pair = torch.cat(
             [x[self.source_index_j], x[self.target_index_i]], dim=1
         )
         return torch.nn.functional.elu(
             torch.matmul(x_per_source_target_pair, self.att_weight)
-        )  # .squeeze(axis=1)
+        )
+
+    def attention(self, x):
+        """Compute attention weights for messages between cells of same rank.
+
+        This provides a default attention method to the layer.
+
+        Alternatively, users can choose to inherit from this class and overwrite
+        this method to provide their own attention mechanism.
+
+        For example, they can choose to use the method
+        attention_between_cells_of_different_ranks instead.
+
+        Parameters
+        ----------
+        x : torch.tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+
+        Returns
+        -------
+        _ : torch.tensor, shape = [n_messages, 1]
+            Attention weights: one scalar per message between a source and a target cell.
+        """
+        return self.attention_between_cells_of_same_rank(x)
 
     def propagate(self, x, neighborhood):
         """Propagate messages from source cells to target cells.
@@ -121,14 +174,16 @@ class MessagePassing(torch.nn.Module):
         Parameters
         ----------
         x : Tensor, shape=[..., n_source_cells, in_channels]
-            Features on all cells of a given rank.
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
         neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
 
         Returns
         -------
         _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Features on all cells of a given rank.
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
         """
         assert isinstance(x, torch.Tensor)
         assert isinstance(neighborhood, torch.Tensor)
@@ -159,17 +214,22 @@ class MessagePassing(torch.nn.Module):
     def sparsify_message(self, x):
         """Construct message from source cells, indexed by j.
 
+        This extracts the features in x that are involved in messages,
+        i.e. that correspond to non-zero entries of the neighborhood matrix.
+
         Parameters
         ----------
-        x : Tensor, shape=[..., n_cells, out_channels]
-            Features (potentially transformed and weighted)
-            on all cells of a given rank.
+        x : Tensor, shape=[..., n_cells, channels]
+            Features (potentially weighted or transformed) on source cells.
+            Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_cells, out_channels]
+        _ : Tensor, shape=[..., n_messages, channels]
             Values of x that are only at indexes j, i.e. that
-            are on the source cells.
+            are on the source cells that are effectively involved in messages.
+            We can have n_messages > n_cells, if the same cells are involved in
+            several messages.
         """
         source_index_j = self.source_index_j
         return x.index_select(-2, source_index_j)
@@ -179,54 +239,75 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_cells, in_channels]
-            Features (potentially transformed and weighted)
-            on all cells of a given rank.
+        x : Tensor, shape=[..., n_source_cells, channels]
+            Features (potentially weighted or transformed) on source cells.
+            Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_cells, out_channels]
-            Weighted features of all cells of a given rank.
+        _ : Tensor, shape=[..., n_source_cells, channels]
+            Weighted features on source cells of rank r.
         """
         pass
 
     def get_x_i(self, x):
-        """Get value in tensor x at index i.
+        """Get value in tensor x at index self.target_index_i.
 
         Note that index i is a tuple of indices, that
         represent the indices of the target cells.
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_cells, out_channels]
-            Input tensor.
+        x : Tensor, shape=[..., n_source_cells, channels]
+            Features on source cells.
+            Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Values of x that are only at indexes i, i.e. values
-            that are on the target cells.
+        _ : Tensor, shape=[..., n_messages, channels]
+            Values of x that are only at indexes i, which correspond
+            to values on the target cells that receive messages.
         """
         return x.index_select(-2, self.target_index_i)
 
     def aggregate(self, x):
         """Aggregate values in input tensor.
 
+        A given target cell can receive several messages from several source cells.
+        This function aggregates these messages into a single feature per target cell.
+
         Parameters
         ----------
-        x : Tensor, shape=[..., n_target_cells, n_source_cells, out_channels]
-            Input tensor. Each target cells is receiving several messages
-            from several source cells.
+        x : Tensor, shape=[..., n_messages, out_channels]
+            Features associated with each message, i.e. each pair of source-target
+            cells.
 
         Returns
         -------
         _ : Tensor, shape=[...,  n_target_cells, out_channels]
-            Aggregated tensor. Each target cell has aggregated the several messages
-            from several source cells.
+            Output features on target cells.
+            Each target cell aggregates messages from several source cells.
+            Assumes that all target cells have the same rank s.
         """
         aggr = scatter(self.aggr_func)
-        return aggr(x, self.target_index_i, 0)
+        out = aggr(x, self.target_index_i, 0)
+        return out
 
     def forward(self, x, neighborhood):
-        r"""Run the forward pass of the module."""
+        r"""Run the forward pass of the module.
+
+        Parameters
+        ----------
+        x : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all source cells have the same rank s.
+        """
         return self.propagate(x, neighborhood)

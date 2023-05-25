@@ -6,7 +6,7 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter
 
 
-class AttentionMessagePassing(MessagePassing):
+class AttentionSameRankMP(MessagePassing):
     """Custom class that inherits from MessagePassing to define attention."""
 
     def __init__(self, in_channels=None, att=False, initialization="xavier_uniform"):
@@ -20,16 +20,34 @@ class AttentionMessagePassing(MessagePassing):
             )
 
 
+class AttentionDifferentRankMP(MessagePassing):
+    """Custom class that inherits from MessagePassing to define attention."""
+
+    def __init__(self, in_channels=None, att=False, initialization="xavier_uniform"):
+        super().__init__(att=att, initialization=initialization)
+        self.in_channels = in_channels
+        if att:
+            self.att_weight = torch.nn.Parameter(
+                torch.Tensor(
+                    2 * in_channels,
+                )
+            )
+
+    def attention(self, x_r, x_s):
+        """Compute attention weights for messages between cells of different ranks."""
+        return self.attention_between_cells_of_different_ranks(x_r, x_s)
+
+
 class TestMessagePassing:
     """Test the MessagePassing class."""
 
     def setup_method(self, method):
         """Make message_passing object."""
         self.mp = MessagePassing()
-        self.attention_mp_xavier_uniform = AttentionMessagePassing(
+        self.attention_mp_xavier_uniform = AttentionSameRankMP(
             in_channels=2, att=True, initialization="xavier_uniform"
         )
-        self.attention_mp_xavier_normal = AttentionMessagePassing(
+        self.attention_mp_xavier_normal = AttentionSameRankMP(
             in_channels=2, att=True, initialization="xavier_normal"
         )
 
@@ -104,10 +122,13 @@ class TestMessagePassing:
             torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
         )
+        n_messages = 6
+
         self.mp.message = self.custom_message.__get__(self.mp)
         _ = self.mp.propagate(x, neighborhood)
         x_sparse = self.mp.sparsify_message(x)
         expected = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
+        assert expected.shape == n_messages, 2
         assert torch.allclose(x_sparse, expected)
 
     def test_get_x_i(self):
