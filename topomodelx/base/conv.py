@@ -76,19 +76,36 @@ class Conv(MessagePassing):
             return torch.nn.functional.relu(x_message_on_target)
 
     def forward(self, x_source, neighborhood, x_target=None):
-        """Forward computation.
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
-            Input features on the source cells.
-        neighborhood : torch.sparse
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_cells, out_channels]
-            Output features on the cells.
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
         """
         if self.att:
             neighborhood = neighborhood.coalesce()

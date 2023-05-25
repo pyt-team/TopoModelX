@@ -8,7 +8,7 @@ from topomodelx.base.message_passing import MessagePassing
 class TestMessagePassing:
     """Test the MessagePassing class."""
 
-    def setup_method(self):
+    def setup(self):
         """Make message_passing object."""
         self.x_source = torch.tensor([[1, 2], [3, 4], [5, 6]]).float()
         self.x_target = torch.tensor([[1, 2], [3, 4]]).float()

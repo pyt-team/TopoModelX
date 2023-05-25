@@ -155,7 +155,14 @@ class MessagePassing(torch.nn.Module):
         return aggr(x_message, self.target_index_i, 0)
 
     def forward(self, x_source, neighborhood, x_target=None):
-        """Propagate messages from source cells to target cells.
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
 
         If not provided, x_target is assumed to be x_source,
         i.e. source cells send messages to themselves.

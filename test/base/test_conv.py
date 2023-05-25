@@ -8,51 +8,37 @@ from topomodelx.base.conv import Conv
 class TestConv:
     """Test the Conv class."""
 
-    def test_update(self):
-        """Test the update function."""
-        in_channels = 3
-        out_channels = 5
-
-        conv = Conv(
-            in_channels=in_channels,
-            out_channels=out_channels,
+    def setup_method(self):
+        """Set up the test."""
+        self.in_channels = 3
+        self.out_channels = 5
+        self.conv = Conv(
+            in_channels=self.in_channels,
+            out_channels=self.out_channels,
             aggr_norm=True,
             update_func="sigmoid",
             initialization="xavier_uniform",
         )
 
-        inputs = torch.randn(10, out_channels)
-        updated = conv.update(inputs)
+        self.n_cells = 10
+
+        # Create random neighborhood matrix (adjacency matrix)
+        self.neighborhood = (
+            torch.randint(0, 2, (self.n_cells, self.n_cells)).float().to_sparse()
+        )
+
+    def test_update(self):
+        """Test the update function."""
+        inputs = torch.randn(10, self.out_channels)
+        updated = self.conv.update(inputs)
         assert torch.is_tensor(updated)
-        assert updated.shape == (10, out_channels)
+        assert updated.shape == (10, self.out_channels)
 
     def test_forward(self):
         """Test the forward pass of the message passing convolution layer."""
-        in_channels = 3
-        out_channels = 5
-        n_cells = 10
+        x_source = torch.randn((self.n_cells, self.in_channels))
 
-        # Create a random input tensor
-        x = torch.randn((n_cells, in_channels))
+        output = self.conv.forward(x_source, self.neighborhood)
 
-        # Create a random neighborhood matrix (adjacency matrix)
-        neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float().to_sparse()
-
-        # Create a message passing convolution layer
-        conv = Conv(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            aggr_norm=True,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
-        )
-
-        # Perform the forward pass
-        output = conv.forward(x, neighborhood)
-
-        # Check that the output has the correct shape
-        expected_shape = (n_cells, out_channels)
-        assert output.shape == expected_shape
-
-        # Check that the output values are within a reasonable range
+        assert output.shape == (self.n_cells, self.out_channels)
         assert torch.all(output >= -1.0) and torch.all(output <= 1.0)
