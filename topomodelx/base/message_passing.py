@@ -67,7 +67,7 @@ class MessagePassing(torch.nn.Module):
                 f" weight initializer " f"'{self.initialization}' is not supported"
             )
 
-    def attention_between_cells_of_different_ranks(self, x_r, x_s):
+    def attention_between_cells_of_different_ranks(self, x_source, x_target):
         """Compute attention weights for messages between cells of different ranks.
 
         Notes
@@ -83,10 +83,10 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_r : torch.tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.tensor, shape=[n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_s : torch.tensor, shape=[n_target_cells, in_channels]
+        x_target : torch.tensor, shape=[n_target_cells, in_channels]
             Input features on target cells.
             Assumes that all target cells have the same rank s.
 
@@ -96,7 +96,7 @@ class MessagePassing(torch.nn.Module):
             Attention weights.
         """
         x_per_source_target_pair = torch.cat(
-            [x_r[self.source_index_j], x_s[self.target_index_i]], dim=1
+            [x_source[self.source_index_j], x_target[self.target_index_i]], dim=1
         )
         return torch.nn.functional.elu(
             torch.matmul(x_per_source_target_pair, self.att_weight)
