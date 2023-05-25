@@ -9,14 +9,11 @@ class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
     This class abstractly defines the mechanisms of message passing.
-
-    Notes
-    -----
     This class is not meant to be instantiated directly.
     Instead, it is meant to be inherited by other classes that will
     effectively define the message passing mechanism.
 
-    For example, this class does not have trainable weights.
+    Note that this class does not have trainable weights.
     The classes that inherit from it will define these weights.
 
     Parameters
@@ -126,7 +123,7 @@ class MessagePassing(torch.nn.Module):
         _ : Tensor, shape=[..., n_source_cells, channels]
             Weighted features on source cells of rank r.
         """
-        pass
+        return x_source
 
     def aggregate(self, x_message):
         """Aggregate values in input tensor.
