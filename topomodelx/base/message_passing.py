@@ -37,6 +37,8 @@ class MessagePassing(torch.nn.Module):
         self.aggr_func = aggr_func
         self.att = att
         self.initialization = initialization
+        assert initialization in ["xavier_uniform", "xavier_normal"]
+        assert aggr_func in ["sum", "mean", "add"]
 
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
@@ -62,7 +64,8 @@ class MessagePassing(torch.nn.Module):
                 torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
         else:
             raise RuntimeError(
-                f" weight initializer " f"'{self.initialization}' is not supported"
+                "Initialization method not recognized. "
+                "Should be either xavier_uniform or xavier_normal."
             )
 
     def message(self, x_source, x_target=None):
@@ -176,10 +179,6 @@ class MessagePassing(torch.nn.Module):
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """
-        assert isinstance(x_source, torch.Tensor)
-        assert isinstance(neighborhood, torch.Tensor)
-        assert neighborhood.ndim == 2
-
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
         neighborhood_values = neighborhood.values()

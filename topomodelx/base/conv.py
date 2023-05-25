@@ -57,32 +57,31 @@ class Conv(MessagePassing):
 
         self.reset_parameters()
 
-    def update(self, inputs):
+    def update(self, x_target):
         """Update embeddings on each cell (step 4).
 
         Parameters
         ----------
-        inputs : array-like, shape=[n_skeleton_out, out_channels]
-            Features on the skeleton out.
+        x_target : torch.Tensor, shape=[n_target_cells, out_channels]
+            Output features on target cells.
 
         Returns
         -------
-        _ : array-like, shape=[n_skeleton_out, out_channels]
-            Updated features on the skeleton out.
+        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+            Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
-            return torch.sigmoid(inputs)
+            return torch.sigmoid(x_target)
         if self.update_func == "relu":
-            return torch.nn.functional.relu(inputs)
+            return torch.nn.functional.relu(x_target)
 
-    def forward(self, x, neighborhood):
+    def forward(self, x_source, neighborhood):
         """Forward computation.
 
         Parameters
         ----------
-        x: torch.tensor
-            shape=[n_cells, in_channels]
-            Input features on the cells.
+        x_source : torch.tensor, shape=[n_source_cells, in_channels]
+            Input features on the source cells.
         neighborhood : torch.sparse
             Neighborhood matrix.
 
@@ -95,18 +94,18 @@ class Conv(MessagePassing):
         if self.att:
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
-            attention_values = self.attention(x)
+            attention_values = self.attention(x_source)
             attention = torch.zeros_like(neighborhood).to_dense()
             attention[self.target_index_i, self.source_index_j] = attention_values
             attention = attention.to_sparse()
 
-        x = torch.mm(x, self.weight)
-        x = torch.mm(neighborhood, x)
+        x_source = torch.mm(x_source, self.weight)
+        x_source = torch.mm(neighborhood, x_source)
         if self.att:
             neighborhood = torch.mul(neighborhood, attention)
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
-            x = torch.einsum("i,ij->ij", 1 / neighborhood_size, x)
+            x_source = torch.einsum("i,ij->ij", 1 / neighborhood_size, x_source)
         if self.update_func is not None:
-            x = self.update(x)
-        return x
+            x_source = self.update(x_source)
+        return x_source
