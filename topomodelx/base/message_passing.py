@@ -61,7 +61,7 @@ class MessagePassing(torch.nn.Module):
         elif self.initialization == "xavier_normal":
             torch.nn.init.xavier_normal_(self.weight, gain=gain)
             if self.att:
-                torch.nn.init.xavier_normal_(self.att_weight, gain=gain)
+                torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
         else:
             raise RuntimeError(
                 f" weight initializer " f"'{self.initialization}' is not supported"
@@ -80,7 +80,10 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        x_target : torch.tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
 
@@ -105,13 +108,18 @@ class MessagePassing(torch.nn.Module):
         )
 
     def message(self, x_source, x_target=None):
-        """Construct message from source cells with weights.
+        """Construct message from source cells.
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_source_cells, channels]
-            Features (potentially weighted or transformed) on source cells.
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
             Assumes that all source cells have the same rank r.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
 
         Returns
         -------
@@ -129,8 +137,8 @@ class MessagePassing(torch.nn.Module):
         Parameters
         ----------
         x_messages : Tensor, shape=[..., n_messages, out_channels]
-            Features associated with each message, i.e. each pair of source-target
-            cells.
+            Features associated with each message.
+            One message is sent from a source cell to a target cell.
 
         Returns
         -------
@@ -140,8 +148,7 @@ class MessagePassing(torch.nn.Module):
             Assumes that all target cells have the same rank s.
         """
         aggr = scatter(self.aggr_func)
-        out = aggr(x_message, self.target_index_i, 0)
-        return out
+        return aggr(x_message, self.target_index_i, 0)
 
     def propagate(self, x_source, neighborhood, x_target=None):
         """Propagate messages from source cells to target cells.
@@ -152,11 +159,16 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
         neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
 
         Returns
         -------
@@ -180,19 +192,23 @@ class MessagePassing(torch.nn.Module):
             neighborhood_values = torch.multiply(neighborhood_values, attention_values)
 
         x_message = neighborhood_values.view(-1, 1) * x_message
-        x_target = self.aggregate(x_message)
-        return x_target
+        return self.aggregate(x_message)
 
     def forward(self, x_source, neighborhood, x_target=None):
         r"""Run the forward pass of the module.
 
         Parameters
         ----------
-        x : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
         neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
 
         Returns
         -------
