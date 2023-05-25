@@ -1,7 +1,7 @@
 [![Test](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml)
 [![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 [![Codecov](https://codecov.io/gh/pyt-team/TopoModelX/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pyt-team/TopoModelX)
-[![Python](https://img.shields.io/badge/python-3.10+-blue?logo=python)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.11+-blue?logo=python)](https://www.python.org/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7958513.svg)](https://doi.org/10.5281/zenodo.7958513)
 
 # 🌐 TopoModelX (TMX) 🍩
@@ -25,7 +25,7 @@ _**Note:** TMX is still under development._
 
 To develop tmx on your machine, here are some tips.
 
-First, we recommend using Python 3.10, which the python version used to run the unit-tests.
+First, we recommend using Python 3.11.3, which is the python version used to run the unit-tests.
 
 Then:
 
@@ -36,31 +36,23 @@ Then:
    cd TopoModelX
    ```
 
-2. If you already cloned tmx from source, update it:
-
-   ```bash
-   git pull
-   ```
-
-3. Install tmx in editable mode:
+2. Install tmx in editable mode:
 
    ```bash
    pip install -e .[all]
    ```
 
-   This mode will symlink the Python files from the current local source tree into the Python install. Hence, if you modify a Python file, you do not need to reinstall tmx again and again.
+3. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
-4. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
-
-      To install the binaries for PyTorch 1.12.0, simply run:
+      To install the binaries for PyTorch 2.0.1, simply run:
       ```bash
-      pip install torch==1.12.0 --extra-index-url https://download.pytorch.org/whl/${CUDA}
-      pip install torch-scatter torch-sparse torch_geometric -f https://data.pyg.org/whl/torch-1.12.0+${CUDA}.html
+      pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
+      pip install torch-scatter torch-sparse torch_geometric -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
       ```
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
 
-5. Ensure that you have a working tmx installation by running the entire test suite with 
+4. Ensure that you have a working tmx installation by running the entire test suite with 
 
    ```bash
    pytest
@@ -68,10 +60,9 @@ Then:
 
    In case an error occurs, please first check if all sub-packages ([`torch-scatter`](https://github.com/rusty1s/pytorch_scatter), [`torch-sparse`](https://github.com/rusty1s/pytorch_sparse), [`torch-cluster`](https://github.com/rusty1s/pytorch_cluster) and [`torch-spline-conv`](https://github.com/rusty1s/pytorch_spline_conv)) are on its latest reported version.
 
-6. Install pre-commit hooks:
+5. Install pre-commit hooks:
 
    ```bash
-   pip install pre-commit
    pre-commit install
    ```
 
