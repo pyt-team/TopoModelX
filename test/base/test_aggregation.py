@@ -11,12 +11,12 @@ class TestAggregation:
 
     def test_update(self):
         """Test the update of messages."""
-        n_skeleton_out = 4
+        n_target_cells = 4
         out_channels = 8
-        inputs = torch.randn(n_skeleton_out, out_channels)
+        inputs = torch.randn(n_target_cells, out_channels)
         merge_layer = Aggregation(update_func="sigmoid")
         updated = merge_layer.update(inputs)
-        assert updated.shape == (n_skeleton_out, out_channels)
+        assert updated.shape == (n_target_cells, out_channels)
 
     def test_forward(self):
         """Test the forward pass of the merge layer."""

@@ -3,34 +3,34 @@ import pytest
 import torch
 
 from topomodelx.base.message_passing import MessagePassing
-from topomodelx.utils.scatter import scatter
-
-
-class AttentionMessagePassing(MessagePassing):
-    """Custom class that inherits from MessagePassing to define attention."""
-
-    def __init__(self, in_channels=None, att=False, initialization="xavier_uniform"):
-        super().__init__(att=att, initialization=initialization)
-        self.in_channels = in_channels
-        if att:
-            self.att_weight = torch.nn.Parameter(
-                torch.Tensor(
-                    2 * in_channels,
-                )
-            )
 
 
 class TestMessagePassing:
     """Test the MessagePassing class."""
 
-    def setup_method(self, method):
+    def setup_method(self):
         """Make message_passing object."""
-        self.mp = MessagePassing()
-        self.attention_mp_xavier_uniform = AttentionMessagePassing(
-            in_channels=2, att=True, initialization="xavier_uniform"
+        self.x_source = torch.tensor([[1, 2], [3, 4], [5, 6]]).float()
+        self.x_target = torch.tensor([[1, 2], [3, 4]]).float()
+
+        self.neighborhood = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+            values=torch.tensor([1, 2, 3, 4, 5, 6]),
+            size=(3, 3),
+        ).float()
+
+        self.neighborhood_r_to_s = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 0, 1, 1], [0, 1, 2, 1, 2]]),
+            values=torch.tensor([1, 2, 3, 4, 5]),
+            size=(2, 3),
         )
-        self.attention_mp_xavier_normal = AttentionMessagePassing(
-            in_channels=2, att=True, initialization="xavier_normal"
+
+        self.mp = MessagePassing()
+        self.mp_with_att = MessagePassing(att=True)
+        self.mp_with_att.att_weight = torch.nn.Parameter(
+            torch.Tensor(
+                2 * 2,
+            )
         )
 
     def test_reset_parameters(self):
@@ -40,110 +40,77 @@ class TestMessagePassing:
             self.mp.initialization = "invalid"
             self.mp.reset_parameters(gain=gain)
 
-        # Test xavier_uniform initialization
+        # Test xavier_uniform
         self.mp.initialization = "xavier_uniform"
         self.mp.weight = torch.nn.Parameter(torch.Tensor(3, 3))
         self.mp.reset_parameters(gain=gain)
         assert self.mp.weight.shape == (3, 3)
 
-        # Test xavier_normal initialization
+        # Test xavier_normal
         self.mp.initialization = "xavier_normal"
         self.mp.weight = torch.nn.Parameter(torch.Tensor(3, 3))
         self.mp.reset_parameters(gain=gain)
         assert self.mp.weight.shape == (3, 3)
 
-    def custom_message(self, x):
-        """Make custom message function."""
-        return x
+        # Test with attention weights & xavier_uniform
+        self.mp_with_att.initialization = "xavier_uniform"
+        self.mp_with_att.weight = torch.nn.Parameter(torch.Tensor(3, 3))
+        self.mp_with_att.reset_parameters(gain=gain)
+        assert self.mp_with_att.att_weight.shape == (4,)
 
-    def test_propagate(self):
-        """Test propagate."""
-        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
+        # Test with attention weights & xavier_normal
+        self.mp_with_att.initialization = "xavier_normal"
+        self.mp_with_att.weight = torch.nn.Parameter(torch.Tensor(3, 3))
+        self.mp_with_att.reset_parameters(gain=gain)
+        assert self.mp_with_att.att_weight.shape == (4,)
+
+    def test_attention(self):
+        """Test attention."""
+        # Test with source & target on the same cells
+        neighborhood = self.neighborhood.coalesce()
+        (
+            self.mp_with_att.target_index_i,
+            self.mp_with_att.source_index_j,
+        ) = neighborhood.indices()
+        n_messages = len(
+            self.mp_with_att.target_index_i,
         )
-        self.mp.message = self.custom_message.__get__(self.mp)
-        result = self.mp.propagate(x, neighborhood)
-        expected_shape = (3, 2)
-        assert result.shape == expected_shape
+        result = self.mp_with_att.attention(self.x_source)
+        assert result.shape == (n_messages,)
 
-    def test_propagate_with_attention(self):
-        """Test propagate with attention."""
-        x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
+        # Test with source & target on different cells
+        neighborhood_r_to_s = self.neighborhood_r_to_s.coalesce()
+        (
+            self.mp_with_att.target_index_i,
+            self.mp_with_att.source_index_j,
+        ) = neighborhood_r_to_s.indices()
+        n_messages = len(
+            self.mp_with_att.target_index_i,
         )
-        self.attention_mp_xavier_uniform.message = self.custom_message.__get__(self.mp)
-        result = self.attention_mp_xavier_uniform.propagate(x, neighborhood)
-        expected_shape = (3, 2)
-        assert result.shape == expected_shape
-
-        self.attention_mp_xavier_normal.message = self.custom_message.__get__(self.mp)
-        result = self.attention_mp_xavier_normal.propagate(x, neighborhood)
-        expected_shape = (3, 2)
-        assert result.shape == expected_shape
-
-    def test_sparsify_message(self):
-        """Test sparsify_message."""
-        x = torch.tensor(
-            [
-                [
-                    1,
-                    2,
-                ],
-                [3, 4],
-                [5, 6],
-            ]
-        )
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
-        )
-        self.mp.message = self.custom_message.__get__(self.mp)
-        _ = self.mp.propagate(x, neighborhood)
-        x_sparse = self.mp.sparsify_message(x)
-        expected = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
-        assert torch.allclose(x_sparse, expected)
-
-    def test_get_x_i(self):
-        """Test get_x_i."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
-        self.mp.target_index_i = torch.LongTensor([1, 2, 0])
-        result = self.mp.get_x_i(x)
-        expected = torch.Tensor([[4, 5, 6], [7, 8, 9], [1, 2, 3]])
-        assert torch.allclose(result, expected)
+        result = self.mp_with_att.attention(self.x_source, self.x_target)
+        assert result.shape == (n_messages,)
 
     def test_aggregate(self):
         """Test aggregate."""
-        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
-        )
-        neighborhood_values = neighborhood.coalesce().values()
-        self.mp.message = self.custom_message.__get__(self.mp)
-        _ = self.mp.propagate(x, neighborhood)
-        x = self.mp.sparsify_message(x)
-        x = neighborhood_values.view(-1, 1) * x
-        result = self.mp.aggregate(x)
-        expected = torch.tensor([[22, 28], [37, 46], [30, 36]])
+        x_message = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
+        self.mp_with_att.target_index_i = torch.tensor([0, 0, 1, 1, 2, 2])
+
+        result = self.mp_with_att.aggregate(x_message)
+        expected = torch.tensor([[4, 6], [8, 10], [10, 12]])
         assert torch.allclose(result, expected)
 
     def test_forward(self):
         """Test forward."""
-        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
+        # Test without attention
+        result = self.mp.forward(self.x_source, self.neighborhood)
+        assert result.shape == (3, 2)
+
+        # Test with attention (source & target on the same cells)
+        result = self.mp_with_att.forward(self.x_source, self.neighborhood)
+        assert result.shape == (3, 2)
+
+        # Test with attention (source & target on different cells)
+        result = self.mp_with_att.forward(
+            self.x_source, self.neighborhood_r_to_s, self.x_target
         )
-        self.mp.message = self.custom_message.__get__(self.mp)
-        result = self.mp.forward(x, neighborhood)
-        expected_shape = (3, 2)
-        assert result.shape == expected_shape
+        assert result.shape == (2, 2)
