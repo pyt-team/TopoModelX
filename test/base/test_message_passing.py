@@ -52,44 +52,44 @@ class TestMessagePassing:
         self.mp.reset_parameters(gain=gain)
         assert self.mp.weight.shape == (3, 3)
 
-    def custom_message(self, x):
+    def custom_message(self, x_source, x_target=None):
         """Make custom message function."""
-        return x
+        return x_source
 
     def test_propagate(self):
         """Test propagate."""
-        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
+        x_source = torch.tensor([[1, 2], [3, 4], [5, 6]])
         neighborhood = torch.sparse_coo_tensor(
             torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
             torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
         )
         self.mp.message = self.custom_message.__get__(self.mp)
-        result = self.mp.propagate(x, neighborhood)
-        expected_shape = (3, 2)
-        assert result.shape == expected_shape
+
+        result = self.mp.propagate(x_source=x_source, neighborhood=neighborhood)
+        assert result.shape == (3, 2)
 
     def test_propagate_with_attention(self):
         """Test propagate with attention."""
-        x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+        x_source = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
         neighborhood = torch.sparse_coo_tensor(
             torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
             torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
         )
         self.att_mp_xavier_uniform.message = self.custom_message.__get__(self.mp)
-        result = self.att_mp_xavier_uniform.propagate(x, neighborhood)
+        result = self.att_mp_xavier_uniform.propagate(x_source, neighborhood)
         expected_shape = (3, 2)
         assert result.shape == expected_shape
 
         self.att_mp_xavier_normal.message = self.custom_message.__get__(self.mp)
-        result = self.att_mp_xavier_normal.propagate(x, neighborhood)
+        result = self.att_mp_xavier_normal.propagate(x_source, neighborhood)
         expected_shape = (3, 2)
         assert result.shape == expected_shape
 
     def test_attention_between_cells_of_same_rank(self):
         """Test propagate with attention between cells of different ranks."""
-        x = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+        x_source = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
         neighborhood = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 0]]),
             values=torch.tensor([1, 2, 3, 4, 5, 6]),
@@ -102,7 +102,7 @@ class TestMessagePassing:
         self.att_mp_xavier_uniform.target_index_i = target_index_i
         self.att_mp_xavier_uniform.source_index_j = source_index_j
 
-        result = self.att_mp_xavier_uniform.attention_between_cells_of_same_rank(x)
+        result = self.att_mp_xavier_uniform.attention(x_source)
         assert result.shape == (n_messages,)
 
     def test_attention_between_cells_of_different_ranks(self):
@@ -121,60 +121,50 @@ class TestMessagePassing:
         self.att_mp_xavier_uniform.target_index_i = target_index_i
         self.att_mp_xavier_uniform.source_index_j = source_index_j
 
-        result = self.att_mp_xavier_uniform.attention_between_cells_of_different_ranks(
-            x_source, x_target
-        )
+        result = self.att_mp_xavier_uniform.attention(x_source, x_target)
         assert result.shape == (n_messages,)
 
-    def test_sparsify_message(self):
-        """Test sparsify_message."""
-        x = torch.tensor(
-            [
-                [
-                    1,
-                    2,
-                ],
-                [3, 4],
-                [5, 6],
-            ]
-        )
-        neighborhood = torch.sparse_coo_tensor(
-            indices=torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            values=torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
-        )
-        n_messages = 6
+    # def test_sparsify_message(self):
+    #     """Test sparsify_message."""
+    #     x = torch.tensor(
+    #         [
+    #             [
+    #                 1,
+    #                 2,
+    #             ],
+    #             [3, 4],
+    #             [5, 6],
+    #         ]
+    #     )
+    #     neighborhood = torch.sparse_coo_tensor(
+    #         indices=torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
+    #         values=torch.tensor([1, 2, 3, 4, 5, 6]),
+    #         size=(3, 3),
+    #     )
+    #     n_messages = 6
 
-        self.mp.message = self.custom_message.__get__(self.mp)
-        _ = self.mp.propagate(x, neighborhood)
-        x_sparse = self.mp.sparsify_message(x)
-        expected = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
-        assert expected.shape == (n_messages, 2)
-        assert torch.allclose(x_sparse, expected)
+    #     self.mp.message = self.custom_message.__get__(self.mp)
+    #     _ = self.mp.propagate(x, neighborhood)
+    #     x_sparse = self.mp.sparsify_message(x)
+    #     expected = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
+    #     assert expected.shape == (n_messages, 2)
+    #     assert torch.allclose(x_sparse, expected)
 
-    def test_get_x_i(self):
-        """Test get_x_i."""
-        x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
-        self.mp.target_index_i = torch.LongTensor([1, 2, 0])
-        result = self.mp.get_x_i(x)
-        expected = torch.Tensor([[4, 5, 6], [7, 8, 9], [1, 2, 3]])
-        assert torch.allclose(result, expected)
+    # def test_get_x_i(self):
+    #     """Test get_x_i."""
+    #     x = torch.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]])
+    #     self.mp.target_index_i = torch.LongTensor([1, 2, 0])
+    #     result = self.mp.get_x_i(x)
+    #     expected = torch.Tensor([[4, 5, 6], [7, 8, 9], [1, 2, 3]])
+    #     assert torch.allclose(result, expected)
 
     def test_aggregate(self):
         """Test aggregate."""
-        x = torch.tensor([[1, 2], [3, 4], [5, 6]])
-        neighborhood = torch.sparse_coo_tensor(
-            torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
-            torch.tensor([1, 2, 3, 4, 5, 6]),
-            size=(3, 3),
-        )
-        neighborhood_values = neighborhood.coalesce().values()
-        self.mp.message = self.custom_message.__get__(self.mp)
-        _ = self.mp.propagate(x, neighborhood)
-        x = self.mp.sparsify_message(x)
-        x = neighborhood_values.view(-1, 1) * x
-        result = self.mp.aggregate(x)
-        expected = torch.tensor([[22, 28], [37, 46], [30, 36]])
+        x_message = torch.tensor([[1, 2], [3, 4], [5, 6], [3, 4], [5, 6], [5, 6]])
+        self.mp.target_index_i = torch.tensor([0, 0, 0, 1, 1, 2])
+
+        result = self.mp.aggregate(x_message)
+        expected = torch.tensor([[9, 12], [8, 10], [5, 6]])
         assert torch.allclose(result, expected)
 
     def test_forward(self):
