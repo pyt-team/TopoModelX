@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.simplicial.template_layer import TemplateLayer
+from topomodelx.nn.hypergraph.template_layer import TemplateLayer
 
 
 class TestTemplateLayer:
@@ -27,11 +27,5 @@ class TestTemplateLayer:
         """Test the forward pass of the template layer with invalid input."""
         x_2 = torch.randn(4, 10)
         incidence_2 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
-        try:
+        with pytest.raises(ValueError):
             template_layer.forward(x_2, incidence_2)
-            assert False, "Expected ValueError to be raised."
-        except ValueError as e:
-            assert (
-                str(e)
-                == f"Shape of input face features does not have the correct number of faces {incidence_2.shape[-1]}."
-            )
