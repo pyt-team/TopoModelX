@@ -26,7 +26,7 @@ class TestConv:
         assert torch.is_tensor(updated)
         assert updated.shape == (10, out_channels)
 
-    def test_message_passing_conv_forward(self):
+    def test_forward(self):
         """Test the forward pass of the message passing convolution layer."""
         in_channels = 3
         out_channels = 5
@@ -36,7 +36,7 @@ class TestConv:
         x = torch.randn((n_cells, in_channels))
 
         # Create a random neighborhood matrix (adjacency matrix)
-        neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
+        neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float().to_sparse()
 
         # Create a message passing convolution layer
         conv = Conv(

@@ -57,12 +57,12 @@ class Conv(MessagePassing):
 
         self.reset_parameters()
 
-    def update(self, x_target):
+    def update(self, x_message_on_target, x_target=None):
         """Update embeddings on each cell (step 4).
 
         Parameters
         ----------
-        x_target : torch.Tensor, shape=[n_target_cells, out_channels]
+        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
             Output features on target cells.
 
         Returns
@@ -71,9 +71,9 @@ class Conv(MessagePassing):
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
-            return torch.sigmoid(x_target)
+            return torch.sigmoid(x_message_on_target)
         if self.update_func == "relu":
-            return torch.nn.functional.relu(x_target)
+            return torch.nn.functional.relu(x_message_on_target)
 
     def forward(self, x_source, neighborhood, x_target=None):
         """Forward computation.
@@ -93,18 +93,24 @@ class Conv(MessagePassing):
         if self.att:
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
-            attention_values = self.attention(x_source)
-            attention = torch.zeros_like(neighborhood).to_dense()
-            attention[self.target_index_i, self.source_index_j] = attention_values
-            attention = attention.to_sparse()
+            attention_values = self.attention(x_source, x_target)
+            attention = torch.sparse_coo_tensor(
+                indices=neighborhood.indices(),
+                values=attention_values,
+                size=neighborhood.shape,
+            )
+            neighborhood = torch.multiply(neighborhood, attention)
 
-        x_source = torch.mm(x_source, self.weight)
-        x_source = torch.mm(neighborhood, x_source)
-        if self.att:
-            neighborhood = torch.mul(neighborhood, attention)
+        x_message = torch.mm(x_source, self.weight)
+        x_message_on_target = torch.mm(neighborhood, x_message)
+
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
-            x_source = torch.einsum("i,ij->ij", 1 / neighborhood_size, x_source)
-        if self.update_func is not None:
-            x_source = self.update(x_source)
-        return x_source
+            x_message_on_target = torch.einsum(
+                "i,ij->ij", 1 / neighborhood_size, x_message_on_target
+            )
+
+        if self.update_func is None:
+            return x_message_on_target
+
+        return self.update(x_message_on_target, x_target)
