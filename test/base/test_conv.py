@@ -38,7 +38,7 @@ class TestConv:
         """Test the forward pass of the message passing convolution layer."""
         x_source = torch.randn((self.n_cells, self.in_channels))
 
-        output = self.conv.forward(x_source, self.neighborhood)
+        x_target = self.conv.forward(x_source, self.neighborhood)
 
-        assert output.shape == (self.n_cells, self.out_channels)
-        assert torch.all(output >= -1.0) and torch.all(output <= 1.0)
+        assert x_target.shape == (self.n_cells, self.out_channels)
+        assert torch.all(x_target >= -1.0) and torch.all(x_target <= 1.0)
