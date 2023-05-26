@@ -1,6 +1,6 @@
-"""Adaptation of torch_scatter/scatter.py Code.
+"""Utils for scatter.
 
-Adapted from:
+Adaptation of torch_scatter/scatter.py from:
 https://github.com/rusty1s/pytorch_scatter/blob/master/torch_scatter/scatter.py
 """
 
