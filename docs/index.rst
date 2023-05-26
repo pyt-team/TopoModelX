@@ -54,7 +54,7 @@ For a literature review of topological deep learning:
 Check out our tutorials to get started!
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :hidden:
 
    api/index
