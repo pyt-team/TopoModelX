@@ -19,12 +19,26 @@ class TestConv:
             update_func="sigmoid",
             initialization="xavier_uniform",
         )
+        self.conv_with_att = Conv(
+            in_channels=self.in_channels,
+            out_channels=self.out_channels,
+            aggr_norm=True,
+            update_func="relu",
+            initialization="xavier_normal",
+            att=True,
+        )
 
-        self.n_cells = 10
-
-        # Create random neighborhood matrix (adjacency matrix)
+        self.n_source_cells = 10
+        self.n_target_cells = 3
         self.neighborhood = (
-            torch.randint(0, 2, (self.n_cells, self.n_cells)).float().to_sparse()
+            torch.randint(0, 2, (self.n_source_cells, self.n_source_cells))
+            .float()
+            .to_sparse()
+        )
+        self.neighborhood_r_to_s = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 0, 1, 2], [0, 1, 1, 2, 9]]),
+            values=torch.tensor([1, 2, 3, 4, 5]),
+            size=(3, 10),
         )
 
     def test_update(self):
@@ -36,9 +50,32 @@ class TestConv:
 
     def test_forward(self):
         """Test the forward pass of the message passing convolution layer."""
-        x_source = torch.randn((self.n_cells, self.in_channels))
+        x_source = torch.tensor(
+            [
+                [1, 2, 2],
+                [2, 3, 4],
+                [3, 3, 6],
+                [4, 4, 5],
+                [5, 4, 5],
+                [6, 9, 3],
+                [7, 3, 4],
+                [8, 7, 9],
+                [9, 7, 8],
+                [10, -1, 2],
+            ]
+        ).float()
+        x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
 
-        x_target = self.conv.forward(x_source, self.neighborhood)
+        # Without attention
+        result = self.conv.forward(x_source, self.neighborhood)
+        assert result.shape == (self.n_source_cells, self.out_channels)
 
-        assert x_target.shape == (self.n_cells, self.out_channels)
-        assert torch.all(x_target >= -1.0) and torch.all(x_target <= 1.0)
+        # With attention between cells of the same rank
+        result = self.conv_with_att.forward(x_source, self.neighborhood)
+        assert result.shape == (self.n_source_cells, self.out_channels)
+
+        # With attention between cells of different ranks
+        result = self.conv_with_att.forward(
+            x_source, self.neighborhood_r_to_s, x_target
+        )
+        assert result.shape == (self.n_target_cells, self.out_channels)
