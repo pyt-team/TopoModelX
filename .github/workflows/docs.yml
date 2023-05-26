@@ -15,6 +15,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: [3.11.3]
+        torch-version: [2.0.1]
+        include:
+          - torch-version: 2.0.1
 
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +31,7 @@ jobs:
         run: |
           pip install --upgrade pip setuptools wheel
           pip install -e .[doc]
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
       - name: Install Pandoc [apt-get]
         run: |
           sudo apt-get -y install pandoc
