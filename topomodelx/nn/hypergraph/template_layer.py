@@ -59,8 +59,7 @@ class TemplateLayer(torch.nn.Module):
 
         Returns
         -------
-        x_1 : torch.tensor
-            shape=[n_edges, out_channels]
+        x_1 : torch.Tensor, shape=[n_edges, out_channels]
             Output features on the edges of the simplicial complex.
         """
         incidence_1_transpose = incidence_1.to_dense().T.to_sparse()

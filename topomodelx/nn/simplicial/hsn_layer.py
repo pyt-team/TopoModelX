@@ -6,12 +6,20 @@ from topomodelx.base.conv import Conv
 
 
 class HSNLayer(torch.nn.Module):
-    """High Skip Network Layer.
+    """Layer of a High Skip Network (HSN).
 
-    Implementation of the HSN layer from the paper by Hajij et. al:
-    High Skip Networks: A Higher Order Generalization of Skip Connections
-    https://openreview.net/pdf?id=Sc8glB-k6e9
-    Note: this is the architecture proposed for node classification on simplicial complices.
+    Implementation of the HSN layer proposed in [HRGZ22]_.
+
+    Notes
+    -----
+    This is the architecture proposed for node classification on simplicial complices.
+
+    References
+    ----------
+    .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
+        High Skip Networks: A Higher Order Generalization of Skip Connections.
+        Geometrical and Topological Representation Learning Workshop at ICLR 2022.
+        https://openreview.net/pdf?id=Sc8glB-k6e9
 
     Parameters
     ----------
@@ -19,7 +27,6 @@ class HSNLayer(torch.nn.Module):
         Dimension of features on each simplicial cell.
     initialization : string
         Initialization method.
-
     """
 
     def __init__(
@@ -61,24 +68,52 @@ class HSNLayer(torch.nn.Module):
         self.conv_level2_1_to_0.reset_parameters()
 
     def forward(self, x_0, incidence_1, adjacency_0):
-        r"""Forward computation of one layer.
+        r"""Forward pass.
+
+        The forward pass was initially proposed in [HRGZ22]_.
+        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+
+        .. math::
+            🟥 m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})
+
+            🟥 m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}
+
+            🟥 m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})
+
+            🟥 m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}
+
+            🟧 m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}
+
+            🟧 m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}
+
+            🟩 m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}
+
+            🟦 h_x^{t+1,(0)}  = I(m_x^{(0)})
+
+        References
+        ----------
+        .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
+            High Skip Networks: A Higher Order Generalization of Skip Connections.
+            Geometrical and Topological Representation Learning Workshop at ICLR 2022.
+            https://openreview.net/pdf?id=Sc8glB-k6e9
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------
-        x: torch.tensor
-            shape=[n_nodes, channels]
+        x: torch.Tensor, shape=[n_nodes, channels]
             Input features on the nodes of the simplicial complex.
-        incidence_1 : torch.sparse
-            shape=[n_nodes, n_edges]
-            Incidence matrix mapping edges to nodes (B_1).
-        adjacency_0 : torch.sparse
-            shape=[n_nodes, n_nodes]
-            Adjacency matrix mapping nodes to nodes (A_0_up).
+        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
+            Incidence matrix :math:`B_1` mapping edges to nodes.
+        adjacency_0 : torch.sparse, shape=[n_nodes, n_nodes]
+            Adjacency matrix :math:`A_0^{\uparrow}` mapping nodes to nodes via edges.
 
         Returns
         -------
-        _ : torch.tensor
-            shape=[n_nodes, channels]
+        _ : torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
         incidence_1_transpose = incidence_1.to_dense().T.to_sparse()

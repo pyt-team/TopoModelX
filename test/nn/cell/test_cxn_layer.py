@@ -1,16 +1,16 @@
-"""Unit tests for the CXNLayer class."""
+"""Unit tests for the CCXNLayer class."""
 
 import pytest
 import torch
 
-from topomodelx.nn.cell.cxn_layer import CXNLayer
+from topomodelx.nn.cell.cxn_layer import CCXNLayer
 
 
-class TestCXNLayer:
-    """Unit tests for the CXNLayer class."""
+class TestCCXNLayer:
+    """Unit tests for the CCXNLayer class."""
 
     def test_forward(self):
-        """Test the forward method of CXNLayer."""
+        """Test the forward method of CCXNLayer."""
         n_0_cells = 10
         n_1_cells = 20
         n_2_cells = 30
@@ -23,7 +23,7 @@ class TestCXNLayer:
         neighborhood_1_to_2 = torch.randn(n_2_cells, n_1_cells)
 
         # Without attention
-        cxn_layer = CXNLayer(
+        cxn_layer = CCXNLayer(
             in_channels_0=channels,
             in_channels_1=channels,
             in_channels_2=channels,
@@ -40,7 +40,7 @@ class TestCXNLayer:
         # With attention: between x_0 <-> x_0 cells and x_1 <-> x_2 cells
         neighborhood_0_to_0 = neighborhood_0_to_0.to_sparse().float()
         neighborhood_1_to_2 = neighborhood_1_to_2.to_sparse().float()
-        cxn_layer = CXNLayer(
+        cxn_layer = CCXNLayer(
             in_channels_0=channels,
             in_channels_1=channels,
             in_channels_2=channels,
