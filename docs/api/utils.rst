@@ -6,4 +6,4 @@ Scatter
 =======
 
 .. automodule:: topomodelx.utils.scatter
-    :members:
+   :members:
