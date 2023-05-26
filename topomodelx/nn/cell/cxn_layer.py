@@ -8,7 +8,7 @@ from topomodelx.base.conv import Conv
 class CCXNLayer(torch.nn.Module):
     """Layer of a Convolutional Cell Complex Network (CCXN).
 
-    Implementation of the CCXN layer proposed in [HIZ20]_.
+    Implementation of a simplified version of the CCXN layer proposed in [HIZ20]_.
 
     This layer is composed of two convolutional layers:
     1. A convolutional layer sending messages from nodes to nodes.
@@ -47,10 +47,39 @@ class CCXNLayer(torch.nn.Module):
         )
 
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2=None):
-        """Forward pass.
+        r"""Forward pass.
 
         The forward pass was initially proposed in [HIZ20]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+
+        1. The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):
+
+        ..  math:
+            m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
+                = M_{\mathcal{L}\_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})
+
+            m_x^{(0 \rightarrow 1 \rightarrow 0)}
+                = \text{AGG}_{y \in \mathcal{L}\_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})$
+
+            m_x^{(0)} = m_x^{(0 \rightarrow 1 \rightarrow 0)}
+
+            h_x^{t+1,(0)} = U^{t}(h_x^{(0)}, m_x^{(0)})
+
+        2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
+
+        .. math:
+            m_{y \rightarrow x}^{(r' \rightarrow r)}
+                = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)
+
+            m_x^{(r' \rightarrow r)}
+                = AGG_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}
+
+            m_x^{(r)}
+                = m_x^{(r' \rightarrow r)}
+
+            h_{x}^{t+1,(r)}
+                = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
+
 
         References
         ----------
