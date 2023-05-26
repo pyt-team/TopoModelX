@@ -13,7 +13,7 @@ class MessagePassing(torch.nn.Module):
     by decomposing it into 2 steps:
     1. Create messages going from source cells to target cells through N.
     2. Aggregate messages coming from different sources cells onto target cells.
-       
+
     This class should not be instantiated directly, but rather inherited
     through subclasses that effectively define a message passing function.
 
@@ -28,13 +28,13 @@ class MessagePassing(torch.nn.Module):
         Whether to use attention.
     initialization : string
         Initialization method for the weights of the layer.
-        
+
     References
     ----------
-    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee, 
+    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee,
     Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
     (2023) https://arxiv.org/abs/2206.00606.
-    .. [PSHM23] Papillon, Sanborn, Hajij, Miolane. 
+    .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
     Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
     (2023) https://arxiv.org/abs/2304.10031.
     """
@@ -178,33 +178,33 @@ class MessagePassing(torch.nn.Module):
 
         If not provided, x_target is assumed to be x_source,
         i.e. source cells send messages to themselves.
-        
+
         The message passing is decomposed into two steps:
-        
+
         1. Message: A message :math:`m_{y \rightarrow x}^{\left(r \rightarrow s\right)}`
         travels from a source cell :math:`y` of rank r to a target cell :math:`x` of rank s
-        through a neighborhood of :math:`x`, denoted :math:`\mathcal{N} (x)`, 
+        through a neighborhood of :math:`x`, denoted :math:`\mathcal{N} (x)`,
         via the message function :math:`M_\mathcal{N}`:
-        
+
         .. math::
-            m_{y \rightarrow x}^{\left(r \rightarrow s\right)} 
+            m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
                 = M_{\mathcal{N}}\left(\mathbf{h}_x^{(s)}, \mathbf{h}_y^{(r)}, \Theta \right),
-                
+
         where:
         - :math:`\mathbf{h}_y^{(r)}` are input features on the source cells, called `x_source`,
         - :math:`\mathbf{h}_x^{(s)}` are input features on the target cells, called `x_target`,
         - :math:`\Theta` are optional parameters (weights) of the message passing function.
-                
-        2. Aggregation: Messages are aggregated across source cells :math:`y` belonging to the 
+
+        2. Aggregation: Messages are aggregated across source cells :math:`y` belonging to the
         neighborhood :math:`\mathcal{N}(x)`:
-        
+
         .. math::
-            m_x^{\left(r^{\prime} \rightarrow r\right)}
-                =A G G_{y \in \mathcal{N}(x)} m_{y \rightarrow x}^{\left(r\rightarrow s\right)}, 
-                
+            m_x^{\left(r \rightarrow s\right)}
+                = \text{AGG}_{y \in \mathcal{N}(x)} m_{y \rightarrow x}^{\left(r\rightarrow s\right)},
+
         resulting in the within-neighborhood aggregated message :math:`m_x^{\left(r \rightarrow s\right)}`.
-        
-        See also
+
+        See Also
         --------
         Details in [H23]_ and [PSHM23]_.
 
