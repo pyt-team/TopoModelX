@@ -1,5 +1,6 @@
 """Message passing module."""
 
+
 import torch
 
 from topomodelx.utils.scatter import scatter
