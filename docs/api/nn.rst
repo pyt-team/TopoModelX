@@ -2,11 +2,20 @@
 Neural Networks
 ***************
 
-.. automodule:: topomodelx.nn.hypergraph
+Hypergraph Neural Networks
+==========================
+
+.. automodule:: topomodelx.nn.hypergraph.template_layer
    :members:
 
-.. automodule:: topomodelx.nn.simplicial
+Simplicial Complex Neural Networks
+==================================
+
+.. automodule:: topomodelx.nn.simplicial.hsn_layer
    :members:
 
-.. automodule:: topomodelx.nn.cell
+Cell Complex Neural Networks
+============================
+
+.. automodule:: topomodelx.nn.cell.cxn_layer
    :members:
