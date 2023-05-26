@@ -9,10 +9,10 @@
 
 ![tnns_network_with_layers](https://user-images.githubusercontent.com/8267869/234084036-f7d6585e-b7c2-4156-a825-cfa5b9658d71.png)
 
-`TopoModelX` (TMX) is a Python module for topological deep learning. It offers simple and efficient tools to implement topological neural networks for science and engineering. 
+`TopoModelX` (TMX) is a Python module for topological deep learning. It offers simple and efficient tools to implement topological neural networks for science and engineering.
 
 TMX's development follows the topological deep learning (TDL) blue print laid out in:
-- [Hajij et al. 2023. Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606). 
+- [Hajij et al. 2023. Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
 
 TMX can reproduce and extend the topological neural networks (TNNs) surveyed in:
 - [Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks](https://arxiv.org/abs/2304.10031).
@@ -44,15 +44,14 @@ Then:
 
 3. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
-      To install the binaries for PyTorch 2.0.1, simply run:
       ```bash
       pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
-      pip install torch-scatter torch-sparse torch_geometric -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
+      pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
       ```
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
 
-4. Ensure that you have a working tmx installation by running the entire test suite with 
+4. Ensure that you have a working tmx installation by running the entire test suite with
 
    ```bash
    pytest
@@ -73,7 +72,7 @@ To learn more about the topological deep learning blueprint:
 - Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub. [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
 ```
 @misc{hajij2023topological,
-      title={Topological Deep Learning: Going Beyond Graph Data}, 
+      title={Topological Deep Learning: Going Beyond Graph Data},
       author={Mustafa Hajij and Ghada Zamzmi and Theodore Papamarkou and Nina Miolane and Aldo Guzmán-Sáenz and Karthikeyan Natesan Ramamurthy and Tolga Birdal and Tamal K. Dey and Soham Mukherjee and Shreyas N. Samaga and Neal Livesay and Robin Walters and Paul Rosen and Michael T. Schaub},
       year={2023},
       eprint={2206.00606},
