@@ -30,6 +30,6 @@ jobs:
           pip install black==22.6.0 isort==5.10.1
       - name : linting [black, isort, flake8]
         run: |
-          black . --check --extend-exclude 'examples'
+          black . --check
           isort --profile black --check .
 

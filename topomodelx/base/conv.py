@@ -57,12 +57,12 @@ class Conv(MessagePassing):
 
         self.reset_parameters()
 
-    def update(self, x_target):
+    def update(self, x_message_on_target, x_target=None):
         """Update embeddings on each cell (step 4).
 
         Parameters
         ----------
-        x_target : torch.Tensor, shape=[n_target_cells, out_channels]
+        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
             Output features on target cells.
 
         Returns
@@ -71,41 +71,62 @@ class Conv(MessagePassing):
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
-            return torch.sigmoid(x_target)
+            return torch.sigmoid(x_message_on_target)
         if self.update_func == "relu":
-            return torch.nn.functional.relu(x_target)
+            return torch.nn.functional.relu(x_message_on_target)
 
-    def forward(self, x_source, neighborhood):
-        """Forward computation.
+    def forward(self, x_source, neighborhood, x_target=None):
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
 
         Parameters
         ----------
-        x_source : torch.tensor, shape=[n_source_cells, in_channels]
-            Input features on the source cells.
-        neighborhood : torch.sparse
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
 
         Returns
         -------
-        _ : torch.tensor
-            shape=[n_cells, out_channels]
-            Output features on the cells.
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
         """
         if self.att:
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
-            attention_values = self.attention(x_source)
-            attention = torch.zeros_like(neighborhood).to_dense()
-            attention[self.target_index_i, self.source_index_j] = attention_values
-            attention = attention.to_sparse()
+            attention_values = self.attention(x_source, x_target)
+            neighborhood = torch.sparse_coo_tensor(
+                indices=neighborhood.indices(),
+                values=attention_values * neighborhood.values(),
+                size=neighborhood.shape,
+            )
 
-        x_source = torch.mm(x_source, self.weight)
-        x_source = torch.mm(neighborhood, x_source)
-        if self.att:
-            neighborhood = torch.mul(neighborhood, attention)
+        x_message = torch.mm(x_source, self.weight)
+        x_message_on_target = torch.mm(neighborhood, x_message)
+
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
-            x_source = torch.einsum("i,ij->ij", 1 / neighborhood_size, x_source)
-        if self.update_func is not None:
-            x_source = self.update(x_source)
-        return x_source
+            x_message_on_target = torch.einsum(
+                "i,ij->ij", 1 / neighborhood_size, x_message_on_target
+            )
+
+        if self.update_func is None:
+            return x_message_on_target
+
+        return self.update(x_message_on_target, x_target)

@@ -1,5 +1,6 @@
 """Message passing module."""
 
+
 import torch
 
 from topomodelx.utils.scatter import scatter
@@ -104,16 +105,16 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : torch.tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : torch.tensor, shape=[n_target_cells, in_channels]
+        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        _ : torch.tensor, shape = [n_messages, 1]
+        _ : torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_source_per_message = x_source[self.source_index_j]
@@ -155,7 +156,14 @@ class MessagePassing(torch.nn.Module):
         return aggr(x_message, self.target_index_i, 0)
 
     def forward(self, x_source, neighborhood, x_target=None):
-        """Propagate messages from source cells to target cells.
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
 
         If not provided, x_target is assumed to be x_source,
         i.e. source cells send messages to themselves.

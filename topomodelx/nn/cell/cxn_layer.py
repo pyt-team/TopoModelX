@@ -6,9 +6,9 @@ from topomodelx.base.conv import Conv
 
 
 class CXNLayer(torch.nn.Module):
-    """Layer of a simplified CXN.
+    """Layer of a CXN.
 
-    Implementation of a convolutional version of the CXN layer (no attention)
+    Implementation of a convolutional version of the CXN layer
     from the paper by Hajij et. al : Cell Complex Neural Networks
     https://arxiv.org/pdf/2010.00743.pdf
     Note: this is the architecture proposed for entire complex classification.
@@ -25,10 +25,14 @@ class CXNLayer(torch.nn.Module):
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
         super().__init__()
-        self.conv_0_to_0 = Conv(in_channels_0, in_channels_0, att=att)
-        self.conv_1_to_2 = Conv(in_channels_1, in_channels_2)
+        self.conv_0_to_0 = Conv(
+            in_channels=in_channels_0, out_channels=in_channels_0, att=att
+        )
+        self.conv_1_to_2 = Conv(
+            in_channels=in_channels_1, out_channels=in_channels_2, att=att
+        )
 
-    def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2):
+    def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2=None):
         """Forward computation.
 
         Parameters
@@ -45,6 +49,10 @@ class CXNLayer(torch.nn.Module):
         neighborhood_1_to_2 : torch.sparse
             shape=[n_2_cells, n_1_cells]
             Neighborhood matrix mapping edges to faces (B_2^T).
+        x_2 : torch.tensor
+            shape=[n_2_cells, channels]
+            Input features on the faces of the cell complex.
+            Optional, only required if attention is used between edges and faces.
 
         Returns
         -------
@@ -58,7 +66,7 @@ class CXNLayer(torch.nn.Module):
         x_0 = self.conv_0_to_0(x_0, neighborhood_0_to_0)
         x_0 = torch.nn.functional.relu(x_0)
 
-        x_2 = self.conv_1_to_2(x_1, neighborhood_1_to_2)
+        x_2 = self.conv_1_to_2(x_1, neighborhood_1_to_2, x_2)
         x_2 = torch.nn.functional.relu(x_2)
 
         return x_0, x_1, x_2
