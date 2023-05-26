@@ -12,8 +12,8 @@ class MessagePassing(torch.nn.Module):
     This class defines message passing through a single neighborhood N,
     by decomposing it into 2 steps:
 
-    1. Create messages going from source cells to target cells through N.
-    2. Aggregate messages coming from different sources cells onto each target cell.
+    1. 🟥 Create messages going from source cells to target cells through N.
+    2. 🟧 Aggregate messages coming from different sources cells onto each target cell.
 
     This class should not be instantiated directly, but rather inherited
     through subclasses that effectively define a message passing function.
