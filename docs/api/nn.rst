@@ -17,5 +17,5 @@ Simplicial Complex Neural Networks
 Cell Complex Neural Networks
 ============================
 
-.. automodule:: topomodelx.nn.cell.cxn_layer
+.. automodule:: topomodelx.nn.cell.ccxn_layer
    :members:

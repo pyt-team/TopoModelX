@@ -32,13 +32,13 @@ class MessagePassing(torch.nn.Module):
 
     References
     ----------
-    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee,
-    Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
-    (2023) https://arxiv.org/abs/2206.00606.
+    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+        (2023) https://arxiv.org/abs/2206.00606.
 
     .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-    Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-    (2023) https://arxiv.org/abs/2304.10031.
+        Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+        (2023) https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
