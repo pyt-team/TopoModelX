@@ -85,7 +85,7 @@ class MessagePassing(torch.nn.Module):
     def message(self, x_source, x_target=None):
         """Construct message from source cells to target cells.
 
-        This provides a default message function to the message passing scheme.
+        🟥 This provides a default message function to the message passing scheme.
 
         Alternatively, users can subclass MessagePassing and overwrite
         the message method in order to replace it with their own message mechanism.
@@ -154,7 +154,7 @@ class MessagePassing(torch.nn.Module):
         This function aggregates these messages into a single output
         feature per target cell.
 
-        This function corresponds to the within-neighborhood aggregation
+        🟧 This function corresponds to the within-neighborhood aggregation
         defined in [H23]_ and [PSHM23]_.
 
         Parameters
@@ -189,7 +189,7 @@ class MessagePassing(torch.nn.Module):
 
         The message passing is decomposed into two steps:
 
-        1. Message: A message :math:`m_{y \rightarrow x}^{\left(r \rightarrow s\right)}`
+        1. 🟥 Message: A message :math:`m_{y \rightarrow x}^{\left(r \rightarrow s\right)}`
         travels from a source cell :math:`y` of rank r to a target cell :math:`x` of rank s
         through a neighborhood of :math:`x`, denoted :math:`\mathcal{N} (x)`,
         via the message function :math:`M_\mathcal{N}`:
@@ -210,7 +210,7 @@ class MessagePassing(torch.nn.Module):
             m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
                 \leftarrow att(\mathbf{h}_y^{(r)}, \mathbf{h}_x^{(s)}) . m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
 
-        2. Aggregation: Messages are aggregated across source cells :math:`y` belonging to the
+        2. 🟧 Aggregation: Messages are aggregated across source cells :math:`y` belonging to the
         neighborhood :math:`\mathcal{N}(x)`:
 
         .. math::
