@@ -13,3 +13,9 @@ Cell Complex Neural Networks
 
 .. automodule:: topomodelx.nn.cell
    :members:
+
+Hypergraph Neural Networks
+==========================
+
+.. automodule:: topomodelx.nn.hypergraph
+   :members:
