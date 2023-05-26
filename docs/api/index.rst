@@ -10,7 +10,7 @@ The API reference gives an overview of `TopoModelX`, which consists of several m
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Packages & Modules
 
    base
