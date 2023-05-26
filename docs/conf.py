@@ -1,5 +1,7 @@
 """Sphinx configuration file."""
 
+import topomodelx
+
 project = "TopoModelX"
 copyright = "2022-2023, PyT-Team, Inc."
 author = "PyT-Team Authors"
