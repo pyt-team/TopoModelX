@@ -58,30 +58,29 @@ class CCXNLayer(torch.nn.Module):
 
         ..  math::
             \begin{align*}
-            🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
-                &= M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})\\
-            🟧 \quad m_x^{(0 \rightarrow 1 \rightarrow 0)}
-                &= \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})\\
-            🟩 \quad m_x^{(0)}
-                &= m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
-            🟦 \quad h_x^{t+1,(0)}
-                &= U^{t}(h_x^{(0)}, m_x^{(0)})
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
+                = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})\\
+            &🟧 \quad m_x^{(0 \rightarrow 1 \rightarrow 0)}
+                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})\\
+            &🟩 \quad m_x^{(0)}
+                = m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
+            &🟦 \quad h_x^{t+1,(0)}
+                = U^{t}(h_x^{(0)}, m_x^{(0)})
             \end{align*}
 
         2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
 
         .. math::
-            🟥 \quad m_{y \rightarrow x}^{(r' \rightarrow r)}
-                = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)
-
-            🟧 \quad m_x^{(r' \rightarrow r)}
-                = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}
-
-            🟩 \quad m_x^{(r)}
-                = m_x^{(r' \rightarrow r)}
-
-            🟦 \quad h_{x}^{t+1,(r)}
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow x}^{(r' \rightarrow r)}
+                = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)\\
+            &🟧 \quad m_x^{(r' \rightarrow r)}
+                = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}\\
+            &🟩 \quad m_x^{(r)}
+                = m_x^{(r' \rightarrow r)}\\
+            &🟦 \quad h_{x}^{t+1,(r)}
                 = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
+            \end{align*}
 
         References
         ----------
