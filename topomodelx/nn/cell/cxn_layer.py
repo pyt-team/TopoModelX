@@ -6,9 +6,9 @@ from topomodelx.base.conv import Conv
 
 
 class CXNLayer(torch.nn.Module):
-    """Layer of a simplified CXN.
+    """Layer of a CXN.
 
-    Implementation of a convolutional version of the CXN layer (no attention)
+    Implementation of a convolutional version of the CXN layer
     from the paper by Hajij et. al : Cell Complex Neural Networks
     https://arxiv.org/pdf/2010.00743.pdf
     Note: this is the architecture proposed for entire complex classification.
