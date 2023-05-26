@@ -8,4 +8,6 @@ Tutorials
    :maxdepth: 1
    :glob:
 
-   ../notebooks/*
+   ../notebooks/cell/*
+   ../notebooks/hypergraph/*
+   ../notebooks/simplicial/*
