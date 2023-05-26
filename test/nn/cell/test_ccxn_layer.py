@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.cell.cxn_layer import CCXNLayer
+from topomodelx.nn.cell.ccxn_layer import CCXNLayer
 
 
 class TestCCXNLayer:

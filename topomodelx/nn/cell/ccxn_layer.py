@@ -19,6 +19,12 @@ class CCXNLayer(torch.nn.Module):
     -----
     This is the architecture proposed for entire complex classification.
 
+    References
+    ----------
+    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
+        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+        https://arxiv.org/pdf/2010.00743.pdf
+
     Parameters
     ----------
     in_channels_0 : int
@@ -29,12 +35,6 @@ class CCXNLayer(torch.nn.Module):
         Dimension of input features on faces (2-cells).
     att : bool
         Whether to use attention.
-
-    References
-    ----------
-    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-        https://arxiv.org/pdf/2010.00743.pdf
     """
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
@@ -59,9 +59,12 @@ class CCXNLayer(torch.nn.Module):
         ..  math::
             m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
                 = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})
+
             m_x^{(0 \rightarrow 1 \rightarrow 0)}
-                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})$
+                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})
+
             m_x^{(0)} = m_x^{(0 \rightarrow 1 \rightarrow 0)}
+
             h_x^{t+1,(0)} = U^{t}(h_x^{(0)}, m_x^{(0)})
 
         2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
@@ -69,10 +72,13 @@ class CCXNLayer(torch.nn.Module):
         .. math::
             m_{y \rightarrow x}^{(r' \rightarrow r)}
                 = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)
+
             m_x^{(r' \rightarrow r)}
                 = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}
+
             m_x^{(r)}
                 = m_x^{(r' \rightarrow r)}
+
             h_{x}^{t+1,(r)}
                 = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
 
