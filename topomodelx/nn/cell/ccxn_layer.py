@@ -65,7 +65,7 @@ class CCXNLayer(torch.nn.Module):
             🟩 \quad m_x^{(0)}
                 &= m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
             🟦 \quad h_x^{t+1,(0)}
-                &= U^{t}(h_x^{(0)}, m_x^{(0)})\\
+                &= U^{t}(h_x^{(0)}, m_x^{(0)})
             \end{align*}
 
         2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
