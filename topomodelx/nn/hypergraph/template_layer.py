@@ -13,11 +13,10 @@ class TemplateLayer(torch.nn.Module):
     ----------
     in_channels : int
         Dimension of input features.
+    intermediate_channels : int
+        Dimension of intermediate features.
     out_channels : int
         Dimension of output features.
-    aggr_func : string
-        Aggregation method.
-        (Inter-neighborhood).
     """
 
     def __init__(
@@ -54,7 +53,7 @@ class TemplateLayer(torch.nn.Module):
         x_1 : torch.Tensor, shape=[n_edges, in_channels]
             Input features on the edges of the simplicial complex.
         incidence_1 : torch.sparse
-            shape=[n_edges, n_edges]
+            shape=[n_nodes, n_edges]
             Incidence matrix mapping edges to nodes (B_1).
 
         Returns
