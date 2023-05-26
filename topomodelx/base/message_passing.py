@@ -11,6 +11,7 @@ class MessagePassing(torch.nn.Module):
 
     This class defines message passing through a single neighborhood N,
     by decomposing it into 2 steps:
+
     1. Create messages going from source cells to target cells through N.
     2. Aggregate messages coming from different sources cells onto each target cell.
 
@@ -34,6 +35,7 @@ class MessagePassing(torch.nn.Module):
     .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee,
     Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
     (2023) https://arxiv.org/abs/2206.00606.
+
     .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
     Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
     (2023) https://arxiv.org/abs/2304.10031.
@@ -114,8 +116,6 @@ class MessagePassing(torch.nn.Module):
         Alternatively, users can subclass MessagePassing and overwrite
         the attention method in order to replace it with their own attention mechanism.
 
-        See Also
-        --------
         Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
 
         Parameters
@@ -177,6 +177,7 @@ class MessagePassing(torch.nn.Module):
         r"""Forward pass.
 
         This implements message passing for a given neighborhood:
+
         - from source cells with input features `x_source`,
         - via `neighborhood` defining where messages can pass,
         - to target cells with input features `x_target`.
@@ -198,11 +199,13 @@ class MessagePassing(torch.nn.Module):
                 = M_{\mathcal{N}}\left(\mathbf{h}_x^{(s)}, \mathbf{h}_y^{(r)}, \Theta \right),
 
         where:
+
         - :math:`\mathbf{h}_y^{(r)}` are input features on the source cells, called `x_source`,
         - :math:`\mathbf{h}_x^{(s)}` are input features on the target cells, called `x_target`,
         - :math:`\Theta` are optional parameters (weights) of the message passing function.
 
         Optionally, attention can be applied to the message, such that:
+
         .. math::
             m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
                 \leftarrow att(\mathbf{h}_y^{(r)}, \mathbf{h}_x^{(s)}) . m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
@@ -216,8 +219,6 @@ class MessagePassing(torch.nn.Module):
 
         resulting in the within-neighborhood aggregated message :math:`m_x^{\left(r \rightarrow s\right)}`.
 
-        See Also
-        --------
         Details in [H23]_ and [PSHM23]_ "The Steps of Message Passing".
 
         Parameters
