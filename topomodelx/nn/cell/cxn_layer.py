@@ -1,26 +1,36 @@
-"""Implementation of a simplified, convolutional version of CXN layer from Hajij et. al: Cell Complex Neural Networks."""
+"""Implementation of a simplified, convolutional version of CCXN layer from Hajij et. al: Cell Complex Neural Networks."""
 
 import torch
 
 from topomodelx.base.conv import Conv
 
 
-class CXNLayer(torch.nn.Module):
-    """Layer of a CXN.
+class CCXNLayer(torch.nn.Module):
+    """Layer of a CCXN defined in [HIZ20]_.
 
-    Implementation of a convolutional version of the CXN layer
-    from the paper by Hajij et. al : Cell Complex Neural Networks
-    https://arxiv.org/pdf/2010.00743.pdf
-    Note: this is the architecture proposed for entire complex classification.
+    Implementation of the CCXN layer defined in [HIZ20]_.
+
+    This layer is composed of two convolutional layers:
+    1. A convolutional layer sending messages from nodes to nodes.
+    2. A convolutional layer sending messages from edges to faces.
+    Optionally, attention mechanisms can be used.
 
     Parameters
     ----------
     in_channels_0 : int
-        Dimension of input features on nodes.
+        Dimension of input features on nodes (0-cells).
     in_channels_1 : int
-        Dimension of input features on edges.
+        Dimension of input features on edges (1-cells).
     in_channels_2 : int
-        Dimension of input features on faces.
+        Dimension of input features on faces (2-cells).
+    att : bool
+        Whether to use attention.
+
+    References
+    ----------
+    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
+        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+        https://arxiv.org/pdf/2010.00743.pdf
     """
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
@@ -33,7 +43,17 @@ class CXNLayer(torch.nn.Module):
         )
 
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2=None):
-        """Forward computation.
+        """Forward pass.
+
+        The equations of the forward pass are given in [TNN23]_ and illustrated in [PSHM23]_.
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------

@@ -9,10 +9,10 @@ from topomodelx.utils.scatter import scatter
 class MessagePassing(torch.nn.Module):
     """MessagePassing.
 
-    This class defines essage passing of a single neighborhood N,
+    This class defines message passing through a single neighborhood N,
     by decomposing it into 2 steps:
     1. Create messages going from source cells to target cells through N.
-    2. Aggregate messages coming from different sources cells onto target cells.
+    2. Aggregate messages coming from different sources cells onto each target cell.
 
     This class should not be instantiated directly, but rather inherited
     through subclasses that effectively define a message passing function.
@@ -153,6 +153,9 @@ class MessagePassing(torch.nn.Module):
         A target cell receives messages from several source cells.
         This function aggregates these messages into a single output
         feature per target cell.
+
+        This function corresponds to the within-neighborhood aggregation
+        defined in [H23]_ and [PSHM23]_.
 
         Parameters
         ----------
