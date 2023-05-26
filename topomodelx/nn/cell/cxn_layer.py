@@ -58,10 +58,10 @@ class CCXNLayer(torch.nn.Module):
 
         ..  math::
             m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
-                = M_{\mathcal{L}\_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})
+                = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})
 
             m_x^{(0 \rightarrow 1 \rightarrow 0)}
-                = \text{AGG}_{y \in \mathcal{L}\_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})$
+                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})$
 
             m_x^{(0)} = m_x^{(0 \rightarrow 1 \rightarrow 0)}
 
