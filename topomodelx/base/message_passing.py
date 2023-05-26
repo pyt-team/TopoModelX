@@ -114,6 +114,10 @@ class MessagePassing(torch.nn.Module):
         Alternatively, users can subclass MessagePassing and overwrite
         the attention method in order to replace it with their own attention mechanism.
 
+        See Also
+        --------
+        Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
+
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_source_cells, in_channels]
@@ -195,6 +199,11 @@ class MessagePassing(torch.nn.Module):
         - :math:`\mathbf{h}_x^{(s)}` are input features on the target cells, called `x_target`,
         - :math:`\Theta` are optional parameters (weights) of the message passing function.
 
+        Optionally, attention can be applied to the message, such that:
+        .. math::
+            m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
+                \leftarrow att(\mathbf{h}_y^{(r)}, \mathbf{h}_x^{(s)}) . m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
+
         2. Aggregation: Messages are aggregated across source cells :math:`y` belonging to the
         neighborhood :math:`\mathcal{N}(x)`:
 
@@ -206,7 +215,7 @@ class MessagePassing(torch.nn.Module):
 
         See Also
         --------
-        Details in [H23]_ and [PSHM23]_.
+        Details in [H23]_ and [PSHM23]_ "The Steps of Message Passing".
 
         Parameters
         ----------
