@@ -42,12 +42,12 @@ doc = [
     "jupyter",
     "nbsphinx",
     "nbsphinx_link",
-    "sphinx <= 5.3.0",
+    "sphinx",
     "sphinx_gallery",
     "pydata-sphinx-theme"
 ]
 lint = [
-    "black < 23.0",
+    "black",
     "black[jupyter]",
     "flake8",
     "flake8-docstrings",
