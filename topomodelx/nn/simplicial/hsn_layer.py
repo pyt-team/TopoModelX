@@ -74,52 +74,21 @@ class HSNLayer(torch.nn.Module):
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
 
         .. math::
-            m_{z \rightarrow x}^{(0 \rightarrow 0) \in \text{seq1}}
-                = (A_{\uparrow,0})_{xz} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)\in \text{seq1}} \cdot \Theta^{t,1}
+            🟥 m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})
 
-            m_{y \rightarrow z}^{(0 \rightarrow 1) \in \text{seq2}}
-                = (B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,0}
+            🟥 m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}
 
-            m_{z \rightarrow u}^{(1 \rightarrow 1)1 \in \text{seq2}}
-                = \sigma((A{\uparrow,1})_{uz} \cdot m_{y \rightarrow z}^{(0 \rightarrow 1) \in \text{seq2}} \cdot \Theta^{t,i,1})
+            🟥 m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})
 
-            m_{u \rightarrow v}^{(1 \rightarrow 1)^i_2 \in \text{seq2}}
-                = \sigma((A_{\uparrow,1})_{vu} \cdot m_{z \rightarrow u}^{(1 \rightarrow 1) \in \text{seq2}} \cdot \Theta_{t,i,1})
+            🟥 m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}
 
-            m_{v \rightarrow w}^{(1 \rightarrow 1)^i_2 \in \text{seq2}}
-                = \sigma((A_{\uparrow,0})_{wv} \cdot m_{u \rightarrow v}^{(1 \rightarrow 1)^i_2 \in \text{seq2}} \cdot \Theta_{t,i,2})
+            🟧 m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}
 
-            m_{w \rightarrow s}^{(1 \rightarrow 0)\in \text{seq2}}
-                = (B_1)_{sw} \cdot m_{v \rightarrow w}^{(1 \rightarrow 1)\_2^d \in \text{seq2}} \cdot \Theta^t
+            🟧 m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}
 
-            m_{s \rightarrow x}^{(0 \rightarrow 0) \in \text{seq2}}
-                = (A_{\uparrow,0})_{xs} \cdot m_{w \rightarrow s}^{(1 \rightarrow 0)\in \text{seq2}} \cdot \Theta^t
+            🟩 m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}
 
-            m_{y \rightarrow z}^{(0 \rightarrow 1) \in \text{seq3}}
-                = (B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,0}
-
-            m_{z \rightarrow z}^{(1)^i \in \text{seq3}}
-                = m_{z \rightarrow z}^{(0,1) \text{ or } (1)^{i-1} \in \text{seq3}}
-
-            m_{z \rightarrow w}^{(1 \rightarrow 0) \in \text{seq3}}
-                = (B_1)_{wz} \cdot m_{y \rightarrow z}^{(1)^{d} \in \text{seq3}} \cdot \Theta^t
-
-            m_{w \rightarrow x}^{(0 \rightarrow 0)\in \text{seq3}}
-                = (A_{\uparrow,0})_{xw} \cdot m_{z \rightarrow w}^{(1 \rightarrow 0) \in \text{seq3}} \cdot \Theta^t
-
-            m_{x}^{\text{seq1},(0)}
-                = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0) \in \text{seq1}}$
-
-            m_{x}^{\text{seq2},(0)}
-                = \sum_{s \in \mathcal{L}_\uparrow(x)} m_{s \rightarrow x}^{(0 \rightarrow 0) \in \text{seq2}}$
-
-            m_{x}^{\text{seq3},(0)}
-                = \sum_{w \in \mathcal{L}_\uparrow(x)} m_{w \rightarrow x}^{(0 \rightarrow 0) \in \text{seq3}}$
-
-            m_x^{(0)}
-                = m_x^{\text{seq1},(0)} + m_x^{\text{seq2},(0)} + m_x^{\text{seq3},(0)}$
-
-            h_x^{t+1,(0)} = I(m_x^{(0)})$
+            🟦 h_x^{t+1,(0)}  = I(m_x^{(0)})
 
         References
         ----------
