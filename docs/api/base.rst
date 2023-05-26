@@ -3,10 +3,10 @@ Base
 ****
 
 .. automodule:: topomodelx.base.message_passing
-    :members:
+   :members:
 
 .. automodule:: topomodelx.base.conv
-    :members:
+   :members:
 
 .. automodule:: topomodelx.base.aggregation
-    :members:
+   :members:

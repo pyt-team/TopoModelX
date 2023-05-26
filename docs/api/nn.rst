@@ -3,10 +3,10 @@ Neural Networks
 ***************
 
 .. automodule:: topomodelx.nn.hypergraph
-    :members:
+   :members:
 
 .. automodule:: topomodelx.nn.simplicial
-    :members:
+   :members:
 
 .. automodule:: topomodelx.nn.cell
-    :members:
+   :members:
