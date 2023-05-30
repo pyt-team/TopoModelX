@@ -108,7 +108,6 @@ class Conv(MessagePassing):
             Assumes that all target cells have the same rank s.
         """
         if self.att:
-            print("\nUSING ATT")
             neighborhood = neighborhood.coalesce()
             self.target_index_i, self.source_index_j = neighborhood.indices()
             attention_values = self.attention(x_source, x_target)
@@ -118,13 +117,7 @@ class Conv(MessagePassing):
                 size=neighborhood.shape,
             )
 
-        print(f"\n x_source.shape = {x_source.shape}")
-        if x_target is not None:
-            print(f"! x_target.shape = {x_target.shape}")
-        print(f"self.weight.shape = {self.weight.shape}")
         x_message = torch.mm(x_source, self.weight)
-        print(f"neighborhood.shape = {neighborhood.shape}")
-        print(f"x_message.shape = {x_message.shape}")
         x_message_on_target = torch.mm(neighborhood, x_message)
 
         if self.aggr_norm:
