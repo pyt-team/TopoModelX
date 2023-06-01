@@ -61,7 +61,7 @@ class TemplateLayer(torch.nn.Module):
         x_1 : torch.Tensor, shape=[n_edges, out_channels]
             Output features on the edges of the simplicial complex.
         """
-        incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
+        incidence_1_transpose = incidence_1.transpose(1, 0)
         if x_1.shape[-2] != incidence_1.shape[-1]:
             raise ValueError(
                 f"Shape of input face features does not have the correct number of edges {incidence_1.shape[-1]}."
