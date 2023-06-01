@@ -4,7 +4,7 @@ import networkx as nx
 import numpy as np
 from karateclub import LaplacianEigenmaps
 
-from topoembedx.neighborhood import neighborhood_from_complex
+from topomodelx.embed.neighborhood import neighborhood_from_complex
 
 
 class HigherOrderLaplacianEigenmaps(LaplacianEigenmaps):
@@ -26,7 +26,6 @@ class HigherOrderLaplacianEigenmaps(LaplacianEigenmaps):
         maximum_number_of_iterations: int = 100,
         seed: int = 42,
     ):
-
         super().__init__(
             dimensions=dimensions,
             seed=seed,

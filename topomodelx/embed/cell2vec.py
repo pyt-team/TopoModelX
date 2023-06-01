@@ -3,7 +3,7 @@
 import networkx as nx
 from karateclub import Node2Vec
 
-from topoembedx.neighborhood import neighborhood_from_complex
+from topomodelx.embed.neighborhood import neighborhood_from_complex
 
 
 class Cell2Vec(Node2Vec):
@@ -61,7 +61,6 @@ class Cell2Vec(Node2Vec):
         min_count: int = 1,
         seed: int = 42,
     ):
-
         super().__init__(
             walk_number=walk_number,
             walk_length=walk_length,

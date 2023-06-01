@@ -3,7 +3,7 @@
 import networkx as nx
 from karateclub import Diff2Vec
 
-from topoembedx.neighborhood import neighborhood_from_complex
+from topomodelx.embed.neighborhood import neighborhood_from_complex
 
 
 class CellDiff2Vec(Diff2Vec):

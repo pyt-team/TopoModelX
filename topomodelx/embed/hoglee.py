@@ -3,7 +3,7 @@ import networkx as nx
 import numpy as np
 from karateclub import GLEE
 
-from topoembedx.neighborhood import neighborhood_from_complex
+from topomodelx.embed.neighborhood import neighborhood_from_complex
 
 
 class HOGLEE(GLEE):
@@ -18,7 +18,6 @@ class HOGLEE(GLEE):
     """
 
     def __init__(self, dimensions: int = 3, seed: int = 42):
-
         super().__init__(dimensions=dimensions, seed=seed)
 
         self.A = []
