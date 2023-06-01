@@ -20,10 +20,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10"
+    "Programming Language :: Python :: 3.11"
 ]
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 dependencies=[
     "tqdm",
     "numpy",
@@ -33,7 +32,6 @@ dependencies=[
     "matplotlib",
     "networkx",
     "gudhi",
-    "torch_geometric",
     "pandas",
     "pyg-nightly",
     "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
@@ -44,12 +42,12 @@ doc = [
     "jupyter",
     "nbsphinx",
     "nbsphinx_link",
-    "sphinx <= 5.3.0",
+    "sphinx",
     "sphinx_gallery",
     "pydata-sphinx-theme"
 ]
 lint = [
-    "black < 23.0",
+    "black",
     "black[jupyter]",
     "flake8",
     "flake8-docstrings",
@@ -92,15 +90,13 @@ skip = [".gitignore", "__init__.py"]
 application_import_names = "topomodelx"
 docstring-convention = "numpy"
 exclude = [
-    "examples/*.ipynb",
     "topomodelx/__init__.py",
-    "topomodelx/version.py",
     "docs/source/conf.py"
 ]
 
 import_order_style = "smarkets"
 max-line-length = 88
-extend-ignore = ["E501", "F401"]
+extend-ignore = ["E501", "F401", "E203"]
 per-file-ignores = [
     "*/__init__.py: D104, F401",
 ]

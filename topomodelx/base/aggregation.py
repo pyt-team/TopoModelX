@@ -29,12 +29,12 @@ class Aggregation(torch.nn.Module):
 
         Parameters
         ----------
-        h : array-like, shape=[n_skleton_out, out_channels]
+        h : array-like, shape=[n_skeleton_out, out_channels]
             Features on the skeleton out.
 
         Returns
         -------
-        _ : array-like, shape=[n_skleton_out, out_channels]
+        _ : array-like, shape=[n_skeleton_out, out_channels]
             Updated features on the skeleton out.
         """
         if self.update_func == "sigmoid":
