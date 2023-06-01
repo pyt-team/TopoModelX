@@ -52,7 +52,7 @@ Submission Requirements
 -----------------------
 The submission must implement a pre-existing model from the literature included in `Fig. 11 <https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg>`_ of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
 
-.. figure:: https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg
+.. figure:: ../../topomodelx.jpeg
    :align: center
    :alt: tnns
    :width: 250px
