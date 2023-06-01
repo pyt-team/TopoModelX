@@ -35,6 +35,7 @@ dependencies=[
     "pandas",
     "pyg-nightly",
     "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
+    "karateclub @ git+https://github.com/benedekrozemberczki/karateclub@d35e05526455599688f1c4dd92e397cf92316ae4",
 ]
 
 [project.optional-dependencies]
