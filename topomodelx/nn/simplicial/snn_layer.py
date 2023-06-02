@@ -30,18 +30,16 @@ class SNNLayer(torch.nn.Module):
         Initialization method.
     """
 
-    def __init__(
-        self,
-        in_channels,
-        out_channels,
-        K
-    ):
+    def __init__(self, in_channels, out_channels, K):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.K = K
 
-        self.convs = [Conv(in_channels=in_channels, out_channels=out_channels, update_func="relu") for _ in range(self.K)]
+        self.convs = [
+            Conv(in_channels=in_channels, out_channels=out_channels, update_func="relu")
+            for _ in range(self.K)
+        ]
 
         self.aggr = Aggregation(aggr_func="sum", update_func="relu")
 
@@ -96,7 +94,7 @@ class SNNLayer(torch.nn.Module):
         outputs.append(self.convs[0](x, laplacian_power))
 
         for i in range(1, self.K):
-            laplacian_power = torch.mm(laplacian_power, laplacian) 
+            laplacian_power = torch.mm(laplacian_power, laplacian)
 
             outputs.append(self.convs[i](x, laplacian_power))
 
