@@ -27,6 +27,9 @@ class Conv(MessagePassing):
         Optional, default: False.
     initialization : string
         Initialization method.
+    with_linear_transform: bool
+        Whether to apply a learnable linear transform.
+        NB: if false in_channels has to be equal to out_channels
     """
 
     def __init__(
@@ -37,6 +40,7 @@ class Conv(MessagePassing):
         update_func=None,
         att=False,
         initialization="xavier_uniform",
+        with_linear_transform=True,
     ):
         super().__init__(
             att=att,
@@ -47,7 +51,16 @@ class Conv(MessagePassing):
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
-        self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        self.weight = (
+            Parameter(torch.Tensor(self.in_channels, self.out_channels))
+            if with_linear_transform
+            else None
+        )
+
+        if not with_linear_transform and in_channels != out_channels:
+            raise ValueError(
+                "With `linear_trainsform=False`, in_channels has to be equal to out_channels"
+            )
         if self.att:
             self.att_weight = Parameter(
                 torch.Tensor(
@@ -116,8 +129,10 @@ class Conv(MessagePassing):
                 values=attention_values * neighborhood.values(),
                 size=neighborhood.shape,
             )
-
-        x_message = torch.mm(x_source, self.weight)
+        if self.weight is not None:
+            x_message = torch.mm(x_source, self.weight)
+        else:
+            x_message = x_source
         x_message_on_target = torch.mm(neighborhood, x_message)
 
         if self.aggr_norm:

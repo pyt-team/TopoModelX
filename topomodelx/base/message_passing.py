@@ -68,12 +68,14 @@ class MessagePassing(torch.nn.Module):
             Gain for the weight initialization.
         """
         if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.weight, gain=gain)
+            if self.weight is not None:
+                torch.nn.init.xavier_uniform_(self.weight, gain=gain)
             if self.att:
                 torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
 
         elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.weight, gain=gain)
+            if self.weight is not None:
+                torch.nn.init.xavier_normal_(self.weight, gain=gain)
             if self.att:
                 torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
         else:
