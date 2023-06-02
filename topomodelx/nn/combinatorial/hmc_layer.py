@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from typing import List
 
 class HMCLayer(torch.nn.Module):
+    # TODO: Check attention protocol. Also, put correctly x_target in the forward method.
     def __init__(self, in_channels: List[int], intermediate_channels : List[int], out_channels: List[int]):
 
         super().__init__()
