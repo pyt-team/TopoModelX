@@ -50,7 +50,12 @@ The principal developers of TopoModelX are not allowed to participate.
 
 Submission Requirements
 -----------------------
-The submission must implement a pre-existing model from the literature included in Fig. 11 of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
+The submission must implement a pre-existing model from the literature included in `Fig. 11 <https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg>`_ of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
+
+.. figure:: ../../topomodelx.jpeg
+   :align: center
+   :alt: tnns
+   :width: 250px
 
 All submitted code must comply with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
 
