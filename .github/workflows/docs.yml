@@ -40,6 +40,7 @@ jobs:
           sphinx-build  -b html -D version=latest -D release=latest docs docs/_build
       - name: Deploy Docs
         uses: JamesIves/github-pages-deploy-action@v4
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'pyt-team/TopoModelX' }}
         with:
           branch: main
           folder: docs/_build
