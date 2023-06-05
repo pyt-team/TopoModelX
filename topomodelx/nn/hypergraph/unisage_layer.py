@@ -128,7 +128,8 @@ class UniSAGELayer(torch.nn.Module):
             incidence_1_transpose = incidence_1.T.to_sparse_csr()
             incidence_1 = incidence_1.to_sparse_csr()
         else:
-            incidence_1_transpose = incidence_1.transpose(1, 0)
+            # Transpose generates CSC tensor, thus we have to convert to csr
+            incidence_1_transpose = incidence_1.transpose(1, 0).to_sparse_csr()
         # First pass fills in features of edges by adding features of constituent nodes
         m_0_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0, reduce=self.e_aggr)
         # Second pass fills in features of nodes by adding features of the incident edges
