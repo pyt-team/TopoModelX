@@ -1,11 +1,11 @@
-"""High Skip Network Layer."""
+"""Simplicial Attention Network (SAN) Layer."""
 import torch
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
-class HSNLayer(torch.nn.Module):
+class SANLayer(torch.nn.Module):
     """Layer of a High Skip Network (HSN).
 
     Implementation of the HSN layer proposed in [HRGZ22]_.

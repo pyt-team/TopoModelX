@@ -68,7 +68,7 @@ Test functions should be located in files whose filenames start with `test_`. Fo
       def test_capital_case():
          assert add(4, 5) == 9
 
-Use an `assert` statement to check that the function under test returns the correct output. 
+Use an `assert` statement to check that the function under test returns the correct output.
 
 Run Tests
 ~~~~~~~~~
@@ -76,7 +76,7 @@ Run Tests
 Install `pytest` which is the software tools used to run tests:
 
     .. code-block:: bash
-    
+
       $ pip install -e .[dev]
 
 Then run the test using:
@@ -84,11 +84,11 @@ Then run the test using:
     .. code-block:: bash
 
       $ pytest test_add.py
-      
+
 Verify that the code you have added does not break `TopoModelX` by running all the tests.
 
     .. code-block:: bash
-    
+
       $ pytest test/
 
 Write Documentation
@@ -97,7 +97,7 @@ Write Documentation
 Building the documentation requires installing specific requirements.
 
     .. code-block:: bash
-    
+
       $ pip install -e .[doc]
 
 Intro to Docstrings

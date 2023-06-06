@@ -1,12 +1,12 @@
-"""Test the HSN layer."""
+"""Test the SAN layer."""
 
 import torch
 
 from topomodelx.nn.simplicial.hsn_layer import HSNLayer
 
 
-class TestHSNLayer:
-    """Test the HSN layer."""
+class TestSANLayer:
+    """Test the SAN layer."""
 
     def test_forward(self):
         """Test the forward pass of the HSN layer."""
