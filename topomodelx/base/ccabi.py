@@ -8,7 +8,7 @@ from scipy.sparse import coo_matrix
 from topomodelx.base.message_passing import MessagePassing
 
 
-class CCAT(MessagePassing):
+class CCABI(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
     Builds the message passing route given by one neighborhood matrix.
@@ -62,7 +62,7 @@ class CCAT(MessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-        r"""Reset learnable parameters.
+        """Reset learnable parameters.
 
         Notes
         -----

@@ -2,22 +2,19 @@
 
 import torch
 
-from topomodelx.base.ccat import CCAT
+from topomodelx.base.ccaba import CCABA
 
 
-class TestCCAT:
-    """Test the CCAT class."""
+class TestCCABA:
+    """Test the CCABA class."""
 
     def setup_method(self):
         """Set up the test."""
         self.d_s_in, self.d_s_out = 2, 3
-        self.d_t_in, self.d_t_out = 3, 4
 
-        self.ccat = CCAT(
+        self.ccaba = CCABA(
             d_s_in=self.d_s_in,
             d_s_out=self.d_s_out,
-            d_t_in=self.d_t_in,
-            d_t_out=self.d_t_out,
             negative_slope=0.2,
             aggr_norm=True,
             update_func="sigmoid",
@@ -25,12 +22,11 @@ class TestCCAT:
         )
 
         self.n_source_cells = 10
-        self.n_target_cells = 3
 
-        self.neighborhood_s_to_t = torch.sparse_coo_tensor(
-            indices=torch.tensor([[0, 1, 1, 2, 9],[0, 0, 0, 1, 2]]),
+        self.neighborhood = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 1, 1, 2, 9],[3, 7, 9, 2, 5]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
-            size=(10,3),
+            size=(10,10),
         )
 
     def test_forward(self):
@@ -50,16 +46,9 @@ class TestCCAT:
             ]
         ).float()
 
-        x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
+        result = self.ccaba.forward(x_source, self.neighborhood)
 
-        result = self.ccat.forward(
-            x_source, self.neighborhood_s_to_t, x_target
-        )
-
-        message_on_source, message_on_target = result
-
-        assert message_on_source.shape == (self.n_source_cells, self.d_s_out)
-        assert message_on_target.shape == (self.n_target_cells, self.d_t_out)
+        assert result.shape == (self.n_source_cells, self.d_s_out)
 
     """
         def test_attention(self):
