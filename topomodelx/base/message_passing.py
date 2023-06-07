@@ -120,7 +120,7 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shatpe=[n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
         x_target : torch.Tensor, shape=[n_target_cells, in_channels]

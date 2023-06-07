@@ -78,4 +78,5 @@ class TestConv:
         result = self.conv_with_att.forward(
             x_source, self.neighborhood_r_to_s, x_target
         )
+
         assert result.shape == (self.n_target_cells, self.out_channels)
