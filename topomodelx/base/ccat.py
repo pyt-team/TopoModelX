@@ -144,32 +144,10 @@ class CCAT(MessagePassing):
 
         # TODO: Preguntar si en la atención deberíamos usar softmax
         # Compute the sum along dimension 1 and reshape the result
-
-        e_sum = torch.sparse.sum(e,dim=1)
-        f_sum = torch.sparse.sum(f, dim=1)
-
-        e_values = e._values() / e_sum.to_dense()[e._indices()[0]]
-        f_values = f._values() / f_sum.to_dense()[f._indices()[0]]
-
-        e = torch.sparse_coo_tensor(e._indices(), e_values, e.shape)
-        f = torch.sparse_coo_tensor(f._indices(), f_values, f.shape)
-
-        """e_sum = torch.sum(e.to_dense(), dim=1)
-        e_inv = torch.diag(torch.reciprocal(e_sum))
-        e = torch.matmul(e_inv, e.to_dense())
-        e[torch.isnan(e)] = 0
-        e = e.to_sparse_coo()
-
-        f_sum = torch.sum(f.to_dense(), dim=1)
-        f_inv = torch.diag(torch.reciprocal(f_sum))
-        f = torch.matmul(f_inv, f.to_dense())
-        f[torch.isnan(f)] = 0
-        f = f.to_sparse_coo()"""
-
         #e = torch.sparse.softmax(e, dim=1)
         #f = torch.sparse.softmax(f, dim=1)"""
 
-        return e.coalesce(),f.coalesce()
+        return self.sparse_row_norm(e), self.sparse_row_norm(f)
 
     def forward(self, x_source, neighborhood, x_target=None):
         """Forward pass.
@@ -221,8 +199,6 @@ class CCAT(MessagePassing):
             size=neighborhood.shape,
         )
 
-        print(neighborhood_s_t.to_dense())
-
         neighborhood_t_s = torch.sparse_coo_tensor(
             indices=neighborhood_t.indices(),
             values=t_s_attention.values() * neighborhood_t.values(),
@@ -241,21 +217,8 @@ class CCAT(MessagePassing):
 
         return message_on_source, message_on_target
 
-    def divide_by_row_sum(self, sparse_coo):
-        # Converting COO to CSR format to perform row-wise operations
-        sparse_csr = sparse_coo.to_sparse_csr()
-
-        # Sum across each row and reshape to a column vector
-        row_sums = sparse_csr.sum(axis=1)
-
-        # Take inverse of row sums to avoid division (division is more costly)
-        # A small constant is added to avoid division by zero.
-        row_sums_inv = 1.0 / (row_sums + 1e-10)
-
-        # Diagonal matrix of inverses
-        row_sums_inv_diag = coo_matrix((row_sums_inv.flatten(), (range(len(row_sums)), range(len(row_sums)))))
-
-        # Multiply original sparse matrix with the diagonal one (equivalent to dividing each element by the row sum)
-        result = row_sums_inv_diag.dot(sparse_csr)
-
-        return result
+    def sparse_row_norm(self, sparse_tensor):
+        row_sum = torch.sparse.sum(sparse_tensor, dim=1)
+        values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
+        sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
+        return sparse_tensor.coalesce()

@@ -33,25 +33,6 @@ class TestCCAT:
             size=(10,3),
         )
 
-    def test_attention(self):
-        """Test the attention mechanism of the message passing convolution layer."""
-        x_source = torch.tensor(
-            [
-                [1, 2],
-                [2, 3],
-                [3, 3],
-                [4, 4],
-                [5, 4],
-                [6, 9],
-                [7, 3],
-                [8, 7],
-                [9, 7],
-                [10, -1]
-            ]
-        ).float()
-
-        x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
-
     def test_forward(self):
         """Test the forward pass of the message passing convolution layer."""
         x_source = torch.tensor(
@@ -71,14 +52,35 @@ class TestCCAT:
 
         x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
 
-        # With attention between cells of different ranks
         result = self.ccat.forward(
             x_source, self.neighborhood_s_to_t, x_target
         )
-
-        print(result[0].shape)
 
         message_on_source, message_on_target = result
 
         assert message_on_source.shape == (self.n_source_cells, self.d_s_out)
         assert message_on_target.shape == (self.n_target_cells, self.d_t_out)
+
+    """
+        def test_attention(self):
+            s_message = torch.tensor(
+                [
+                    [1, 2, 2, 1],
+                    [2, 3, 3, 2],
+                    [3, 3, 3, 3],
+                    [4, 4, 4, 4],
+                    [5, 4, 4, 5],
+                    [6, 9, 9, 6],
+                    [7, 3, 3, 7],
+                    [8, 7, 7, 8],
+                    [9, 7, 7, 9],
+                    [10, -1, -1, 10]
+                ]
+            ).float()
+
+            t_message = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
+
+            s_t_attention, t_s_attention = self.ccat.attention(s_message, t_message)
+
+            assert s_t_attention.shape == (self.n_source_cells, self.n_target_cells)
+            assert t_s_attention.shape == (self.n_target_cells, self.n_source_cells)"""
