@@ -145,7 +145,16 @@ class CCAT(MessagePassing):
         # TODO: Preguntar si en la atención deberíamos usar softmax
         # Compute the sum along dimension 1 and reshape the result
 
-        e_sum = torch.sum(e.to_dense(), dim=1)
+        e_sum = torch.sparse.sum(e,dim=1)
+        f_sum = torch.sparse.sum(f, dim=1)
+
+        e_values = e._values() / e_sum.to_dense()[e._indices()[0]]
+        f_values = f._values() / f_sum.to_dense()[f._indices()[0]]
+
+        e = torch.sparse_coo_tensor(e._indices(), e_values, e.shape)
+        f = torch.sparse_coo_tensor(f._indices(), f_values, f.shape)
+
+        """e_sum = torch.sum(e.to_dense(), dim=1)
         e_inv = torch.diag(torch.reciprocal(e_sum))
         e = torch.matmul(e_inv, e.to_dense())
         e[torch.isnan(e)] = 0
@@ -155,12 +164,12 @@ class CCAT(MessagePassing):
         f_inv = torch.diag(torch.reciprocal(f_sum))
         f = torch.matmul(f_inv, f.to_dense())
         f[torch.isnan(f)] = 0
-        f = f.to_sparse_coo()
+        f = f.to_sparse_coo()"""
 
         #e = torch.sparse.softmax(e, dim=1)
         #f = torch.sparse.softmax(f, dim=1)"""
 
-        return e,f
+        return e.coalesce(),f.coalesce()
 
     def forward(self, x_source, neighborhood, x_target=None):
         """Forward pass.
