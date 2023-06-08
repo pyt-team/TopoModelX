@@ -8,13 +8,13 @@ from topomodelx.base.conv import Conv
 class SCConvLayer(torch.nn.Module):
     """Layer of a Simplicial 2-complex convolutional neural network (SCConv).
 
-    Implementation of the SCConv layer proposed in [ERIC20]_.
+    Implementation of the SCConv layer proposed in [Bunch20]_.
 
 
 
     References
     ----------
-    .. [ERIC20] Bunch, Eric, Qian You, Glenn Fung, and Vikas Singh.
+    .. [Bunch20] Bunch, Eric, Qian You, Glenn Fung, and Vikas Singh.
         Simplicial 2-complex convolutional neural nets.
         NeurIPS 2020 Workshop TDA and Beyond homepage
         https://openreview.net/forum?id=TLbnsKrt6J-
