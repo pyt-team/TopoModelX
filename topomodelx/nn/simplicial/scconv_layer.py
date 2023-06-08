@@ -1,17 +1,11 @@
 """Simplicial 2-complex convolutional neural network."""
 import torch
 
-from topomodelx.base.aggregation import Aggregation
-from topomodelx.base.conv import Conv
-
 
 class SCConvLayer(torch.nn.Module):
     """Layer of a Simplicial 2-complex convolutional neural network (SCConv).
 
     Implementation of the SCConv layer proposed in [Bunch20]_.
-
-
-
     References
     ----------
     .. [Bunch20] Bunch, Eric, Qian You, Glenn Fung, and Vikas Singh.
@@ -22,8 +16,8 @@ class SCConvLayer(torch.nn.Module):
     """
 
     def __init__(
-            self,
-            channels,
+        self,
+        channels,
     ):
         super().__init__()
 
