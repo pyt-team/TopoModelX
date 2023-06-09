@@ -1,123 +1,138 @@
 """Simplicial Attention Network (SAN) Layer."""
 import torch
-
+from torch.nn import functional as F
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
 class SANLayer(torch.nn.Module):
-    """Layer of a High Skip Network (HSN).
+    """
 
-    Implementation of the HSN layer proposed in [HRGZ22]_.
-
-    Notes
-    -----
-    This is the architecture proposed for node classification on simplicial complices.
-
-    References
-    ----------
-    .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-        High Skip Networks: A Higher Order Generalization of Skip Connections.
-        Geometrical and Topological Representation Learning Workshop at ICLR 2022.
-        https://openreview.net/pdf?id=Sc8glB-k6e9
-
-    Parameters
-    ----------
-    channels : int
-        Dimension of features on each simplicial cell.
-    initialization : string
-        Initialization method.
     """
 
     def __init__(
         self,
-        channels,
+        channels_in,
+        channels_out,
+        J=2, # approximation order
     ):
         super().__init__()
-        self.channels = channels
+        
+        #self.Lup, self.Ld, self.P = Lup, Ld, P
+        
+        self.J = J
+        self.channels_in = channels_in
+        self.channels_out = channels_out
 
-        self.conv_level1_0_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func="sigmoid",
-        )
-        self.conv_level1_0_to_1 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func="sigmoid",
-        )
+        self.att_slice = self.channels_out * self.J
+        
+        # Cell Convolution
 
-        self.conv_level2_0_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
-        )
-        self.conv_level2_1_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
-        )
+        self.W_irr =  [
+                        torch.nn.Linear(in_channels=self.channels_in,
+                                        out_channels=self.channels_out)
+                        for _ in range(self.J)
+                        ]
 
-        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func="sigmoid")
+        self.W_sol = [
+                        torch.nn.Linear(in_channels=self.channels_in,
+                                        out_channels=self.channels_out)
+                            for _ in range(self.J)
+                          ]
+        
+        self.W_har = torch.nn.Linear(in_channels=self.channels_in,
+                                    out_channels=self.channels_out)
+        
+        # Attention
+        self.att_irr = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
+        self.att_sol = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
 
-    def reset_parameters(self):
-        r"""Reset learnable parameters."""
-        self.conv_level1_0_to_0.reset_parameters()
-        self.conv_level1_0_to_1.reset_parameters()
-        self.conv_level2_0_to_0.reset_parameters()
-        self.conv_level2_1_to_0.reset_parameters()
+        # Summation
+        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func=None)
 
-    def forward(self, x_0, incidence_1, adjacency_0):
+        self.bin_mask_Lu = None
+        self.bin_mask_Ld = None
+
+    # def reset_parameters(self):
+    #     r"""Reset learnable parameters."""
+    #     # Following original repo.
+    #     gain = torch.nn.init.calculate_gain('relu')
+    #     torch.nn.init.xavier_uniform_(self.conv_down.weight, gain=gain)
+    #     torch.nn.init.xavier_uniform_(self.conv_up.weight, gain=gain)
+        
+        
+
+    def forward(self, x, Lup, Ld, P):
         r"""Forward pass.
 
         The forward pass was initially proposed in [HRGZ22]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
 
         .. math::
-            \begin{align*}
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
-            &🟥 \quad m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}\\
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})\\
-            &🟥 \quad m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}\\
-            &🟩 \quad m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}\\
-            &🟦 \quad h_x^{t+1,(0)}  = I(m_x^{(0)})
-            \end{align*}
+           
 
         References
         ----------
-        .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-            High Skip Networks: A Higher Order Generalization of Skip Connections.
-            Geometrical and Topological Representation Learning Workshop at ICLR 2022.
-            https://openreview.net/pdf?id=Sc8glB-k6e9
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
+        
 
         Parameters
         ----------
-        x: torch.Tensor, shape=[n_nodes, channels]
-            Input features on the nodes of the simplicial complex.
-        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
-            Incidence matrix :math:`B_1` mapping edges to nodes.
-        adjacency_0 : torch.sparse, shape=[n_nodes, n_nodes]
-            Adjacency matrix :math:`A_0^{\uparrow}` mapping nodes to nodes via edges.
-
+        
         Returns
         -------
-        _ : torch.Tensor, shape=[n_nodes, channels]
-            Output features on the nodes of the simplicial complex.
+        
         """
-        incidence_1_transpose = incidence_1.transpose(1, 0)
+        
+        x_irr = torch.cat([self.W_irr[i](x) for i in range(self.J)], dim=1)
+        x_sol = torch.cat([self.W_sol[i](x) for i in range(self.J)], dim=1)
 
-        x_0_level1 = self.conv_level1_0_to_0(x_0, adjacency_0)
-        x_1_level1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
 
-        x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
-        x_1_level2 = self.conv_level2_1_to_0(x_1_level1, incidence_1)
+        # Broadcast add
+        # Attention map
+        
+        # (Ex1) + (1xE) -> (ExE)
+        E_irr = self.leakyrelu((x_irr @ self.att_irr[:self.att_slice, :]) + 
+                                (x_irr @ self.att_irr[self.att_slice:, :]).T) 
+        
+        # (Ex1) + (1xE) -> (ExE) 
+        E_sol = self.leakyrelu((x_sol @ self.att_sol[:self.att_slice, :]) + 
+                                (x_sol @ self.att_sol[self.att_slice:, :]).T)  
+        
 
-        x_0 = self.aggr_on_nodes([x_0_level2, x_1_level2])
-        return x_0
+        # Consider only ones which have connections
+        MASK_D, MASK_U = Ld != 0, Lup != 0
+        E_irr[~MASK_D] = float("-1e20")
+        E_sol[~MASK_U] = float("-1e20")
+        
+       
+
+        
+        # (ExE) -> (ExE)
+        alpha_irr = F.dropout(F.softmax(E_irr, dim=-1),
+                              self.dropout,
+                              training=self.training) 
+        # (ExE) -> (ExE)
+        alpha_sol = F.dropout(F.softmax(E_sol, dim=-1), 
+                              self.dropout,
+                              training=self.training) 
+
+
+        
+        z_i = self.W_irr[0](torch.matmul(alpha_irr, x))
+        z_s = self.W_sol[0](torch.matmul(alpha_sol, x))  
+        for p in range(1, self.J):
+            alpha_irr = torch.matmul(alpha_irr, Ld)
+            alpha_sol = torch.matmul(alpha_sol, Lup)
+            
+            # (ExE) x (ExF_out) -> (ExF_out)
+            z_i = z_i + self.W_irr[p](torch.matmul(alpha_irr, x))
+            # (ExE) x (ExF_out) -> (ExF_out)
+            z_s = z_s + self.W_sol[p](torch.matmul(alpha_sol, x))  
+
+        
+        # Harmonic
+        z_har = self.W_har(torch.matmul(P, x))
+        
+        # final output
+        x = (z_i + z_s + z_har)
+        return x
