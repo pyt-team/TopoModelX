@@ -29,19 +29,19 @@ class SANLayer(torch.nn.Module):
         # Cell Convolution
 
         self.W_irr =  [
-                        torch.nn.Linear(in_channels=self.channels_in,
-                                        out_channels=self.channels_out)
+                        torch.nn.Linear(in_features=self.channels_in,
+                                        out_features=self.channels_out)
                         for _ in range(self.J)
                         ]
 
         self.W_sol = [
-                        torch.nn.Linear(in_channels=self.channels_in,
-                                        out_channels=self.channels_out)
+                        torch.nn.Linear(in_features=self.channels_in,
+                                        out_features=self.channels_out)
                             for _ in range(self.J)
                           ]
         
-        self.W_har = torch.nn.Linear(in_channels=self.channels_in,
-                                    out_channels=self.channels_out)
+        self.W_har = torch.nn.Linear(in_features=self.channels_in,
+                                    out_features=self.channels_out)
         
         # Attention
         self.att_irr = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
