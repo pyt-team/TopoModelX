@@ -49,12 +49,12 @@ class HMCLayer(torch.nn.Module):
         self.aggr = Aggregation(aggr_func="sum", update_func="sigmoid")
 
 
-        def forward(x_0, x_1, x_2, adjacence_0, adjacence_1, coadjacence_2, incidence_1, incidence_2):
+        def forward(x_0, x_1, x_2, adjacency_0, adjacency_1, coadjacency_2, incidence_1, incidence_2):
 
             incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
             incidence_2_transpose = incidence_2.to_dense().T.to_sparse()
 
-            x_0_level1 = self.aggr([self.conv_level1_0_to_0(x_0, adjacence_0),
+            x_0_level1 = self.aggr([self.conv_level1_0_to_0(x_0, adjacency_0),
                                     self.conv_level1_0_to_1(x_1, incidence_1),
                                     ])
             x_1_level1 = self.aggr([self.conv_level1_0_to_1(x_0, incidence_1_transpose),
@@ -62,12 +62,12 @@ class HMCLayer(torch.nn.Module):
 
             x_2_level1 = self.conv_level1_1_to_2(x_1,incidence_2_transpose)
 
-            x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacence_0)
+            x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
 
             x_1_level2 = self.aggr([self.conv_level2_0_to_1(x_0_level1, incidence_1_transpose),
-                                    self.conv_level2_1_to_1(x_1_level1, adjacence_1)])
+                                    self.conv_level2_1_to_1(x_1_level1, adjacency_1)])
 
             x_2_level2 = self.aggr([self.conv_level2_1_to_2(x_1_level1, incidence_2_transpose),
-                                    self.conv_level2_2_to_2(x_2_level1, coadjacence_2)])
+                                    self.conv_level2_2_to_2(x_2_level1, coadjacency_2)])
 
             return x_0_level2, x_1_level2, x_2_level2
