@@ -50,6 +50,9 @@ class SANLayer(torch.nn.Module):
         # Summation
         self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func=None)
 
+        self.bin_mask_Lu = None
+        self.bin_mask_Ld = None
+
     # def reset_parameters(self):
     #     r"""Reset learnable parameters."""
     #     # Following original repo.
@@ -84,6 +87,7 @@ class SANLayer(torch.nn.Module):
         x_sol = torch.cat([self.W_sol[i](x) for i in range(self.J)], dim=1)
 
 
+        # Broadcast add
         # Attention map
         
         # (Ex1) + (1xE) -> (ExE)
@@ -95,26 +99,30 @@ class SANLayer(torch.nn.Module):
                                 (x_sol @ self.att_sol[self.att_slice:, :]).T)  
         
 
-        zero_vec = -9e15*torch.ones_like(E_irr)
-        E_irr = torch.where(self.Ld != 0, E_irr, zero_vec)
-        E_sol = torch.where(self.Lu != 0, E_sol, zero_vec)
+        # Consider only ones which have connections
+        MASK_D, MASK_U = Ld != 0, Lup != 0
+        E_irr[~MASK_D] = float("-1e20")
+        E_sol[~MASK_U] = float("-1e20")
+        
+       
 
-        # Broadcast add
         
         # (ExE) -> (ExE)
-        alpha_irr = F.dropout(F.softmax(
-            E_irr, dim=1), self.dropout, training=self.training) 
+        alpha_irr = F.dropout(F.softmax(E_irr, dim=-1),
+                              self.dropout,
+                              training=self.training) 
         # (ExE) -> (ExE)
-        alpha_sol = F.dropout(F.softmax(
-            E_sol, dim=1), self.dropout, training=self.training) 
+        alpha_sol = F.dropout(F.softmax(E_sol, dim=-1), 
+                              self.dropout,
+                              training=self.training) 
 
 
         
         z_i = self.W_irr[0](torch.matmul(alpha_irr, x))
         z_s = self.W_sol[0](torch.matmul(alpha_sol, x))  
         for p in range(1, self.J):
-            alpha_irr = alpha_irr @ self.Ld 
-            alpha_sol = alpha_sol @ self.Lu 
+            alpha_irr = torch.matmul(alpha_irr, Ld)
+            alpha_sol = torch.matmul(alpha_sol, Lup)
             
             # (ExE) x (ExF_out) -> (ExF_out)
             z_i = z_i + self.W_irr[p](torch.matmul(alpha_irr, x))
@@ -123,7 +131,7 @@ class SANLayer(torch.nn.Module):
 
         
         # Harmonic
-        z_har = self.W_har(torch.matmul(self.P, x))
+        z_har = self.W_har(torch.matmul(P, x))
         
         # final output
         x = (z_i + z_s + z_har)
