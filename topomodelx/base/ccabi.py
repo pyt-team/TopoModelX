@@ -142,11 +142,6 @@ class CCABI(MessagePassing):
             size=(t_message.shape[0], s_message.shape[0])
         )
 
-        # TODO: Preguntar si en la atención deberíamos usar softmax
-        # Compute the sum along dimension 1 and reshape the result
-        #e = torch.sparse.softmax(e, dim=1)
-        #f = torch.sparse.softmax(f, dim=1)"""
-
         return self.sparse_row_norm(e), self.sparse_row_norm(f)
 
     def forward(self, x_source, neighborhood, x_target=None):
