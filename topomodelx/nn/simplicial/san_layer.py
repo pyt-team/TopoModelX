@@ -91,11 +91,11 @@ class SANLayer(torch.nn.Module):
         # Attention map
         
         # (Ex1) + (1xE) -> (ExE)
-        E_irr = self.leakyrelu((x_irr @ self.att_irr[:self.att_slice, :]) + 
+        E_irr = F.leaky_relu((x_irr @ self.att_irr[:self.att_slice, :]) + 
                                 (x_irr @ self.att_irr[self.att_slice:, :]).T) 
         
         # (Ex1) + (1xE) -> (ExE) 
-        E_sol = self.leakyrelu((x_sol @ self.att_sol[:self.att_slice, :]) + 
+        E_sol = F.leaky_relu((x_sol @ self.att_sol[:self.att_slice, :]) + 
                                 (x_sol @ self.att_sol[self.att_slice:, :]).T)  
         
 
@@ -106,15 +106,12 @@ class SANLayer(torch.nn.Module):
         
        
 
-        
+        # Optional dropout
         # (ExE) -> (ExE)
-        alpha_irr = F.dropout(F.softmax(E_irr, dim=-1),
-                              self.dropout,
-                              training=self.training) 
+        alpha_irr = F.softmax(E_irr, dim=-1)
+                               
         # (ExE) -> (ExE)
-        alpha_sol = F.dropout(F.softmax(E_sol, dim=-1), 
-                              self.dropout,
-                              training=self.training) 
+        alpha_sol = F.softmax(E_sol, dim=-1) 
 
 
         
