@@ -12,14 +12,14 @@ from topomodelx.base.conv import Conv
 
 
 class CANLayer(torch.nn.Module):
-    """Layer of a Convolutional Cell Complex Network (CCXN).
+    """Layer of a Cell Attention Network (CAN).
 
-    Implementation of a simplified version of the CCXN layer proposed in [HIZ20]_.
+    Implementation of a layer with the cellular attention mechanism proposed in [GBTLSB22]_. Without attention this layer
+    uses separate weighings for the down and up Laplacian in the message passing scheme proposed in [RSH22]_
 
-    This layer is composed of two convolutional layers:
-    1. A convolutional layer sending messages from nodes to nodes.
-    2. A convolutional layer sending messages from edges to faces.
-    Optionally, attention mechanisms can be used.
+    This layer is composed of one convolutional layer with an optional attention mechanism :
+    1. Without attention the convolutional layer sends messages from edges to edges using the down and up Laplacian.
+    2. With attention the convolution layer sends messages from edges to edges with attention masked by the up and down Laplacian.
 
     Notes
     -----
@@ -27,20 +27,24 @@ class CANLayer(torch.nn.Module):
 
     References
     ----------
-    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-        https://arxiv.org/pdf/2010.00743.pdf
+    .. [GBTLSB22] Giusti et. al. Cell Attention Networks.
+        https://arxiv.org/abs/2209.08179
+    .. [RSH22] Rodenberry, Schaub, Hajij. Signal Processing on Cell Complexes.
+        ICASSP 2022 - 2022 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) 2022
+        https://arxiv.org/pdf/2110.05614.pdf
 
     Parameters
     ----------
-    in_channels_0 : int
-        Dimension of input features on nodes (0-cells).
-    in_channels_1 : int
+    channels : int
         Dimension of input features on edges (1-cells).
-    in_channels_2 : int
-        Dimension of input features on faces (2-cells).
+    activation : string
+        Activation function to apply to merged message
     att : bool
         Whether to use attention.
+    eps : float
+        Epsilon used in the attention mechanism.
+    initialization : string
+        Initialization method.
     """
 
     def __init__(
@@ -65,76 +69,118 @@ class CANLayer(torch.nn.Module):
             att=att,
             initialization=initialization,
         )
-        self.linear = nn.Linear(channels, channels, bias=False)
+        self.conv_id = Conv(
+            in_channels=channels,
+            out_channels=channels,
+            att=False,
+            initialization=initialization,
+        )
         self.aggr = Aggregation(update_func=activation)
         self.eps = eps
         self.att = att
         self.initialization = initialization
-        # Is this code for attention ok, or should I make a class for this attention layer that subclasses message passing? I ask because I'm not sure if it will be initialized consistent with the initializations already being used, and if we'd have access to reset_parameters/if that's even necessary. What's the point of the reset_parameters?
         if self.att:
             self.att_weight = Parameter(torch.Tensor(channels, 1))
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-        """Reset parameters."""
+        """Reset learnable parameters.
+
+        Parameters
+        ----------
+        gain : float
+            Gain for the weight initialization.
+        """
         self.conv_down.reset_parameters(gain=gain)
         self.conv_up.reset_parameters(gain=gain)
-        if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.linear.weight, gain=gain)
-            if self.att:
+        self.conv_id.reset_parameters(gain=gain)
+        if self.att:
+            if self.initialization == "xavier_uniform":
                 torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
-
-        elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.linear.weight, gain=gain)
-            if self.att:
+            elif self.initialization == "xavier_normal":
                 torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
-        else:
-            raise RuntimeError(
-                "Initialization method not recognized. "
-                "Should be either xavier_uniform or xavier_normal."
-            )
+            else:
+                raise RuntimeError(
+                    "Initialization method not recognized. Should be either xavier_uniform or xavier_normal."
+                )
 
-    def forward(self, x, down_laplacian, up_laplacian):
+    #         if self.initialization == "xavier_uniform":
+    #             torch.nn.init.xavier_uniform_(self.linear.weight, gain=gain)
+    #             if self.att:
+    #                 torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
+
+    #         elif self.initialization == "xavier_normal":
+    #             torch.nn.init.xavier_normal_(self.linear.weight, gain=gain)
+    #             if self.att:
+    #                 torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
+    #         else:
+    #             raise RuntimeError(
+    #                 "Initialization method not recognized. "
+    #                 "Should be either xavier_uniform or xavier_normal."
+    #             )
+
+    def forward(self, x_1, down_laplacian, up_laplacian):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [HIZ20]_.
+        The forward pass without attention was initially proposed in [RSH22]_. The forward pass with attention was proposed
+        in [GBTLSB22]
+
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
 
-        The forward pass of this layer is composed of two steps.
+        The forward pass of this layer has the following equations depending on whether attention is used.
 
-        1. The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):
+        1. Without attention: A convolution from edges to edges using the down and up laplacian to pass messages:
 
         ..  math::
             \begin{align*}
-            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
-                = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})\\
-            &🟧 \quad m_x^{(0 \rightarrow 1 \rightarrow 0)}
-                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})\\
-            &🟩 \quad m_x^{(0)}
-                = m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
-            &🟦 \quad h_x^{t+1,(0)}
-                = U^{t}(h_x^{(0)}, m_x^{(0)})
+
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}
+            = L_{\downarrow,1} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 0 \rightarrow 1)}
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}
+            = L_{\uparrow,1} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 2 \rightarrow 1)}
+            &🟥 \quad m_{x \rightarrow x}^{(1 \rightarrow 1)}
+            = h_x^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 1)}
+            &🟧 \quad m_x^{(1 \rightarrow 0 \rightarrow 1)}
+            = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}
+            &🟧 \quad m_x^{(1 \rightarrow 2 \rightarrow 1)}
+            = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}
+            &🟩: \quad m_x^{(1)}
+            = m_x^{(1 \rightarrow 0 \rightarrow 1)} + m_{x \rightarrow x}^{(1 \rightarrow 1)} +m_x^{(1 \rightarrow 2 \rightarrow 1)}
+            &🟦 \quad h_x^{t+1,(1)}
+            = \sigma(m_{x}^{(1)})
             \end{align*}
 
-        2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
+        2. With Attention: A convolution from edges to edges using an attention mechanism masked by the down and up Laplacians:
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{y \rightarrow x}^{(r' \rightarrow r)}
-                = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)\\
-            &🟧 \quad m_x^{(r' \rightarrow r)}
-                = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}\\
-            &🟩 \quad m_x^{(r)}
-                = m_x^{(r' \rightarrow r)}\\
-            &🟦 \quad h_{x}^{t+1,(r)}
-                = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}
+            = (L_{\uparrow,1} \odot att(h_{y \in \mathcal{L}\uparrow(x)}^{t,(1)}, h_x^{t,(1)}))_{xy} \cdot h_y^{t,(1)} \cdot
+            \Theta^{t,(1 \rightarrow 2 \rightarrow 1)}
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}
+            = (L_{\downarrow,1} \odot att(h_{y \in \mathcal{L}\downarrow(x)}^{t,(1)}, h_x^{t,(1)}))_{xy} \cdot h_y^{t,(1)} \cdot
+            \Theta^{t,(1 \rightarrow 0 \rightarrow 1)}
+            &🟥 \quad m^{(1 \rightarrow 1)}_{x \rightarrow x}
+            = (1+\epsilon)\cdot h_x^{t, (1)} \cdot \Theta^{t,(1 \rightarrow 1)}
+            &🟧 \quad m_{x}^{(1 \rightarrow 2 \rightarrow 1)}
+            = \sum_{y \in \mathcal{L}_\uparrow(x)}m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}
+            &🟧 \quad m_{x}^{(1 \rightarrow 0 \rightarrow 1)}
+            = \sum_{y \in \mathcal{L}_\downarrow(x)}m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}
+            &🟧 \quad m^{(1 \rightarrow 1)}_{x}
+            = m^{(1 \rightarrow 1)}_{x \rightarrow x}
+            &🟩 \quad m_x^{(1)}
+            = m_x^{(1 \rightarrow 1)} + m_{x}^{(1 \rightarrow 2 \rightarrow 1)} + m_{x}^{(1 \rightarrow 0 \rightarrow 1)}
+            &🟦 \quad h_x^{t+1, (1)}
+            = \sigma(\theta_{att} \cdot m_x^{(1)})\cdot \sigma(m_x^{(1)})
             \end{align*}
 
         References
         ----------
-        .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-            Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-            https://arxiv.org/pdf/2010.00743.pdf
+        .. [GBTLSB22] Giusti et. al. Cell Attention Networks.
+            https://arxiv.org/abs/2209.08179
+        .. [RSH22] Rodenberry, Schaub, Hajij. Signal Processing on Cell Complexes.
+            ICASSP 2022 - 2022 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) 2022
+            https://arxiv.org/pdf/2110.05614.pdf
         .. [TNN23] Equations of Topological Neural Networks.
             https://github.com/awesome-tnns/awesome-tnns/
         .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
@@ -143,34 +189,31 @@ class CANLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_0_cells, channels]
-            Input features on the nodes of the cell complex.
         x_1 : torch.Tensor, shape=[n_1_cells, channels]
             Input features on the edges of the cell complex.
-        neighborhood_0_to_0 : torch.sparse
-            shape=[n_0_cells, n_0_cells]
-            Neighborhood matrix mapping nodes to nodes (A_0_up).
-        neighborhood_1_to_2 : torch.sparse
-            shape=[n_2_cells, n_1_cells]
-            Neighborhood matrix mapping edges to faces (B_2^T).
-        x_2 : torch.Tensor, shape=[n_2_cells, channels]
-            Input features on the faces of the cell complex.
-            Optional, only required if attention is used between edge s and faces.
+        down_laplacian : torch.sparse
+            shape=[n_1_cells, n_1_cells]
+            Neighborhood matrix mapping edges to edges (L_down_1).
+        up_laplacian : torch.sparse
+            shape=[n_1_cells, n_1_cells]
+            Neighborhood matrix mapping edges to edges (L_up_1).
 
         Returns
         -------
-        _ : torch.Tensor, shape=[1, num_classes]
-            Output prediction on the entire cell complex.
+        x_1 : torch.Tensor, shape=[n_1_cells, channels]
+            Output features on the edges of the cell complex.
         """
         # I don't think that the attention mechanism normalizes the attention coefficients should this be fixed? Ask the organizers
-        x_down = self.conv_down(x, down_laplacian)
-        x_up = self.conv_up(x, up_laplacian)
-        x_id = (1 + self.eps * int(self.att)) * self.linear(x)
+        x_down = self.conv_down(x_1, down_laplacian)
+        x_up = self.conv_up(x_1, up_laplacian)
+        x_id = (1 + self.eps * int(self.att)) * self.conv_id(
+            x_1, torch.eye(x_1.shape[0]).to_sparse()
+        )
 
         # The tensor diagram says to apply the non-linearities and then sum, whereas the paper sums then applies the non-linearity. I followed the paper here as that seems to make more sense and generalized the rodenberry paper.
-        x = self.aggr([x_down, x_up, x_id])
+        x_1 = self.aggr([x_down, x_up, x_id])
 
         # More attention coefficients are introduced in the CAN paper. I use ELU for them because the attention mechanism in message-passing uses ELU.
         if self.att:
-            x = x * torch.nn.functional.elu(torch.mm(x, self.att_weight))
-        return x
+            x_1 = x_1 * torch.nn.functional.elu(torch.mm(x_1, self.att_weight))
+        return x_1
