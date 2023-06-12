@@ -44,14 +44,19 @@ class SANLayer(torch.nn.Module):
                                     out_features=self.channels_out)
         
         # Attention
-        self.att_irr = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
-        self.att_sol = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
-
-        # Summation
-        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func=None)
-
-        self.bin_mask_Lu = None
-        self.bin_mask_Ld = None
+        self.att_irr = torch.nn.Parameter(
+                torch.Tensor(2 * self.att_slice, 1)
+            )
+        
+        self.att_sol = torch.nn.Parameter(
+                torch.Tensor(2 * self.att_slice, 1)
+            )
+        
+        # self.att_irr = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
+        # self.att_sol = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
+        
+        # self.bin_mask_Lu = None
+        # self.bin_mask_Ld = None
 
     # def reset_parameters(self):
     #     r"""Reset learnable parameters."""
@@ -60,8 +65,6 @@ class SANLayer(torch.nn.Module):
     #     torch.nn.init.xavier_uniform_(self.conv_down.weight, gain=gain)
     #     torch.nn.init.xavier_uniform_(self.conv_up.weight, gain=gain)
         
-        
-
     def forward(self, x, Lup, Ld, P):
         r"""Forward pass.
 
@@ -103,8 +106,6 @@ class SANLayer(torch.nn.Module):
         MASK_D, MASK_U = Ld != 0, Lup != 0
         E_irr[~MASK_D] = float("-1e20")
         E_sol[~MASK_U] = float("-1e20")
-        
-       
 
         # Optional dropout
         # (ExE) -> (ExE)
