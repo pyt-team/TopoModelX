@@ -4,9 +4,9 @@ import torch
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from scipy.sparse import coo_matrix
+from multiprocessing import Pool
 
 from topomodelx.base.message_passing import MessagePassing
-
 
 class CCABA(MessagePassing):
 
@@ -35,43 +35,39 @@ class CCABA(MessagePassing):
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
+        #TODO: (+efficiency) We are going through the same range in each of the init
         self.weight = torch.nn.ParameterList([Parameter(torch.Tensor(self.source_in_channels, self.source_out_channels))
                                               for _ in range(self.m_hop)])
-
-        # Add a list of parameters
         self.att_weight = torch.nn.ParameterList([Parameter(torch.Tensor(2 * self.source_out_channels, 1))
+
                                                   for _ in range(self.m_hop)])
         self.negative_slope = negative_slope
         self.softmax = softmax
 
         self.reset_parameters()
 
-    def attention(self, message):
-
-        n_messages = message[0].shape[0]
-
-        s_to_s = [torch.cat([message[p][self.source_index_i[p]], message[p][self.source_index_j[p]]], dim=1) for p in range(1, self.m_hop + 1)]
-
-        e_p = [
-            torch.sparse_coo_tensor(
-                indices=torch.tensor([self.source_index_i[p].tolist(), self.source_index_j[p].tolist()]),
-                values=F.leaky_relu(torch.matmul(s_to_s[p], self.att_weight[p]),
+    def attention(self, message, A_p, a_p):
+        n_messages = message.shape[0]
+        source_index_i, source_index_j = A_p.indices()
+        s_to_s = torch.cat([message[source_index_i], message[source_index_j]], dim=1)
+        e_p = torch.sparse_coo_tensor(
+                indices=torch.tensor([source_index_i.tolist(), source_index_j.tolist()]),
+                values=F.leaky_relu(torch.matmul(s_to_s, a_p),
                                     negative_slope=self.negative_slope).squeeze(1),
                 size=(n_messages, n_messages)
-            ) for p in range(1, self.m_hop + 1)
-        ]
-
-        att_p = [torch.sparse.softmax(e, dim=1) if self.softmax else self.sparse_row_norm(e) for e in e_p]
-
+        )
+        att_p = torch.sparse.softmax(e_p, dim=1) if self.softmax else self.sparse_row_norm(e_p)
         return att_p
 
+
+    #TODO: parallelize
+    #TODO: test
     def forward(self, x_source, neighborhood):
         """Forward pass.
 
         This implements message passing:
         - from source cells with input features `x_source`,
         - via `neighborhood` defining where messages can pass,
-        - to target cells with input features `x_target`.
 
         In practice, this will update the features on the target cells.
 
@@ -85,11 +81,6 @@ class CCABA(MessagePassing):
             Assumes that all source cells have the same rank r.
         neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
             Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
 
         Returns
         -------
@@ -98,28 +89,25 @@ class CCABA(MessagePassing):
             Assumes that all target cells have the same rank s.
         """
 
-        message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
+        message = [torch.mm(x_source,w) for w in self.weight] # [m-hop, n_source_cells, d_t_out]
+        result = torch.eye(x_source.shape[0])
+        neighborhood = [result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)]
 
-        neighborhood = neighborhood.coalesce()
+        #TODO: parallelize?
+        #with Pool() as pool:
+            #att_p = pool.map(self.attention, message)
 
-        self.source_index_i = []
-        self.source_index_j = []
+        att = list(map(self.attention, message, neighborhood, self.att_weight))
 
-        for p in range(self.m_hop):
-            neighborhood = torch.sparse.mm(neighborhood, neighborhood)
-            source_index_i, source_index_j = neighborhood.indices()
-            self.source_index_i.append(source_index_i)
-            self.source_index_j.append(source_index_j)
+        def sparse_hadamard(A_p, att_p):
+            return torch.sparse_coo_tensor(
+                indices = A_p.indices(),
+                values =att_p.values() * A_p.values(),
+                size = A_p.shape,
+            )
 
-        attention = self.attention(message)
-
-        neighborhood = torch.sparse_coo_tensor(
-            indices=neighborhood.indices(),
-            values=attention.values() * neighborhood.values(),
-            size=neighborhood.shape,
-        )
-
-        message = torch.mm(neighborhood, message)
+        neighborhood = [sparse_hadamard(A_p, att_p) for A_p, att_p in zip(neighborhood, att)]
+        message = sum([torch.mm(n_p, m_p) for n_p , m_p in zip(neighborhood, message)])
 
         return self.update(message)
 
@@ -149,3 +137,88 @@ class CCABA(MessagePassing):
         values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
         sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
         return sparse_tensor.coalesce()
+
+
+#TRASH CODE
+"""
+    def forward(self, x_source, neighborhood):
+        Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
+
+        Parameters
+        ----------
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
+       
+
+        message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
+
+        neighborhood = neighborhood.coalesce()
+
+        self.source_index_i = []
+        self.source_index_j = []
+
+        for p in range(self.m_hop):
+            neighborhood = torch.sparse.mm(neighborhood, neighborhood)
+            source_index_i, source_index_j = neighborhood._indices()
+            self.source_index_i.append(source_index_i)
+            self.source_index_j.append(source_index_j)
+        
+        att_p = [self.attention(m,) for m in message]
+        
+        attention = self.attention(message)
+
+        neighborhood = [torch.sparse_coo_tensor(
+            indices=neighborhood.indices(),
+            values=attention[p].values() * neighborhood.values(),
+            size=neighborhood.shape,
+        ) for p in range(self.m_hop)]
+
+        
+        message = torch.mm(neighborhood, message)
+
+        return self.update(message)
+"""
+
+"""
+   def attention(self, message):
+
+       n_messages = message[0].shape[0]
+
+       s_to_s = [torch.cat([message[p][self.source_index_i[p]], message[p][self.source_index_j[p]]], dim=1) for p in range(1, self.m_hop + 1)]
+
+       e_p = [
+           torch.sparse_coo_tensor(
+               indices=torch.tensor([self.source_index_i[p].tolist(), self.source_index_j[p].tolist()]),
+               values=F.leaky_relu(torch.matmul(s_to_s[p], self.att_weight[p]),
+                                   negative_slope=self.negative_slope).squeeze(1),
+               size=(n_messages, n_messages)
+           ) for p in range(1, self.m_hop + 1)
+       ]
+
+       att_p = [torch.sparse.softmax(e, dim=1) if self.softmax else self.sparse_row_norm(e) for e in e_p]
+
+       return att_p"""
