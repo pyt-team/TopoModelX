@@ -14,10 +14,10 @@ class TestCCABI:
         self.d_t_in, self.d_t_out = 3, 4
 
         self.ccabi = CCABI(
-            d_s_in=self.d_s_in,
-            d_s_out=self.d_s_out,
-            d_t_in=self.d_t_in,
-            d_t_out=self.d_t_out,
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
             negative_slope=0.2,
             aggr_norm=True,
             update_func="sigmoid",

@@ -12,9 +12,11 @@ class CCABA(MessagePassing):
 
     def __init__(
             self,
-            d_s_in,
-            d_s_out,
+            source_in_channels,
+            source_out_channels,
             negative_slope,
+            softmax=False,
+            m_hop=1,
             aggr_norm=False,
             update_func=None,
             initialization="xavier_uniform",
@@ -25,37 +27,45 @@ class CCABA(MessagePassing):
             initialization=initialization,
         )
 
-        self.d_s_in = d_s_in
-        self.d_s_out = d_s_out
+        self.source_in_channels = source_in_channels
+        self.source_out_channels = source_out_channels
+
+        self.m_hop = m_hop
 
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
-        self.weight = Parameter(torch.Tensor(self.d_s_in, self.d_s_out))
+        self.weight = torch.nn.ParameterList([Parameter(torch.Tensor(self.source_in_channels, self.source_out_channels))
+                                              for _ in range(self.m_hop)])
 
-        self.att_weight = Parameter(torch.Tensor(2*self.d_s_out, 1))
+        # Add a list of parameters
+        self.att_weight = torch.nn.ParameterList([Parameter(torch.Tensor(2 * self.source_out_channels, 1))
+                                                  for _ in range(self.m_hop)])
         self.negative_slope = negative_slope
+        self.softmax = softmax
 
         self.reset_parameters()
 
-    def attention(self, x_source, x_target=None):  # TODO: Arreglar declaración de parámetros
+    def attention(self, message):
 
-        message = x_source
-        n_messages = message.shape[0]
+        n_messages = message[0].shape[0]
 
-        s_to_s = torch.cat(
-            [message[self.source_index_i], message[self.source_index_j]], dim=1
-        )
+        s_to_s = [torch.cat([message[p][self.source_index_i[p]], message[p][self.source_index_j[p]]], dim=1) for p in range(1, self.m_hop + 1)]
 
-        e = torch.sparse_coo_tensor(
-            indices=torch.tensor([self.source_index_i.tolist(), self.source_index_j.tolist()]),
-            values=F.leaky_relu(torch.matmul(s_to_s, self.att_weight), negative_slope=self.negative_slope).squeeze(1),
-            size=(n_messages, n_messages)
-        )
+        e_p = [
+            torch.sparse_coo_tensor(
+                indices=torch.tensor([self.source_index_i[p].tolist(), self.source_index_j[p].tolist()]),
+                values=F.leaky_relu(torch.matmul(s_to_s[p], self.att_weight[p]),
+                                    negative_slope=self.negative_slope).squeeze(1),
+                size=(n_messages, n_messages)
+            ) for p in range(1, self.m_hop + 1)
+        ]
 
-        return self.sparse_row_norm(e)
+        att_p = [torch.sparse.softmax(e, dim=1) if self.softmax else self.sparse_row_norm(e) for e in e_p]
 
-    def forward(self, x_source, neighborhood, x_target=None):
+        return att_p
+
+    def forward(self, x_source, neighborhood):
         """Forward pass.
 
         This implements message passing:
@@ -88,29 +98,52 @@ class CCABA(MessagePassing):
             Assumes that all target cells have the same rank s.
         """
 
-        message = torch.mm(x_source, self.weight)  # [n_source_cells, d_t_out]
+        message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
 
         neighborhood = neighborhood.coalesce()
 
-        self.source_index_i, self.source_index_j = neighborhood.indices()
+        self.source_index_i = []
+        self.source_index_j = []
+
+        for p in range(self.m_hop):
+            neighborhood = torch.sparse.mm(neighborhood, neighborhood)
+            source_index_i, source_index_j = neighborhood.indices()
+            self.source_index_i.append(source_index_i)
+            self.source_index_j.append(source_index_j)
 
         attention = self.attention(message)
 
         neighborhood = torch.sparse_coo_tensor(
             indices=neighborhood.indices(),
-            values= attention.values() * neighborhood.values(),
+            values=attention.values() * neighborhood.values(),
             size=neighborhood.shape,
         )
 
         message = torch.mm(neighborhood, message)
 
+        return self.update(message)
+
+    def update(self, message):
+        """Update embeddings on each cell (step 4).
+
+        Parameters
+        ----------
+        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
+            Output features on target cells.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+            Updated output features on target cells.
+        """
         if self.update_func == "sigmoid":
-            message = torch.sigmoid(message)
-        elif self.update_func == "relu":
-            message = F.relu(message)
+            return torch.sigmoid(message)
+        if self.update_func == "relu":
+            return torch.nn.functional.relu(message)
 
-        return message
-
+    # TODO This code fragment is repeated in the classes CCABI and CCABA and should be placed in a utils
+    # class. However, as we do not want to change the internal implementation of the TopoModelX library for the
+    # challenge, we leave the code fragment duplicated.
     def sparse_row_norm(self, sparse_tensor):
         row_sum = torch.sparse.sum(sparse_tensor, dim=1)
         values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]

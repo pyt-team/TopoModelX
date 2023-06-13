@@ -33,11 +33,12 @@ class CCABI(MessagePassing):
 
     def __init__(
             self,
-            d_s_in,
-            d_s_out,
-            d_t_in,
-            d_t_out,
+            source_in_channels,
+            source_out_channels,
+            target_in_channels,
+            target_out_channels,
             negative_slope,
+            softmax=False,  # TODO implementar
             aggr_norm=False,
             update_func=None,
             initialization="xavier_uniform",
@@ -47,17 +48,19 @@ class CCABI(MessagePassing):
             initialization=initialization,
         )
 
-        self.d_s_in, self.d_s_out = d_s_in, d_s_out
-        self.d_t_in, self.d_t_out = d_t_in, d_t_out
+        self.source_in_channels, self.source_out_channels = source_in_channels, source_out_channels
+        self.target_in_channels, self.target_out_channels = target_in_channels, target_out_channels
 
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
-        self.w_s = Parameter(torch.Tensor(self.d_s_in, self.d_t_out))
-        self.w_t = Parameter(torch.Tensor(self.d_t_in, self.d_s_out))
+        self.w_s = Parameter(torch.Tensor(self.source_in_channels, self.target_out_channels))
+        self.w_t = Parameter(torch.Tensor(self.target_in_channels, self.source_out_channels))
 
-        self.att_weight = Parameter(torch.Tensor(self.d_t_out + self.d_s_out, 1))
+        self.att_weight = Parameter(torch.Tensor(self.target_out_channels + self.source_out_channels, 1))
         self.negative_slope = negative_slope
+
+        self.softmax = softmax
 
         self.reset_parameters()
 
@@ -77,22 +80,29 @@ class CCABI(MessagePassing):
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.w_s, gain=gain)
             torch.nn.init.xavier_uniform_(self.w_t, gain=gain)
-
-            if self.att:
-                torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
 
         elif self.initialization == "xavier_normal":
             torch.nn.init.xavier_normal_(self.w_s, gain=gain)
             torch.nn.init.xavier_normal_(self.w_t, gain=gain)
-            if self.att:
-                torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
         else:
             raise RuntimeError(
                 "Initialization method not recognized. "
                 "Should be either xavier_uniform or xavier_normal."
             )
 
-    def attention(self, x_source, x_target=None):  # TODO: Arreglar declaración de parámetros
+    def update(self, message_on_source, message_on_target):
+        if self.update_func == "sigmoid":
+            message_on_source = torch.sigmoid(message_on_source)
+            message_on_target = torch.sigmoid(message_on_target)
+        elif self.update_func == "relu":
+            message_on_source = torch.nn.functional.relu(message_on_source)
+            message_on_target = torch.nn.functional.relu(message_on_target)
+
+        return message_on_source, message_on_target
+
+    def attention(self, s_message, t_message):
         """Compute attention weights for messages.
 
         This provides a default attention function to the message passing scheme.
@@ -117,9 +127,6 @@ class CCABI(MessagePassing):
             Attention weights: one scalar per message between a source and a target cell.
         """
 
-        s_message = x_source
-        t_message = x_target
-
         s_to_t = torch.cat(
             [s_message[self.source_index_i], t_message[self.target_index_j]], dim=1
         )
@@ -137,14 +144,16 @@ class CCABI(MessagePassing):
         f = torch.sparse_coo_tensor(
             indices=torch.tensor([self.target_index_i.tolist(), self.source_index_j.tolist()]),
             values=F.leaky_relu(
-                torch.matmul(t_to_s, torch.cat([self.att_weight[self.d_t_out:], self.att_weight[:self.d_t_out]])),
+                torch.matmul(t_to_s, torch.cat(
+                    [self.att_weight[self.target_out_channels:], self.att_weight[:self.target_out_channels]])),
                 negative_slope=self.negative_slope).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0])
         )
-
+        if self.softmax:
+            return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
         return self.sparse_row_norm(e), self.sparse_row_norm(f)
 
-    def forward(self, x_source, neighborhood, x_target=None):
+    def forward(self, x_source, x_target, neighborhood):
         """Forward pass.
 
         This implements message passing:
@@ -180,7 +189,7 @@ class CCABI(MessagePassing):
         s_message = torch.mm(x_source, self.w_s)  # [n_source_cells, d_t_out]
         t_message = torch.mm(x_target, self.w_t)  # [n_target_cells, d_s_out]
 
-        neighborhood_s = neighborhood.coalesce()  # TODO: Qué hace coalesce
+        neighborhood_s = neighborhood.coalesce()
         neighborhood_t = neighborhood.t().coalesce()
 
         self.source_index_i, self.target_index_j = neighborhood_s.indices()
@@ -203,14 +212,10 @@ class CCABI(MessagePassing):
         message_on_source = torch.mm(neighborhood_s_t, t_message)
         message_on_target = torch.mm(neighborhood_t_s, s_message)
 
-        if self.update_func == "sigmoid":
-            message_on_target = torch.sigmoid(message_on_target)
-            message_on_source = torch.sigmoid(message_on_source)
-        elif self.update_func == "relu":
-            message_on_target = torch.nn.functional.relu(message_on_target)
-            message_on_source = torch.nn.functional.relu(message_on_source)
+        if self.update_func is None:
+            return message_on_source, message_on_target
 
-        return message_on_source, message_on_target
+        return self.update(message_on_source, message_on_target)
 
     def sparse_row_norm(self, sparse_tensor):
         row_sum = torch.sparse.sum(sparse_tensor, dim=1)

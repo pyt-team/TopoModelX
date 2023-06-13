@@ -13,8 +13,8 @@ class TestCCABA:
         self.d_s_in, self.d_s_out = 2, 3
 
         self.ccaba = CCABA(
-            d_s_in=self.d_s_in,
-            d_s_out=self.d_s_out,
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
             negative_slope=0.2,
             aggr_norm=True,
             update_func="sigmoid",
