@@ -2,30 +2,30 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.template_layer import TemplateLayer
+from topomodelx.nn.hypergraph.allset_layer import AllSetLayer
 
 
-class TestTemplateLayer:
+class TestAllSetLayer:
     """Test the template layer."""
 
     @pytest.fixture
-    def template_layer(self):
+    def allset_layer(self):
         """Return a template layer."""
-        in_channels = 10
-        intermediate_channels = 20
-        out_channels = 30
-        return TemplateLayer(in_channels, intermediate_channels, out_channels)
+        in_dim = 10
+        hid_dim = 20
+        out_him = 30
+        return TestAllSetLayer(in_dim, hid_dim, out_him)
 
-    def test_forward(self, template_layer):
+    def test_forward(self, allset_layer):
         """Test the forward pass of the template layer."""
-        x_2 = torch.randn(3, 10)
-        incidence_2 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
-        output = template_layer.forward(x_2, incidence_2)
+        x_0 = torch.randn(3, 10)
+        incidence_1 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
+        output = allset_layer.forward(x_0, incidence_1)
         assert output.shape == (3, 30)
 
-    def test_forward_with_invalid_input(self, template_layer):
+    def test_forward_with_invalid_input(self, allset_layer):
         """Test the forward pass of the template layer with invalid input."""
-        x_2 = torch.randn(4, 10)
-        incidence_2 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
+        x_0 = torch.randn(4, 10)
+        incidence_1 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
         with pytest.raises(ValueError):
-            template_layer.forward(x_2, incidence_2)
+            allset_layer.forward(x_0, incidence_1)

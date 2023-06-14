@@ -214,7 +214,7 @@ class AllSetLayer(nn.Module):
     """
 
     def __init__(self, in_dim, hid_dim, out_dim,
-                 dropout,
+                 dropout=0.2,
                  input_dropout=0.2,
                  mlp_num_layers=2,
                  mlp_input_norm=False,
