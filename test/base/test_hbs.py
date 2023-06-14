@@ -1,4 +1,5 @@
 """Test the convolutional layers in the base module."""
+import math
 
 import torch
 
@@ -26,13 +27,13 @@ class TestHBS:
         self.n_source_cells = 10
 
         self.neighborhood = torch.sparse_coo_tensor(
-            indices=torch.tensor([[0, 1, 1, 2, 9],[3, 7, 9, 2, 5]]),
+            indices=torch.tensor([[0, 1, 1, 2, 9], [3, 7, 9, 2, 5]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
-            size=(10,10),
+            size=(10, 10),
             dtype=torch.float
         )
 
-    def test_forward(self):
+    def test_forward_shape(self):
         """Test the forward pass of the message passing convolution layer."""
         x_source = torch.tensor(
             [
@@ -52,6 +53,117 @@ class TestHBS:
         result = self.hbs.forward(x_source, self.neighborhood)
 
         assert result.shape == (self.n_source_cells, self.d_s_out)
+
+    def test_attention_without_softmax(self):
+        self.neighborhood = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 1, 1, 2, 2], [1, 2, 0, 2, 0, 1]]),
+            values=torch.tensor([1, 1, 1, 1, 1, 1]),
+            size=(3, 3),
+            dtype=torch.float
+        )
+        self.d_s_out = 2
+        self.hbs = HBS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            negative_slope=0.2,
+            softmax=False,
+            m_hop=1,
+            aggr_norm=True,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
+        # Set all weights and parameters to 1.0
+        for w, a in zip(self.hbs.weight, self.hbs.att_weight):
+            torch.nn.init.constant_(w, 1.0)
+            torch.nn.init.constant_(a, 1.0)
+        # Create the message that will be used for the attention.
+        message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+        # Calculate the attention matrix.
+        attention_matrix = self.hbs.attention(message, self.neighborhood, self.hbs.att_weight[0]).to_dense()
+        # Create the expected attention matrix. The values have been calculated by hand.
+        expected_attention_matrix = self.neighborhood.to_dense() * torch.tensor(
+            [
+                [6.0 / 24.0, 10.0 / 24.0, 14.0 / 24.0],
+                [10.0 / 28.0, 14.0 / 28.0, 18.0 / 28.0],
+                [14.0 / 32.0, 18.0 / 32.0, 22.0 / 32.0]
+            ],
+            dtype=torch.float
+        )
+        # Compare the two attention matrices.
+        assert torch.allclose(attention_matrix, expected_attention_matrix)
+
+    def test_attention_with_softmax(self):
+        self.neighborhood = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 1, 1, 2, 2], [1, 2, 0, 2, 0, 1]]),
+            values=torch.tensor([1, 1, 1, 1, 1, 1]),
+            size=(3, 3),
+            dtype=torch.float
+        )
+        self.d_s_out = 2
+        self.hbs = HBS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            negative_slope=0.2,
+            softmax=True,
+            m_hop=1,
+            aggr_norm=True,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
+        # Set all weights and parameters to 1.0
+        for w, a in zip(self.hbs.weight, self.hbs.att_weight):
+            torch.nn.init.constant_(w, 1.0)
+            torch.nn.init.constant_(a, 1.0)
+        # Create the message that will be used for the attention.
+        message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+        # Calculate the attention matrix.
+        attention_matrix = self.hbs.attention(message, self.neighborhood, self.hbs.att_weight[0]).to_dense()
+        # Create the expected attention matrix. The values have been calculated by hand.
+        expected_attention_matrix_wo_softmax_nor_product = torch.tensor(
+            [
+                [6.0, 10.0, 14.0],
+                [10.0, 14.0, 18.0],
+                [14.0, 18.0, 22.0]
+            ],
+            dtype=torch.float
+        )
+        expected_attention_wo_product = torch.exp(expected_attention_matrix_wo_softmax_nor_product)
+        row_normalization_denominator = torch.tensor([1.0 / (math.exp(10.0) + math.exp(14.0)),
+                                                      1.0 / (math.exp(10.0) + math.exp(18.0)),
+                                                      1.0 / (math.exp(14.0) + math.exp(18.0))])
+        expected_attention_wo_product = (expected_attention_wo_product.T * row_normalization_denominator).T
+        expected_attention_matrix = self.neighborhood.to_dense() * expected_attention_wo_product
+        # Compare the two attention matrices.
+        assert torch.allclose(attention_matrix, expected_attention_matrix)
+
+    def test_forward_values(self):
+        self.neighborhood = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 1, 1, 2, 2], [1, 2, 0, 2, 0, 1]]),
+            values=torch.tensor([1, 1, 1, 1, 1, 1]),
+            size=(3, 3),
+            dtype=torch.float
+        )
+        self.hbs = HBS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            negative_slope=0.2,
+            softmax=True,
+            m_hop=1,
+            aggr_norm=True,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
+        # Set all weights and parameters to 1.0
+        for w, a in zip(self.hbs.weight, self.hbs.att_weight):
+            torch.nn.init.constant_(w, 1.0)
+            torch.nn.init.constant_(a, 1.0)
+        x_source = torch.tensor(
+            [[1, 2],
+            [3, 4],
+            [5, 6]], dtype=torch.float
+        )
+
+        result = self.hbs.forward(x_source, self.neighborhood)
 
     """
         def test_attention(self):
