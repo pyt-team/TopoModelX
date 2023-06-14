@@ -3,8 +3,8 @@ import toponetx as tnx
 from topomodelx.base.aggregation import Aggregation
 from typing import List
 
-from topomodelx.base.ccaba import CCABA
-from topomodelx.base.ccabi import CCABI
+from topomodelx.base.hbs import HBS
+from topomodelx.base.hbns import HBNS
 
 
 class HMCLayer(torch.nn.Module):
@@ -17,41 +17,41 @@ class HMCLayer(torch.nn.Module):
         intermediate_channels_0, intermediate_channels_1, intermediate_channels_2 = intermediate_channels
         out_channels_0, out_channels_1, out_channels_2 = out_channels
 
-        self.conv_level1_0_to_0 = CCABA(source_in_channels=in_channels_0, source_out_channels=intermediate_channels_0,
+        self.conv_level1_0_to_0 = HBS(source_in_channels=in_channels_0, source_out_channels=intermediate_channels_0,
+                                      negative_slope=negative_slope, softmax=softmax_attention,
+                                      update_func=update_func_attention, initialization=initialization)
+        self.conv_level1_0_and_1 = HBNS(source_in_channels=in_channels_0,
+                                        source_out_channels=intermediate_channels_0,
+                                        target_in_channels=in_channels_1,
+                                        target_out_channels=intermediate_channels_1,
+                                        negative_slope=negative_slope, softmax=softmax_attention, update_func=update_func_attention, initialization=initialization)
+        self.conv_level1_1_and_2 = HBNS(source_in_channels=in_channels_1,
+                                        source_out_channels=intermediate_channels_1,
+                                        target_in_channels=in_channels_2,
+                                        target_out_channels=intermediate_channels_2,
                                         negative_slope=negative_slope, softmax=softmax_attention,
                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level1_0_and_1 = CCABI(source_in_channels=in_channels_0,
-                                         source_out_channels=intermediate_channels_0,
-                                         target_in_channels=in_channels_1,
-                                         target_out_channels=intermediate_channels_1,
-                                         negative_slope=negative_slope, softmax=softmax_attention, update_func=update_func_attention, initialization=initialization)
-        self.conv_level1_1_and_2 = CCABI(source_in_channels=in_channels_1,
-                                         source_out_channels=intermediate_channels_1,
-                                         target_in_channels=in_channels_2,
-                                         target_out_channels=intermediate_channels_2,
-                                         negative_slope=negative_slope, softmax=softmax_attention,
-                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level2_0_to_0 = CCABA(source_in_channels=intermediate_channels_0, source_out_channels=out_channels_0,
+        self.conv_level2_0_to_0 = HBS(source_in_channels=intermediate_channels_0, source_out_channels=out_channels_0,
+                                      negative_slope=negative_slope, softmax=softmax_attention,
+                                      update_func=update_func_attention, initialization=initialization)
+        self.conv_level2_0_and_1 = HBNS(source_in_channels=intermediate_channels_0,
+                                        source_out_channels=out_channels_0,
+                                        target_in_channels=intermediate_channels_1,
+                                        target_out_channels=out_channels_1,
                                         negative_slope=negative_slope, softmax=softmax_attention,
                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level2_0_and_1 = CCABI(source_in_channels=intermediate_channels_0,
-                                         source_out_channels=out_channels_0,
-                                         target_in_channels=intermediate_channels_1,
-                                         target_out_channels=out_channels_1,
-                                         negative_slope=negative_slope, softmax=softmax_attention,
-                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level2_1_to_1 = CCABA(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
+        self.conv_level2_1_to_1 = HBS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
+                                      negative_slope=negative_slope, softmax=softmax_attention,
+                                      update_func=update_func_attention, initialization=initialization)
+        self.conv_level2_1_and_2 = HBNS(source_in_channels=intermediate_channels_1,
+                                        source_out_channels=out_channels_1,
+                                        target_in_channels=intermediate_channels_2,
+                                        target_out_channels=out_channels_2,
                                         negative_slope=negative_slope, softmax=softmax_attention,
                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level2_1_and_2 = CCABI(source_in_channels=intermediate_channels_1,
-                                         source_out_channels=out_channels_1,
-                                         target_in_channels=intermediate_channels_2,
-                                         target_out_channels=out_channels_2,
-                                         negative_slope=negative_slope, softmax=softmax_attention,
-                                         update_func=update_func_attention, initialization=initialization)
-        self.conv_level2_2_to_2 = CCABA(source_in_channels=intermediate_channels_2, source_out_channels=out_channels_2,
-                                        negative_slope=negative_slope, softmax=softmax_attention,
-                                        update_func=update_func_attention, initialization=initialization)
+        self.conv_level2_2_to_2 = HBS(source_in_channels=intermediate_channels_2, source_out_channels=out_channels_2,
+                                      negative_slope=negative_slope, softmax=softmax_attention,
+                                      update_func=update_func_attention, initialization=initialization)
 
         self.aggr = Aggregation(aggr_func="sum", update_func=update_func_aggregation)
 

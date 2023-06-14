@@ -8,7 +8,7 @@ from scipy.sparse import coo_matrix
 from topomodelx.base.message_passing import MessagePassing
 
 
-class CCABI(MessagePassing):
+class HBNS(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
     Builds the message passing route given by one neighborhood matrix.
@@ -149,9 +149,9 @@ class CCABI(MessagePassing):
                 negative_slope=self.negative_slope).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0])
         )
-        if self.softmax:
-            return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
-        return self.sparse_row_norm(e), self.sparse_row_norm(f)
+
+        return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1) if self.softmax else self.sparse_row_norm(e), self.sparse_row_norm(f)
+
 
     def forward(self, x_source, x_target, neighborhood):
         """Forward pass.

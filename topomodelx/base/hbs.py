@@ -10,7 +10,7 @@ from multiprocessing import Pool
 from topomodelx.base.message_passing import MessagePassing
 
 
-class CCABA(MessagePassing):
+class HBS(MessagePassing):
 
     def __init__(
             self,
@@ -120,8 +120,6 @@ class CCABA(MessagePassing):
 
         message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
         result = torch.eye(x_source.shape[0]).to_sparse_coo()
-        print(type(neighborhood))
-        print(type(result))
         neighborhood = [result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)]
 
         # TODO: parallelize?
