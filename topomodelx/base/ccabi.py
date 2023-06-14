@@ -39,7 +39,7 @@ class CCABI(MessagePassing):
             target_out_channels,
             negative_slope,
             softmax=False,  # TODO implementar
-            aggr_norm=False,
+            aggr_norm=False, # Todo quizá quitar
             update_func=None,
             initialization="xavier_uniform",
     ):

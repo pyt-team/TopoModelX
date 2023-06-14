@@ -16,6 +16,8 @@ class TestCCABA:
             source_in_channels=self.d_s_in,
             source_out_channels=self.d_s_out,
             negative_slope=0.2,
+            softmax=False,
+            m_hop=2,
             aggr_norm=True,
             update_func="sigmoid",
             initialization="xavier_uniform",
@@ -27,6 +29,7 @@ class TestCCABA:
             indices=torch.tensor([[0, 1, 1, 2, 9],[3, 7, 9, 2, 5]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(10,10),
+            dtype=torch.float
         )
 
     def test_forward(self):
