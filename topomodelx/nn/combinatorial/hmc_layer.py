@@ -67,25 +67,25 @@ class HMCLayer(torch.nn.Module):
 
         self.aggr = Aggregation(aggr_func="sum", update_func=update_func_aggregation)
 
-        def forward(x_0, x_1, x_2, adjacency_0, adjacency_1, coadjacency_2, incidence_1, incidence_2):
-            # Computing messages from Higher Order Attention Blocks Level 1
-            x_0_to_0 = self.hbs_0_level1(x_0, adjacency_0)
-            x_1_to_0, x_0_to_1 = self.hbns_0_1_level1(x_0, x_1, incidence_1)
-            x_2_to_1, x_1_to_2 = self.conv_level_1_1_and_2(x_1, x_2, incidence_2)
+    def forward(self, x_0, x_1, x_2, adjacency_0, adjacency_1, coadjacency_2, incidence_1, incidence_2):
+        # Computing messages from Higher Order Attention Blocks Level 1
+        x_0_to_0 = self.hbs_0_level1(x_0, adjacency_0)
+        x_1_to_0, x_0_to_1 = self.hbns_0_1_level1(x_0, x_1, incidence_1)
+        x_2_to_1, x_1_to_2 = self.hbns_1_2_level1(x_1, x_2, incidence_2)
 
-            x_0_level1 = self.aggr([x_0_to_0, x_1_to_0])
-            x_1_level1 = self.aggr([x_0_to_1, x_2_to_1])
-            x_2_level1 = x_1_to_2
+        x_0_level1 = self.aggr([x_0_to_0, x_1_to_0])
+        x_1_level1 = self.aggr([x_0_to_1, x_2_to_1])
+        x_2_level1 = x_1_to_2
 
-            # Computing messages from Higher Order Attention Blocks Level 2
-            x_0_to_0 = self.hbs_0_level2(x_0_level1, adjacency_0)
-            x_1_to_1 = self.hbs_1_level2(x_1_level1, adjacency_1)
-            x_2_to_2 = self.hbs_2_level2(x_2_level1, coadjacency_2)
-            _, x_0_to_1 = self.hbns_0_1_level2(x_0_level1, x_1_level1, incidence_1)
-            _, x_1_to_2 = self.hbns_1_2_level2(x_1_level1, x_2_level1, incidence_2)
+        # Computing messages from Higher Order Attention Blocks Level 2
+        x_0_to_0 = self.hbs_0_level2(x_0_level1, adjacency_0)
+        x_1_to_1 = self.hbs_1_level2(x_1_level1, adjacency_1)
+        x_2_to_2 = self.hbs_2_level2(x_2_level1, coadjacency_2)
+        _, x_0_to_1 = self.hbns_0_1_level2(x_0_level1, x_1_level1, incidence_1)
+        _, x_1_to_2 = self.hbns_1_2_level2(x_1_level1, x_2_level1, incidence_2)
 
-            x_0_level2 = x_0_to_0
-            x_1_level2 = self.aggr([x_0_to_1, x_1_to_1])
-            x_2_level2 = self.aggr([x_1_to_2, x_2_to_2])
+        x_0_level2 = x_0_to_0
+        x_1_level2 = self.aggr([x_0_to_1, x_1_to_1])
+        x_2_level2 = self.aggr([x_1_to_2, x_2_to_2])
 
-            return x_0_level2, x_1_level2, x_2_level2
+        return x_0_level2, x_1_level2, x_2_level2

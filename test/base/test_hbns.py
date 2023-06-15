@@ -219,16 +219,16 @@ class TestHBNS:
         )
         expected_att_matrix_s_t = torch.tensor(
             [
-                [75.0/198.0, 0.0, 123.0/198.0],
-                [87.0/198.0, 111.0/198.0, 0.0],
-                [0.0, 123.0/270.0, 147.0/270.0]
+                [75.0 / 198.0, 0.0, 123.0 / 198.0],
+                [87.0 / 198.0, 111.0 / 198.0, 0.0],
+                [0.0, 123.0 / 270.0, 147.0 / 270.0]
             ], dtype=torch.float
         )
         expected_att_matrix_t_s = torch.tensor(
             [
-                [75.0/162.0, 87.0/162.0, 0.0],
-                [0.0, 111.0/234.0, 123.0/234.0],
-                [123.0/270.0, 0.0, 147.0/270.0]
+                [75.0 / 162.0, 87.0 / 162.0, 0.0],
+                [0.0, 111.0 / 234.0, 123.0 / 234.0],
+                [123.0 / 270.0, 0.0, 147.0 / 270.0]
             ], dtype=torch.float
         )
         expected_message_on_source = torch.mm(expected_att_matrix_s_t, expected_t_message)
@@ -236,9 +236,9 @@ class TestHBNS:
 
         message_on_source, message_on_target = self.hbns.forward(x_source, x_target, self.neighborhood_s_t)
 
-
         assert torch.allclose(expected_message_on_source, message_on_source)
         assert torch.allclose(expected_message_on_target, message_on_target)
+
     """
         def test_attention(self):
             s_message = torch.tensor(
