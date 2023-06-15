@@ -39,7 +39,7 @@ class HBNS(MessagePassing):
             target_out_channels,
             negative_slope,
             softmax=False,  # TODO implementar
-            aggr_norm=False, # Todo quizá quitar
+            aggr_norm=False,  # Todo quizá quitar
             update_func=None,
             initialization="xavier_uniform",
     ):
@@ -152,7 +152,6 @@ class HBNS(MessagePassing):
         if self.softmax:
             return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
         return self.sparse_row_norm(e), self.sparse_row_norm(f)
-
 
     def forward(self, x_source, x_target, neighborhood):
         """Forward pass.

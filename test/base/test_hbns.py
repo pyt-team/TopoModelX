@@ -33,7 +33,7 @@ class TestHBNS:
             initialization="xavier_uniform",
         )
 
-        self.neighborhood_s_to_t = torch.sparse_coo_tensor(
+        self.neighborhood_s_t = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
@@ -57,7 +57,7 @@ class TestHBNS:
         self.n_source_cells = 10
         self.n_target_cells = 3
 
-        self.neighborhood_s_to_t = torch.sparse_coo_tensor(
+        self.neighborhood_s_t = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 1, 1, 2, 9], [0, 0, 0, 1, 2]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(10, 3),
@@ -75,13 +75,13 @@ class TestHBNS:
                 [8, 7],
                 [9, 7],
                 [10, -1]
-            ]
-        ).float()
+            ], dtype=torch.float
+        )
 
-        x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]]).float()
+        x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]], dtype=torch.float)
 
         result = self.hbns.forward(
-            x_source, self.neighborhood_s_to_t, x_target
+            x_source, x_target, self.neighborhood_s_t
         )
 
         message_on_source, message_on_target = result
@@ -95,8 +95,8 @@ class TestHBNS:
         source_message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
         target_message = torch.tensor([[7, 8], [9, 10], [11, 12]], dtype=torch.float)
         # Calculate the attention matrix.
-        neighborhood_s = self.neighborhood_s_to_t.coalesce()
-        neighborhood_t = self.neighborhood_s_to_t.t().coalesce()
+        neighborhood_s = self.neighborhood_s_t.coalesce()
+        neighborhood_t = self.neighborhood_s_t.t().coalesce()
 
         self.hbns.source_index_i, self.hbns.target_index_j = neighborhood_s.indices()
         self.hbns.target_index_i, self.hbns.source_index_j = neighborhood_t.indices()
@@ -132,8 +132,8 @@ class TestHBNS:
         source_message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
         target_message = torch.tensor([[7, 8], [9, 10], [11, 12]], dtype=torch.float)
         # Calculate the attention matrix.
-        neighborhood_s = self.neighborhood_s_to_t.coalesce()
-        neighborhood_t = self.neighborhood_s_to_t.t().coalesce()
+        neighborhood_s = self.neighborhood_s_t.coalesce()
+        neighborhood_t = self.neighborhood_s_t.t().coalesce()
 
         self.hbns.source_index_i, self.hbns.target_index_j = neighborhood_s.indices()
         self.hbns.target_index_i, self.hbns.source_index_j = neighborhood_t.indices()
@@ -173,6 +173,72 @@ class TestHBNS:
         assert torch.allclose(att_matrix_s_to_t, expected_att_matrix_s_to_t)
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
+    def test_forward_values(self):
+        self.d_s_in, self.d_s_out = 2, 3
+        self.d_t_in, self.d_t_out = 2, 3
+
+        self.hbns = HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            aggr_norm=True,
+            softmax=False,
+            update_func=None,
+            initialization="xavier_uniform",
+        )
+
+        with torch.no_grad():
+            self.hbns.att_weight[:3] = 1.0
+            self.hbns.att_weight[3:] = 2.0
+        torch.nn.init.constant_(self.hbns.w_s, 1.0)
+        torch.nn.init.constant_(self.hbns.w_t, 1.0)
+
+        self.neighborhood_s_t = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
+            values=torch.tensor([1, 1, 1, 1, 1, 1]),
+            size=(3, 3),
+        )
+        x_source = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+        x_target = torch.tensor([[5, 6], [7, 8], [9, 10]], dtype=torch.float)
+
+        expected_s_message = torch.tensor(
+            [
+                [3, 3, 3],
+                [7, 7, 7],
+                [11, 11, 11]
+            ], dtype=torch.float
+        )
+        expected_t_message = torch.tensor(
+            [
+                [11, 11, 11],
+                [15, 15, 15],
+                [19, 19, 19]
+            ], dtype=torch.float
+        )
+        expected_att_matrix_s_t = torch.tensor(
+            [
+                [75.0/198.0, 0.0, 123.0/198.0],
+                [87.0/198.0, 111.0/198.0, 0.0],
+                [0.0, 123.0/270.0, 147.0/270.0]
+            ], dtype=torch.float
+        )
+        expected_att_matrix_t_s = torch.tensor(
+            [
+                [75.0/162.0, 87.0/162.0, 0.0],
+                [0.0, 111.0/234.0, 123.0/234.0],
+                [123.0/270.0, 0.0, 147.0/270.0]
+            ], dtype=torch.float
+        )
+        expected_message_on_source = torch.mm(expected_att_matrix_s_t, expected_t_message)
+        expected_message_on_target = torch.mm(expected_att_matrix_t_s, expected_s_message)
+
+        message_on_source, message_on_target = self.hbns.forward(x_source, x_target, self.neighborhood_s_t)
+
+
+        assert torch.allclose(expected_message_on_source, message_on_source)
+        assert torch.allclose(expected_message_on_target, message_on_target)
     """
         def test_attention(self):
             s_message = torch.tensor(
