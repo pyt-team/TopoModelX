@@ -149,8 +149,9 @@ class HBNS(MessagePassing):
                 negative_slope=self.negative_slope).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0])
         )
-
-        return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1) if self.softmax else self.sparse_row_norm(e), self.sparse_row_norm(f)
+        if self.softmax:
+            return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
+        return self.sparse_row_norm(e), self.sparse_row_norm(f)
 
 
     def forward(self, x_source, x_target, neighborhood):
