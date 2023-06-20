@@ -3,22 +3,23 @@ import torch
 
 from topomodelx.base.aggregation import Aggregation
 
+
 class SCoNeLayer(torch.nn.Module):
     """
     Implementation of the SCoNe layer proposed in [RGS21]_.
 
     Notes
     -----
-    This is the architecture proposed for trajectory prediction on simplicial complexes. 
+    This is the architecture proposed for trajectory prediction on simplicial complexes.
 
     For the trajectory prediction architecture proposed in [RGS21]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     References
     ----------
-	.. [RGS21] Roddenberry, Mitchell, Glaze.
-		Principled Simplicial Neural Networks for Trajectory Prediction.
-		Proceedings of the 38th International Conference on Machine Learning.
-		https://proceedings.mlr.press/v139/roddenberry21a.html
+        .. [RGS21] Roddenberry, Mitchell, Glaze.
+                Principled Simplicial Neural Networks for Trajectory Prediction.
+                Proceedings of the 38th International Conference on Machine Learning.
+                https://proceedings.mlr.press/v139/roddenberry21a.html
 
     Parameters
     ----------
@@ -30,21 +31,31 @@ class SCoNeLayer(torch.nn.Module):
         Initialization method.
     """
 
-    def __init__(self, in_channels : int, out_channels : int, update_func : str = "tanh") -> None:
+    def __init__(
+        self, in_channels: int, out_channels: int, update_func: str = "tanh"
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.weight_0 = torch.nn.parameter.Parameter(torch.Tensor(self.in_channels, self.out_channels))
-        self.weight_1 = torch.nn.parameter.Parameter(torch.Tensor(self.in_channels, self.out_channels))
-        self.weight_2 = torch.nn.parameter.Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        self.weight_0 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
+        )
+        self.weight_1 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
+        )
+        self.weight_2 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
+        )
         self.aggr_on_edges = Aggregation("sum", update_func)
 
-    def reset_parameters(self, gain : float = 1.0):
+    def reset_parameters(self, gain: float = 1.0):
         torch.nn.init.xavier_uniform_(self.weight_0, gain=gain)
         torch.nn.init.xavier_uniform_(self.weight_1, gain=gain)
         torch.nn.init.xavier_uniform_(self.weight_2, gain=gain)
 
-    def forward(self, x : torch.Tensor, incidence_1 : torch.Tensor, incidence_2 : torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, incidence_1: torch.Tensor, incidence_2: torch.Tensor
+    ) -> torch.Tensor:
         r"""Forward pass.
 
         The forward pass was initially proposed in [RGS21]_.

@@ -14,7 +14,7 @@ class TestSCoNeLayer:
         out_channels = 16
         n_nodes = 10
         n_edges = 20
-        n_triangles = 30 
+        n_triangles = 30
 
         incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
         incidence_2 = torch.randint(0, 2, (n_edges, n_triangles)).float()
@@ -29,7 +29,7 @@ class TestSCoNeLayer:
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
         in_channels = 8
-        out_channels = 16 
+        out_channels = 16
 
         scone = SCoNeLayer(in_channels, out_channels)
         scone.reset_parameters()
