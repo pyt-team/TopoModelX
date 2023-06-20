@@ -6,15 +6,14 @@ from topomodelx.base.conv import Conv
 
 
 class SCoNeLayer(torch.nn.Module):
-    """Layer of a High Skip Network (HSN).
-
+    """
     Implementation of the SCoNe layer proposed in [RGS21]_.
 
     Notes
     -----
     This is the architecture proposed for trajectory prediction on simplicial complexes. 
 
-    For the trajectory prediction architecture proposed in [RGS21]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories/paths) to the neighbouring nodes of the last node in the 1-chain.
+    For the trajectory prediction architecture proposed in [RGS21]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     References
     ----------
@@ -42,10 +41,10 @@ class SCoNeLayer(torch.nn.Module):
         self.weight_1 = torch.nn.parameter.Parameter(torch.Tensor(self.in_channels, self.out_channels))
         self.weight_2 = torch.nn.parameter.Parameter(torch.Tensor(self.in_channels, self.out_channels))
 
-    def reset_parameters(self):
-        torch.nn.init.xavier_uniform_(self.weight_0)
-        torch.nn.init.xavier_uniform_(self.weight_1)
-        torch.nn.init.xavier_uniform_(self.weight_2)
+    def reset_parameters(self, gain : float = 1.0):
+        torch.nn.init.xavier_uniform_(self.weight_0, gain=gain)
+        torch.nn.init.xavier_uniform_(self.weight_1, gain=gain)
+        torch.nn.init.xavier_uniform_(self.weight_2, gain=gain)
 
     def forward(self, x : torch.Tensor, incidence_1 : torch.Tensor, incidence_2 : torch.Tensor) -> torch.Tensor:
         r"""Forward pass.
@@ -55,15 +54,15 @@ class SCoNeLayer(torch.nn.Module):
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
-            &🟥 \quad m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}\\
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})\\
-            &🟥 \quad m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}\\
-            &🟩 \quad m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}\\
-            &🟦 \quad h_x^{t+1,(0)}  = I(m_x^{(0)})
+            &🟥 \quad m^{(1 \rightarrow 0 \rightarrow 1)}_{y \rightarrow \{z\} \rightarrow x}  = (L_{\downarrow,1})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟥 \quad m_{x \rightarrow x}^{(1 \rightarrow 1)}  = h_x^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 1)}\\
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}  = (L_{\uparrow,1})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{(1 \rightarrow 0 \rightarrow 1)} = \sum_{y \in \mathcal{L}_\downarrow(x)} m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{(1 \rightarrow 2 \rightarrow 1)}  = \sum_{y \in \mathcal{L}_\uparrow(x)} m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟩 \quad m_x^{(1)}  = m_{x}^{(1 \rightarrow 0 \rightarrow 1)} + m_{x \rightarrow x}^{(1 \rightarrow 1)} + m_{x}^{(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟦 \quad h_x^{t,(1)} = \sigma(m_x^{(1)})
             \end{align*}
+
 
         References
         ----------
