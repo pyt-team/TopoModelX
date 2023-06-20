@@ -4,6 +4,7 @@ Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the seco
 
 Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.
 
+**IMPORTANT: Recent (June 7) changes have been made to dataset availability for domains with faces. Please see the updated Pre-Processing submission requirements below.**:
 
 Description of the Challenge
 ----------------------------
@@ -50,7 +51,12 @@ The principal developers of TopoModelX are not allowed to participate.
 
 Submission Requirements
 -----------------------
-The submission must implement a pre-existing model from the literature included in Fig. 11 of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
+The submission must implement a pre-existing model from the literature included in `Fig. 11 <https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg>`_ of the review `Architectures of Topological Deep Learning: A Survey of Topological Neural Networks <https://arxiv.org/pdf/2304.10031.pdf>`_.
+
+.. figure:: ../../topomodelx.jpeg
+   :align: center
+   :alt: tnns
+   :width: 250px
 
 All submitted code must comply with TopoModelX's GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).
 
@@ -68,7 +74,9 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
 
   1. Pre-processing
         - imports necessary packages as well as ``{Name of model}Layer`` class
-        - loads a benchmark dataset `using PyTorch Geometric <https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html>`_ and assigns labels.
+        - loads a dataset (**NEW**)
+            - for models requiring features on faces or rank-2 neighborhood matrices: using TopoNetX, load either `shrec16 <https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/mesh.py#L64>`_ (suitable for complex-level classification, see example in tutorials/hypergraph/template_layer.ipynb) or `Karate Club <https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/graph.py#LL29C5-L29C16>`_ (suitable for node-level classification, see example in tutorials/simplicial/hsn_train.ipynb).
+            - for models only requiring features on nodes/edges and rank-0/1 neighborhood matrices: use either TopoNetX (see above) or `Torch Geometric <https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html>`_ to load a benchmark graph dataset.
         - lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cell complex, combinatorial complex) using TopoNetX.
 
   2. Creating the neural network
