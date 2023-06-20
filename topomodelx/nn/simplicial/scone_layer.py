@@ -27,8 +27,8 @@ class SCoNeLayer(torch.nn.Module):
         Input dimension of features on each edge.
     out_channels : int
         Output dimension of features on each edge.
-    initialization : string
-        Initialization method.
+    update_func : string
+        Update function to use when updating edge features.
     """
 
     def __init__(
