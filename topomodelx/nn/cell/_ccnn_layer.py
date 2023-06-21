@@ -3,13 +3,18 @@ from torch.nn import Linear
 from torch import Tensor
 
 from topomodelx.base.conv import Conv
+from topomodelx.base.aggregation import Aggregation
 
-class CCNNLayer(torch.nn.Module):
+class CCNNLayer(torch.nn.Module): 
+
     r"TODO: my description"
+    
     def __init__(self, 
                 in_channels: int,
                 out_channels: int,
                 harmonic: bool = False,
+                aggr_func: str = "sum",
+                update_func: str = "relu",
                 **kwargs):
 
         super().__init__()
@@ -20,6 +25,8 @@ class CCNNLayer(torch.nn.Module):
         self.solenoidal = Conv(
             in_channels=in_channels, out_channels=out_channels
         )
+
+        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
 
         if harmonic:
             # TODO: temp version
@@ -43,10 +50,11 @@ class CCNNLayer(torch.nn.Module):
         irrotational_x = self.irrotational(x, lower_neighborhood)
         solenoidal_x = self.solenoidal(x, upper_neighborhood)
 
-        out = irrotational_x + solenoidal_x
-
         if self.harmonic is not None:
-            out = out + self.harmonic(x)
+            harmonic_x = self.harmonic(x)
+            out = self.aggregation(irrotational_x, solenoidal_x, harmonic_x)
+        else:
+            out = self.aggregation(irrotational_x, solenoidal_x)
 
         return out
     
