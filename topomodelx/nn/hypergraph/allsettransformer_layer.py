@@ -1,8 +1,10 @@
-"""Template Layer with two conv passing steps."""
+"""AllSetTrannsformer Layer with two conv passing steps."""
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
+
 from topomodelx.base.conv import Conv
+
 
 # First we need to form the right conv layer, based on topomodelx.base.conv.Conv
 class AllSetConv(nn.Module):
@@ -32,18 +34,18 @@ class AllSetConv(nn.Module):
         Whether to use attention-based propagation. Defaults to False.
     """
 
-    def __init__(self,
-                 in_dim,
-                 hid_dim,
-                 out_dim,
-                 mlp_num_layers,
-                 dropout,
-                 #mlp_norm='ln',
-                 input_norm=False,
-
-                 heads=None,
-                 attention=False
-                 ):
+    def __init__(
+        self,
+        in_dim,
+        hid_dim,
+        out_dim,
+        mlp_num_layers,
+        dropout,
+        # mlp_norm='ln',
+        input_norm=False,
+        heads=None,
+        attention=False,
+    ):
         super(AllSetConv, self).__init__()
 
         self.attention = attention
@@ -52,15 +54,19 @@ class AllSetConv(nn.Module):
         # if self.attention:
         #     self.prop = PMA(in_dim, hid_dim, out_dim, num_layers, heads=heads)
         # else:
-        
+
         if mlp_num_layers > 0:
-            self.f_enc = MLP(in_dim, hid_dim, hid_dim, mlp_num_layers, dropout, input_norm)
-            self.f_dec = MLP(hid_dim, hid_dim, out_dim, mlp_num_layers, dropout, input_norm)
+            self.f_enc = MLP(
+                in_dim, hid_dim, hid_dim, mlp_num_layers, dropout, input_norm
+            )
+            self.f_dec = MLP(
+                hid_dim, hid_dim, out_dim, mlp_num_layers, dropout, input_norm
+            )
             in_dim = hid_dim
         else:
             self.f_enc = nn.Identity()
             self.f_dec = nn.Identity()
-        
+
         self.propagate = Conv(
             in_channels=in_dim,
             out_channels=hid_dim,
@@ -73,9 +79,9 @@ class AllSetConv(nn.Module):
         if self.attention:
             self.prop.reset_parameters()
         else:
-            if not (self.f_enc.__class__.__name__ is 'Identity'):
+            if not (self.f_enc.__class__.__name__ == "Identity"):
                 self.f_enc.reset_parameters()
-            if not (self.f_dec.__class__.__name__ is 'Identity'):
+            if not (self.f_dec.__class__.__name__ == "Identity"):
                 self.f_dec.reset_parameters()
 
     def forward(self, x, incidence):
@@ -94,7 +100,6 @@ class AllSetConv(nn.Module):
         x : torch.Tensor
             Output features.
         """
-
         if self.attention:
             x = self.prop(x, incidence)
         else:
@@ -104,6 +109,7 @@ class AllSetConv(nn.Module):
             x = F.relu(self.f_dec(x))
 
         return x
+
 
 class MLP(nn.Module):
     """MLP Module.
@@ -126,13 +132,14 @@ class MLP(nn.Module):
         Whether to apply input normalization. Defaults to False.
     """
 
-    def __init__(self, in_dim, hid_dim, out_dim, num_layers,
-                 dropout=.5, input_norm=False):
+    def __init__(
+        self, in_dim, hid_dim, out_dim, num_layers, dropout=0.5, input_norm=False
+    ):
         super(MLP, self).__init__()
         self.lins = nn.ModuleList()
         self.normalizations = nn.ModuleList()
         self.input_norm = input_norm
-        
+
         if num_layers == 1:
             # Just a linear layer i.e. logistic regression
             if self.input_norm:
@@ -151,7 +158,7 @@ class MLP(nn.Module):
                 self.lins.append(nn.Linear(hid_dim, hid_dim))
                 self.normalizations.append(nn.LayerNorm(hid_dim))
             self.lins.append(nn.Linear(hid_dim, out_dim))
-        
+
         self.dropout = dropout
 
     def reset_parameters(self):
@@ -159,7 +166,7 @@ class MLP(nn.Module):
         for lin in self.lins:
             lin.reset_parameters()
         for normalization in self.normalizations:
-            if not (normalization.__class__.__name__ is 'Identity'):
+            if not (normalization.__class__.__name__ == "Identity"):
                 normalization.reset_parameters()
 
     def forward(self, x):
@@ -176,15 +183,15 @@ class MLP(nn.Module):
         x : torch.Tensor
             Output features.
         """
-
         x = self.normalizations[0](x)
         for i, lin in enumerate(self.lins[:-1]):
             x = lin(x)
             x = F.relu(x, inplace=True)
-            x = self.normalizations[i+1](x)
+            x = self.normalizations[i + 1](x)
             x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.lins[-1](x)
         return x
+
 
 class AllSetLayer(nn.Module):
     """AllSet Layer Module.
@@ -213,37 +220,44 @@ class AllSetLayer(nn.Module):
         Whether to use the PMA (Prototype Matrix Attention) mechanism. Defaults to False.
     """
 
-    def __init__(self, in_dim, hid_dim, out_dim,
-                 dropout=0.2,
-                 input_dropout=0.2,
-                 mlp_num_layers=2,
-                 mlp_input_norm=False,
-                 heads=None,
-                 PMA=False):
+    def __init__(
+        self,
+        in_dim,
+        hid_dim,
+        out_dim,
+        dropout=0.2,
+        input_dropout=0.2,
+        mlp_num_layers=2,
+        mlp_input_norm=False,
+        heads=None,
+        PMA=False,
+    ):
         super(AllSetLayer, self).__init__()
 
         self.dropout = dropout
         self.input_dropout = input_dropout
 
-        self.v2e = AllSetConv(in_dim=in_dim,
-                              hid_dim=hid_dim,
-                              out_dim=out_dim,
-                              mlp_num_layers=mlp_num_layers,
-                              dropout=dropout,
-                              input_norm=mlp_input_norm,
+        self.v2e = AllSetConv(
+            in_dim=in_dim,
+            hid_dim=hid_dim,
+            out_dim=out_dim,
+            mlp_num_layers=mlp_num_layers,
+            dropout=dropout,
+            input_norm=mlp_input_norm,
+            heads=heads,
+            attention=PMA,
+        )
 
-                              heads=heads,
-                              attention=PMA)
-
-        self.e2v = AllSetConv(in_dim=hid_dim,
-                              hid_dim=hid_dim,
-                              out_dim=out_dim,
-                              mlp_num_layers=mlp_num_layers,
-                              dropout=dropout,
-                              input_norm=mlp_input_norm,
-
-                              heads=heads,
-                              attention=PMA)
+        self.e2v = AllSetConv(
+            in_dim=hid_dim,
+            hid_dim=hid_dim,
+            out_dim=out_dim,
+            mlp_num_layers=mlp_num_layers,
+            dropout=dropout,
+            input_norm=mlp_input_norm,
+            heads=heads,
+            attention=PMA,
+        )
 
     def forward(self, x, incidence_1):
         """
@@ -263,7 +277,6 @@ class AllSetLayer(nn.Module):
         x : torch.Tensor
             Output features.
         """
-
         x = F.dropout(x, p=self.input_dropout, training=self.training)
 
         x = F.relu(self.v2e(x, incidence_1.transpose(1, 0)))
@@ -272,21 +285,19 @@ class AllSetLayer(nn.Module):
         x = F.relu(self.e2v(x, incidence_1))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
-        return x 
+        return x
 
 
-
-  # def reset_parameters(self):
-    #     for layer in self.V2EConvs:
-    #         layer.reset_parameters()
-    #     for layer in self.E2VConvs:
-    #         layer.reset_parameters()
-    #     for layer in self.bnV2Es:
-    #         layer.reset_parameters()
-    #     for layer in self.bnE2Vs:
-    #         layer.reset_parameters()
-    #     self.classifier.reset_parameters()
-
+# def reset_parameters(self):
+#     for layer in self.V2EConvs:
+#         layer.reset_parameters()
+#     for layer in self.E2VConvs:
+#         layer.reset_parameters()
+#     for layer in self.bnV2Es:
+#         layer.reset_parameters()
+#     for layer in self.bnE2Vs:
+#         layer.reset_parameters()
+#     self.classifier.reset_parameters()
 
 
 # class TemplateLayer(torch.nn.Module):
@@ -354,4 +365,3 @@ class AllSetLayer(nn.Module):
 #         x_0 = self.conv_level1_1_to_0(x_1, incidence_1)
 #         x_1 = self.conv_level2_0_to_1(x_0, incidence_1_transpose)
 #         return x_1
-    
