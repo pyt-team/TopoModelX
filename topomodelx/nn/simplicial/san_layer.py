@@ -7,67 +7,107 @@ from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
+class SANConv(Conv):
+    r"""Class for the SAN Convolution."""
+
+    def __init__(self, in_channels, out_channels, p_filter):
+        self.p_filter = p_filter
+        super().__init__(in_channels, out_channels, att=True)
+
+    def forward(self, x_source, neighborhood):
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells, which are the same source cells.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
+
+        Parameters
+        ----------
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
+        """
+        x_message = torch.mm(x_source, self.weight)
+
+        # SAN always requires attention
+        # In SAN, neighborhood is defined by lower/upper laplacians; we only use them as masks
+        # to keep only the relevant attention coeffs
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+        attention_values = self.attention(x_message)
+        att_laplacian = torch.sparse_coo_tensor(
+            indices=neighborhood.indices(),
+            values=attention_values,
+            size=neighborhood.shape,
+        )
+        # Attention coeffs are normalized using softmax
+        att_laplacian = torch.sparse.softmax(att_laplacian, dim=1).to_dense()
+        # We need to compute the power of the attention laplacian according to the filter order p
+        if self.p_filter > 1:
+            att_laplacian = torch.linalg.matrix_power(att_laplacian, self.p_filter)
+
+        # When computing the final message on targets, we need to compute the power of the attention laplacian
+        # according to the filter order p
+        x_message_on_target = torch.mm(att_laplacian, x_message)
+
+        return x_message_on_target
+
+
 class SANLayer(torch.nn.Module):
     r"""Class for the SAN layer."""
 
     def __init__(
         self,
-        channels_in,
-        channels_out,
-        J=2,  # approximation order
+        in_channels,
+        out_channels,
+        num_filters_J=2,  # approximation order
         J_har=5,  # approximation order for harmonic
         epsilon_har=1e-1,  # epsilon for harmonic, it takes into account the normalization
     ):
         super().__init__()
 
-        self.J = J
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.num_filters_J = num_filters_J
+
         self.J_har = J_har
         self.epsilon_har = epsilon_har
-        self.channels_in = channels_in
-        self.channels_out = channels_out
 
-        self.att_slice = self.channels_out * self.J
+        #  Convolutions
+        # Down convolutions, one for each filter order p
+        self.convs_down = [
+            SANConv(in_channels, out_channels, p) for p in range(num_filters_J)
+        ]
+        # Up convolutions, one for each filter order p
+        self.convs_up = [
+            SANConv(in_channels, out_channels, p) for p in range(num_filters_J)
+        ]
+        # Harmonic convolution
+        self.conv_har = Conv(in_channels, out_channels)
 
-        #  Convolution
-        self.weight_irr = Parameter(
-            torch.Tensor(self.J, self.channels_in, self.channels_out)
-        )
-        self.weight_sol = Parameter(
-            torch.Tensor(self.J, self.channels_in, self.channels_out)
-        )
-        self.weight_har = Parameter(torch.Tensor(self.channels_in, self.channels_out))
-        # self.W_irr =  [
-        #                torch.nn.Linear(in_features=self.channels_in,
-        #                                out_features=self.channels_out)
-        #                for _ in range(self.J)
-        #                ]
-
-        # self.W_sol = [
-        #                torch.nn.Linear(in_features=self.channels_in,
-        #                                out_features=self.channels_out)
-        #                    for _ in range(self.J)
-        #                  ]
-
-        self.W_har = torch.nn.Linear(
-            in_features=self.channels_in, out_features=self.channels_out
-        )
-
-        # Attention
-        self.att_irr = Parameter(torch.Tensor(2 * self.att_slice, 1))
-        self.att_sol = Parameter(torch.Tensor(2 * self.att_slice, 1))
-
-        # self.att_irr = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
-        # self.att_sol = torch.nn.Parameter(torch.empty(size=(2 * self.att_slice, 1)))
-
-        # self.bin_mask_Lu = None
-        # self.bin_mask_Ld = None
-
-    # def reset_parameters(self):
-    #     r"""Reset learnable parameters."""
-    #     # Following original repo.
-    #     gain = torch.nn.init.calculate_gain('relu')
-    #     torch.nn.init.xavier_uniform_(self.conv_down.weight, gain=gain)
-    #     torch.nn.init.xavier_uniform_(self.conv_up.weight, gain=gain)
+    def reset_parameters(self):
+        r"""Reset learnable parameters."""
+        # Following original repo.
+        gain = torch.nn.init.calculate_gain("relu")
+        for p in range(self.num_filters_J):
+            torch.nn.init.xavier_uniform_(self.convs_down[p].weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.convs_down[p].att_weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.convs_up[p].weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.convs_up[p].att_weight, gain=gain)
 
     def forward(self, x, Lup, Ldown, P):
         r"""Forward pass.
@@ -75,77 +115,13 @@ class SANLayer(torch.nn.Module):
         The forward pass was initially proposed in [HRGZ22]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
         """
-        h_irr = torch.matmul(x, self.weight_irr)
-        h_sol = torch.matmul(x, self.weight_sol)
-        # x_irr = torch.cat([torch.mm(x,self.weight_irr[i]) for i in range(self.J)], dim=1)
-        # x_sol = torch.cat([torch.mm(x,self.weight_sol[i]) for i in range(self.J)], dim=1)
-
-        # Broadcast add
-        # Attention map
-
-        # (Ex1) + (1xE) -> (ExE)
-        e_irr = F.leaky_relu(
-            torch.mm(
-                h_irr.reshape(-1, self.J * self.channels_out),
-                self.att_irr[: self.att_slice, :],
-            )
-            + torch.mm(
-                h_irr.reshape(-1, self.J * self.channels_out),
-                self.att_irr[self.att_slice :, :],
-            ).T
-        )
-        e_sol = F.leaky_relu(
-            torch.mm(
-                h_sol.reshape(-1, self.J * self.channels_out),
-                self.att_sol[: self.att_slice, :],
-            )
-            + torch.mm(
-                h_sol.reshape(-1, self.J * self.channels_out),
-                self.att_sol[self.att_slice :, :],
-            ).T
-        )
-
-        # Consider only ones which have connections
-        alpha_irr = torch.sparse.softmax(e_irr.sparse_mask(Ldown), dim=1).to_dense()
-        alpha_sol = torch.sparse.softmax(e_sol.sparse_mask(Lup), dim=1).to_dense()
-        # MASK_D, MASK_U = Ldown != 0, Lup != 0
-        # e_irr[~MASK_D] = float("-1e20")
-        # e_sol[~MASK_U] = float("-1e20")
-
-        # Optional dropout
-        # (ExE) -> (ExE)
-        # alpha_irr = F.softmax(e_irr, dim=-1)
-        # alpha_sol = F.softmax(e_sol, dim=-1)
-
-        alpha_exp_irr = alpha_irr.unsqueeze(0)
-        alpha_exp_sol = alpha_sol.unsqueeze(0)
-        for p in range(self.J - 1):
-            alpha_exp_irr = torch.cat(
-                [alpha_exp_irr, torch.mm(alpha_exp_irr[p], alpha_irr).unsqueeze(0)],
-                dim=0,
-            )
-            alpha_exp_sol = torch.cat(
-                [alpha_exp_sol, torch.mm(alpha_exp_sol[p], alpha_sol).unsqueeze(0)],
-                dim=0,
-            )
-        z_irr = torch.sum(torch.matmul(alpha_exp_irr.to_dense(), h_irr))
-        z_sol = torch.sum(torch.matmul(alpha_exp_sol.to_dense(), h_sol))
-
-        # WRONG!! Alphas should be multiplied by themselves, not by Laplacians!!!!
-        # z_i = torch.mm(torch.matmul(alpha_irr, x),self.weight_irr[0])
-        # z_s = torch.mm(torch.matmul(alpha_sol, x),self.weight_sol[0])
-        # for p in range(1, self.J):
-        #    alpha_irr = torch.matmul(alpha_irr, Ldown)
-        #    alpha_sol = torch.matmul(alpha_sol, Lup)
-
-        # (ExE) x (ExF_out) -> (ExF_out)
-        #    z_i = z_i + torch.mm(torch.matmul(alpha_irr, x),self.weight_irr[p])
-        # (ExE) x (ExF_out) -> (ExF_out)
-        #    z_s = z_s + torch.mm(torch.matmul(alpha_sol, x),self.weight_sol[p])
-
-        # Harmonic component
-        z_har = torch.mm(torch.matmul(P, x), self.weight_har)
+        # For the down and up convolutions, we sum the outputs for each filter order p
+        z_down = torch.stack([conv(x, Ldown) for conv in self.convs_down]).sum(dim=0)
+        z_up = torch.stack([conv(x, Lup) for conv in self.convs_up]).sum(dim=0)
+        # For the harmonic convolution, we use the precomputed projection matrix P as the neighborhood
+        # with no attention
+        z_har = self.conv_har(x, P)
 
         # final output
-        x = z_irr + z_sol + z_har
+        x = z_down + z_up + z_har
         return x
