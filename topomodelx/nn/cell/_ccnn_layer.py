@@ -8,7 +8,7 @@ from topomodelx.base.aggregation import Aggregation
 class CCNNLayer(torch.nn.Module): 
 
     r"TODO: my description"
-    
+
     def __init__(self, 
                 in_channels: int,
                 out_channels: int,
@@ -19,21 +19,22 @@ class CCNNLayer(torch.nn.Module):
 
         super().__init__()
         
+        # Filtering branches
         self.irrotational = Conv(
             in_channels=in_channels, out_channels=out_channels
         )
         self.solenoidal = Conv(
             in_channels=in_channels, out_channels=out_channels
         )
-
-        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
-
         if harmonic:
             # TODO: temp version
             self.harmonic = Linear(in_channels, out_channels, bias=False,
                                    weight_init="glorot_uniform")
         else:
             self.register_parameter('harmonic', None)
+
+        # between-neighborhood aggregation and update
+        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
 
         self.reset_parameters()
 
@@ -47,14 +48,18 @@ class CCNNLayer(torch.nn.Module):
 
         r"TODO: my description"
 
+        # message and within-neighborhood aggregation
         irrotational_x = self.irrotational(x, lower_neighborhood)
         solenoidal_x = self.solenoidal(x, upper_neighborhood)
 
+        neighborhoods = [irrotational_x, solenoidal_x]
+
         if self.harmonic is not None:
             harmonic_x = self.harmonic(x)
-            out = self.aggregation(irrotational_x, solenoidal_x, harmonic_x)
-        else:
-            out = self.aggregation(irrotational_x, solenoidal_x)
+            neighborhoods.append(harmonic_x)
+
+        # between-neighborhood aggregation and update
+        out = self.aggregation(neighborhoods)
 
         return out
     
