@@ -61,10 +61,10 @@ class HMCLayer(torch.nn.Module):
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
         Initialization method for the weights of the linear layers. Default is 'xavier_uniform'.
     """
+
     def __init__(self, in_channels: List[int], intermediate_channels: List[int], out_channels: List[int],
                  negative_slope: float, softmax_attention=False, update_func_attention=None,
                  update_func_aggregation=None, initialization="xavier_uniform"):
-
         super().__init__()
 
         assert len(in_channels) == 3 and len(intermediate_channels) == 3 and len(out_channels) == 3
@@ -81,7 +81,8 @@ class HMCLayer(torch.nn.Module):
                                     source_out_channels=intermediate_channels_0,
                                     target_in_channels=in_channels_1,
                                     target_out_channels=intermediate_channels_1,
-                                    negative_slope=negative_slope, softmax=softmax_attention, update_func=update_func_attention, initialization=initialization)
+                                    negative_slope=negative_slope, softmax=softmax_attention,
+                                    update_func=update_func_attention, initialization=initialization)
 
         self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_1,
                                     source_out_channels=intermediate_channels_1,
@@ -121,45 +122,53 @@ class HMCLayer(torch.nn.Module):
         self.aggr = Aggregation(aggr_func="sum", update_func=update_func_aggregation)
 
     def forward(self, x_0, x_1, x_2, adjacency_0, adjacency_1, coadjacency_2, incidence_1, incidence_2):
-        # TODO: modify docstring properly
         r"""Forward pass.
 
-                The forward pass was proposed in [HAJIJ23]_, Figure 35(b).
+        The forward pass of the Combinatorial Complex Attention Neural Network for Mesh Classification proposed
+        in [HAJIJ23]_, Figure 35(b). The input features are transformed in two steps. In the first step, the
+        intermediate features are computed using incidence and adjacency matrices. In the second step, the
+        output features are computed using incidence, adjacency, and coadjacency matrices. The notation used
+        in the code follows the one used in [PSHM23]_.
 
-                The forward pass of this layer is composed of two steps.
+        References
+        ----------
+        .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+            arXiv:2206.00606.
+            https://arxiv.org/pdf/2206.00606v3.pdf
 
+        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+            (2023) https://arxiv.org/abs/2304.10031.
 
+            Parameters
+            ----------
+            x_0 : torch.Tensor, shape=[n_0_cells, in_channels[0]]
+                Input features on the 0-cells (vertices) of the combinatorial complex.
+            x_1 : torch.Tensor, shape=[n_1_cells, in_channels[1]]
+                Input features on the 1-cells (edges) of the combinatorial complex.
+            x_2 : torch.Tensor, shape=[n_2_cells, in_channels[2]]
+            Input features on the 2-cells (faces) of the combinatorial complex.
+            adjacency_0 : torch.sparse
+                shape=[n_0_cells, n_0_cells]
+                Neighborhood matrix mapping 0-cells to 0-cells (A_0_up).
+            adjacency_1 : torch.sparse
+                shape=[n_1_cells, n_1_cells]
+                Neighborhood matrix mapping nodes to nodes (A_1_up).
+            coadjacency_2 : torch.sparse
+                shape=[n_2_cells, n_2_cells]
+                Neighborhood matrix mapping nodes to nodes (A_2_down).
+            incidence_1 : torch.sparse
+                shape=[n_0_cells, n_1_cells]
+                Neighborhood matrix mapping 1-cells to 0-cells (B_1).
+            incidence_2 : torch.sparse
+            shape=[n_1_cells, n_2_cells]
+            Neighborhood matrix mapping 2-cells to 1-cells (B_2).
 
-                References
-                ----------
-                .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
-                    arXiv:2206.00606.
-                    https://arxiv.org/pdf/2206.00606v3.pdf
-                .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-                    Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-                    (2023) https://arxiv.org/abs/2304.10031.
-
-                Parameters
-                ----------
-                x_0 : torch.Tensor, shape=[n_0_cells, channels]
-                    Input features on the nodes of the cell complex.
-                x_1 : torch.Tensor, shape=[n_1_cells, channels]
-                    Input features on the edges of the cell complex.
-                neighborhood_0_to_0 : torch.sparse
-                    shape=[n_0_cells, n_0_cells]
-                    Neighborhood matrix mapping nodes to nodes (A_0_up).
-                neighborhood_1_to_2 : torch.sparse
-                    shape=[n_2_cells, n_1_cells]
-                    Neighborhood matrix mapping edges to faces (B_2^T).
-                x_2 : torch.Tensor, shape=[n_2_cells, channels]
-                    Input features on the faces of the cell complex.
-                    Optional, only required if attention is used between edges and faces.
-
-                Returns
-                -------
-                _ : torch.Tensor, shape=[1, num_classes]
-                    Output prediction on the entire cell complex.
-                """
+            Returns
+            -------
+            _ : torch.Tensor, shape=[1, num_classes]
+                Output prediction on the entire cell complex.
+            """
         # Computing messages from Higher Order Attention Blocks Level 1
         x_0_to_0 = self.hbs_0_level1(x_0, adjacency_0)
         x_1_to_0, x_0_to_1 = self.hbns_0_1_level1(x_0, x_1, incidence_1)
