@@ -77,17 +77,13 @@ class HMCLayer(torch.nn.Module):
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_0_1_level1 = HBNS(source_in_channels=in_channels_0,
-                                    source_out_channels=intermediate_channels_0,
-                                    target_in_channels=in_channels_1,
-                                    target_out_channels=intermediate_channels_1,
+        self.hbns_0_1_level1 = HBNS(source_in_channels=in_channels_0, source_out_channels=intermediate_channels_0,
+                                    target_in_channels=in_channels_1, target_out_channels=intermediate_channels_1,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_1,
-                                    source_out_channels=intermediate_channels_1,
-                                    target_in_channels=in_channels_2,
-                                    target_out_channels=intermediate_channels_2,
+        self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_1, source_out_channels=intermediate_channels_1,
+                                    target_in_channels=in_channels_2, target_out_channels=intermediate_channels_2,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
@@ -95,23 +91,17 @@ class HMCLayer(torch.nn.Module):
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_0_1_level2 = HBNS(source_in_channels=intermediate_channels_0,
-                                    source_out_channels=out_channels_0,
-                                    target_in_channels=intermediate_channels_1,
-                                    target_out_channels=out_channels_1,
-                                    negative_slope=negative_slope,
-                                    softmax=softmax_attention,
-                                    update_func=update_func_attention,
-                                    initialization=initialization)
+        self.hbns_0_1_level2 = HBNS(source_in_channels=intermediate_channels_0, source_out_channels=out_channels_0,
+                                    target_in_channels=intermediate_channels_1, target_out_channels=out_channels_1,
+                                    negative_slope=negative_slope, softmax=softmax_attention,
+                                    update_func=update_func_attention, initialization=initialization)
 
         self.hbs_1_level2 = HBS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_1_2_level2 = HBNS(source_in_channels=intermediate_channels_1,
-                                    source_out_channels=out_channels_1,
-                                    target_in_channels=intermediate_channels_2,
-                                    target_out_channels=out_channels_2,
+        self.hbns_1_2_level2 = HBNS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
+                                    target_in_channels=intermediate_channels_2, target_out_channels=out_channels_2,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 

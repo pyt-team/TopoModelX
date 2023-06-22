@@ -1,4 +1,4 @@
-"""Convolutional layer for message passing."""
+"""Higher Order Attention Block (HBS) for squared neighborhoods for message passing module."""
 
 import torch
 import numpy as np
@@ -9,11 +9,24 @@ from multiprocessing import Pool
 
 from topomodelx.base.message_passing import MessagePassing
 
+# TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
+def sparse_row_norm(sparse_tensor):
+    """Normalize a sparse tensor by row dividing each row by its sum.
+
+    Parameters
+    ----------
+    sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
+    """
+    row_sum = torch.sparse.sum(sparse_tensor, dim=1)
+    values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
+    sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
+    return sparse_tensor.coalesce()
+
 
 class HBS(MessagePassing):
-    """Higher Order Attention Block (HBS) layer for squared neighborhoods.
+    """Higher Order Attention Block layer for squared neighborhoods (HBS).
 
-    This is a sparse implementation of an HBS layer. HBS layers were introduced in [HAJIJ23]_, Definition 31 and 32.
+    This is a sparse implementation of an HBS layer. HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
     Mathematically, a higher order attention block layer for squared neighborhood matrices N of shape [n_cells, n_cells]
     and a cochain matrix X of shape [n_cells, source_in_channels] is a function
      ..  math::
@@ -132,7 +145,7 @@ class HBS(MessagePassing):
                                 negative_slope=self.negative_slope).squeeze(1),
             size=(n_messages, n_messages)
         )
-        att_p = torch.sparse.softmax(e_p, dim=1) if self.softmax else self.sparse_row_norm(e_p)
+        att_p = torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
         return att_p
 
     # TODO: parallelize
@@ -201,19 +214,3 @@ class HBS(MessagePassing):
             return torch.sigmoid(message)
         if self.update_func == "relu":
             return torch.nn.functional.relu(message)
-
-    # TODO This code fragment is repeated in the classes CCABI and CCABA and should be placed in a utils
-    # class. However, as we do not want to change the internal implementation of the TopoModelX library for the
-    # challenge, we leave the code fragment duplicated.
-    def sparse_row_norm(self, sparse_tensor):
-        """Normalize a sparse tensor by row dividing each row by its sum.
-
-        Parameters
-        ----------
-        sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
-
-        """
-        row_sum = torch.sparse.sum(sparse_tensor, dim=1)
-        values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-        sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
-        return sparse_tensor.coalesce()

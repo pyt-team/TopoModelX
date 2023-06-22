@@ -1,4 +1,4 @@
-"""Convolutional layer for message passing."""
+"""Higher Order Attention Block (HBS) for non-squared neighborhoods for message passing module."""
 
 import torch
 import torch.nn.functional as F
@@ -8,41 +8,68 @@ from scipy.sparse import coo_matrix
 from topomodelx.base.message_passing import MessagePassing
 
 
-class HBNS(MessagePassing):
-    """Message passing: steps 1, 2, and 3.
-
-    Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a x-specific update function.
+# TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
+def sparse_row_norm(sparse_tensor):
+    """Normalize a sparse tensor by row dividing each row by its sum.
 
     Parameters
     ----------
-    in_channels : int
-        Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    aggr_norm : bool
-        Whether to normalize the aggregated message by the neighborhood size.
-    update_func : string
-        Update method to apply to message.
-    att : bool
-        Whether to use attention.
-        Optional, default: False.
-    initialization : string
-        Initialization method.
+    sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
+    """
+    row_sum = torch.sparse.sum(sparse_tensor, dim=1)
+    values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
+    sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
+    return sparse_tensor.coalesce()
+
+
+class HBNS(MessagePassing):
+    """Higher Order Attention Block layer for non-squared neighborhoods (HBNS).
+
+    This is a sparse implementation of an HBNS layer. HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
+    # TODO we are here
+    Mathematically, a higher order attention block layer for non-squared neighborhood matrices N of shape [n_cells, n_cells]
+    and a cochain matrix X of shape [n_cells, source_in_channels] is a function
+     ..  math::
+        \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
+    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_p
+    is a learnable weight matrix of shape [source_in_channels, source_out_channels] for each p, and A_p is an
+    attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
+    of the attention matrix A_p are computed as
+    ..  math::
+    A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
+    where
+    ..  math::
+    e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
+    and where || denotes concatenation, a_p is a learnable column vector of length 2*source_out_channels, and S is
+    the exponential function if softmax is used and the identity function otherwise.
+
+    References
+    ----------
+    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+        arXiv:2206.00606.
+        https://arxiv.org/pdf/2206.00606v3.pdf
+
+    Parameters
+    ----------
+    source_in_channels : int
+        Number of input features for the source cells.
+    source_out_channels : int
+        Number of output features for the source cells.
+    negative_slope : float
+        Negative slope of the LeakyReLU activation function. Default is 0.2.
+    softmax : bool, optional
+        Whether to use softmax in the computation of the attention matrix. Default is False.
+    m_hop : int, optional
+        Maximum number of hops to consider in the computation of the layer function. Default is 1.
+    update_func : {None, 'sigmoid', 'relu'}, optional
+        phi function in the computation of the output of the layer. If None, phi is the identity function. Default is
+        None.
+    initialization : {'xavier_uniform', 'xavier_normal'}, optional
+        Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
     """
 
-    def __init__(
-            self,
-            source_in_channels,
-            source_out_channels,
-            target_in_channels,
-            target_out_channels,
-            negative_slope,
-            softmax=False,  # TODO implementar
-            aggr_norm=False,  # Todo quizá quitar
-            update_func=None,
-            initialization="xavier_uniform",
-    ):
+    def __init__(self, source_in_channels, source_out_channels, target_in_channels, target_out_channels, negative_slope,
+                 softmax=False, update_func=None, initialization="xavier_uniform"):
         super().__init__(
             att=True,
             initialization=initialization,
@@ -51,7 +78,6 @@ class HBNS(MessagePassing):
         self.source_in_channels, self.source_out_channels = source_in_channels, source_out_channels
         self.target_in_channels, self.target_out_channels = target_in_channels, target_out_channels
 
-        self.aggr_norm = aggr_norm
         self.update_func = update_func
 
         self.w_s = Parameter(torch.Tensor(self.source_in_channels, self.target_out_channels))
@@ -151,7 +177,7 @@ class HBNS(MessagePassing):
         )
         if self.softmax:
             return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
-        return self.sparse_row_norm(e), self.sparse_row_norm(f)
+        return sparse_row_norm(e), sparse_row_norm(f)
 
     def forward(self, x_source, x_target, neighborhood):
         """Forward pass.
@@ -216,9 +242,3 @@ class HBNS(MessagePassing):
             return message_on_source, message_on_target
 
         return self.update(message_on_source, message_on_target)
-
-    def sparse_row_norm(self, sparse_tensor):
-        row_sum = torch.sparse.sum(sparse_tensor, dim=1)
-        values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-        sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
-        return sparse_tensor.coalesce()

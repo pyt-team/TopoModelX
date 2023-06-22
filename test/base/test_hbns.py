@@ -21,17 +21,9 @@ class TestHBNS:
         self.d_s_in, self.d_s_out = 2, 2
         self.d_t_in, self.d_t_out = 2, 2
 
-        self.hbns = HBNS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            target_in_channels=self.d_t_in,
-            target_out_channels=self.d_t_out,
-            negative_slope=0.2,
-            aggr_norm=True,
-            softmax=False,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
-        )
+        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
+                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
+                         softmax=False, update_func="sigmoid", initialization="xavier_uniform")
 
         self.neighborhood_s_t = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
@@ -43,16 +35,9 @@ class TestHBNS:
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 3, 4
 
-        self.hbns = HBNS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            target_in_channels=self.d_t_in,
-            target_out_channels=self.d_t_out,
-            negative_slope=0.2,
-            aggr_norm=True,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
-        )
+        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
+                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
+                         update_func="sigmoid", initialization="xavier_uniform")
 
         self.n_source_cells = 10
         self.n_target_cells = 3
@@ -177,17 +162,9 @@ class TestHBNS:
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 2, 3
 
-        self.hbns = HBNS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            target_in_channels=self.d_t_in,
-            target_out_channels=self.d_t_out,
-            negative_slope=0.2,
-            aggr_norm=True,
-            softmax=False,
-            update_func=None,
-            initialization="xavier_uniform",
-        )
+        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
+                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
+                         softmax=False, update_func=None, initialization="xavier_uniform")
 
         with torch.no_grad():
             self.hbns.att_weight[:3] = 1.0
