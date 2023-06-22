@@ -59,7 +59,7 @@ class HMCLayer(torch.nn.Module):
         Function used to aggregate the messages computed in each attention block. If None, the messages are aggregated
         by summing them. Default is None.
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
-        Initialization method for the weights of the linear layers. Default is 'xavier_uniform'.
+        Initialization method for the weights of the attention layers. Default is 'xavier_uniform'.
     """
 
     def __init__(self, in_channels: List[int], intermediate_channels: List[int], out_channels: List[int],

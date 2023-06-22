@@ -11,18 +11,52 @@ from topomodelx.base.message_passing import MessagePassing
 
 
 class HBS(MessagePassing):
+    """Higher Order Attention Block (HBS) layer for squared neighborhoods.
 
-    def __init__(
-            self,
-            source_in_channels,
-            source_out_channels,
-            negative_slope,
-            softmax=False,
-            m_hop=1,
-            aggr_norm=False,
-            update_func=None,
-            initialization="xavier_uniform",
-    ):
+    This is a sparse implementation of an HBS layer. HBS layers were introduced in [HAJIJ23]_, Definition 31 and 32.
+    Mathematically, a higher order attention block layer for squared neighborhood matrices N of shape [n_cells, n_cells]
+    and a cochain matrix X of shape [n_cells, source_in_channels] is a function
+     ..  math::
+        \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
+    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_p
+    is a learnable weight matrix of shape [source_in_channels, source_out_channels] for each p, and A_p is an
+    attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
+    of the attention matrix A_p are computed as
+    ..  math::
+    A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
+    where
+    ..  math::
+    e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
+    and where || denotes concatenation, a_p is a learnable column vector of length 2*source_out_channels, and S is
+    the exponential function if softmax is used and the identity function otherwise.
+
+    References
+    ----------
+    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+        arXiv:2206.00606.
+        https://arxiv.org/pdf/2206.00606v3.pdf
+
+    Parameters
+    ----------
+    source_in_channels : int
+        Number of input features for the source cells.
+    source_out_channels : int
+        Number of output features for the source cells.
+    negative_slope : float
+        Negative slope of the LeakyReLU activation function. Default is 0.2.
+    softmax : bool, optional
+        Whether to use softmax in the computation of the attention matrix. Default is False.
+    m_hop : int, optional
+        Maximum number of hops to consider in the computation of the layer function. Default is 1.
+    update_func : {None, 'sigmoid', 'relu'}, optional
+        phi function in the computation of the output of the layer. If None, phi is the identity function. Default is
+        None.
+    initialization : {'xavier_uniform', 'xavier_normal'}, optional
+        Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
+    """
+
+    def __init__(self, source_in_channels, source_out_channels, negative_slope, softmax=False, m_hop=1,
+                 update_func=None, initialization="xavier_uniform"):
 
         super().__init__(
             att=True,
@@ -33,8 +67,6 @@ class HBS(MessagePassing):
         self.source_out_channels = source_out_channels
 
         self.m_hop = m_hop
-
-        self.aggr_norm = aggr_norm
         self.update_func = update_func
 
         # TODO: (+efficiency) We are going through the same range in each of the init
@@ -46,36 +78,51 @@ class HBS(MessagePassing):
         self.negative_slope = negative_slope
         self.softmax = softmax
 
-        for w, a in zip(self.weight, self.att_weight):
-            self.reset_parameters(w, a)
+        self.reset_parameters()
 
-    def reset_parameters(self, weight, att_weight, gain=1.414):
+    def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
-
-        Notes
-        -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
 
         Parameters
         ----------
-        gain : float
-            Gain for the weight initialization.
+        gain : float, optional
+            Gain for the weight initialization. Default is 1.414.
         """
-        if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(weight, gain=gain)
-            torch.nn.init.xavier_uniform_(att_weight.view(-1, 1), gain=gain)
 
-        elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(weight, gain=gain)
-            torch.nn.init.xavier_normal_(att_weight.view(-1, 1), gain=gain)
-        else:
-            raise RuntimeError(
-                "Initialization method not recognized. "
-                "Should be either xavier_uniform or xavier_normal."
-            )
+        def reset_specific_hop_parameters(weight, att_weight):
+            if self.initialization == "xavier_uniform":
+                torch.nn.init.xavier_uniform_(weight, gain=gain)
+                torch.nn.init.xavier_uniform_(att_weight.view(-1, 1), gain=gain)
+
+            elif self.initialization == "xavier_normal":
+                torch.nn.init.xavier_normal_(weight, gain=gain)
+                torch.nn.init.xavier_normal_(att_weight.view(-1, 1), gain=gain)
+            else:
+                raise RuntimeError(
+                    "Initialization method not recognized. "
+                    "Should be either xavier_uniform or xavier_normal."
+                )
+
+        for w, a in zip(self.weight, self.att_weight):
+            reset_specific_hop_parameters(w, a)
 
     def attention(self, message, A_p, a_p):
+        """Compute attention matrix.
+
+        Parameters
+        ----------
+        message : torch.Tensor, shape [n_messages, source_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
+            matrix W_p.
+        A_p : torch.sparse, shape [n_cells, n_cells]
+            Neighborhood matrix to the power p.
+        a_p : torch.Tensor, shape [2*source_out_channels, 1]
+            Attention weight vector.
+
+        Returns
+        -------
+        att_p : torch.sparse, shape [n_messages, n_messages]. Represents the attention matrix A_p.
+        """
         n_messages = message.shape[0]
         source_index_i, source_index_j = A_p._indices()
         s_to_s = torch.cat([message[source_index_i], message[source_index_j]], dim=1)
@@ -89,32 +136,24 @@ class HBS(MessagePassing):
         return att_p
 
     # TODO: parallelize
-    # TODO: test
     def forward(self, x_source, neighborhood):
         """Forward pass.
 
-        This implements message passing:
-        - from source cells with input features `x_source`,
-        - via `neighborhood` defining where messages can pass,
-
-        In practice, this will update the features on the target cells.
-
-        If not provided, x_target is assumed to be x_source,
-        i.e. source cells send messages to themselves.
+        The forward pass of the Higher Order Attention Block layer. x_source is the cochain matrix X used as input
+        features for the layer. neighborhood is the neighborhood matrix A. Note that the neighborhood matrix shape
+        should be [n_cells, n_cells] where n_cells is the number of rows in x_source.
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
+        x_source : torch.Tensor, shape=[n_cells, source_in_channels]
+            Cochain matrix X used as input of the layer.
+        neighborhood : torch.sparse, shape=[n_cells, n_cells]
+            Neighborhood matrix used to compute the HBS layer.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Output features on target cells.
-            Assumes that all target cells have the same rank s.
+        _ : Tensor, shape=[n_cells, source_out_channels]
+            Output features of the layer.
         """
 
         message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
@@ -139,8 +178,6 @@ class HBS(MessagePassing):
 
         result = torch.zeros_like(message[0])
 
-
-
         for m_p in message:
             result += m_p
         if self.update_func is None:
@@ -152,12 +189,12 @@ class HBS(MessagePassing):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
-            Output features on target cells.
+        message : torch.Tensor, shape=[n_cells, out_channels]
+            Output features of the layer before the update function.
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        _ : torch.Tensor, shape=[n_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -169,92 +206,14 @@ class HBS(MessagePassing):
     # class. However, as we do not want to change the internal implementation of the TopoModelX library for the
     # challenge, we leave the code fragment duplicated.
     def sparse_row_norm(self, sparse_tensor):
+        """Normalize a sparse tensor by row dividing each row by its sum.
+
+        Parameters
+        ----------
+        sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
+
+        """
         row_sum = torch.sparse.sum(sparse_tensor, dim=1)
         values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
         sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
         return sparse_tensor.coalesce()
-
-
-# TRASH CODE
-"""
-    def forward(self, x_source, neighborhood):
-        Forward pass.
-
-        This implements message passing:
-        - from source cells with input features `x_source`,
-        - via `neighborhood` defining where messages can pass,
-        - to target cells with input features `x_target`.
-
-        In practice, this will update the features on the target cells.
-
-        If not provided, x_target is assumed to be x_source,
-        i.e. source cells send messages to themselves.
-
-        Parameters
-        ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
-
-        Returns
-        -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Output features on target cells.
-            Assumes that all target cells have the same rank s.
-       
-
-        message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
-
-        neighborhood = neighborhood.coalesce()
-
-        self.source_index_i = []
-        self.source_index_j = []
-
-        for p in range(self.m_hop):
-            neighborhood = torch.sparse.mm(neighborhood, neighborhood)
-            source_index_i, source_index_j = neighborhood._indices()
-            self.source_index_i.append(source_index_i)
-            self.source_index_j.append(source_index_j)
-        
-        att_p = [self.attention(m,) for m in message]
-        
-        attention = self.attention(message)
-
-        neighborhood = [torch.sparse_coo_tensor(
-            indices=neighborhood.indices(),
-            values=attention[p].values() * neighborhood.values(),
-            size=neighborhood.shape,
-        ) for p in range(self.m_hop)]
-
-        
-        message = torch.mm(neighborhood, message)
-
-        return self.update(message)
-"""
-
-"""
-   def attention(self, message):
-
-       n_messages = message[0].shape[0]
-
-       s_to_s = [torch.cat([message[p][self.source_index_i[p]], message[p][self.source_index_j[p]]], dim=1) for p in range(1, self.m_hop + 1)]
-
-       e_p = [
-           torch.sparse_coo_tensor(
-               indices=torch.tensor([self.source_index_i[p].tolist(), self.source_index_j[p].tolist()]),
-               values=F.leaky_relu(torch.matmul(s_to_s[p], self.att_weight[p]),
-                                   negative_slope=self.negative_slope).squeeze(1),
-               size=(n_messages, n_messages)
-           ) for p in range(1, self.m_hop + 1)
-       ]
-
-       att_p = [torch.sparse.softmax(e, dim=1) if self.softmax else self.sparse_row_norm(e) for e in e_p]
-
-       return att_p"""

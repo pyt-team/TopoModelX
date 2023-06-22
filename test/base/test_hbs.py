@@ -23,26 +23,13 @@ class TestHBS:
             size=(3, 3),
             dtype=torch.float
         )
-        self.hbs = HBS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            negative_slope=0.2,
-            softmax=False,
-            m_hop=1
-        )
+        self.hbs = HBS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out, negative_slope=0.2,
+                       softmax=False, m_hop=1)
 
     def test_forward_shape(self):
         self.d_s_out = 3
-        self.hbs = HBS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            negative_slope=0.2,
-            softmax=False,
-            m_hop=2,
-            aggr_norm=True,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
-        )
+        self.hbs = HBS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out, negative_slope=0.2,
+                       softmax=False, m_hop=2, update_func="sigmoid", initialization="xavier_uniform")
         self.n_source_cells = 10
         self.neighborhood = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 1, 1, 2, 9], [3, 7, 9, 2, 5]]),
@@ -115,15 +102,8 @@ class TestHBS:
 
     def test_forward_values(self):
         self.d_s_out = 3
-        self.hbs = HBS(
-            source_in_channels=self.d_s_in,
-            source_out_channels=self.d_s_out,
-            negative_slope=0.2,
-            softmax=False,
-            m_hop=1,
-            aggr_norm=True,
-            update_func=None
-        )
+        self.hbs = HBS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out, negative_slope=0.2,
+                       softmax=False, m_hop=1, update_func=None)
         self.set_weights_to_one()
         x_source = torch.tensor(
             [[1, 2],
