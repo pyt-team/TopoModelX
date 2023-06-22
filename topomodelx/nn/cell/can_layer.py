@@ -1,9 +1,69 @@
 import torch
-from torch.nn import Linear
+from torch.nn import Linear, Parameter
 from torch import Tensor
 
-from topomodelx.base.conv import Conv
+from topomodelx.base.conv import MessagePassing
 from topomodelx.base.aggregation import Aggregation
+
+class CANConv(MessagePassing):
+    """Cell Attention Network (CAN) convolutional layer.
+
+    Parameters
+    ----------
+    """
+
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        update_func=None,
+        att=True,
+        initialization="xavier_uniform",
+    ):
+        super().__init__(
+            att=att,
+            initialization=initialization,
+        )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.update_func = update_func
+
+        self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
+        if self.att:
+            self.att_weight = Parameter(
+                torch.Tensor(
+                    2 * self.in_channels,
+                )
+            )
+
+        self.reset_parameters()
+
+    def forward(self, x_source, neighborhood):
+        """Forward pass.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
+        if self.att:
+            neighborhood = neighborhood.coalesce()
+            self.target_index_i, self.source_index_j = neighborhood.indices()
+            attention_values = self.attention(x_source)
+            neighborhood = torch.sparse_coo_tensor(
+                indices=neighborhood.indices(),
+                values=attention_values * neighborhood.values(),
+                size=neighborhood.shape,
+            )
+
+        neighborhood = torch.sparse.softmax(neighborhood, dim=1).to_dense()
+
+        x_message = torch.mm(x_source, self.weight)
+        x_message_on_target = torch.mm(neighborhood, x_message)
+
+        return x_message_on_target
+
 
 class CANLayer(torch.nn.Module): 
 
@@ -51,12 +111,12 @@ class CANLayer(torch.nn.Module):
         super().__init__()
 
         # lower attention
-        self.lower_att = Conv(
+        self.lower_att = CANConv(
             in_channels=in_channels, out_channels=out_channels, att=True
         )
 
         # upper attention
-        self.upper_att = Conv(
+        self.upper_att = CANConv(
             in_channels=in_channels, out_channels=out_channels, att=True
         )
 
@@ -97,6 +157,7 @@ class CANLayer(torch.nn.Module):
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)
         upper_x = self.upper_att(x, upper_neighborhood)
+
         w_x = self.lin(x)*self.eps
 
         # between-neighborhood aggregation and update
