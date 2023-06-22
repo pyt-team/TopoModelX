@@ -1,126 +1,99 @@
-"""Implementation of a simplified, convolutional version of CCXN layer from Hajij et. al: Cell Complex Neural Networks."""
-
 import torch
+from torch.nn import Linear
+from torch import Tensor
 
 from topomodelx.base.conv import Conv
+from topomodelx.base.aggregation import Aggregation
 
+class CANLayer(torch.nn.Module): 
 
-class CANLayer(torch.nn.Module):
-    """Layer of a Convolutional Cell Complex Network (CCXN).
+    r"""Layer of the Cell Attention Network (CAN) model.
 
-    Implementation of a simplified version of the CCXN layer proposed in [HIZ20]_.
+    The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
 
-    This layer is composed of two convolutional layers:
-    1. A convolutional layer sending messages from nodes to nodes.
-    2. A convolutional layer sending messages from edges to faces.
-    Optionally, attention mechanisms can be used.
+    ..  math::
+        \mathcal N_k \in  \mathcal N = \{A_{\uparrow, r}, A_{\downarrow, r}\}
+
+    ..  math::
+        \begin{align*}            
+        &🟥 \quad m_{y \rightarrow x}^{(r \rightarrow r)} = M_{\mathcal N_k}(h_x^{t}, h_y^{t}, \Theta^{t}_k)\\ 
+        &🟧 \quad m_x^{(r \rightarrow r)} = \text{AGG}_{y \in \mathcal{N}_k(x)}(m_{y \rightarrow x}^{(r \rightarrow r)})\\
+        &🟩 \quad m_x^{(r)} = \text{AGG}_{\mathcal{N}_k\in\mathcal N}m_x^{(r \rightarrow r)}\\            
+        &🟦 \quad h_x^{t+1,(r)} = U^{t}(h_x^{t}, m_x^{(r)})
+        \end{align*}
 
     Notes
     -----
-    This is the architecture proposed for entire complex classification.
 
     References
     ----------
-    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-        https://arxiv.org/pdf/2010.00743.pdf
+    [GBTDLSB22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
 
     Parameters
     ----------
-    in_channels_0 : int
-        Dimension of input features on nodes (0-cells).
-    in_channels_1 : int
-        Dimension of input features on edges (1-cells).
-    in_channels_2 : int
-        Dimension of input features on faces (2-cells).
-    att : bool
-        Whether to use attention.
+    in_channels : int
+        Dimension of input features on n-cells.
+    out_channels : int
+        Dimension of output
+    aggr_func : str = "sum"
+        The aggregation function between-neighborhoods. ["sum", "mean"]
+    update_func : str = "relu"
+        The update function within-neighborhoods. ["relu", "sigmoid"]
     """
 
-    def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
+    def __init__(self, 
+                in_channels: int,
+                out_channels: int,
+                aggr_func: str = "sum",
+                update_func: str = "relu",
+                **kwargs):
+
         super().__init__()
-        self.conv_0_to_0 = Conv(
-            in_channels=in_channels_0, out_channels=in_channels_0, att=att
+
+        # lower attention
+        self.lower_att = Conv(
+            in_channels=in_channels, out_channels=out_channels, att=True
         )
-        self.conv_1_to_2 = Conv(
-            in_channels=in_channels_1, out_channels=in_channels_2, att=att
+
+        # upper attention
+        self.upper_att = Conv(
+            in_channels=in_channels, out_channels=out_channels, att=True
         )
 
-    def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2=None):
-        r"""Forward pass.
+        # linear transformation
+        self.lin = Linear(in_channels, out_channels, bias=False)
+        self.eps = 1 + 1e-6
 
-        The forward pass was initially proposed in [HIZ20]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        # between-neighborhood aggregation and update
+        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
 
-        The forward pass of this layer is composed of two steps.
+        self.reset_parameters()
 
-        1. The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):
+    def reset_parameters(self):
+        self.lower_att.reset_parameters()
+        self.upper_att.reset_parameters()
+        self.lin.reset_parameters()
 
-        ..  math::
-            \begin{align*}
-            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
-                = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})\\
-            &🟧 \quad m_x^{(0 \rightarrow 1 \rightarrow 0)}
-                = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})\\
-            &🟩 \quad m_x^{(0)}
-                = m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
-            &🟦 \quad h_x^{t+1,(0)}
-                = U^{t}(h_x^{(0)}, m_x^{(0)})
-            \end{align*}
+    def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
 
-        2. The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:
+        r"TODO: my description"
 
-        .. math::
-            \begin{align*}
-            &🟥 \quad m_{y \rightarrow x}^{(r' \rightarrow r)}
-                = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)\\
-            &🟧 \quad m_x^{(r' \rightarrow r)}
-                = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}\\
-            &🟩 \quad m_x^{(r)}
-                = m_x^{(r' \rightarrow r)}\\
-            &🟦 \quad h_{x}^{t+1,(r)}
-                = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
-            \end{align*}
+        # message and within-neighborhood aggregation
+        lower_x = self.lower_att(x, lower_neighborhood)
+        upper_x = self.upper_att(x, upper_neighborhood)
+        w_x = self.lin(x)*self.eps
 
-        References
-        ----------
-        .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-            Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-            https://arxiv.org/pdf/2010.00743.pdf
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
+        # between-neighborhood aggregation and update
+        out = self.aggregation([lower_x, upper_x, w_x])
 
-        Parameters
-        ----------
-        x_0 : torch.Tensor, shape=[n_0_cells, channels]
-            Input features on the nodes of the cell complex.
-        x_1 : torch.Tensor, shape=[n_1_cells, channels]
-            Input features on the edges of the cell complex.
-        neighborhood_0_to_0 : torch.sparse
-            shape=[n_0_cells, n_0_cells]
-            Neighborhood matrix mapping nodes to nodes (A_0_up).
-        neighborhood_1_to_2 : torch.sparse
-            shape=[n_2_cells, n_1_cells]
-            Neighborhood matrix mapping edges to faces (B_2^T).
-        x_2 : torch.Tensor, shape=[n_2_cells, channels]
-            Input features on the faces of the cell complex.
-            Optional, only required if attention is used between edges and faces.
+        return out
+    
+if __name__ == "__main__":
 
-        Returns
-        -------
-        _ : torch.Tensor, shape=[1, num_classes]
-            Output prediction on the entire cell complex.
-        """
-        x_0 = torch.nn.functional.relu(x_0)
-        x_1 = torch.nn.functional.relu(x_1)
-
-        x_0 = self.conv_0_to_0(x_0, neighborhood_0_to_0)
-        x_0 = torch.nn.functional.relu(x_0)
-
-        x_2 = self.conv_1_to_2(x_1, neighborhood_1_to_2, x_2)
-        x_2 = torch.nn.functional.relu(x_2)
-
-        return x_0, x_1, x_2
+    # dimensional test
+    can = CANLayer(3, 4)
+    x = torch.randn(10, 3)
+    lower_neighborhood = torch.randn(10, 10).to_sparse()
+    upper_neighborhood = torch.randn(10, 10).to_sparse()
+    out = can(x, lower_neighborhood, upper_neighborhood)
+    print(out.shape)
