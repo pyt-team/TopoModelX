@@ -1,54 +1,37 @@
-"""Unit tests for the CCXNLayer class."""
+"""Unit tests for the CANLayer class."""
 
 import pytest
 import torch
 
-from topomodelx.nn.cell.ccxn_layer import CCXNLayer
+from topomodelx.nn.cell.can_layer import CANLayer
 
 
-class TestCCXNLayer:
-    """Unit tests for the CCXNLayer class."""
+class TestCANLayer:
+    """Unit tests for the CANLayer class."""
 
     def test_forward(self):
-        """Test the forward method of CCXNLayer."""
-        n_0_cells = 10
-        n_1_cells = 20
-        n_2_cells = 30
-        channels = 10
+        """Test the forward method of CANLayer."""
 
-        x_0 = torch.randn(n_0_cells, channels)
-        x_1 = torch.randn(n_1_cells, channels)
-        x_2 = torch.randn(n_2_cells, channels)
-        neighborhood_0_to_0 = torch.randn(n_0_cells, n_0_cells)
-        neighborhood_1_to_2 = torch.randn(n_2_cells, n_1_cells)
+        in_channels = 10
+        out_channels = 20
 
-        # Without attention
-        cxn_layer = CCXNLayer(
-            in_channels_0=channels,
-            in_channels_1=channels,
-            in_channels_2=channels,
-            att=False,
-        )
-        x_0, x_1, x_2 = cxn_layer.forward(
-            x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2
-        )
+        n_cells = 30
 
-        assert x_0.shape == (n_0_cells, channels)
-        assert x_1.shape == (n_1_cells, channels)
-        assert x_2.shape == (n_2_cells, channels)
+        x_0 = torch.randn(n_cells, in_channels)
 
-        # With attention: between x_0 <-> x_0 cells and x_1 <-> x_2 cells
-        neighborhood_0_to_0 = neighborhood_0_to_0.to_sparse().float()
-        neighborhood_1_to_2 = neighborhood_1_to_2.to_sparse().float()
-        cxn_layer = CCXNLayer(
-            in_channels_0=channels,
-            in_channels_1=channels,
-            in_channels_2=channels,
-            att=True,
+        lower_neighborhood = torch.randn(n_cells, n_cells)
+        upper_neighborhood = torch.randn(n_cells, n_cells)
+
+        lower_neighborhood = lower_neighborhood.to_sparse().float()
+        upper_neighborhood = upper_neighborhood.to_sparse().float()
+
+        can_layer = CANLayer(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            aggr_func="sum",
+            update_func="relu"
         )
-        x_0, x_1, x_2 = cxn_layer.forward(
-            x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2
+        x_1 = can_layer.forward(
+            x_0, lower_neighborhood, upper_neighborhood
         )
-        assert x_0.shape == (n_0_cells, channels)
-        assert x_1.shape == (n_1_cells, channels)
-        assert x_2.shape == (n_2_cells, channels)
+        assert x_1.shape == (n_cells, out_channels)

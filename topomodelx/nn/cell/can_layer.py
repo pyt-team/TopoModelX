@@ -76,7 +76,23 @@ class CANLayer(torch.nn.Module):
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
 
-        r"TODO: my description"
+        r"""Forward pass.
+
+        Parameters
+        ----------
+        x : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+        lower_neighborhood : torch.sparse
+            shape=[n_k_cells, n_k_cells]
+            Lower neighborhood matrix mapping k-cells to k-cells (A_k_low).
+        upper_neighborhood : torch.sparse
+            shape=[n_k_cells, n_k_cells]
+            Upper neighborhood matrix mapping k-cells to k-cells (A_k_up).
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[n_k_cells, out_channels]
+        """
 
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)
@@ -87,13 +103,3 @@ class CANLayer(torch.nn.Module):
         out = self.aggregation([lower_x, upper_x, w_x])
 
         return out
-    
-if __name__ == "__main__":
-
-    # dimensional test
-    can = CANLayer(3, 4)
-    x = torch.randn(10, 3)
-    lower_neighborhood = torch.randn(10, 10).to_sparse()
-    upper_neighborhood = torch.randn(10, 10).to_sparse()
-    out = can(x, lower_neighborhood, upper_neighborhood)
-    print(out.shape)
