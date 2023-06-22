@@ -28,8 +28,7 @@ class CCNNLayer(torch.nn.Module):
         )
         if harmonic:
             # TODO: temp version
-            self.harmonic = Linear(in_channels, out_channels, bias=False,
-                                   weight_init="glorot_uniform")
+            self.harmonic = Linear(in_channels, out_channels, bias=False)
         else:
             self.register_parameter('harmonic', None)
 
@@ -64,7 +63,9 @@ class CCNNLayer(torch.nn.Module):
         return out
     
 if __name__ == "__main__":
-    ccnn = CCNNLayer(3, 4)
+
+    # dimensional test
+    ccnn = CCNNLayer(3, 4, harmonic=True)
     x = torch.randn(10, 3)
     lower_neighborhood = torch.randn(10, 10).to_sparse()
     upper_neighborhood = torch.randn(10, 10).to_sparse()
