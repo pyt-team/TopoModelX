@@ -1,4 +1,4 @@
-"""Test the convolutional layers in the base module."""
+"""Test the Higher Order Attention Block for squared neighborhoods (HBS) layer in the base module."""
 import math
 
 import torch
@@ -8,8 +8,8 @@ from topomodelx.base.hbs import HBS
 
 class TestHBS:
     """Test the HBS class."""
-
     def set_weights_to_one(self):
+        """Set the weights to constant values."""
         for w, a in zip(self.hbs.weight, self.hbs.att_weight):
             torch.nn.init.constant_(w, 1.0)
             torch.nn.init.constant_(a, 1.0)
@@ -27,6 +27,7 @@ class TestHBS:
                        softmax=False, m_hop=1)
 
     def test_forward_shape(self):
+        """Test the shapes of the outputs of the forward pass of the HBS layer."""
         self.d_s_out = 3
         self.hbs = HBS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out, negative_slope=0.2,
                        softmax=False, m_hop=2, update_func="sigmoid", initialization="xavier_uniform")
@@ -58,6 +59,7 @@ class TestHBS:
         assert result.shape == (self.n_source_cells, self.d_s_out)
 
     def test_attention_without_softmax(self):
+        """Test the attention matrix calculation without softmax."""
         self.set_weights_to_one()
         # Create the message that will be used for the attention.
         message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
@@ -76,6 +78,7 @@ class TestHBS:
         assert torch.allclose(attention_matrix, expected_attention_matrix)
 
     def test_attention_with_softmax(self):
+        """Test the attention matrix calculation with softmax."""
         self.hbs.softmax = True
         self.set_weights_to_one()
         # Create the message that will be used for the attention.
@@ -101,6 +104,8 @@ class TestHBS:
         assert torch.allclose(attention_matrix, expected_attention_matrix)
 
     def test_forward_values(self):
+        """Test the values of the outputs of the forward pass of the HBS layer against a specific precomputed example.
+        """
         self.d_s_out = 3
         self.hbs = HBS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out, negative_slope=0.2,
                        softmax=False, m_hop=1, update_func=None)

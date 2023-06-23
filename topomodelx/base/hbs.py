@@ -1,4 +1,4 @@
-"""Higher Order Attention Block (HBS) for squared neighborhoods for message passing module."""
+"""Higher Order Attention Block for squared neighborhoods (HBS) for message passing module."""
 
 import torch
 import numpy as np

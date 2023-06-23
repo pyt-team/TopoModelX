@@ -1,4 +1,4 @@
-"""Higher Order Attention Block (HBS) for non-squared neighborhoods for message passing module."""
+"""Higher Order Attention Block for non-squared neighborhoods (HBNS) for message passing module."""
 
 import torch
 import torch.nn.functional as F

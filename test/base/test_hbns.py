@@ -1,4 +1,4 @@
-"""Test the convolutional layers in the base module."""
+"""Test the Higher Order Attention Block for non-squared neighborhoods (HBNS) layer in the base module."""
 import math
 
 import torch
@@ -8,8 +8,8 @@ from topomodelx.base.hbns import HBNS
 
 class TestHBNS:
     """Test the HBNS class."""
-
     def set_constant_weights(self):
+        """Set the weights to constant values."""
         with torch.no_grad():
             self.hbns.att_weight[:2] = 2.0
             self.hbns.att_weight[2:] = 1.0
@@ -31,7 +31,8 @@ class TestHBNS:
             size=(3, 3),
         )
 
-    def test_forward(self):
+    def test_forward_shape(self):
+        """Test the shapes of the outputs of the forward pass of the HBNS layer."""
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 3, 4
 
@@ -75,6 +76,7 @@ class TestHBNS:
         assert message_on_target.shape == (self.n_target_cells, self.d_t_out)
 
     def test_attention_without_softmax(self):
+        """Test the calculation of the attention matrices calculation without softmax."""
         self.set_constant_weights()
         # Create the message that will be used for the attention.
         target_message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
@@ -110,6 +112,7 @@ class TestHBNS:
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
     def test_attention_with_softmax(self):
+        """Test the calculation of the attention matrices calculation with softmax."""
         self.set_constant_weights()
         self.hbns.softmax = True
         # Create the message that will be used for the attention.
@@ -157,6 +160,8 @@ class TestHBNS:
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
     def test_forward_values(self):
+        """Test the values of the outputs of the forward pass of the HBNS layer against a specific precomputed example.
+        """
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 2, 3
 

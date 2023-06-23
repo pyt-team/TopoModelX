@@ -1,3 +1,4 @@
+"""Unit tests for the HMCLayer class."""
 import torch
 
 from topomodelx.nn.combinatorial.hmc_layer import HMCLayer
