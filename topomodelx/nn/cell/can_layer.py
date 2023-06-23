@@ -17,17 +17,16 @@ class CANConv(MessagePassing):
         self,
         in_channels,
         out_channels,
-        update_func=None,
-
+        aggr_func="sum",
         initialization="xavier_uniform",
     ):
         super().__init__(
             att=True,
             initialization=initialization,
+            aggr_func=aggr_func,
         )
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.update_func = update_func
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
         self.att_weight = Parameter(
@@ -58,11 +57,18 @@ class CANConv(MessagePassing):
             size=neighborhood.shape,
         )
             
-        neighborhood = torch.sparse.softmax(neighborhood, dim=1).to_dense()
+        neighborhood = torch.sparse.softmax(neighborhood, dim=1)
 
-        x_message = torch.mm(neighborhood, x_message)
+        neighborhood_values = neighborhood.values()
+        if neighborhood_values.nonzero().size(0) > 0:  # Check if there are any non-zero values
+            x_message = x_message.index_select(-2, self.source_index_j)
+            x_message = neighborhood_values.view(-1, 1) * x_message
+            out = self.aggregate(x_message)
+        else:  # Special case for all zero neighborhood_values
+            # Create a tensor of the correct shape filled with zeros
+            out = torch.zeros((x_message.shape[0], x_message.shape[1]), device=x_message.device)
 
-        return x_message
+        return out
 
 class CANLayer(torch.nn.Module): 
 
@@ -103,6 +109,7 @@ class CANLayer(torch.nn.Module):
     def __init__(self, 
                 in_channels: int,
                 out_channels: int,
+                skip_connection: bool = True,
                 aggr_func: str = "sum",
                 update_func: str = "relu",
                 **kwargs):
@@ -120,8 +127,9 @@ class CANLayer(torch.nn.Module):
         )
 
         # linear transformation
-        self.lin = Linear(in_channels, out_channels, bias=False)
-        self.eps = 1 + 1e-6
+        if skip_connection:
+            self.lin = Linear(in_channels, out_channels, bias=False)
+            self.eps = 1 + 1e-6
 
         # between-neighborhood aggregation and update
         self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
@@ -131,7 +139,8 @@ class CANLayer(torch.nn.Module):
     def reset_parameters(self):
         self.lower_att.reset_parameters()
         self.upper_att.reset_parameters()
-        self.lin.reset_parameters()
+        if hasattr(self, "lin"):
+            self.lin.reset_parameters()
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
 
@@ -157,9 +166,14 @@ class CANLayer(torch.nn.Module):
         lower_x = self.lower_att(x, lower_neighborhood)
         upper_x = self.upper_att(x, upper_neighborhood)
 
-        w_x = self.lin(x)*self.eps
+        # skip connection
+        if hasattr(self, "lin"):
+            w_x = self.lin(x)*self.eps
 
-        # between-neighborhood aggregation and update
-        out = self.aggregation([lower_x, upper_x, w_x])
+            # between-neighborhood aggregation and update
+            out = self.aggregation([lower_x, upper_x, w_x])
+        else:
+            # between-neighborhood aggregation and update
+            out = self.aggregation([lower_x, upper_x])
 
         return out
