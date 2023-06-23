@@ -173,26 +173,26 @@ class HBNS(MessagePassing):
         A_t : torch.sparse, shape [source_cells, target_cells]. Represents the attention matrix A_t.
         """
         s_to_t = torch.cat(
-            [s_message[self.source_index_i], t_message[self.target_index_j]], dim=1
+            [s_message[self.source_indices], t_message[self.target_indices]], dim=1
         )
 
         t_to_s = torch.cat(
-            [t_message[self.target_index_i], s_message[self.source_index_j]], dim=1
+            [t_message[self.target_indices], s_message[self.source_indices]], dim=1
         )
 
         e = torch.sparse_coo_tensor(
-            indices=torch.tensor([self.source_index_i.tolist(), self.target_index_j.tolist()]),
+            indices=torch.tensor([self.target_indices.tolist(), self.source_indices.tolist()]),
             values=F.leaky_relu(torch.matmul(s_to_t, self.att_weight), negative_slope=self.negative_slope).squeeze(1),
-            size=(s_message.shape[0], t_message.shape[0])
+            size=(t_message.shape[0], s_message.shape[0])
         )
 
         f = torch.sparse_coo_tensor(
-            indices=torch.tensor([self.target_index_i.tolist(), self.source_index_j.tolist()]),
+            indices=torch.tensor([self.source_indices.tolist(), self.target_indices.tolist()]),
             values=F.leaky_relu(
                 torch.matmul(t_to_s, torch.cat(
                     [self.att_weight[self.source_out_channels:], self.att_weight[:self.source_out_channels]])),
                 negative_slope=self.negative_slope).squeeze(1),
-            size=(t_message.shape[0], s_message.shape[0])
+            size=(s_message.shape[0], t_message.shape[0])
         )
         if self.softmax:
             return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
@@ -226,18 +226,17 @@ class HBNS(MessagePassing):
         s_message = torch.mm(x_source, self.w_s)  # [n_source_cells, d_t_out]
         t_message = torch.mm(x_target, self.w_t)  # [n_target_cells, d_s_out]
 
-        neighborhood_t_to_s = neighborhood.coalesce()
-        neighborhood_s_to_t = neighborhood.t().coalesce()
+        neighborhood_s_to_t = neighborhood.coalesce()
+        neighborhood_t_to_s = neighborhood.t().coalesce()
 
-        self.source_index_i, self.target_index_j = neighborhood_t_to_s.indices()
-        self.target_index_i, self.source_index_j = neighborhood_s_to_t.indices()
+        self.target_indices, self.source_indices = neighborhood_s_to_t.indices()
 
-        t_to_s_attention, s_to_t_attention = self.attention(s_message, t_message)
+        s_to_t_attention, t_to_s_attention = self.attention(s_message, t_message)
 
         neighborhood_t_to_s_att = torch.sparse_coo_tensor(
             indices=neighborhood_t_to_s.indices(),
             values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
-            size=neighborhood.shape,
+            size=neighborhood_t_to_s.shape,
         )
 
         neighborhood_s_to_t_att = torch.sparse_coo_tensor(

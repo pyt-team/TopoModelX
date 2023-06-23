@@ -77,13 +77,13 @@ class HMCLayer(torch.nn.Module):
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_0_1_level1 = HBNS(source_in_channels=in_channels_0, source_out_channels=intermediate_channels_0,
-                                    target_in_channels=in_channels_1, target_out_channels=intermediate_channels_1,
+        self.hbns_0_1_level1 = HBNS(source_in_channels=in_channels_1, source_out_channels=intermediate_channels_1,
+                                    target_in_channels=in_channels_0, target_out_channels=intermediate_channels_0,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_1, source_out_channels=intermediate_channels_1,
-                                    target_in_channels=in_channels_2, target_out_channels=intermediate_channels_2,
+        self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_2, source_out_channels=intermediate_channels_2,
+                                    target_in_channels=in_channels_1, target_out_channels=intermediate_channels_1,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
@@ -91,8 +91,8 @@ class HMCLayer(torch.nn.Module):
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_0_1_level2 = HBNS(source_in_channels=intermediate_channels_0, source_out_channels=out_channels_0,
-                                    target_in_channels=intermediate_channels_1, target_out_channels=out_channels_1,
+        self.hbns_0_1_level2 = HBNS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
+                                    target_in_channels=intermediate_channels_0, target_out_channels=out_channels_0,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
@@ -100,8 +100,8 @@ class HMCLayer(torch.nn.Module):
                                 negative_slope=negative_slope, softmax=softmax_attention,
                                 update_func=update_func_attention, initialization=initialization)
 
-        self.hbns_1_2_level2 = HBNS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
-                                    target_in_channels=intermediate_channels_2, target_out_channels=out_channels_2,
+        self.hbns_1_2_level2 = HBNS(source_in_channels=intermediate_channels_2, source_out_channels=out_channels_2,
+                                    target_in_channels=intermediate_channels_1, target_out_channels=out_channels_1,
                                     negative_slope=negative_slope, softmax=softmax_attention,
                                     update_func=update_func_attention, initialization=initialization)
 
@@ -161,8 +161,8 @@ class HMCLayer(torch.nn.Module):
             """
         # Computing messages from Higher Order Attention Blocks Level 1
         x_0_to_0 = self.hbs_0_level1(x_0, adjacency_0)
-        x_1_to_0, x_0_to_1 = self.hbns_0_1_level1(x_0, x_1, incidence_1)
-        x_2_to_1, x_1_to_2 = self.hbns_1_2_level1(x_1, x_2, incidence_2)
+        x_0_to_1, x_1_to_0 = self.hbns_0_1_level1(x_1, x_0, incidence_1)
+        x_1_to_2, x_2_to_1 = self.hbns_1_2_level1(x_2, x_1, incidence_2)
 
         x_0_level1 = self.aggr([x_0_to_0, x_1_to_0])
         x_1_level1 = self.aggr([x_0_to_1, x_2_to_1])
@@ -172,8 +172,9 @@ class HMCLayer(torch.nn.Module):
         x_0_to_0 = self.hbs_0_level2(x_0_level1, adjacency_0)
         x_1_to_1 = self.hbs_1_level2(x_1_level1, adjacency_1)
         x_2_to_2 = self.hbs_2_level2(x_2_level1, coadjacency_2)
-        _, x_0_to_1 = self.hbns_0_1_level2(x_0_level1, x_1_level1, incidence_1)
-        _, x_1_to_2 = self.hbns_1_2_level2(x_1_level1, x_2_level1, incidence_2)
+
+        x_0_to_1, _ = self.hbns_0_1_level2(x_1_level1, x_0_level1, incidence_1)
+        x_1_to_2, _ = self.hbns_1_2_level2(x_2_level1, x_1_level1, incidence_2)
 
         x_0_level2 = x_0_to_0
         x_1_level2 = self.aggr([x_0_to_1, x_1_to_1])
