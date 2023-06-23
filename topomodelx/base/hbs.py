@@ -36,10 +36,10 @@ class HBS(MessagePassing):
     attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
     of the attention matrix A_p are computed as
     ..  math::
-    A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
+        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
     where
     ..  math::
-    e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
+        e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
     and where || denotes concatenation, a_p is a learnable column vector of length 2*source_out_channels, and S is
     the exponential function if softmax is used and the identity function otherwise.
 

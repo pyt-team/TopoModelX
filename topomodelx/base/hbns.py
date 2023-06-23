@@ -26,21 +26,34 @@ class HBNS(MessagePassing):
     """Higher Order Attention Block layer for non-squared neighborhoods (HBNS).
 
     This is a sparse implementation of an HBNS layer. HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
-    # TODO we are here
-    Mathematically, a higher order attention block layer for non-squared neighborhood matrices N of shape [n_cells, n_cells]
-    and a cochain matrix X of shape [n_cells, source_in_channels] is a function
+
+    Mathematically, a higher order attention block layer for non-squared neighborhood matrices N of shape
+    [target_cells, source_cells] is a function that outputs new signals for the source and target cells of the
+    application given by the neighborhood matrix N given input source and target cochain matrices Xs and Xt of shape
+    [source_cells, source_in_channels] and target_cells, target_in_channels], respectively. The output source and target
+    cochain matrices Ys and Yt are computed as
      ..  math::
-        \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
-    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_p
-    is a learnable weight matrix of shape [source_in_channels, source_out_channels] for each p, and A_p is an
-    attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
-    of the attention matrix A_p are computed as
+        \begin{align}
+            Ys = \phi((N^T \odot A_t) X_t W_t)\\
+            Yt = \phi((N \odot A_s) X_s W_s )
+        \end{align}
+    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_t
+    and W_s are learnable weight matrices of shapes [target_in_channels, target_out_channels] and
+    [source_in_channels, source_out_channels], respectively, and A_t and A_s are attention matrices with the same shape
+    of N^T and N, respectively. The entries (i, j) of the attention matrices A_t and A_s are computed as
+    # TODO: Here -> Check the formulas are correct. Also, check the names in the code are correct.
     ..  math::
-    A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
+        \begin{align}
+            A_t(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}}
+            A_s(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}}
+        \end{align}
     where
     ..  math::
-    e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
-    and where || denotes concatenation, a_p is a learnable column vector of length 2*source_out_channels, and S is
+        \begin{align}
+            e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a))
+        \end{align}
+    and where || denotes concatenation, a is a learnable column vector of length
+    source_out_channels + target_out_channels, and S is
     the exponential function if softmax is used and the identity function otherwise.
 
     References
