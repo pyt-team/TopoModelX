@@ -49,8 +49,8 @@ class HBNS(MessagePassing):
     where
     ..  math::
         \begin{align}
-            e_{i,j} &= S(\text{LeakyReLU}([Xs_iW_s||Xt_jW_t]a))\\
-            f_{i,j} &= S(\text{LeakyReLU}([Xt_iW_t||Xs_jW_s][a[source_out_channels:]||a[:source_out_channels]]))\\
+            e_{i,j} &= S(\text{LeakyReLU}([Xs_jW_s||Xt_iW_t]a))\\
+            f_{i,j} &= S(\text{LeakyReLU}([Xt_jW_t||Xs_iW_s][a[source_out_channels:]||a[:source_out_channels]]))\\
         \end{align}
     and where || denotes concatenation, a is a learnable column vector of length
     source_out_channels + target_out_channels, v[:c] is the vector consisting of the first c elements of v, v[c:]

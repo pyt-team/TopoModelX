@@ -192,22 +192,22 @@ class TestHBNS:
                 [19, 19, 19]
             ], dtype=torch.float
         )
-        expected_att_matrix_s_t = torch.tensor(
+        expected_att_matrix_s_to_t = torch.tensor(
             [
-                [75.0 / 198.0, 0.0, 123.0 / 198.0],
-                [87.0 / 198.0, 111.0 / 198.0, 0.0],
-                [0.0, 123.0 / 270.0, 147.0 / 270.0]
+                [75.0 / 174.0, 0.0, 99.0 / 174.0],
+                [99.0 / 210.0, 111.0 / 210.0, 0.0],
+                [0.0, 135.0 / 282.0, 147.0 / 282.0]
             ], dtype=torch.float
         )
-        expected_att_matrix_t_s = torch.tensor(
+        expected_att_matrix_t_to_s = torch.tensor(
             [
-                [75.0 / 162.0, 87.0 / 162.0, 0.0],
-                [0.0, 111.0 / 234.0, 123.0 / 234.0],
-                [123.0 / 270.0, 0.0, 147.0 / 270.0]
+                [75.0 / 174.0, 99.0 / 174.0, 0.0],
+                [0.0, 111.0 / 246.0, 135.0 / 246.0],
+                [99.0 / 246.0, 0.0, 147.0 / 246.0]
             ], dtype=torch.float
         )
-        expected_message_on_source = torch.mm(expected_att_matrix_s_t, expected_t_message)
-        expected_message_on_target = torch.mm(expected_att_matrix_t_s, expected_s_message)
+        expected_message_on_target = torch.mm(expected_att_matrix_s_to_t, expected_s_message)
+        expected_message_on_source = torch.mm(expected_att_matrix_t_to_s, expected_t_message)
 
         message_on_source, message_on_target = self.hbns.forward(x_source, x_target, self.neighborhood_s_to_t)
 
