@@ -34,27 +34,28 @@ class HBNS(MessagePassing):
     cochain matrices Ys and Yt are computed as
      ..  math::
         \begin{align}
-            Ys = \phi((N^T \odot A_t) X_t W_t)\\
-            Yt = \phi((N \odot A_s) X_s W_s )
+            Ys &= \phi((N^T \odot A_t) X_t W_t)\\
+            Yt &= \phi((N \odot A_s) X_s W_s )
         \end{align}
     where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_t
     and W_s are learnable weight matrices of shapes [target_in_channels, target_out_channels] and
     [source_in_channels, source_out_channels], respectively, and A_t and A_s are attention matrices with the same shape
     of N^T and N, respectively. The entries (i, j) of the attention matrices A_t and A_s are computed as
-    # TODO: Here -> Check the formulas are correct. Also, check the names in the code are correct.
     ..  math::
         \begin{align}
-            A_t(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}}
-            A_s(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}}
+            A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}} \\
+            A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}}
         \end{align}
     where
     ..  math::
         \begin{align}
-            e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a))
+            e_{i,j} &= S(\text{LeakyReLU}([Xs_iW_s||Xt_jW_t]a))\\
+            f_{i,j} &= S(\text{LeakyReLU}([Xt_iW_t||Xs_jW_s][a[source_out_channels:]||a[:source_out_channels]]))\\
         \end{align}
     and where || denotes concatenation, a is a learnable column vector of length
-    source_out_channels + target_out_channels, and S is
-    the exponential function if softmax is used and the identity function otherwise.
+    source_out_channels + target_out_channels, v[:c] is the vector consisting of the first c elements of v, v[c:]
+    is the vector consisting of the last elements of v, starting from the (c+1)-th element, and S is the exponential
+    function if softmax is used and the identity function otherwise.
 
     References
     ----------
@@ -68,12 +69,14 @@ class HBNS(MessagePassing):
         Number of input features for the source cells.
     source_out_channels : int
         Number of output features for the source cells.
+    target_in_channels : int
+        Number of input features for the target cells.
+    target_out_channels : int
+        Number of output features for the target cells.
     negative_slope : float
-        Negative slope of the LeakyReLU activation function. Default is 0.2.
+        Negative slope of the LeakyReLU activation function.
     softmax : bool, optional
         Whether to use softmax in the computation of the attention matrix. Default is False.
-    m_hop : int, optional
-        Maximum number of hops to consider in the computation of the layer function. Default is 1.
     update_func : {None, 'sigmoid', 'relu'}, optional
         phi function in the computation of the output of the layer. If None, phi is the identity function. Default is
         None.
@@ -81,8 +84,8 @@ class HBNS(MessagePassing):
         Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
     """
 
-    def __init__(self, source_in_channels, source_out_channels, target_in_channels, target_out_channels, negative_slope,
-                 softmax=False, update_func=None, initialization="xavier_uniform"):
+    def __init__(self, source_in_channels, source_out_channels, target_in_channels, target_out_channels,
+                 negative_slope=0.2, softmax=False, update_func=None, initialization="xavier_uniform"):
         super().__init__(
             att=True,
             initialization=initialization,
@@ -104,17 +107,12 @@ class HBNS(MessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-        """Reset learnable parameters.
-
-        Notes
-        -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
+        r"""Reset learnable parameters.
 
         Parameters
         ----------
-        gain : float
-            Gain for the weight initialization.
+        gain : float, optional
+            Gain for the weight initialization. Default is 1.414.
         """
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.w_s, gain=gain)
@@ -132,6 +130,22 @@ class HBNS(MessagePassing):
             )
 
     def update(self, message_on_source, message_on_target):
+        """Update embeddings on each cell.
+
+        Parameters
+        ----------
+        message_on_source : torch.Tensor, shape=[n_cells, out_channels]
+            Output features of the layer for the source before the update function.
+        message_on_target : torch.Tensor, shape=[n_cells, out_channels]
+            Output features of the layer for the target before the update function.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[source_cells, source_out_channels]
+            Updated output features on source cells.
+        _ : torch.Tensor, shape=[target_cells, target_out_channels]
+            Updated output features on target cells.
+        """
         if self.update_func == "sigmoid":
             message_on_source = torch.sigmoid(message_on_source)
             message_on_target = torch.sigmoid(message_on_target)
@@ -142,30 +156,22 @@ class HBNS(MessagePassing):
         return message_on_source, message_on_target
 
     def attention(self, s_message, t_message):
-        """Compute attention weights for messages.
-
-        This provides a default attention function to the message passing scheme.
-
-        Alternatively, users can subclass MessagePassing and overwrite
-        the attention method in order to replace it with their own attention mechanism.
-
-        Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
+        # Todo: we are commenting this
+        """Compute attention matrices A_s and A_t.
 
         Parameters
         ----------
-        x_source : torch.Tensor, shatpe=[n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
+        s_message : torch.Tensor, shape [n_messages, source_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
+            matrix W_p.
+        t_message : torch.Tensor, shape [n_messages, target_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
+            matrix W_p.
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
-            Attention weights: one scalar per message between a source and a target cell.
+        att_p : torch.sparse, shape [n_messages, n_messages]. Represents the attention matrix A_p.
         """
-
         s_to_t = torch.cat(
             [s_message[self.source_index_i], t_message[self.target_index_j]], dim=1
         )
@@ -184,7 +190,7 @@ class HBNS(MessagePassing):
             indices=torch.tensor([self.target_index_i.tolist(), self.source_index_j.tolist()]),
             values=F.leaky_relu(
                 torch.matmul(t_to_s, torch.cat(
-                    [self.att_weight[self.target_out_channels:], self.att_weight[:self.target_out_channels]])),
+                    [self.att_weight[self.source_out_channels:], self.att_weight[:self.source_out_channels]])),
                 negative_slope=self.negative_slope).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0])
         )
@@ -228,28 +234,28 @@ class HBNS(MessagePassing):
         s_message = torch.mm(x_source, self.w_s)  # [n_source_cells, d_t_out]
         t_message = torch.mm(x_target, self.w_t)  # [n_target_cells, d_s_out]
 
-        neighborhood_s = neighborhood.coalesce()
-        neighborhood_t = neighborhood.t().coalesce()
+        neighborhood_t_to_s = neighborhood.coalesce()
+        neighborhood_s_to_t = neighborhood.t().coalesce()
 
-        self.source_index_i, self.target_index_j = neighborhood_s.indices()
-        self.target_index_i, self.source_index_j = neighborhood_t.indices()
+        self.source_index_i, self.target_index_j = neighborhood_t_to_s.indices()
+        self.target_index_i, self.source_index_j = neighborhood_s_to_t.indices()
 
-        s_t_attention, t_s_attention = self.attention(s_message, t_message)
+        t_to_s_attention, s_to_t_attention = self.attention(s_message, t_message)
 
-        neighborhood_s_t = torch.sparse_coo_tensor(
-            indices=neighborhood_s.indices(),
-            values=s_t_attention.values() * neighborhood_s.values(),
+        neighborhood_t_to_s_att = torch.sparse_coo_tensor(
+            indices=neighborhood_t_to_s.indices(),
+            values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
             size=neighborhood.shape,
         )
 
-        neighborhood_t_s = torch.sparse_coo_tensor(
-            indices=neighborhood_t.indices(),
-            values=t_s_attention.values() * neighborhood_t.values(),
-            size=neighborhood_t.shape,
+        neighborhood_s_to_t_att = torch.sparse_coo_tensor(
+            indices=neighborhood_s_to_t.indices(),
+            values=s_to_t_attention.values() * neighborhood_s_to_t.values(),
+            size=neighborhood_s_to_t.shape,
         )
 
-        message_on_source = torch.mm(neighborhood_s_t, t_message)
-        message_on_target = torch.mm(neighborhood_t_s, s_message)
+        message_on_source = torch.mm(neighborhood_t_to_s_att, t_message)
+        message_on_target = torch.mm(neighborhood_s_to_t_att, s_message)
 
         if self.update_func is None:
             return message_on_source, message_on_target

@@ -36,7 +36,7 @@ class HBS(MessagePassing):
     attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
     of the attention matrix A_p are computed as
     ..  math::
-        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{rows(N)} e_{i,k}^p}
+        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}
     where
     ..  math::
         e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
@@ -56,7 +56,7 @@ class HBS(MessagePassing):
     source_out_channels : int
         Number of output features for the source cells.
     negative_slope : float
-        Negative slope of the LeakyReLU activation function. Default is 0.2.
+        Negative slope of the LeakyReLU activation function.
     softmax : bool, optional
         Whether to use softmax in the computation of the attention matrix. Default is False.
     m_hop : int, optional
@@ -118,6 +118,24 @@ class HBS(MessagePassing):
 
         for w, a in zip(self.weight, self.att_weight):
             reset_specific_hop_parameters(w, a)
+
+    def update(self, message):
+        """Update embeddings on each cell.
+
+        Parameters
+        ----------
+        message : torch.Tensor, shape=[n_cells, out_channels]
+            Output features of the layer before the update function.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[n_cells, out_channels]
+            Updated output features on target cells.
+        """
+        if self.update_func == "sigmoid":
+            return torch.sigmoid(message)
+        if self.update_func == "relu":
+            return torch.nn.functional.relu(message)
 
     def attention(self, message, A_p, a_p):
         """Compute attention matrix.
@@ -196,21 +214,3 @@ class HBS(MessagePassing):
         if self.update_func is None:
             return result
         return self.update(result)
-
-    def update(self, message):
-        """Update embeddings on each cell (step 4).
-
-        Parameters
-        ----------
-        message : torch.Tensor, shape=[n_cells, out_channels]
-            Output features of the layer before the update function.
-
-        Returns
-        -------
-        _ : torch.Tensor, shape=[n_cells, out_channels]
-            Updated output features on target cells.
-        """
-        if self.update_func == "sigmoid":
-            return torch.sigmoid(message)
-        if self.update_func == "relu":
-            return torch.nn.functional.relu(message)
