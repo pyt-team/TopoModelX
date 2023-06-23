@@ -5,8 +5,9 @@ from torch import Tensor
 from topomodelx.base.conv import MessagePassing
 from topomodelx.base.aggregation import Aggregation
 
+
 class CANConv(MessagePassing):
-    """Cell Attention Network (CAN) convolutional layer.
+    r"""Cell Attention Network (CAN) convolutional layer.
 
     Parameters
     ----------
@@ -17,11 +18,11 @@ class CANConv(MessagePassing):
         in_channels,
         out_channels,
         update_func=None,
-        att=True,
+
         initialization="xavier_uniform",
     ):
         super().__init__(
-            att=att,
+            att=True,
             initialization=initialization,
         )
         self.in_channels = in_channels
@@ -29,17 +30,16 @@ class CANConv(MessagePassing):
         self.update_func = update_func
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
-        if self.att:
-            self.att_weight = Parameter(
-                torch.Tensor(
-                    2 * self.in_channels,
-                )
+        self.att_weight = Parameter(
+            torch.Tensor(
+                2 * self.out_channels,
             )
+        )
 
         self.reset_parameters()
 
     def forward(self, x_source, neighborhood):
-        """Forward pass.
+        r"""Forward pass.
 
         Parameters
         ----------
@@ -47,23 +47,22 @@ class CANConv(MessagePassing):
         Returns
         -------
         """
-        if self.att:
-            neighborhood = neighborhood.coalesce()
-            self.target_index_i, self.source_index_j = neighborhood.indices()
-            attention_values = self.attention(x_source)
-            neighborhood = torch.sparse_coo_tensor(
-                indices=neighborhood.indices(),
-                values=attention_values * neighborhood.values(),
-                size=neighborhood.shape,
-            )
+        x_message = torch.mm(x_source, self.weight)
 
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+        attention_values = self.attention(x_message)
+        neighborhood = torch.sparse_coo_tensor(
+            indices=neighborhood.indices(),
+            values=attention_values * neighborhood.values(),
+            size=neighborhood.shape,
+        )
+            
         neighborhood = torch.sparse.softmax(neighborhood, dim=1).to_dense()
 
-        x_message = torch.mm(x_source, self.weight)
-        x_message_on_target = torch.mm(neighborhood, x_message)
+        x_message = torch.mm(neighborhood, x_message)
 
-        return x_message_on_target
-
+        return x_message
 
 class CANLayer(torch.nn.Module): 
 
@@ -112,12 +111,12 @@ class CANLayer(torch.nn.Module):
 
         # lower attention
         self.lower_att = CANConv(
-            in_channels=in_channels, out_channels=out_channels, att=True
+            in_channels=in_channels, out_channels=out_channels
         )
 
         # upper attention
         self.upper_att = CANConv(
-            in_channels=in_channels, out_channels=out_channels, att=True
+            in_channels=in_channels, out_channels=out_channels
         )
 
         # linear transformation

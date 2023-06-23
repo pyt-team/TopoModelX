@@ -12,10 +12,10 @@ class TestCANLayer:
     def test_forward(self):
         """Test the forward method of CANLayer."""
 
-        in_channels = 10
-        out_channels = 20
+        in_channels = 2
+        out_channels = 5
 
-        n_cells = 30
+        n_cells = 10
 
         x_0 = torch.randn(n_cells, in_channels)
 
@@ -35,3 +35,9 @@ class TestCANLayer:
             x_0, lower_neighborhood, upper_neighborhood
         )
         assert x_1.shape == (n_cells, out_channels)
+
+
+if __name__ == "__main__":
+    pytest.main(["-v", __file__])
+
+
