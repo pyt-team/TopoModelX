@@ -186,7 +186,6 @@ class HBS(MessagePassing):
         _ : Tensor, shape=[n_cells, source_out_channels]
             Output features of the layer.
         """
-
         message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
         result = torch.eye(x_source.shape[0]).to_sparse_coo()
         neighborhood = [result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)]

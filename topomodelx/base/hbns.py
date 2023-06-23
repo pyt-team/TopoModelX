@@ -34,8 +34,8 @@ class HBNS(MessagePassing):
     cochain matrices Ys and Yt are computed as
      ..  math::
         \begin{align}
-            Ys &= \phi((N^T \odot A_t) X_t W_t)\\
-            Yt &= \phi((N \odot A_s) X_s W_s )
+            Ys &= \phi((N^T \odot A_t) Xt W_t)\\
+            Yt &= \phi((N \odot A_s) Xs W_s )
         \end{align}
     where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_t
     and W_s are learnable weight matrices of shapes [target_in_channels, target_out_channels] and
@@ -156,21 +156,21 @@ class HBNS(MessagePassing):
         return message_on_source, message_on_target
 
     def attention(self, s_message, t_message):
-        # Todo: we are commenting this
         """Compute attention matrices A_s and A_t.
 
         Parameters
         ----------
-        s_message : torch.Tensor, shape [n_messages, source_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
-            matrix W_p.
-        t_message : torch.Tensor, shape [n_messages, target_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
-            matrix W_p.
+        s_message : torch.Tensor, shape [source_cells, source_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix Xs with the weight
+            matrix W_s.
+        t_message : torch.Tensor, shape [target_cells, target_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix Xt with the weight
+            matrix W_t.
 
         Returns
         -------
-        att_p : torch.sparse, shape [n_messages, n_messages]. Represents the attention matrix A_p.
+        A_s : torch.sparse, shape [target_cells, source_cells]. Represents the attention matrix A_s.
+        A_t : torch.sparse, shape [source_cells, target_cells]. Represents the attention matrix A_t.
         """
         s_to_t = torch.cat(
             [s_message[self.source_index_i], t_message[self.target_index_j]], dim=1
@@ -201,36 +201,28 @@ class HBNS(MessagePassing):
     def forward(self, x_source, x_target, neighborhood):
         """Forward pass.
 
-        This implements message passing:
-        - from source cells with input features `x_source`,
-        - via `neighborhood` defining where messages can pass,
-        - to target cells with input features `x_target`.
-
-        In practice, this will update the features on the target cells.
-
-        If not provided, x_target is assumed to be x_source,
-        i.e. source cells send messages to themselves.
+        The forward pass of the Higher Order Attention Block layer for non-squared matrices.
+        x_source and x_target are the cochain matrices Xs and Xt used as input features for the layer. neighborhood is
+        the neighborhood matrix A from source cells to target cells. Note that the neighborhood matrix shape
+        should be [target_cells, source_cells] where target_cells and source_cells are the number of rows in x_target
+        and x_source, respectively.
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
+        x_source : torch.Tensor, shape=[source_cells, source_in_channels]
+            Cochain matrix Xs used as input of the layer.
+        x_target : torch.Tensor, shape=[target_cells, target_in_channels]
+            Cochain matrix Xt used as input of the layer.
+        neighborhood : torch.sparse, shape=[target_cells, source_cells]
+            Neighborhood matrix used to compute the HBNS layer.
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Output features on target cells.
-            Assumes that all target cells have the same rank s.
+        _ : Tensor, shape=[source_cells, source_out_channels]
+            Output features of the layer for the source cells.
+        _ : Tensor, shape=[target_cells, target_out_channels]
+            Output features of the layer for the target cells.
         """
-
         s_message = torch.mm(x_source, self.w_s)  # [n_source_cells, d_t_out]
         t_message = torch.mm(x_target, self.w_t)  # [n_target_cells, d_s_out]
 
