@@ -38,10 +38,10 @@ class AllSetTransformerLayer(nn.Module):
     def __init__(
         self,
         in_channels,
-        hid_channels,
+        hidden_channels,
         out_channels,
         dropout=0.2,
-        heads=None,
+        heads=3,
         att_dropout=0.0,
     ):
         super().__init__()  # AllSetLayer, self
@@ -51,16 +51,16 @@ class AllSetTransformerLayer(nn.Module):
 
         self.v2e = AllSetTransformerConv(
             in_channels=in_channels,
-            hid_channels=hid_channels,
-            out_channels=hid_channels,
+            hidden_channels=hidden_channels,
+            out_channels=hidden_channels,
             att_dropout=att_dropout,
             att=True,
             heads=heads,
         )
 
         self.e2v = AllSetTransformerConv(
-            in_channels=hid_channels,
-            hid_channels=hid_channels,
+            in_channels=hidden_channels,
+            hidden_channels=hidden_channels,
             out_channels=out_channels,
             att_dropout=att_dropout,
             att=True,
@@ -90,8 +90,7 @@ class AllSetTransformerLayer(nn.Module):
                 f"Shape of input node features {x.shape[-2]} does not have the correct number of edges {incidence_1.shape[-2]}."
             )
 
-        x = F.dropout(x, p=self.input_dropout, training=self.training)
-
+        # x = F.dropout(x, p=self.dropout, training=self.training)
         x = F.relu(self.v2e(x, incidence_1.transpose(1, 0)))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
@@ -99,6 +98,156 @@ class AllSetTransformerLayer(nn.Module):
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         return x
+
+
+class MultiHeadAttention(MessagePassing):
+    """Message passing: steps 1, 2, and 3.
+
+    Builds the message passing route given by one neighborhood matrix.
+    Includes an option for a x-specific update function.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of input features.
+    out_channels : int
+        Dimension of output features.
+    aggr_norm : bool
+        Whether to normalize the aggregated message by the neighborhood size.
+    update_func : string
+        Update method to apply to message.
+    att : bool
+        Whether to use attention.
+        Optional, default: False.
+    initialization : string
+        Initialization method.
+    """
+
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels,
+        out_channels,
+        aggr_norm=False,
+        update_func=None,
+        # Transformer parameters
+        heads=4,
+        att_dim=1,
+        # Attention
+        att=True,
+        initialization="xavier_uniform",
+    ):
+        # assert att == True, "AllSetTransformerConv only works with attention"
+
+        super().__init__(
+            att=att,
+            initialization=initialization,
+        )
+
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
+        self.out_channels = out_channels
+        self.aggr_norm = aggr_norm
+        self.update_func = update_func
+
+        self.out_channels = out_channels
+        self.heads = heads
+        self.att_dim = att_dim
+
+        self.K_weight = torch.nn.Parameter(
+            torch.randn(self.heads, self.in_channels, self.hidden_channels)
+        )
+        self.att_weight = torch.nn.Parameter(
+            torch.randn(self.heads, self.att_dim, self.hidden_channels)
+        )
+        self.V_weight = torch.nn.Parameter(
+            torch.randn(self.heads, self.in_channels, self.hidden_channels)
+        )
+
+    def attention(self, x_source, neighborhood):
+        """Compute attention weights for messages.
+
+        This provides a default attention function to the message passing scheme.
+
+        Alternatively, users can subclass MessagePassing and overwrite
+        the attention method in order to replace it with their own attention mechanism.
+
+        Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape = [n_target_cells, heads, att_dim, n_source_cells]
+            Attention weights: one scalar per message between a source and a target cell.
+        """
+        x_K = torch.matmul(x_source, self.K_weight)
+        alpha = torch.matmul(self.att_weight, x_K.transpose(1, 2))
+        expanded_alpha = (
+            torch.sparse_coo_tensor(
+                indices=neighborhood.indices(),
+                values=alpha.T[self.source_index_j],
+                size=[
+                    neighborhood.shape[0],
+                    neighborhood.shape[1],
+                    alpha.shape[1],
+                    alpha.shape[0],
+                ],
+            )
+            .to_dense()
+            .transpose(1, 3)
+            .to_sparse()
+        )
+        alpha_soft = torch.sparse.softmax(expanded_alpha, dim=3).to_dense()
+        return alpha_soft
+
+    def forward(self, x_source, neighborhood, x_target=None):
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
+
+        Parameters
+        ----------
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
+        """
+        # Transformer-based attention mechanism
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+        attention_values = self.attention(x_source, neighborhood)
+
+        x_message = torch.matmul(x_source, self.V_weight)
+        x_message_on_target = torch.matmul(attention_values, x_message)
+
+        return x_message_on_target
 
 
 class AllSetTransformerConv(MessagePassing):
@@ -127,7 +276,7 @@ class AllSetTransformerConv(MessagePassing):
     def __init__(
         self,
         in_channels,
-        hid_channels,
+        hidden_channels,
         out_channels,
         aggr_norm=False,
         update_func=None,
@@ -139,18 +288,19 @@ class AllSetTransformerConv(MessagePassing):
         att=True,
         initialization="xavier_uniform",
     ):
+        # assert att == True, "AllSetTransformerConv only works with attention"
+
         super().__init__(
             att=att,
             initialization=initialization,
         )
 
-        # assert att == True, "AllSetTransformerConv only works with attention"
         self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
         self.out_channels = out_channels
         self.aggr_norm = aggr_norm
         self.update_func = update_func
 
-        self.hidden = hid_channels // heads
         self.out_channels = out_channels
         self.heads = heads
 
@@ -158,19 +308,21 @@ class AllSetTransformerConv(MessagePassing):
         self.dropout = att_dropout
 
         # For neighbor nodes (source side, key)
-        self.lin_K = torch.nn.Linear(in_channels, self.heads * self.hidden)
+        self.lin_K = torch.nn.Linear(in_channels, self.heads * self.hidden_channels)
 
         # For neighbor nodes (source side, value)
-        self.lin_V = torch.nn.Linear(in_channels, self.heads * self.hidden)
+        self.lin_V = torch.nn.Linear(in_channels, self.heads * self.hidden_channels)
 
         # Seed vector
-        self.att_weight = torch.nn.Parameter(torch.Tensor(1, self.heads, self.hidden))
+        self.att_weight = torch.nn.Parameter(
+            torch.Tensor(1, self.heads, self.hidden_channels)
+        )
 
         self.weight = Parameter(torch.Tensor(self.in_channels, self.out_channels))
 
         self.rFF = MLP(
-            in_dim=self.heads * self.hidden,
-            hid_dim=self.heads * self.hidden,
+            in_dim=self.heads * self.hidden_channels,
+            hid_dim=self.heads * self.hidden_channels,
             out_dim=out_channels,
             num_layers=2,
             dropout=0.0,
@@ -178,8 +330,8 @@ class AllSetTransformerConv(MessagePassing):
         # originally the normalisation should be NONE!!!!!!!!!!!!
         # Normalization='None',)!!!!!!!!!!
 
-        self.ln0 = nn.LayerNorm(self.heads * self.hidden)
-        self.ln1 = nn.LayerNorm(self.heads * self.hidden)
+        self.ln0 = nn.LayerNorm(self.heads * self.hidden_channels)
+        self.ln1 = nn.LayerNorm(self.heads * self.hidden_channels)
 
         self.reset_parameters()
 
@@ -225,12 +377,13 @@ class AllSetTransformerConv(MessagePassing):
         _ : torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
-        x_K = self.lin_K(x_source).view(-1, self.heads, self.hidden)
-        x_V = self.lin_V(x_source).view(-1, self.heads, self.hidden)
+        x_K = self.lin_K(x_source).view(-1, self.heads, self.hidden_channels)
+        x_V = self.lin_V(x_source).view(-1, self.heads, self.hidden_channels)
 
         # Pointwise product X_k * a (weights every feature and sum across features)
         # output size: (|SET| x num_heads)
-        alpha = (x_K * self.att_weight).sum(dim=-1)
+        alpha = x_K * self.att_weight  # .sum(dim=-1)
+        alpha = alpha.sum(dim=-1)
 
         # Normalize with softmax over source nodes
 
@@ -287,7 +440,7 @@ class AllSetTransformerConv(MessagePassing):
         x_message_on_target = x_message_on_target + self.att_weight
 
         x_message_on_target = self.ln0(
-            x_message_on_target.view(-1, self.heads * self.hidden)
+            x_message_on_target.view(-1, self.heads * self.hidden_channels)
         )
         # rFF and skip connection. Lhs of eq(7) in GMT paper.
         x_message_on_target = self.ln1(
