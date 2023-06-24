@@ -17,7 +17,7 @@ class TestCANLayer:
 
         n_cells = 10
 
-        x_0 = torch.randn(n_cells, in_channels)
+        x_1 = torch.randn(n_cells, in_channels)
 
         lower_neighborhood = torch.randn(n_cells, n_cells)
         upper_neighborhood = torch.randn(n_cells, n_cells)
@@ -28,13 +28,28 @@ class TestCANLayer:
         can_layer = CANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
-            aggr_func="sum",
-            update_func="relu"
         )
         x_1 = can_layer.forward(
-            x_0, lower_neighborhood, upper_neighborhood
+            x_1, lower_neighborhood, upper_neighborhood
         )
         assert x_1.shape == (n_cells, out_channels)
+
+    def test_reset_parameters(self):
+        """Test the reset_parameters method of CANLayer."""
+            
+        in_channels = 2
+        out_channels = 5
+
+        can_layer = CANLayer(
+            in_channels=in_channels,
+            out_channels=out_channels,
+        )
+        can_layer.reset_parameters()
+
+        for module in can_layer.modules():
+            if hasattr(module, "reset_parameters"):
+                module.reset_parameters()
+
 
 
 if __name__ == "__main__":

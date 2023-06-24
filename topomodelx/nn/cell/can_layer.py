@@ -3,20 +3,37 @@ from torch.nn import Linear, Parameter
 from torch import Tensor
 
 from topomodelx.base.conv import MessagePassing
-from topomodelx.base.aggregation import Aggregation
 
 
-class CANConv(MessagePassing):
-    r"""Cell Attention Network (CAN) convolutional layer.
+class CANMessagePassing(MessagePassing):
+    r"""Attentional Message Passing from Cell Attention Network (CAN). [CAN22]_
 
     Parameters
     ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    aggr_func : string
+        Aggregation function to use. Options are "sum", "mean", "max".
+    initialization : string
+        Initialization method for the weights of the layer.
+
+    Notes
+    -----
+    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty. 
+
+    References
+    ----------
+    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
+        paper: https://arxiv.org/pdf/2209.08179.pdf
     """
 
     def __init__(
         self,
         in_channels,
         out_channels,
+        att_activation,
         aggr_func="sum",
         initialization="xavier_uniform",
     ):
@@ -25,6 +42,9 @@ class CANConv(MessagePassing):
             initialization=initialization,
             aggr_func=aggr_func,
         )
+
+        assert att_activation in ["leaky_relu", "elu", "tanh"]
+
         self.in_channels = in_channels
         self.out_channels = out_channels
 
@@ -37,17 +57,68 @@ class CANConv(MessagePassing):
 
         self.reset_parameters()
 
+    def attention(self, x_source, att_activation="leaky_relu"):
+        """Compute attention weights for messages. [CAN22]_
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape = [n_messages, 1]
+            Attention weights: one scalar per message between a source and a target cell.
+        """
+        x_source_per_message = x_source[self.source_index_j]
+        x_target_per_message = (
+            x_source[self.target_index_i]
+        )
+
+        # Concatenate source and target features
+        x_source_target_per_message = torch.cat(
+            [x_source_per_message, x_target_per_message], dim=1
+        )
+
+        # Compute attention weights
+        x_att = torch.matmul(x_source_target_per_message, self.att_weight)
+
+        # Apply activation function
+        if att_activation == "elu":
+            return torch.nn.functional.elu(x_att)
+        elif att_activation == "leaky_relu":
+            return torch.nn.functional.leaky_relu(x_att)
+        elif att_activation == "tanh":
+            return torch.nn.functional.tanh(x_att)
+        else:
+            raise NotImplementedError(
+                f"Activation function {att_activation} not implemented."
+            )
+
+
     def forward(self, x_source, neighborhood):
         r"""Forward pass.
 
         Parameters
         ----------
+        x_source : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+        neighborhood : torch.sparse, shape=[n_k_cells, n_k_cells]
+            Neighborhood matrix mapping k-cells to k-cells (A_k). [up, down]
 
         Returns
         -------
+        out : torch.Tensor, shape=[n_k_cells, channels]
         """
+
+        # Compute the linear transformation on the source features
         x_message = torch.mm(x_source, self.weight)
 
+        # Compute the attention coefficients
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
         attention_values = self.attention(x_message)
@@ -57,8 +128,11 @@ class CANConv(MessagePassing):
             size=neighborhood.shape,
         )
             
+        # Normalize the attention coefficients
         neighborhood = torch.sparse.softmax(neighborhood, dim=1)
 
+        # Aggregate the messages
+        # If there are no non-zero values in the neighborhood, then the neighborhood is empty
         neighborhood_values = neighborhood.values()
         if neighborhood_values.nonzero().size(0) > 0:  # Check if there are any non-zero values
             x_message = x_message.index_select(-2, self.source_index_j)
@@ -89,10 +163,12 @@ class CANLayer(torch.nn.Module):
 
     Notes
     -----
+    [] Add multi-head attention
 
     References
     ----------
-    [GBTDLSB22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
+    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
+        paper: https://arxiv.org/pdf/2209.08179.pdf
 
     Parameters
     ----------
@@ -100,30 +176,32 @@ class CANLayer(torch.nn.Module):
         Dimension of input features on n-cells.
     out_channels : int
         Dimension of output
-    aggr_func : str = "sum"
-        The aggregation function between-neighborhoods. ["sum", "mean"]
-    update_func : str = "relu"
-        The update function within-neighborhoods. ["relu", "sigmoid"]
+    skip_connection : bool, optional
+        If True, skip connection is added, by default True
+    att_activation : str, optional
+        Activation function for the attention coefficients, by default "leaky_relu". ["elu", "leaky_relu", "tanh"]
     """
 
     def __init__(self, 
                 in_channels: int,
                 out_channels: int,
                 skip_connection: bool = True,
-                aggr_func: str = "sum",
-                update_func: str = "relu",
+                att_activation: str = "leaky_relu",
                 **kwargs):
 
         super().__init__()
 
+        assert in_channels > 0, ValueError("Number of input channels must be > 0")
+        assert out_channels > 0, ValueError("Number of output channels must be > 0")
+
         # lower attention
-        self.lower_att = CANConv(
-            in_channels=in_channels, out_channels=out_channels
+        self.lower_att = CANMessagePassing(
+            in_channels=in_channels, out_channels=out_channels, att_activation=att_activation
         )
 
         # upper attention
-        self.upper_att = CANConv(
-            in_channels=in_channels, out_channels=out_channels
+        self.upper_att = CANMessagePassing(
+            in_channels=in_channels, out_channels=out_channels, att_activation=att_activation
         )
 
         # linear transformation
@@ -131,12 +209,10 @@ class CANLayer(torch.nn.Module):
             self.lin = Linear(in_channels, out_channels, bias=False)
             self.eps = 1 + 1e-6
 
-        # between-neighborhood aggregation and update
-        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
-
         self.reset_parameters()
 
     def reset_parameters(self):
+        r"""Reset the parameters of the layer."""
         self.lower_att.reset_parameters()
         self.upper_att.reset_parameters()
         if hasattr(self, "lin"):
@@ -166,14 +242,12 @@ class CANLayer(torch.nn.Module):
         lower_x = self.lower_att(x, lower_neighborhood)
         upper_x = self.upper_att(x, upper_neighborhood)
 
+        # between-neighborhood aggregation
+        out = lower_x + upper_x
+
         # skip connection
         if hasattr(self, "lin"):
             w_x = self.lin(x)*self.eps
-
-            # between-neighborhood aggregation and update
-            out = self.aggregation([lower_x, upper_x, w_x])
-        else:
-            # between-neighborhood aggregation and update
-            out = self.aggregation([lower_x, upper_x])
+            out = out + w_x
 
         return out
