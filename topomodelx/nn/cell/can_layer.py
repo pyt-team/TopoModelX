@@ -3,6 +3,7 @@ from torch.nn import Linear, Parameter
 from torch import Tensor
 
 from topomodelx.base.conv import MessagePassing
+from topomodelx.base.aggregation import Aggregation
 
 
 class CANMessagePassing(MessagePassing):
@@ -143,6 +144,38 @@ class CANMessagePassing(MessagePassing):
             out = torch.zeros((x_message.shape[0], x_message.shape[1]), device=x_message.device)
 
         return out
+    
+class CANMultiHeadMessagePassing(torch.nn.Module):
+    """
+    Multi-head version of the CANMessagePassing class.
+    """
+    def __init__(self, in_channels, out_channels, num_heads, 
+                 att_activation, concat=True, **kwargs):
+        super(CANMultiHeadMessagePassing, self).__init__()
+
+        self.heads = torch.nn.ModuleList()
+        for _ in range(num_heads):
+            self.heads.append(
+                CANMessagePassing(in_channels, out_channels, att_activation)
+            )
+
+        self.concat = concat
+
+    def reset_parameters(self):
+        for head in self.heads:
+            head.reset_parameters()
+
+    def forward(self, x_source, neighborhood):
+        out = []
+        for head in self.heads:
+            out.append(head(x_source, neighborhood))
+        
+        if self.concat:
+            # Concatenate the output along the feature dimension
+            return torch.cat(out, dim=1)
+        else:
+            # Take the mean of the output
+            return torch.mean(torch.stack(out), dim=0)
 
 class CANLayer(torch.nn.Module): 
 
@@ -185,8 +218,12 @@ class CANLayer(torch.nn.Module):
     def __init__(self, 
                 in_channels: int,
                 out_channels: int,
+                num_heads: int = 1,
+                concat: bool = True,
                 skip_connection: bool = True,
                 att_activation: str = "leaky_relu",
+                aggr_func="sum",
+                update_func: str = "relu",
                 **kwargs):
 
         super().__init__()
@@ -195,19 +232,31 @@ class CANLayer(torch.nn.Module):
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
 
         # lower attention
-        self.lower_att = CANMessagePassing(
-            in_channels=in_channels, out_channels=out_channels, att_activation=att_activation
+        self.lower_att = CANMultiHeadMessagePassing(
+            in_channels=in_channels, 
+            out_channels=out_channels, 
+            num_heads=num_heads, 
+            att_activation=att_activation,
+            concat=concat
         )
 
         # upper attention
-        self.upper_att = CANMessagePassing(
-            in_channels=in_channels, out_channels=out_channels, att_activation=att_activation
+        self.upper_att = CANMultiHeadMessagePassing(
+            in_channels=in_channels, 
+            out_channels=out_channels, 
+            num_heads=num_heads, 
+            att_activation=att_activation,
+            concat=concat
         )
 
         # linear transformation
         if skip_connection:
+            out_channels = out_channels * num_heads if concat else out_channels
             self.lin = Linear(in_channels, out_channels, bias=False)
             self.eps = 1 + 1e-6
+
+        # between-neighborhood aggregation and update
+        self.aggregation = Aggregation(aggr_func=aggr_func, update_func=update_func)
 
         self.reset_parameters()
 
@@ -242,12 +291,11 @@ class CANLayer(torch.nn.Module):
         lower_x = self.lower_att(x, lower_neighborhood)
         upper_x = self.upper_att(x, upper_neighborhood)
 
-        # between-neighborhood aggregation
-        out = lower_x + upper_x
-
         # skip connection
         if hasattr(self, "lin"):
             w_x = self.lin(x)*self.eps
-            out = out + w_x
+
+        # between-neighborhood aggregation and update
+        out = self.aggregation([lower_x, upper_x, w_x]) if hasattr(self, "lin") else self.aggregation([lower_x, upper_x])
 
         return out

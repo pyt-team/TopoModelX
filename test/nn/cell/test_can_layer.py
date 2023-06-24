@@ -12,10 +12,14 @@ class TestCANLayer:
     def test_forward(self):
         """Test the forward method of CANLayer."""
 
-        in_channels = 2
-        out_channels = 5
+        in_channels = 7
+        out_channels = 64
+        num_heads = 3
+        concat = True
+        skip_connection = True
+        att_activation = 'leaky_relu'
 
-        n_cells = 10
+        n_cells = 21
 
         x_1 = torch.randn(n_cells, in_channels)
 
@@ -28,11 +32,18 @@ class TestCANLayer:
         can_layer = CANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
+            num_heads=num_heads,
+            concat=concat,
+            skip_connection=skip_connection,
+            att_activation=att_activation
         )
         x_1 = can_layer.forward(
             x_1, lower_neighborhood, upper_neighborhood
         )
-        assert x_1.shape == (n_cells, out_channels)
+        if concat:
+            assert x_1.shape == (n_cells, out_channels*num_heads)
+        else:
+            assert x_1.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
