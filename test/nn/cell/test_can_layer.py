@@ -14,7 +14,7 @@ class TestCANLayer:
 
         in_channels = 7
         out_channels = 64
-        num_heads = 3
+        heads = 3
         concat = True
         skip_connection = True
         att_activation = 'leaky_relu'
@@ -32,7 +32,7 @@ class TestCANLayer:
         can_layer = CANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
-            num_heads=num_heads,
+            heads=heads,
             concat=concat,
             skip_connection=skip_connection,
             att_activation=att_activation
@@ -41,7 +41,7 @@ class TestCANLayer:
             x_1, lower_neighborhood, upper_neighborhood
         )
         if concat:
-            assert x_1.shape == (n_cells, out_channels*num_heads)
+            assert x_1.shape == (n_cells, out_channels*heads)
         else:
             assert x_1.shape == (n_cells, out_channels)
 
