@@ -1,4 +1,4 @@
-"""Simplicial Complex Convolutional Network Layer. [Yang et al. LoG 2022]"""
+"""Simplicial Complex Convolutional Network Layer [Yang et al. LoG 2022]."""
 from typing import Dict
 
 import torch
@@ -31,7 +31,7 @@ class SCCNLayer(torch.nn.Module):
         # convolutions within the same rank
         self.convs_same_rank = torch.nn.ModuleDict(
             {
-                f'rank_{rank}': Conv(
+                f"rank_{rank}": Conv(
                     in_channels=channels,
                     out_channels=channels,
                     update_func=None,
@@ -43,7 +43,7 @@ class SCCNLayer(torch.nn.Module):
         # convolutions from lower to higher rank
         self.convs_low_to_high = torch.nn.ModuleDict(
             {
-                f'rank_{rank}': Conv(
+                f"rank_{rank}": Conv(
                     in_channels=channels,
                     out_channels=channels,
                     update_func=None,
@@ -55,7 +55,7 @@ class SCCNLayer(torch.nn.Module):
         # convolutions from higher to lower rank
         self.convs_high_to_low = torch.nn.ModuleDict(
             {
-                f'rank_{rank}': Conv(
+                f"rank_{rank}": Conv(
                     in_channels=channels,
                     out_channels=channels,
                     update_func=None,
@@ -67,7 +67,7 @@ class SCCNLayer(torch.nn.Module):
         # aggregation functions
         self.aggregations = torch.nn.ModuleDict(
             {
-                f'rank_{rank}': Aggregation(aggr_func="sum", update_func="sigmoid")
+                f"rank_{rank}": Aggregation(aggr_func="sum", update_func="sigmoid")
                 for rank in range(max_rank + 1)
             }
         )
@@ -129,28 +129,28 @@ class SCCNLayer(torch.nn.Module):
         out_features = {}
         for rank in range(self.max_rank + 1):
             list_to_be_aggregated = [
-                self.convs_same_rank[f'rank_{rank}'](
-                    features[f'rank_{rank}'],
-                    adjacencies[f'rank_{rank}'],
+                self.convs_same_rank[f"rank_{rank}"](
+                    features[f"rank_{rank}"],
+                    adjacencies[f"rank_{rank}"],
                 )
             ]
             if rank < self.max_rank:
                 list_to_be_aggregated.append(
-                    self.convs_high_to_low[f'rank_{rank}'](
-                        features[f'rank_{rank+1}'],
-                        incidences[f'rank_{rank+1}'],
+                    self.convs_high_to_low[f"rank_{rank}"](
+                        features[f"rank_{rank+1}"],
+                        incidences[f"rank_{rank+1}"],
                     )
                 )
             if rank > 0:
                 list_to_be_aggregated.append(
-                    self.convs_low_to_high[f'rank_{rank}'](
-                        features[f'rank_{rank-1}'],
-                        incidences[f'rank_{rank}'].transpose(1, 0),
+                    self.convs_low_to_high[f"rank_{rank}"](
+                        features[f"rank_{rank-1}"],
+                        incidences[f"rank_{rank}"].transpose(1, 0),
                     )
                 )
 
-            out_features[f'rank_{rank}'] = (
-                self.aggregations[f'rank_{rank}'](list_to_be_aggregated)
+            out_features[f"rank_{rank}"] = self.aggregations[f"rank_{rank}"](
+                list_to_be_aggregated
             )
 
         return out_features
