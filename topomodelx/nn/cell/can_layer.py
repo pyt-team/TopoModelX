@@ -3,9 +3,9 @@ from torch.nn import Linear, Parameter
 from torch import Tensor
 from torch.nn import functional as F
 
-from topomodelx.base.conv import MessagePassing
-from topomodelx.base.aggregation import Aggregation
 
+from topomodelx.base.aggregation import Aggregation
+from topomodelx.base.conv import MessagePassing
 from topomodelx.utils.scatter import scatter_sum
 
 
