@@ -6,6 +6,8 @@ from torch.nn import functional as F
 from topomodelx.base.conv import MessagePassing
 from topomodelx.base.aggregation import Aggregation
 
+from topomodelx.utils.scatter import scatter_sum
+
 
 class CANMultiHeadAttention(MessagePassing):
     r"""Attentional Message Passing from Cell Attention Network (CAN). [CAN22]_
@@ -35,6 +37,7 @@ class CANMultiHeadAttention(MessagePassing):
         self,
         in_channels,
         out_channels,
+        dropout,
         heads,
         concat,
         att_activation,
@@ -54,6 +57,7 @@ class CANMultiHeadAttention(MessagePassing):
         self.att_activation = att_activation
         self.heads = heads
         self.concat = concat
+        self.dropout = dropout
 
         self.lin = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
         self.att_weight_src = Parameter(
@@ -75,6 +79,42 @@ class CANMultiHeadAttention(MessagePassing):
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
         self.lin.reset_parameters()
 
+    def attention(self, x_source):
+        """Compute attention weights for messages.
+        """
+        alpha_src = (self.x_source_per_message * self.att_weight_src).sum(dim=-1) # (E, H)
+        alpha_dst = (self.x_target_per_message * self.att_weight_dst).sum(dim=-1) # (E, H)
+
+        alpha = alpha_src + alpha_dst # (E, H)
+
+        # Apply activation function
+        if self.att_activation == "elu":
+            alpha = torch.nn.functional.elu(alpha)
+        elif self.att_activation == "leaky_relu":
+            alpha = torch.nn.functional.leaky_relu(alpha) # TODO: add negative slope?
+        elif self.att_activation == "tanh":
+            alpha = torch.nn.functional.tanh(alpha)
+        else:
+            raise NotImplementedError(
+                f"Activation function {self.att_activation} not implemented."
+            )
+        
+        # Normalize the attention coefficients
+        self.softmax(alpha, self.target_index_i, x_source.shape[0])
+        # TODO: Apply dropout
+        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
+
+        return alpha
+    
+    def softmax(self, src: torch.Tensor, index: torch.Tensor, num_cells: int):
+        # TODO: in the utils there's no scatter_max
+            # The scatter_max function is used to make the softmax function numerically stable 
+            # by subtracting the maximum value in each row before computing the exponential.
+        # src_max = scatter_max(src, index, dim=0, dim_size=num_nodes)[0][index]
+        src = torch.exp(src) # src - src_max
+        src_sum = scatter_sum(src, index, dim=0, dim_size=num_cells)[index]
+        return src / (src_sum + 1e-16)
+
     def forward(self, x_source, neighborhood):
         r"""Forward pass.
 
@@ -89,58 +129,32 @@ class CANMultiHeadAttention(MessagePassing):
         -------
         out : torch.Tensor, shape=[n_k_cells, channels]
         """
+        
+        # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
-            return torch.zeros((x_source.shape[0], self.out_channels * self.heads), device=x_source.device)
+            return torch.zeros((x_source.shape[0], self.out_channels * self.heads), device=x_source.device) # (E, H * C)
         elif not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
-            return torch.zeros((x_source.shape[0], self.out_channels), device=x_source.device)
+            return torch.zeros((x_source.shape[0], self.out_channels), device=x_source.device) # (E, C)
 
         # Compute the linear transformation on the source features
         x_message = self.lin(x_source).view(-1, self.heads, self.out_channels)
 
         # Compute the attention coefficients
-        target_index_i, source_index_j = neighborhood.indices()
+        self.target_index_i, self.source_index_j = neighborhood.indices() # (E, 1), (E, 1)
+        # TODO: we have to consider also the weights of the "edges" (?) -> neighborhood.values()
+        self.x_source_per_message = x_message[self.source_index_j] # (E, H, C)
+        self.x_target_per_message = x_message[self.target_index_i] # (E, H, C)
+        alpha = self.attention(x_message) # (E, H)
 
-        x_source_per_message = x_message[source_index_j] # (E, H, C)
-        x_target_per_message = x_message[target_index_i] # (E, H, C)
+        # for each head, Aggregate the messages # TODO: check if the aggregation is correct
+        message = self.x_source_per_message * alpha[:,:,None] # (E, H, C) 
+        aggregated_message = self.aggregate(message) # (E, H, C)
 
-        alpha_src = (x_source_per_message * self.att_weight_src).sum(dim=-1) # (E, H)
-        alpha_dst = (x_target_per_message * self.att_weight_dst).sum(dim=-1) # (E, H)
-
-        # Apply activation function
-        if self.att_activation == "elu":
-            alpha_src, alpha_dst = torch.nn.functional.elu(alpha_src), \
-                                    torch.nn.functional.elu(alpha_dst)
-        elif self.att_activation == "leaky_relu":
-            alpha_src, alpha_dst = torch.nn.functional.leaky_relu(alpha_src), \
-                                        torch.nn.functional.leaky_relu(alpha_dst)
-        elif self.att_activation == "tanh":
-            alpha_src, alpha_dst = torch.nn.functional.tanh(alpha_src), \
-                                    torch.nn.functional.tanh(alpha_dst)
-        else:
-            raise NotImplementedError(
-                f"Activation function {self.att_activation} not implemented."
-            )
-
-        # TODO: for each head, updates the neighborhood with the attention coefficients
-        neighborhood_values = neighborhood.values()
-        alpha = alpha_src + alpha_dst
-        updated_neighborhood = neighborhood_values[:,None] + alpha # Broadcasting addition
-
-        # TODO: normalize the neighborhood for each head with the softmax function applied on rows of the neighborhood
-        normalized_neighborhood = F.softmax(updated_neighborhood, dim=1) # (E, H)
-
-        # TODO: for each head, Aggregate the messages
-        message = x_source_per_message * normalized_neighborhood[:,:,None] # (E, H, C)
-        out = torch.zeros((x_source.shape[0], self.heads, self.out_channels), device=x_source.device)
-        out.index_add_(0, target_index_i, message)
-
-        # TODO: if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
+        # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
         if self.concat:
-            out = out.view(-1, self.heads * self.out_channels)
+            return aggregated_message.view(-1, self.heads * self.out_channels) # (E, H * C)
         else:
-            out = out.mean(dim=1)
-
-        return out
+            return aggregated_message.mean(dim=1) # (E, C)
     
 class CANLayer(torch.nn.Module): 
 
@@ -184,6 +198,7 @@ class CANLayer(torch.nn.Module):
                 in_channels: int,
                 out_channels: int,
                 heads: int = 1,
+                dropout: float = 0.0,
                 concat: bool = True,
                 skip_connection: bool = True,
                 att_activation: str = "leaky_relu",
@@ -193,6 +208,7 @@ class CANLayer(torch.nn.Module):
 
         super().__init__()
 
+        # TODO: add all the assertions
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
 
@@ -200,6 +216,7 @@ class CANLayer(torch.nn.Module):
         self.lower_att = CANMultiHeadAttention(
             in_channels=in_channels, 
             out_channels=out_channels, 
+            dropout=dropout,
             heads=heads, 
             att_activation=att_activation,
             concat=concat
@@ -209,6 +226,7 @@ class CANLayer(torch.nn.Module):
         self.upper_att = CANMultiHeadAttention(
             in_channels=in_channels, 
             out_channels=out_channels, 
+            dropout=dropout,   
             heads=heads, 
             att_activation=att_activation,
             concat=concat

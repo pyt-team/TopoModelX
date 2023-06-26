@@ -14,6 +14,7 @@ class TestCANLayer:
 
         in_channels = 7
         out_channels = 64
+        dropout = 0.5
         heads = 3
         concat = True
         skip_connection = True
@@ -32,6 +33,7 @@ class TestCANLayer:
         can_layer = CANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
+            dropout=dropout,
             heads=heads,
             concat=concat,
             skip_connection=skip_connection,
