@@ -1,10 +1,9 @@
-"""Attentional Message Passing from Cell Attention Network (CAN). [CAN22]_"""
+"""Cell Attention Network layer."""
 
 import torch
-from torch.nn import Linear, Parameter
 from torch import Tensor
+from torch.nn import Linear, Parameter
 from torch.nn import functional as F
-
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import MessagePassing
@@ -12,7 +11,7 @@ from topomodelx.utils.scatter import scatter_sum
 
 
 class CANMultiHeadAttention(MessagePassing):
-    r"""Attentional Message Passing from Cell Attention Network (CAN). [CAN22]_
+    """Attentional Message Passing from Cell Attention Network (CAN) [CAN22]_.
 
     Parameters
     ----------
@@ -52,7 +51,11 @@ class CANMultiHeadAttention(MessagePassing):
             aggr_func=aggr_func,
         )
 
-        assert att_activation in ["leaky_relu", "elu", "tanh"]
+        assert att_activation in [
+            "leaky_relu",
+            "elu",
+            "tanh",
+        ], "Invalid activation function."
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -68,13 +71,24 @@ class CANMultiHeadAttention(MessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self):
-        r"""Reset the layer parameters."""
+        """Reset the layer parameters."""
         torch.nn.init.xavier_uniform_(self.att_weight_src)
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
         self.lin.reset_parameters()
 
     def attention(self, x_source):
-        """Compute attention weights for messages."""
+        """Compute attention weights for messages.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor
+            Source node features. Shape: [n_k_cells, in_channels]
+
+        Returns
+        -------
+        alpha : torch.Tensor
+            Attention weights. Shape: [n_k_cells, heads]
+        """
         alpha_src = (self.x_source_per_message * self.att_weight_src).sum(
             dim=-1
         )  # (E, H)
@@ -84,17 +98,13 @@ class CANMultiHeadAttention(MessagePassing):
 
         alpha = alpha_src + alpha_dst  # (E, H)
 
-        # Apply activation function
+        # Apply activation function # TODO: add more activation functions? Pass directly the function to avoid if-if?
         if self.att_activation == "elu":
             alpha = torch.nn.functional.elu(alpha)
-        elif self.att_activation == "leaky_relu":
+        if self.att_activation == "leaky_relu":
             alpha = torch.nn.functional.leaky_relu(alpha)  # TODO: add negative slope?
-        elif self.att_activation == "tanh":
+        if self.att_activation == "tanh":
             alpha = torch.nn.functional.tanh(alpha)
-        else:
-            raise NotImplementedError(
-                f"Activation function {self.att_activation} not implemented."
-            )
 
         # Normalize the attention coefficients
         self.softmax(alpha, self.target_index_i, x_source.shape[0])
@@ -104,6 +114,7 @@ class CANMultiHeadAttention(MessagePassing):
         return alpha
 
     def softmax(self, src: torch.Tensor, index: torch.Tensor, num_cells: int):
+        """Compute the softmax of the attention coefficients."""
         # TODO: in the utils there's no scatter_max
         # The scatter_max function is used to make the softmax function numerically stable
         # by subtracting the maximum value in each row before computing the exponential.
@@ -113,7 +124,7 @@ class CANMultiHeadAttention(MessagePassing):
         return src / (src_sum + 1e-16)
 
     def forward(self, x_source, neighborhood):
-        r"""Forward pass.
+        """Forward pass.
 
         Parameters
         ----------
@@ -124,16 +135,16 @@ class CANMultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        out : torch.Tensor, shape=[n_k_cells, channels]
+        _ : torch.Tensor, shape=[n_k_cells, channels]
+            Output features on the k-cell of the cell complex.
         """
-
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
             return torch.zeros(
                 (x_source.shape[0], self.out_channels * self.heads),
                 device=x_source.device,
             )  # (E, H * C)
-        elif not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
+        if not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
             return torch.zeros(
                 (x_source.shape[0], self.out_channels), device=x_source.device
             )  # (E, C)
@@ -160,8 +171,8 @@ class CANMultiHeadAttention(MessagePassing):
             return aggregated_message.view(
                 -1, self.heads * self.out_channels
             )  # (E, H * C)
-        else:
-            return aggregated_message.mean(dim=1)  # (E, C)
+
+        return aggregated_message.mean(dim=1)  # (E, C)
 
 
 class CANLayer(torch.nn.Module):
@@ -173,10 +184,10 @@ class CANLayer(torch.nn.Module):
         \mathcal N_k \in  \mathcal N = \{A_{\uparrow, r}, A_{\downarrow, r}\}
 
     ..  math::
-        \begin{align*}            
-        &🟥 \quad m_{y \rightarrow x}^{(r \rightarrow r)} = M_{\mathcal N_k}(h_x^{t}, h_y^{t}, \Theta^{t}_k)\\ 
+        \begin{align*}
+        &🟥 \quad m_{y \rightarrow x}^{(r \rightarrow r)} = M_{\mathcal N_k}(h_x^{t}, h_y^{t}, \Theta^{t}_k)\\
         &🟧 \quad m_x^{(r \rightarrow r)} = \text{AGG}_{y \in \mathcal{N}_k(x)}(m_{y \rightarrow x}^{(r \rightarrow r)})\\
-        &🟩 \quad m_x^{(r)} = \text{AGG}_{\mathcal{N}_k\in\mathcal N}m_x^{(r \rightarrow r)}\\            
+        &🟩 \quad m_x^{(r)} = \text{AGG}_{\mathcal{N}_k\in\mathcal N}m_x^{(r \rightarrow r)}\\
         &🟦 \quad h_x^{t+1,(r)} = U^{t}(h_x^{t}, m_x^{(r)})
         \end{align*}
 
@@ -252,14 +263,14 @@ class CANLayer(torch.nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self):
-        r"""Reset the parameters of the layer."""
+        """Reset the parameters of the layer."""
         self.lower_att.reset_parameters()
         self.upper_att.reset_parameters()
         if hasattr(self, "lin"):
             self.lin.reset_parameters()
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
-        r"""Forward pass.
+        """Forward pass.
 
         Parameters
         ----------
@@ -276,7 +287,6 @@ class CANLayer(torch.nn.Module):
         -------
         _ : torch.Tensor, shape=[n_k_cells, out_channels]
         """
-
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)
         upper_x = self.upper_att(x, upper_neighborhood)

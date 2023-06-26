@@ -1,25 +1,30 @@
-"""Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_."""
-
-import torch
-import torch.nn as nn
-from torch import Tensor
-import torch.nn.functional as F
-
+"""Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN)."""
 
 from typing import Callable
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch import Tensor
+
 
 class LiftLayer(nn.Module):
+    """Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
 
-    """
-    Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+    Parameters
+    ----------
+    in_channels_0: int
+        Number of input channels of the node signal.
+    signal_lift_activation: Callable
+        Activation function applied to the lifted signal.
+    signal_lift_dropout: float
+        Dropout rate applied to the lifted signal.
 
     References
     ----------
     [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
         paper: https://arxiv.org/pdf/2209.08179.pdf
         repository: https://github.com/lrnzgiusti/can
-
     """
 
     def __init__(
@@ -44,6 +49,20 @@ class LiftLayer(nn.Module):
         nn.init.xavier_uniform_(self.att.data, gain=gain)
 
     def forward(self, x_0, neighborhood_0_to_0) -> Tensor:
+        """Forward pass.
+
+        Parameters
+        ----------
+        x_0: torch.Tensor
+            Node signal of shape (num_nodes, in_channels_0)
+        neighborhood_0_to_0: torch.Tensor
+            Sparse neighborhood matrix of shape (num_nodes, num_nodes)
+
+        Returns
+        -------
+        _: torch.Tensor
+            Edge signal of shape (num_edges, 1)
+        """
         # Extract source and target nodes from the graph's edge index
         source, target = neighborhood_0_to_0.indices()
 
@@ -57,6 +76,22 @@ class LiftLayer(nn.Module):
 
 
 class MultiHeadLiftLayer(nn.Module):
+    """Multi Head Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+
+    Parameters
+    ----------
+    in_channels_0: int
+        Number of input channels.
+    K: int
+        Number of attention heads.
+    signal_lift_activation: Callable
+        Activation function to apply to the output edge signal.
+    signal_lift_dropout: float
+        Dropout rate to apply to the output edge signal.
+    signal_lift_readout: str
+        Readout method to apply to the output edge signal.
+    """
+
     def __init__(
         self,
         in_channels_0: int,
@@ -68,6 +103,8 @@ class MultiHeadLiftLayer(nn.Module):
         **kwargs,
     ):
         super(MultiHeadLiftLayer, self).__init__()
+
+        # TODO: add asserts
 
         self.in_channels_0 = in_channels_0
         self.K = K
@@ -84,22 +121,34 @@ class MultiHeadLiftLayer(nn.Module):
         ]
 
     def forward(self, x_0, x_1, neighborhood_0_to_0) -> Tensor:
+        """Forward pass.
+
+        Parameters
+        ----------
+        x_0: torch.Tensor
+            Node signal of shape (num_nodes, in_channels_0)
+        x_1: torch.Tensor
+            Node signal of shape (num_nodes, in_channels_1)
+        neighborhood_0_to_0: torch.Tensor
+            Edge index of shape (2, num_edges)
+
+        Returns
+        -------
+        _: torch.Tensor
+            Lifted node signal of shape (num_nodes, K + in_channels_1)
+        """
         # Lift the node signal for each attention head
         attention_heads_x_1 = [lift(x_0, neighborhood_0_to_0) for lift in self.lifts]
 
         # Combine the output edge signals using the specified readout strategy
         if self.signal_lift_readout == "cat":
             combined_x_1 = torch.cat(attention_heads_x_1, dim=1)
-        elif self.signal_lift_readout == "sum":
+        if self.signal_lift_readout == "sum":
             combined_x_1 = torch.stack(attention_heads_x_1, dim=2).sum(dim=2)
-        elif self.signal_lift_readout == "avg":
+        if self.signal_lift_readout == "avg":
             combined_x_1 = torch.stack(attention_heads_x_1, dim=2).mean(dim=2)
-        elif self.signal_lift_readout == "max":
+        if self.signal_lift_readout == "max":
             combined_x_1 = torch.stack(attention_heads_x_1, dim=2).max(dim=2).values
-        else:
-            raise ValueError(
-                "Invalid signal_lift_readout value. Choose from ['cat', 'sum', 'avg', 'max']"
-            )
 
         # Apply dropout to the combined edge signal
         combined_x_1 = F.dropout(
@@ -108,6 +157,6 @@ class MultiHeadLiftLayer(nn.Module):
 
         # Concatenate the lifted node signal with the original node signal if is not None
         if x_1 is not None:
-            combined_x_1 = torch.cat((combined_x_1, x_1), dim=1)
+            combined_x_1 = torch.cat((combined_x_1, x_1), dim=1)  # (N, K + C_1)
 
         return combined_x_1
