@@ -1,3 +1,5 @@
+"""Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_."""
+
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -6,19 +8,20 @@ import torch.nn.functional as F
 
 from typing import Callable
 
-"""
-Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
-
-References
-----------
-[CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
-    paper: https://arxiv.org/pdf/2209.08179.pdf
-    repository: https://github.com/lrnzgiusti/can
-
-"""
-
 
 class LiftLayer(nn.Module):
+
+    """
+    Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+
+    References
+    ----------
+    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
+        paper: https://arxiv.org/pdf/2209.08179.pdf
+        repository: https://github.com/lrnzgiusti/can
+
+    """
+
     def __init__(
         self,
         in_channels_0: int,

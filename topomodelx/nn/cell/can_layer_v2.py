@@ -1,3 +1,5 @@
+"""Attentional Message Passing from Cell Attention Network (CAN). [CAN22]_"""
+
 import torch
 from torch.nn import Linear, Parameter
 from torch import Tensor
