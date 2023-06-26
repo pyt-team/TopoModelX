@@ -16,7 +16,9 @@ class UniGATLayer(torch.nn.Module):
     Parameters
     ----------
     in_channels : int
-        Number of input channels.
+        Number of input channels on node features.
+    out_channels : int
+        Number of output channels.
     """
 
     def __init__(self, in_channels, out_channels, aggr_norm=False):
@@ -24,9 +26,11 @@ class UniGATLayer(torch.nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
 
+        self.conv_1_0 = Conv(in_channels, out_channels, aggr_norm=aggr_norm, att=True)
+
     def reset_parameters(self):
         r"""Reset learnable parameters."""
-        pass
+        self.conv_1_0.reset_parameters()
 
     def forward(self, x_0, incidence_1):
         r"""Forward pass proposed in [JJ21]_.
@@ -34,14 +38,24 @@ class UniGATLayer(torch.nn.Module):
         The forward pass of the UniGAT layer is defined as:
 
         1. Every hyper-edge sums up the features of its constituent edges:
+        .. math::
+            \begin{align*}
+            &:red_square: \quad m_{y \rightarrow z}^{(0 \rightarrow 1)} = (B^T_1)\_{zy} \cdot h^{t,(0)}_y \\
+            &:orange_square: \quad m_z^{(0\rightarrow1)} = \sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)}
+            \end{align*}
 
-        2. The message to the nodes is the sum of the messages from the incident hyper-edges:
+        2. The message to the nodes is computed using self-attention:
+        .. math::
+            \begin{align*}
+            &:red_square: \quad m_{z \rightarrow x}^{(1 \rightarrow 0)} = ((B_1 \odot att(h_{z \in \mathcal{C}(x)}^{t,(1)})))\_{xz} \cdot m_{z}^{(0\rightarrow1)} \cdot \Theta^{t,(1)} \\
+            &:orange_square: \quad m_{x}^{(1 \rightarrow0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1\rightarrow0)}
+            \end{align*}
 
         3. The node features are updated:
         .. math::
             \begin{align*}
-            &🟩 \quad m_x^{(0)}  = m_x^{(1\rightarrow0)}\\
-            &🟦 \quad h_x^{t+1,(0)}  = m_x^{(0)}
+            &:green_square: \quad m_x^{(0)}  = m_x^{(1\rightarrow0)}\\
+            &:blue_square: \quad h_x^{t+1,(0)}  = m_x^{(0)}
             \end{align*}
 
         References
@@ -68,6 +82,13 @@ class UniGATLayer(torch.nn.Module):
         x_0 : torch.Tensor, shape=[n_nodes, out_channels]
             Output features on the nodes of the hypergraph.
         """
-        # incidence_1_transpose = incidence_1.transpose(1, 0)
+        incidence_1_transpose = incidence_1.transpose(1, 0)
 
-        return x_0
+        # first message passing step without learning / parameters
+        m_0_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0)
+        # second message passing step using attention
+        # TODO: implement correct attention mechanism
+        m_1_0 = self.conv_1_0(m_0_1, incidence_1, x_0)
+
+        # final update steps are identity mappings
+        return m_1_0
