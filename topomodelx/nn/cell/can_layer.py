@@ -10,7 +10,7 @@ from topomodelx.base.conv import MessagePassing
 from topomodelx.utils.scatter import scatter_sum
 
 
-class CANMultiHeadAttention(MessagePassing):
+class MultiHeadCellAttention(MessagePassing):
     """Attentional Message Passing from Cell Attention Network (CAN) [CAN22]_.
 
     Parameters
@@ -19,6 +19,12 @@ class CANMultiHeadAttention(MessagePassing):
         Number of input channels.
     out_channels : int
         Number of output channels.
+    heads : int
+        Number of attention heads.
+    concat : bool
+        Whether to concatenate the output of each attention head.
+    att_activation : string
+        Activation function to use for the attention weights.
     aggr_func : string
         Aggregation function to use. Options are "sum", "mean", "max".
     initialization : string
@@ -108,7 +114,7 @@ class CANMultiHeadAttention(MessagePassing):
 
         # Normalize the attention coefficients
         self.softmax(alpha, self.target_index_i, x_source.shape[0])
-        # TODO: Apply dropout
+        # Apply dropout
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
         return alpha
@@ -179,6 +185,7 @@ class CANLayer(torch.nn.Module):
     r"""Layer of the Cell Attention Network (CAN) model.
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
+    Additionally a skip connection can be added to the output of the layer.
 
     ..  math::
         \mathcal N_k \in  \mathcal N = \{A_{\uparrow, r}, A_{\downarrow, r}\}
@@ -191,14 +198,11 @@ class CANLayer(torch.nn.Module):
         &🟦 \quad h_x^{t+1,(r)} = U^{t}(h_x^{t}, m_x^{(r)})
         \end{align*}
 
-    Notes
-    -----
-    [] Add multi-head attention
-
     References
     ----------
-    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
-        paper: https://arxiv.org/pdf/2209.08179.pdf
+    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
+        Cell attention networks.
+        (2022) paper: https://arxiv.org/pdf/2209.08179.pdf
 
     Parameters
     ----------
@@ -206,6 +210,12 @@ class CANLayer(torch.nn.Module):
         Dimension of input features on n-cells.
     out_channels : int
         Dimension of output
+    heads : int, optional
+        Number of attention heads, by default 1
+    dropout : float, optional
+        Dropout probability, by default 0.0
+    concat : bool, optional
+        If True, the output of each head is concatenated. Otherwise, the output of each head is averaged, by default True
     skip_connection : bool, optional
         If True, skip connection is added, by default True
     att_activation : str, optional
@@ -232,7 +242,7 @@ class CANLayer(torch.nn.Module):
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
 
         # lower attention
-        self.lower_att = CANMultiHeadAttention(
+        self.lower_att = MultiHeadCellAttention(
             in_channels=in_channels,
             out_channels=out_channels,
             dropout=dropout,
@@ -242,7 +252,7 @@ class CANLayer(torch.nn.Module):
         )
 
         # upper attention
-        self.upper_att = CANMultiHeadAttention(
+        self.upper_att = MultiHeadCellAttention(
             in_channels=in_channels,
             out_channels=out_channels,
             dropout=dropout,
