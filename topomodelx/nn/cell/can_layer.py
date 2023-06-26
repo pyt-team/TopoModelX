@@ -25,7 +25,7 @@ class CANMultiHeadAttention(MessagePassing):
 
     Notes
     -----
-    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty. 
+    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty.
 
     References
     ----------
@@ -60,16 +60,8 @@ class CANMultiHeadAttention(MessagePassing):
         self.dropout = dropout
 
         self.lin = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
-        self.att_weight_src = Parameter(
-            torch.Tensor(
-                1, heads, out_channels
-            )
-        )
-        self.att_weight_dst = Parameter(
-            torch.Tensor(
-                1, heads, out_channels
-            )
-        )
+        self.att_weight_src = Parameter(torch.Tensor(1, heads, out_channels))
+        self.att_weight_dst = Parameter(torch.Tensor(1, heads, out_channels))
 
         self.reset_parameters()
 
@@ -80,38 +72,41 @@ class CANMultiHeadAttention(MessagePassing):
         self.lin.reset_parameters()
 
     def attention(self, x_source):
-        """Compute attention weights for messages.
-        """
-        alpha_src = (self.x_source_per_message * self.att_weight_src).sum(dim=-1) # (E, H)
-        alpha_dst = (self.x_target_per_message * self.att_weight_dst).sum(dim=-1) # (E, H)
+        """Compute attention weights for messages."""
+        alpha_src = (self.x_source_per_message * self.att_weight_src).sum(
+            dim=-1
+        )  # (E, H)
+        alpha_dst = (self.x_target_per_message * self.att_weight_dst).sum(
+            dim=-1
+        )  # (E, H)
 
-        alpha = alpha_src + alpha_dst # (E, H)
+        alpha = alpha_src + alpha_dst  # (E, H)
 
         # Apply activation function
         if self.att_activation == "elu":
             alpha = torch.nn.functional.elu(alpha)
         elif self.att_activation == "leaky_relu":
-            alpha = torch.nn.functional.leaky_relu(alpha) # TODO: add negative slope?
+            alpha = torch.nn.functional.leaky_relu(alpha)  # TODO: add negative slope?
         elif self.att_activation == "tanh":
             alpha = torch.nn.functional.tanh(alpha)
         else:
             raise NotImplementedError(
                 f"Activation function {self.att_activation} not implemented."
             )
-        
+
         # Normalize the attention coefficients
         self.softmax(alpha, self.target_index_i, x_source.shape[0])
         # TODO: Apply dropout
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
         return alpha
-    
+
     def softmax(self, src: torch.Tensor, index: torch.Tensor, num_cells: int):
         # TODO: in the utils there's no scatter_max
-            # The scatter_max function is used to make the softmax function numerically stable 
-            # by subtracting the maximum value in each row before computing the exponential.
+        # The scatter_max function is used to make the softmax function numerically stable
+        # by subtracting the maximum value in each row before computing the exponential.
         # src_max = scatter_max(src, index, dim=0, dim_size=num_nodes)[0][index]
-        src = torch.exp(src) # src - src_max
+        src = torch.exp(src)  # src - src_max
         src_sum = scatter_sum(src, index, dim=0, dim_size=num_cells)[index]
         return src / (src_sum + 1e-16)
 
@@ -129,35 +124,45 @@ class CANMultiHeadAttention(MessagePassing):
         -------
         out : torch.Tensor, shape=[n_k_cells, channels]
         """
-        
+
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
-            return torch.zeros((x_source.shape[0], self.out_channels * self.heads), device=x_source.device) # (E, H * C)
+            return torch.zeros(
+                (x_source.shape[0], self.out_channels * self.heads),
+                device=x_source.device,
+            )  # (E, H * C)
         elif not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
-            return torch.zeros((x_source.shape[0], self.out_channels), device=x_source.device) # (E, C)
+            return torch.zeros(
+                (x_source.shape[0], self.out_channels), device=x_source.device
+            )  # (E, C)
 
         # Compute the linear transformation on the source features
         x_message = self.lin(x_source).view(-1, self.heads, self.out_channels)
 
         # Compute the attention coefficients
-        self.target_index_i, self.source_index_j = neighborhood.indices() # (E, 1), (E, 1)
+        (
+            self.target_index_i,
+            self.source_index_j,
+        ) = neighborhood.indices()  # (E, 1), (E, 1)
         # TODO: we have to consider also the weights of the "edges" (?) -> neighborhood.values()
-        self.x_source_per_message = x_message[self.source_index_j] # (E, H, C)
-        self.x_target_per_message = x_message[self.target_index_i] # (E, H, C)
-        alpha = self.attention(x_message) # (E, H)
+        self.x_source_per_message = x_message[self.source_index_j]  # (E, H, C)
+        self.x_target_per_message = x_message[self.target_index_i]  # (E, H, C)
+        alpha = self.attention(x_message)  # (E, H)
 
         # for each head, Aggregate the messages # TODO: check if the aggregation is correct
-        message = self.x_source_per_message * alpha[:,:,None] # (E, H, C) 
-        aggregated_message = self.aggregate(message) # (E, H, C)
+        message = self.x_source_per_message * alpha[:, :, None]  # (E, H, C)
+        aggregated_message = self.aggregate(message)  # (E, H, C)
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
         if self.concat:
-            return aggregated_message.view(-1, self.heads * self.out_channels) # (E, H * C)
+            return aggregated_message.view(
+                -1, self.heads * self.out_channels
+            )  # (E, H * C)
         else:
-            return aggregated_message.mean(dim=1) # (E, C)
-    
-class CANLayer(torch.nn.Module): 
+            return aggregated_message.mean(dim=1)  # (E, C)
 
+
+class CANLayer(torch.nn.Module):
     r"""Layer of the Cell Attention Network (CAN) model.
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
@@ -194,18 +199,19 @@ class CANLayer(torch.nn.Module):
         Activation function for the attention coefficients, by default "leaky_relu". ["elu", "leaky_relu", "tanh"]
     """
 
-    def __init__(self, 
-                in_channels: int,
-                out_channels: int,
-                heads: int = 1,
-                dropout: float = 0.0,
-                concat: bool = True,
-                skip_connection: bool = True,
-                att_activation: str = "leaky_relu",
-                aggr_func="sum",
-                update_func: str = "relu",
-                **kwargs):
-
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        heads: int = 1,
+        dropout: float = 0.0,
+        concat: bool = True,
+        skip_connection: bool = True,
+        att_activation: str = "leaky_relu",
+        aggr_func="sum",
+        update_func: str = "relu",
+        **kwargs,
+    ):
         super().__init__()
 
         # TODO: add all the assertions
@@ -214,22 +220,22 @@ class CANLayer(torch.nn.Module):
 
         # lower attention
         self.lower_att = CANMultiHeadAttention(
-            in_channels=in_channels, 
-            out_channels=out_channels, 
+            in_channels=in_channels,
+            out_channels=out_channels,
             dropout=dropout,
-            heads=heads, 
+            heads=heads,
             att_activation=att_activation,
-            concat=concat
+            concat=concat,
         )
 
         # upper attention
         self.upper_att = CANMultiHeadAttention(
-            in_channels=in_channels, 
-            out_channels=out_channels, 
-            dropout=dropout,   
-            heads=heads, 
+            in_channels=in_channels,
+            out_channels=out_channels,
+            dropout=dropout,
+            heads=heads,
             att_activation=att_activation,
-            concat=concat
+            concat=concat,
         )
 
         # linear transformation
@@ -251,7 +257,6 @@ class CANLayer(torch.nn.Module):
             self.lin.reset_parameters()
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
-
         r"""Forward pass.
 
         Parameters
@@ -276,9 +281,13 @@ class CANLayer(torch.nn.Module):
 
         # skip connection
         if hasattr(self, "lin"):
-            w_x = self.lin(x)*self.eps
+            w_x = self.lin(x) * self.eps
 
         # between-neighborhood aggregation and update
-        out = self.aggregation([lower_x, upper_x, w_x]) if hasattr(self, "lin") else self.aggregation([lower_x, upper_x])
+        out = (
+            self.aggregation([lower_x, upper_x, w_x])
+            if hasattr(self, "lin")
+            else self.aggregation([lower_x, upper_x])
+        )
 
         return out

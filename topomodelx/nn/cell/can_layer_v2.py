@@ -22,7 +22,7 @@ class CANMessagePassing(MessagePassing):
 
     Notes
     -----
-    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty. 
+    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty.
 
     References
     ----------
@@ -98,7 +98,6 @@ class CANMessagePassing(MessagePassing):
                 f"Activation function {att_activation} not implemented."
             )
 
-
     def forward(self, x_source, neighborhood):
         r"""Forward pass.
 
@@ -126,29 +125,42 @@ class CANMessagePassing(MessagePassing):
             values=attention_values * neighborhood.values(),
             size=neighborhood.shape,
         )
-            
+
         # Normalize the attention coefficients
         neighborhood = torch.sparse.softmax(neighborhood, dim=1)
 
         # Aggregate the messages
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty
         neighborhood_values = neighborhood.values()
-        if neighborhood_values.nonzero().size(0) > 0:  # Check if there are any non-zero values
+        if (
+            neighborhood_values.nonzero().size(0) > 0
+        ):  # Check if there are any non-zero values
             x_message = x_message.index_select(-2, self.source_index_j)
             x_message = neighborhood_values.view(-1, 1) * x_message
             out = self.aggregate(x_message)
         else:  # Special case for all zero neighborhood_values
             # Create a tensor of the correct shape filled with zeros
-            out = torch.zeros((x_message.shape[0], x_message.shape[1]), device=x_message.device)
+            out = torch.zeros(
+                (x_message.shape[0], x_message.shape[1]), device=x_message.device
+            )
 
         return out
-    
+
+
 class CANMultiHeadMessagePassing(torch.nn.Module):
     """
     Multi-head version of the CANMessagePassing class.
     """
-    def __init__(self, in_channels, out_channels, num_heads, 
-                 att_activation, concat=True, **kwargs):
+
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        num_heads,
+        att_activation,
+        concat=True,
+        **kwargs,
+    ):
         super(CANMultiHeadMessagePassing, self).__init__()
 
         self.heads = torch.nn.ModuleList()
@@ -167,7 +179,7 @@ class CANMultiHeadMessagePassing(torch.nn.Module):
         out = []
         for head in self.heads:
             out.append(head(x_source, neighborhood))
-        
+
         if self.concat:
             # Concatenate the output along the feature dimension
             return torch.cat(out, dim=1)
@@ -175,8 +187,8 @@ class CANMultiHeadMessagePassing(torch.nn.Module):
             # Take the mean of the output
             return torch.mean(torch.stack(out), dim=0)
 
-class CANLayer(torch.nn.Module): 
 
+class CANLayer(torch.nn.Module):
     r"""Layer of the Cell Attention Network (CAN) model.
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
@@ -213,17 +225,18 @@ class CANLayer(torch.nn.Module):
         Activation function for the attention coefficients, by default "leaky_relu". ["elu", "leaky_relu", "tanh"]
     """
 
-    def __init__(self, 
-                in_channels: int,
-                out_channels: int,
-                num_heads: int = 1,
-                concat: bool = True,
-                skip_connection: bool = True,
-                att_activation: str = "leaky_relu",
-                aggr_func="sum",
-                update_func: str = "relu",
-                **kwargs):
-
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        num_heads: int = 1,
+        concat: bool = True,
+        skip_connection: bool = True,
+        att_activation: str = "leaky_relu",
+        aggr_func="sum",
+        update_func: str = "relu",
+        **kwargs,
+    ):
         super().__init__()
 
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
@@ -231,20 +244,20 @@ class CANLayer(torch.nn.Module):
 
         # lower attention
         self.lower_att = CANMultiHeadMessagePassing(
-            in_channels=in_channels, 
-            out_channels=out_channels, 
-            num_heads=num_heads, 
+            in_channels=in_channels,
+            out_channels=out_channels,
+            num_heads=num_heads,
             att_activation=att_activation,
-            concat=concat
+            concat=concat,
         )
 
         # upper attention
         self.upper_att = CANMultiHeadMessagePassing(
-            in_channels=in_channels, 
-            out_channels=out_channels, 
-            num_heads=num_heads, 
+            in_channels=in_channels,
+            out_channels=out_channels,
+            num_heads=num_heads,
             att_activation=att_activation,
-            concat=concat
+            concat=concat,
         )
 
         # linear transformation
@@ -266,7 +279,6 @@ class CANLayer(torch.nn.Module):
             self.lin.reset_parameters()
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
-
         r"""Forward pass.
 
         Parameters
@@ -291,9 +303,13 @@ class CANLayer(torch.nn.Module):
 
         # skip connection
         if hasattr(self, "lin"):
-            w_x = self.lin(x)*self.eps
+            w_x = self.lin(x) * self.eps
 
         # between-neighborhood aggregation and update
-        out = self.aggregation([lower_x, upper_x, w_x]) if hasattr(self, "lin") else self.aggregation([lower_x, upper_x])
+        out = (
+            self.aggregation([lower_x, upper_x, w_x])
+            if hasattr(self, "lin")
+            else self.aggregation([lower_x, upper_x])
+        )
 
         return out
