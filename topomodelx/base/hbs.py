@@ -99,7 +99,6 @@ class HBS(MessagePassing):
         self.m_hop = m_hop
         self.update_func = update_func
 
-        # TODO: (+efficiency) We are going through the same range in each of the init
         self.weight = torch.nn.ParameterList(
             [
                 Parameter(
