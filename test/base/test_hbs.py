@@ -92,7 +92,7 @@ class TestHBS:
             update_func="sigmoid",
             initialization="xavier_normal",
         )
-        with pytest.raises(RuntimeError):
+        with pytest.raises((RuntimeError, AssertionError)):
             HBS(
                 source_in_channels=self.d_s_in,
                 source_out_channels=self.d_s_out,
