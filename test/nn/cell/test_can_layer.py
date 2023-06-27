@@ -11,14 +11,12 @@ class TestCANLayer:
 
     def test_forward(self):
         """Test the forward method of CANLayer."""
-
         in_channels = 7
         out_channels = 64
         dropout = 0.5
         heads = 3
         concat = True
         skip_connection = True
-        att_activation = "leaky_relu"
 
         n_cells = 21
 
@@ -37,7 +35,6 @@ class TestCANLayer:
             heads=heads,
             concat=concat,
             skip_connection=skip_connection,
-            att_activation=att_activation,
         )
         x_1 = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
         if concat:
@@ -47,7 +44,6 @@ class TestCANLayer:
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
-
         in_channels = 2
         out_channels = 5
 
@@ -60,7 +56,3 @@ class TestCANLayer:
         for module in can_layer.modules():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
-
-
-if __name__ == "__main__":
-    pytest.main(["-v", __file__])
