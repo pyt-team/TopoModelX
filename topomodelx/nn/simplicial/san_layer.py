@@ -10,9 +10,33 @@ from topomodelx.base.conv import Conv
 class SANConv(Conv):
     r"""Class for the SAN Convolution."""
 
-    def __init__(self, in_channels, out_channels, p_filter):
-        self.p_filter = p_filter
-        super().__init__(in_channels, out_channels, att=True)
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        p_filters,
+        initialization="xavier_uniform",
+    ):
+        super(Conv, self).__init__(
+            att=True,
+            initialization=initialization,
+        )
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.p_filters = p_filters
+        self.initialization = initialization
+
+        self.weight = Parameter(
+            torch.Tensor(self.p_filters, self.in_channels, self.out_channels)
+        )
+
+        self.att_weight = Parameter(
+            torch.Tensor(
+                2 * self.out_channels * self.p_filters,
+            )
+        )
+
+        self.reset_parameters()
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -41,28 +65,40 @@ class SANConv(Conv):
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """
-        x_message = torch.mm(x_source, self.weight)
+        x_message = torch.matmul(x_source, self.weight)
+        # Reshape required to re-use the attention function of parent Conv class
+        # -> [num_nodes, out_channels * p_filters]
+        x_message_reshaped = x_message.permute(1, 0, 2).reshape(
+            -1, self.out_channels * self.p_filters
+        )
 
         # SAN always requires attention
         # In SAN, neighborhood is defined by lower/upper laplacians; we only use them as masks
         # to keep only the relevant attention coeffs
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
-        attention_values = self.attention(x_message)
+        attention_values = self.attention(x_message_reshaped)
         att_laplacian = torch.sparse_coo_tensor(
             indices=neighborhood.indices(),
             values=attention_values,
             size=neighborhood.shape,
         )
+
         # Attention coeffs are normalized using softmax
         att_laplacian = torch.sparse.softmax(att_laplacian, dim=1).to_dense()
         # We need to compute the power of the attention laplacian according to the filter order p
-        if self.p_filter > 1:
-            att_laplacian = torch.linalg.matrix_power(att_laplacian, self.p_filter)
+        att_laplacian_power = torch.stack(
+            [
+                torch.linalg.matrix_power(att_laplacian, p + 1)
+                if p > 1
+                else att_laplacian
+                for p in range(1, self.p_filters + 1)
+            ]
+        )
 
         # When computing the final message on targets, we need to compute the power of the attention laplacian
         # according to the filter order p
-        x_message_on_target = torch.mm(att_laplacian, x_message)
+        x_message_on_target = torch.matmul(att_laplacian_power, x_message).sum(dim=0)
 
         return x_message_on_target
 
@@ -89,13 +125,11 @@ class SANLayer(torch.nn.Module):
 
         #  Convolutions
         # Down convolutions, one for each filter order p
-        self.convs_down = [
-            SANConv(in_channels, out_channels, p) for p in range(num_filters_J)
-        ]
+        self.conv_down = SANConv(in_channels, out_channels, num_filters_J)
+
         # Up convolutions, one for each filter order p
-        self.convs_up = [
-            SANConv(in_channels, out_channels, p) for p in range(num_filters_J)
-        ]
+        self.conv_up = SANConv(in_channels, out_channels, num_filters_J)
+
         # Harmonic convolution
         self.conv_har = Conv(in_channels, out_channels)
 
@@ -116,8 +150,8 @@ class SANLayer(torch.nn.Module):
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
         """
         # For the down and up convolutions, we sum the outputs for each filter order p
-        z_down = torch.stack([conv(x, Ldown) for conv in self.convs_down]).sum(dim=0)
-        z_up = torch.stack([conv(x, Lup) for conv in self.convs_up]).sum(dim=0)
+        z_down = self.conv_down(x, Ldown)
+        z_up = self.conv_up(x, Lup)
         # For the harmonic convolution, we use the precomputed projection matrix P as the neighborhood
         # with no attention
         z_har = self.conv_har(x, P)
