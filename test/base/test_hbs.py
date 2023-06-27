@@ -103,7 +103,6 @@ class TestHBS:
                 initialization="non_existing",
             )
 
-
     def test_attention_without_softmax(self):
         """Test the attention matrix calculation without softmax."""
         self.set_weights_to_one()
