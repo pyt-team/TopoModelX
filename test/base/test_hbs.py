@@ -42,8 +42,8 @@ class TestHBS:
             negative_slope=0.2,
             softmax=False,
             m_hop=2,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
+            update_func="relu",
+            initialization="xavier_normal",
         )
         self.n_source_cells = 10
         self.neighborhood = torch.sparse_coo_tensor(

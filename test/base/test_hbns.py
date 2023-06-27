@@ -85,8 +85,8 @@ class TestHBNS:
             target_in_channels=self.d_t_in,
             target_out_channels=self.d_t_out,
             negative_slope=0.2,
-            update_func="sigmoid",
-            initialization="xavier_uniform",
+            update_func="relu",
+            initialization="xavier_normal",
         )
 
         self.n_source_cells = 10
