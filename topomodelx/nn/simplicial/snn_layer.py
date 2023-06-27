@@ -36,10 +36,12 @@ class SNNLayer(torch.nn.Module):
         self.out_channels = out_channels
         self.K = K
 
-        self.convs = [
+        convs = [
             Conv(in_channels=in_channels, out_channels=out_channels, update_func="relu")
             for _ in range(self.K)
         ]
+
+        self.convs = torch.nn.ModuleList(convs)
 
         self.aggr = Aggregation(aggr_func="sum", update_func="relu")
 
