@@ -65,6 +65,8 @@ class HMCLayer(torch.nn.Module):
     def __init__(self, in_channels: List[int], intermediate_channels: List[int], out_channels: List[int],
                  negative_slope: float, softmax_attention=False, update_func_attention=None,
                  update_func_aggregation=None, initialization="xavier_uniform"):
+
+        super(HMCLayer,self).__init__()
         super().__init__()
 
         assert len(in_channels) == 3 and len(intermediate_channels) == 3 and len(out_channels) == 3

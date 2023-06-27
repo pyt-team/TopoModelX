@@ -205,11 +205,11 @@ class HBS(MessagePassing):
 
         neighborhood = [sparse_hadamard(A_p, att_p) for A_p, att_p in zip(neighborhood, att)]
         message = [torch.mm(n_p, m_p) for n_p, m_p in zip(neighborhood, message)]
-
         result = torch.zeros_like(message[0])
 
         for m_p in message:
             result += m_p
         if self.update_func is None:
             return result
+
         return self.update(result)
