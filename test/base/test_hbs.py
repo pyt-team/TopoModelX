@@ -1,6 +1,7 @@
 """Test the Higher Order Attention Block for squared neighborhoods (HBS) layer in the base module."""
 import math
 
+import pytest
 import torch
 
 from topomodelx.base.hbs import HBS
@@ -70,6 +71,38 @@ class TestHBS:
         result = self.hbs.forward(x_source, self.neighborhood)
 
         assert result.shape == (self.n_source_cells, self.d_s_out)
+
+    def test_initialization(self):
+        """Test if the initialization of the parameter weights works."""
+        HBS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            negative_slope=0.2,
+            softmax=False,
+            m_hop=2,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
+        HBS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            negative_slope=0.2,
+            softmax=False,
+            m_hop=2,
+            update_func="sigmoid",
+            initialization="xavier_normal",
+        )
+        with pytest.raises(RuntimeError):
+            HBS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                negative_slope=0.2,
+                softmax=False,
+                m_hop=2,
+                update_func="sigmoid",
+                initialization="non_existing",
+            )
+
 
     def test_attention_without_softmax(self):
         """Test the attention matrix calculation without softmax."""

@@ -1,6 +1,7 @@
 """Test the Higher Order Attention Block for non-squared neighborhoods (HBNS) layer in the base module."""
 import math
 
+import pytest
 import torch
 
 from topomodelx.base.hbns import HBNS
@@ -38,6 +39,40 @@ class TestHBNS:
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
         )
+
+    def test_initialization(self):
+        """Test if the initialization of the parameter weights works."""
+        HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            softmax=False,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
+        HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            softmax=False,
+            update_func="sigmoid",
+            initialization="xavier_normal",
+        )
+        with pytest.raises(RuntimeError):
+            HBNS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                target_in_channels=self.d_t_in,
+                target_out_channels=self.d_t_out,
+                negative_slope=0.2,
+                softmax=False,
+                update_func="sigmoid",
+                initialization="non_existing",
+            )
 
     def test_forward_shape(self):
         """Test the shapes of the outputs of the forward pass of the HBNS layer."""
