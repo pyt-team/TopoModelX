@@ -8,6 +8,7 @@ from topomodelx.base.hbns import HBNS
 
 class TestHBNS:
     """Test the HBNS class."""
+
     def set_constant_weights(self):
         """Set the weights to constant values."""
         with torch.no_grad():
@@ -21,9 +22,16 @@ class TestHBNS:
         self.d_s_in, self.d_s_out = 2, 2
         self.d_t_in, self.d_t_out = 2, 2
 
-        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
-                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
-                         softmax=False, update_func="sigmoid", initialization="xavier_uniform")
+        self.hbns = HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            softmax=False,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
 
         self.neighborhood_s_to_t = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
@@ -36,9 +44,15 @@ class TestHBNS:
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 3, 4
 
-        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
-                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
-                         update_func="sigmoid", initialization="xavier_uniform")
+        self.hbns = HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            update_func="sigmoid",
+            initialization="xavier_uniform",
+        )
 
         self.n_source_cells = 10
         self.n_target_cells = 3
@@ -60,15 +74,14 @@ class TestHBNS:
                 [7, 3],
                 [8, 7],
                 [9, 7],
-                [10, -1]
-            ], dtype=torch.float
+                [10, -1],
+            ],
+            dtype=torch.float,
         )
 
         x_target = torch.tensor([[1, 2, 2], [2, 3, 4], [3, 3, 6]], dtype=torch.float)
 
-        result = self.hbns.forward(
-            x_source, x_target, self.neighborhood_s_to_t
-        )
+        result = self.hbns.forward(x_source, x_target, self.neighborhood_s_to_t)
 
         message_on_source, message_on_target = result
 
@@ -85,26 +98,34 @@ class TestHBNS:
         neighborhood_s_to_t = self.neighborhood_s_to_t.coalesce()
         neighborhood_t_to_s = self.neighborhood_s_to_t.t().coalesce()
 
-        self.hbns.target_indices, self.hbns.source_indices = neighborhood_s_to_t.indices()
+        (
+            self.hbns.target_indices,
+            self.hbns.source_indices,
+        ) = neighborhood_s_to_t.indices()
 
-        att_matrix_s_to_t, att_matrix_t_to_s = self.hbns.attention(source_message, target_message)
-        att_matrix_s_to_t, att_matrix_t_to_s = att_matrix_s_to_t.to_dense(), att_matrix_t_to_s.to_dense()
+        att_matrix_s_to_t, att_matrix_t_to_s = self.hbns.attention(
+            source_message, target_message
+        )
+        att_matrix_s_to_t, att_matrix_t_to_s = (
+            att_matrix_s_to_t.to_dense(),
+            att_matrix_t_to_s.to_dense(),
+        )
         # Create the expected attention matrix. The values have been calculated by hand.
         expected_att_matrix_s_to_t = neighborhood_s_to_t.to_dense() * torch.tensor(
             [
                 [33.0 / 82.0, 41.0 / 82.0, 49.0 / 82.0],
                 [37.0 / 82.0, 45.0 / 82.0, 53.0 / 82.0],
-                [41.0 / 106.0, 49.0 / 106.0, 57.0 / 106.0]
+                [41.0 / 106.0, 49.0 / 106.0, 57.0 / 106.0],
             ],
-            dtype=torch.float
+            dtype=torch.float,
         )
         expected_att_matrix_t_to_s = neighborhood_t_to_s.to_dense() * torch.tensor(
             [
                 [33.0 / 70.0, 37.0 / 70.0, 41.0 / 70.0],
                 [41.0 / 94.0, 45.0 / 94.0, 49.0 / 94.0],
-                [49.0 / 106.0, 53.0 / 106.0, 57.0 / 106.0]
+                [49.0 / 106.0, 53.0 / 106.0, 57.0 / 106.0],
             ],
-            dtype=torch.float
+            dtype=torch.float,
         )
 
         # Compare the two attention matrices.
@@ -122,52 +143,78 @@ class TestHBNS:
         neighborhood_s_to_t = self.neighborhood_s_to_t.coalesce()
         neighborhood_t_to_s = self.neighborhood_s_to_t.t().coalesce()
 
-        self.hbns.target_indices, self.hbns.source_indices = neighborhood_s_to_t.indices()
+        (
+            self.hbns.target_indices,
+            self.hbns.source_indices,
+        ) = neighborhood_s_to_t.indices()
 
-        att_matrix_s_to_t, att_matrix_t_to_s = self.hbns.attention(source_message, target_message)
-        att_matrix_s_to_t, att_matrix_t_to_s = att_matrix_s_to_t.to_dense(), att_matrix_t_to_s.to_dense()
+        att_matrix_s_to_t, att_matrix_t_to_s = self.hbns.attention(
+            source_message, target_message
+        )
+        att_matrix_s_to_t, att_matrix_t_to_s = (
+            att_matrix_s_to_t.to_dense(),
+            att_matrix_t_to_s.to_dense(),
+        )
         # Create the expected attention matrix. The values have been calculated by hand.
-        expected_att_s_to_t_wo_product = torch.exp(torch.tensor(
+        expected_att_s_to_t_wo_product = torch.exp(
+            torch.tensor(
+                [[33.0, 41.0, 49.0], [37.0, 45.0, 53.0], [41.0, 49.0, 57.0]],
+                dtype=torch.float,
+            )
+        )
+        row_normalization_denominator = torch.tensor(
             [
-                [33.0, 41.0, 49.0],
-                [37.0, 45.0, 53.0],
-                [41.0, 49.0, 57.0]
-            ],
-            dtype=torch.float
-        ))
-        row_normalization_denominator = torch.tensor([1.0 / (math.exp(33.0) + math.exp(49.0)),
-                                                      1.0 / (math.exp(37.0) + math.exp(45.0)),
-                                                      1.0 / (math.exp(49.0) + math.exp(57.0))])
-        expected_att_s_to_t_matrix_wo_product = (expected_att_s_to_t_wo_product.T * row_normalization_denominator).T
-        expected_att_matrix_s_to_t = neighborhood_s_to_t.to_dense() * expected_att_s_to_t_matrix_wo_product
+                1.0 / (math.exp(33.0) + math.exp(49.0)),
+                1.0 / (math.exp(37.0) + math.exp(45.0)),
+                1.0 / (math.exp(49.0) + math.exp(57.0)),
+            ]
+        )
+        expected_att_s_to_t_matrix_wo_product = (
+            expected_att_s_to_t_wo_product.T * row_normalization_denominator
+        ).T
+        expected_att_matrix_s_to_t = (
+            neighborhood_s_to_t.to_dense() * expected_att_s_to_t_matrix_wo_product
+        )
 
-        expected_att_t_to_s_wo_product = torch.exp(torch.tensor(
+        expected_att_t_to_s_wo_product = torch.exp(
+            torch.tensor(
+                [[33.0, 37.0, 41.0], [41.0, 45.0, 49.0], [49.0, 53.0, 57.0]],
+                dtype=torch.float,
+            )
+        )
+        row_normalization_denominator = torch.tensor(
             [
-                [33.0, 37.0, 41.0],
-                [41.0, 45.0, 49.0],
-                [49.0, 53.0, 57.0]
-            ],
-            dtype=torch.float
-        ))
-        row_normalization_denominator = torch.tensor([1.0 / (math.exp(33.0) + math.exp(37.0)),
-                                                      1.0 / (math.exp(45.0) + math.exp(49.0)),
-                                                      1.0 / (math.exp(49.0) + math.exp(57.0))])
-        expected_att_t_to_s_matrix_wo_product = (expected_att_t_to_s_wo_product.T * row_normalization_denominator).T
-        expected_att_matrix_t_to_s = neighborhood_t_to_s.to_dense() * expected_att_t_to_s_matrix_wo_product
+                1.0 / (math.exp(33.0) + math.exp(37.0)),
+                1.0 / (math.exp(45.0) + math.exp(49.0)),
+                1.0 / (math.exp(49.0) + math.exp(57.0)),
+            ]
+        )
+        expected_att_t_to_s_matrix_wo_product = (
+            expected_att_t_to_s_wo_product.T * row_normalization_denominator
+        ).T
+        expected_att_matrix_t_to_s = (
+            neighborhood_t_to_s.to_dense() * expected_att_t_to_s_matrix_wo_product
+        )
 
         # Compare the two attention matrices.
         assert torch.allclose(att_matrix_s_to_t, expected_att_matrix_s_to_t)
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
     def test_forward_values(self):
-        """Test the values of the outputs of the forward pass of the HBNS layer against a specific precomputed example.
-        """
+        """Test the values of the outputs of the forward pass of the HBNS layer against a specific precomputed example."""
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 2, 3
 
-        self.hbns = HBNS(source_in_channels=self.d_s_in, source_out_channels=self.d_s_out,
-                         target_in_channels=self.d_t_in, target_out_channels=self.d_t_out, negative_slope=0.2,
-                         softmax=False, update_func=None, initialization="xavier_uniform")
+        self.hbns = HBNS(
+            source_in_channels=self.d_s_in,
+            source_out_channels=self.d_s_out,
+            target_in_channels=self.d_t_in,
+            target_out_channels=self.d_t_out,
+            negative_slope=0.2,
+            softmax=False,
+            update_func=None,
+            initialization="xavier_uniform",
+        )
 
         with torch.no_grad():
             self.hbns.att_weight[:3] = 1.0
@@ -184,37 +231,37 @@ class TestHBNS:
         x_target = torch.tensor([[5, 6], [7, 8], [9, 10]], dtype=torch.float)
 
         expected_s_message = torch.tensor(
-            [
-                [3, 3, 3],
-                [7, 7, 7],
-                [11, 11, 11]
-            ], dtype=torch.float
+            [[3, 3, 3], [7, 7, 7], [11, 11, 11]], dtype=torch.float
         )
         expected_t_message = torch.tensor(
-            [
-                [11, 11, 11],
-                [15, 15, 15],
-                [19, 19, 19]
-            ], dtype=torch.float
+            [[11, 11, 11], [15, 15, 15], [19, 19, 19]], dtype=torch.float
         )
         expected_att_matrix_s_to_t = torch.tensor(
             [
                 [75.0 / 174.0, 0.0, 99.0 / 174.0],
                 [99.0 / 210.0, 111.0 / 210.0, 0.0],
-                [0.0, 135.0 / 282.0, 147.0 / 282.0]
-            ], dtype=torch.float
+                [0.0, 135.0 / 282.0, 147.0 / 282.0],
+            ],
+            dtype=torch.float,
         )
         expected_att_matrix_t_to_s = torch.tensor(
             [
                 [75.0 / 174.0, 99.0 / 174.0, 0.0],
                 [0.0, 111.0 / 246.0, 135.0 / 246.0],
-                [99.0 / 246.0, 0.0, 147.0 / 246.0]
-            ], dtype=torch.float
+                [99.0 / 246.0, 0.0, 147.0 / 246.0],
+            ],
+            dtype=torch.float,
         )
-        expected_message_on_target = torch.mm(expected_att_matrix_s_to_t, expected_s_message)
-        expected_message_on_source = torch.mm(expected_att_matrix_t_to_s, expected_t_message)
+        expected_message_on_target = torch.mm(
+            expected_att_matrix_s_to_t, expected_s_message
+        )
+        expected_message_on_source = torch.mm(
+            expected_att_matrix_t_to_s, expected_t_message
+        )
 
-        message_on_source, message_on_target = self.hbns.forward(x_source, x_target, self.neighborhood_s_to_t)
+        message_on_source, message_on_target = self.hbns.forward(
+            x_source, x_target, self.neighborhood_s_to_t
+        )
 
         assert torch.allclose(expected_message_on_source, message_on_source)
         assert torch.allclose(expected_message_on_target, message_on_target)

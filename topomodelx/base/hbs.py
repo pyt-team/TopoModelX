@@ -1,11 +1,12 @@
 """Higher Order Attention Block for squared neighborhoods (HBS) for message passing module."""
 
-import torch
-import numpy as np
-import torch.nn.functional as F
-from torch.nn.parameter import Parameter
-from scipy.sparse import coo_matrix
 from multiprocessing import Pool
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from scipy.sparse import coo_matrix
+from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
 
@@ -25,12 +26,14 @@ def sparse_row_norm(sparse_tensor):
     """
     row_sum = torch.sparse.sum(sparse_tensor, dim=1)
     values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-    sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
+    sparse_tensor = torch.sparse_coo_tensor(
+        sparse_tensor._indices(), values, sparse_tensor.shape
+    )
     return sparse_tensor.coalesce()
 
 
 class HBS(MessagePassing):
-    """Higher Order Attention Block layer for squared neighborhoods (HBS).
+    r"""Higher Order Attention Block layer for squared neighborhoods (HBS).
 
     This is a sparse implementation of an HBS layer. HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
     Mathematically, a higher order attention block layer for squared neighborhood matrices N of shape [n_cells, n_cells]
@@ -74,8 +77,16 @@ class HBS(MessagePassing):
         Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
     """
 
-    def __init__(self, source_in_channels, source_out_channels, negative_slope, softmax=False, m_hop=1,
-                 update_func=None, initialization="xavier_uniform"):
+    def __init__(
+        self,
+        source_in_channels,
+        source_out_channels,
+        negative_slope,
+        softmax=False,
+        m_hop=1,
+        update_func=None,
+        initialization="xavier_uniform",
+    ):
 
         super().__init__(
             att=True,
@@ -89,11 +100,20 @@ class HBS(MessagePassing):
         self.update_func = update_func
 
         # TODO: (+efficiency) We are going through the same range in each of the init
-        self.weight = torch.nn.ParameterList([Parameter(torch.Tensor(self.source_in_channels, self.source_out_channels))
-                                              for _ in range(self.m_hop)])
-        self.att_weight = torch.nn.ParameterList([Parameter(torch.Tensor(2 * self.source_out_channels, 1))
-
-                                                  for _ in range(self.m_hop)])
+        self.weight = torch.nn.ParameterList(
+            [
+                Parameter(
+                    torch.Tensor(self.source_in_channels, self.source_out_channels)
+                )
+                for _ in range(self.m_hop)
+            ]
+        )
+        self.att_weight = torch.nn.ParameterList(
+            [
+                Parameter(torch.Tensor(2 * self.source_out_channels, 1))
+                for _ in range(self.m_hop)
+            ]
+        )
         self.negative_slope = negative_slope
         self.softmax = softmax
 
@@ -165,14 +185,16 @@ class HBS(MessagePassing):
         s_to_s = torch.cat([message[source_index_i], message[source_index_j]], dim=1)
         e_p = torch.sparse_coo_tensor(
             indices=torch.tensor([source_index_i.tolist(), source_index_j.tolist()]),
-            values=F.leaky_relu(torch.matmul(s_to_s, a_p),
-                                negative_slope=self.negative_slope).squeeze(1),
-            size=(n_messages, n_messages)
+            values=F.leaky_relu(
+                torch.matmul(s_to_s, a_p), negative_slope=self.negative_slope
+            ).squeeze(1),
+            size=(n_messages, n_messages),
         )
-        att_p = torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
+        att_p = (
+            torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
+        )
         return att_p
 
-    # TODO: parallelize
     def forward(self, x_source, neighborhood):
         """Forward pass.
 
@@ -192,15 +214,18 @@ class HBS(MessagePassing):
         _ : Tensor, shape=[n_cells, source_out_channels]
             Output features of the layer.
         """
-        message = [torch.mm(x_source, w) for w in self.weight]  # [m-hop, n_source_cells, d_t_out]
+        message = [
+            torch.mm(x_source, w) for w in self.weight
+        ]  # [m-hop, n_source_cells, d_t_out]
         result = torch.eye(x_source.shape[0]).to_sparse_coo()
-        neighborhood = [result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)]
+        neighborhood = [
+            result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)
+        ]
 
-        # TODO: parallelize?
-        # with Pool() as pool:
-        # att_p = pool.map(self.attention, message)
-
-        att = [self.attention(m_p, A_p, a_p) for m_p, A_p, a_p in zip(message, neighborhood, self.att_weight)]
+        att = [
+            self.attention(m_p, A_p, a_p)
+            for m_p, A_p, a_p in zip(message, neighborhood, self.att_weight)
+        ]
 
         def sparse_hadamard(A_p, att_p):
             return torch.sparse_coo_tensor(
@@ -209,7 +234,9 @@ class HBS(MessagePassing):
                 size=A_p.shape,
             )
 
-        neighborhood = [sparse_hadamard(A_p, att_p) for A_p, att_p in zip(neighborhood, att)]
+        neighborhood = [
+            sparse_hadamard(A_p, att_p) for A_p, att_p in zip(neighborhood, att)
+        ]
         message = [torch.mm(n_p, m_p) for n_p, m_p in zip(neighborhood, message)]
         result = torch.zeros_like(message[0])
 

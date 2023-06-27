@@ -1,10 +1,13 @@
-import torch
-import toponetx as tnx
-from topomodelx.base.aggregation import Aggregation
+"""Implementation of a Combinatorial Complex Attention Neural Network for Mesh Classification."""
+
 from typing import List
 
-from topomodelx.base.hbs import HBS
+import toponetx as tnx
+import torch
+
+from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.hbns import HBNS
+from topomodelx.base.hbs import HBS
 
 
 class HMCLayer(torch.nn.Module):
@@ -62,58 +65,128 @@ class HMCLayer(torch.nn.Module):
         Initialization method for the weights of the attention layers. Default is 'xavier_uniform'.
     """
 
-    def __init__(self, in_channels: List[int], intermediate_channels: List[int], out_channels: List[int],
-                 negative_slope: float, softmax_attention=False, update_func_attention=None,
-                 update_func_aggregation=None, initialization="xavier_uniform"):
+    def __init__(
+        self,
+        in_channels: List[int],
+        intermediate_channels: List[int],
+        out_channels: List[int],
+        negative_slope: float,
+        softmax_attention=False,
+        update_func_attention=None,
+        update_func_aggregation=None,
+        initialization="xavier_uniform",
+    ):
 
-        super(HMCLayer,self).__init__()
+        super(HMCLayer, self).__init__()
         super().__init__()
 
-        assert len(in_channels) == 3 and len(intermediate_channels) == 3 and len(out_channels) == 3
+        assert (
+            len(in_channels) == 3
+            and len(intermediate_channels) == 3
+            and len(out_channels) == 3
+        )
 
         in_channels_0, in_channels_1, in_channels_2 = in_channels
-        intermediate_channels_0, intermediate_channels_1, intermediate_channels_2 = intermediate_channels
+        (
+            intermediate_channels_0,
+            intermediate_channels_1,
+            intermediate_channels_2,
+        ) = intermediate_channels
         out_channels_0, out_channels_1, out_channels_2 = out_channels
 
-        self.hbs_0_level1 = HBS(source_in_channels=in_channels_0, source_out_channels=intermediate_channels_0,
-                                negative_slope=negative_slope, softmax=softmax_attention,
-                                update_func=update_func_attention, initialization=initialization)
+        self.hbs_0_level1 = HBS(
+            source_in_channels=in_channels_0,
+            source_out_channels=intermediate_channels_0,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbns_0_1_level1 = HBNS(source_in_channels=in_channels_1, source_out_channels=intermediate_channels_1,
-                                    target_in_channels=in_channels_0, target_out_channels=intermediate_channels_0,
-                                    negative_slope=negative_slope, softmax=softmax_attention,
-                                    update_func=update_func_attention, initialization=initialization)
+        self.hbns_0_1_level1 = HBNS(
+            source_in_channels=in_channels_1,
+            source_out_channels=intermediate_channels_1,
+            target_in_channels=in_channels_0,
+            target_out_channels=intermediate_channels_0,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbns_1_2_level1 = HBNS(source_in_channels=in_channels_2, source_out_channels=intermediate_channels_2,
-                                    target_in_channels=in_channels_1, target_out_channels=intermediate_channels_1,
-                                    negative_slope=negative_slope, softmax=softmax_attention,
-                                    update_func=update_func_attention, initialization=initialization)
+        self.hbns_1_2_level1 = HBNS(
+            source_in_channels=in_channels_2,
+            source_out_channels=intermediate_channels_2,
+            target_in_channels=in_channels_1,
+            target_out_channels=intermediate_channels_1,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbs_0_level2 = HBS(source_in_channels=intermediate_channels_0, source_out_channels=out_channels_0,
-                                negative_slope=negative_slope, softmax=softmax_attention,
-                                update_func=update_func_attention, initialization=initialization)
+        self.hbs_0_level2 = HBS(
+            source_in_channels=intermediate_channels_0,
+            source_out_channels=out_channels_0,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbns_0_1_level2 = HBNS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
-                                    target_in_channels=intermediate_channels_0, target_out_channels=out_channels_0,
-                                    negative_slope=negative_slope, softmax=softmax_attention,
-                                    update_func=update_func_attention, initialization=initialization)
+        self.hbns_0_1_level2 = HBNS(
+            source_in_channels=intermediate_channels_1,
+            source_out_channels=out_channels_1,
+            target_in_channels=intermediate_channels_0,
+            target_out_channels=out_channels_0,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbs_1_level2 = HBS(source_in_channels=intermediate_channels_1, source_out_channels=out_channels_1,
-                                negative_slope=negative_slope, softmax=softmax_attention,
-                                update_func=update_func_attention, initialization=initialization)
+        self.hbs_1_level2 = HBS(
+            source_in_channels=intermediate_channels_1,
+            source_out_channels=out_channels_1,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbns_1_2_level2 = HBNS(source_in_channels=intermediate_channels_2, source_out_channels=out_channels_2,
-                                    target_in_channels=intermediate_channels_1, target_out_channels=out_channels_1,
-                                    negative_slope=negative_slope, softmax=softmax_attention,
-                                    update_func=update_func_attention, initialization=initialization)
+        self.hbns_1_2_level2 = HBNS(
+            source_in_channels=intermediate_channels_2,
+            source_out_channels=out_channels_2,
+            target_in_channels=intermediate_channels_1,
+            target_out_channels=out_channels_1,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
-        self.hbs_2_level2 = HBS(source_in_channels=intermediate_channels_2, source_out_channels=out_channels_2,
-                                negative_slope=negative_slope, softmax=softmax_attention,
-                                update_func=update_func_attention, initialization=initialization)
+        self.hbs_2_level2 = HBS(
+            source_in_channels=intermediate_channels_2,
+            source_out_channels=out_channels_2,
+            negative_slope=negative_slope,
+            softmax=softmax_attention,
+            update_func=update_func_attention,
+            initialization=initialization,
+        )
 
         self.aggr = Aggregation(aggr_func="sum", update_func=update_func_aggregation)
 
-    def forward(self, x_0, x_1, x_2, adjacency_0, adjacency_1, coadjacency_2, incidence_1, incidence_2):
+    def forward(
+        self,
+        x_0,
+        x_1,
+        x_2,
+        adjacency_0,
+        adjacency_1,
+        coadjacency_2,
+        incidence_1,
+        incidence_2,
+    ):
         r"""Forward pass.
 
         The forward pass of the Combinatorial Complex Attention Neural Network for Mesh Classification proposed
@@ -132,35 +205,35 @@ class HMCLayer(torch.nn.Module):
             Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
             (2023) https://arxiv.org/abs/2304.10031.
 
-            Parameters
-            ----------
-            x_0 : torch.Tensor, shape=[n_0_cells, in_channels[0]]
-                Input features on the 0-cells (vertices) of the combinatorial complex.
-            x_1 : torch.Tensor, shape=[n_1_cells, in_channels[1]]
-                Input features on the 1-cells (edges) of the combinatorial complex.
-            x_2 : torch.Tensor, shape=[n_2_cells, in_channels[2]]
-            Input features on the 2-cells (faces) of the combinatorial complex.
-            adjacency_0 : torch.sparse
-                shape=[n_0_cells, n_0_cells]
-                Neighborhood matrix mapping 0-cells to 0-cells (A_0_up).
-            adjacency_1 : torch.sparse
-                shape=[n_1_cells, n_1_cells]
-                Neighborhood matrix mapping nodes to nodes (A_1_up).
-            coadjacency_2 : torch.sparse
-                shape=[n_2_cells, n_2_cells]
-                Neighborhood matrix mapping nodes to nodes (A_2_down).
-            incidence_1 : torch.sparse
-                shape=[n_0_cells, n_1_cells]
-                Neighborhood matrix mapping 1-cells to 0-cells (B_1).
-            incidence_2 : torch.sparse
-            shape=[n_1_cells, n_2_cells]
-            Neighborhood matrix mapping 2-cells to 1-cells (B_2).
+        Parameters
+        ----------
+        x_0 : torch.Tensor, shape=[n_0_cells, in_channels[0]]
+            Input features on the 0-cells (vertices) of the combinatorial complex.
+        x_1 : torch.Tensor, shape=[n_1_cells, in_channels[1]]
+            Input features on the 1-cells (edges) of the combinatorial complex.
+        x_2 : torch.Tensor, shape=[n_2_cells, in_channels[2]]
+        Input features on the 2-cells (faces) of the combinatorial complex.
+        adjacency_0 : torch.sparse
+            shape=[n_0_cells, n_0_cells]
+            Neighborhood matrix mapping 0-cells to 0-cells (A_0_up).
+        adjacency_1 : torch.sparse
+            shape=[n_1_cells, n_1_cells]
+            Neighborhood matrix mapping nodes to nodes (A_1_up).
+        coadjacency_2 : torch.sparse
+            shape=[n_2_cells, n_2_cells]
+            Neighborhood matrix mapping nodes to nodes (A_2_down).
+        incidence_1 : torch.sparse
+            shape=[n_0_cells, n_1_cells]
+            Neighborhood matrix mapping 1-cells to 0-cells (B_1).
+        incidence_2 : torch.sparse
+        shape=[n_1_cells, n_2_cells]
+        Neighborhood matrix mapping 2-cells to 1-cells (B_2).
 
-            Returns
-            -------
-            _ : torch.Tensor, shape=[1, num_classes]
-                Output prediction on the entire cell complex.
-            """
+        Returns
+        -------
+        _ : torch.Tensor, shape=[1, num_classes]
+            Output prediction on the entire cell complex.
+        """
         # Computing messages from Higher Order Attention Blocks Level 1
         x_0_to_0 = self.hbs_0_level1(x_0, adjacency_0)
         x_0_to_1, x_1_to_0 = self.hbns_0_1_level1(x_1, x_0, incidence_1)

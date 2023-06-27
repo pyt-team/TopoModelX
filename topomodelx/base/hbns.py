@@ -2,8 +2,8 @@
 
 import torch
 import torch.nn.functional as F
-from torch.nn.parameter import Parameter
 from scipy.sparse import coo_matrix
+from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
 
@@ -23,12 +23,14 @@ def sparse_row_norm(sparse_tensor):
     """
     row_sum = torch.sparse.sum(sparse_tensor, dim=1)
     values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-    sparse_tensor = torch.sparse_coo_tensor(sparse_tensor._indices(), values, sparse_tensor.shape)
+    sparse_tensor = torch.sparse_coo_tensor(
+        sparse_tensor._indices(), values, sparse_tensor.shape
+    )
     return sparse_tensor.coalesce()
 
 
 class HBNS(MessagePassing):
-    """Higher Order Attention Block layer for non-squared neighborhoods (HBNS).
+    r"""Higher Order Attention Block layer for non-squared neighborhoods (HBNS).
 
     This is a sparse implementation of an HBNS layer. HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
 
@@ -89,22 +91,43 @@ class HBNS(MessagePassing):
         Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
     """
 
-    def __init__(self, source_in_channels, source_out_channels, target_in_channels, target_out_channels,
-                 negative_slope=0.2, softmax=False, update_func=None, initialization="xavier_uniform"):
+    def __init__(
+        self,
+        source_in_channels,
+        source_out_channels,
+        target_in_channels,
+        target_out_channels,
+        negative_slope=0.2,
+        softmax=False,
+        update_func=None,
+        initialization="xavier_uniform",
+    ):
         super().__init__(
             att=True,
             initialization=initialization,
         )
 
-        self.source_in_channels, self.source_out_channels = source_in_channels, source_out_channels
-        self.target_in_channels, self.target_out_channels = target_in_channels, target_out_channels
+        self.source_in_channels, self.source_out_channels = (
+            source_in_channels,
+            source_out_channels,
+        )
+        self.target_in_channels, self.target_out_channels = (
+            target_in_channels,
+            target_out_channels,
+        )
 
         self.update_func = update_func
 
-        self.w_s = Parameter(torch.Tensor(self.source_in_channels, self.target_out_channels))
-        self.w_t = Parameter(torch.Tensor(self.target_in_channels, self.source_out_channels))
+        self.w_s = Parameter(
+            torch.Tensor(self.source_in_channels, self.target_out_channels)
+        )
+        self.w_t = Parameter(
+            torch.Tensor(self.target_in_channels, self.source_out_channels)
+        )
 
-        self.att_weight = Parameter(torch.Tensor(self.target_out_channels + self.source_out_channels, 1))
+        self.att_weight = Parameter(
+            torch.Tensor(self.target_out_channels + self.source_out_channels, 1)
+        )
         self.negative_slope = negative_slope
 
         self.softmax = softmax
@@ -186,18 +209,33 @@ class HBNS(MessagePassing):
         )
 
         e = torch.sparse_coo_tensor(
-            indices=torch.tensor([self.target_indices.tolist(), self.source_indices.tolist()]),
-            values=F.leaky_relu(torch.matmul(s_to_t, self.att_weight), negative_slope=self.negative_slope).squeeze(1),
-            size=(t_message.shape[0], s_message.shape[0])
+            indices=torch.tensor(
+                [self.target_indices.tolist(), self.source_indices.tolist()]
+            ),
+            values=F.leaky_relu(
+                torch.matmul(s_to_t, self.att_weight),
+                negative_slope=self.negative_slope,
+            ).squeeze(1),
+            size=(t_message.shape[0], s_message.shape[0]),
         )
 
         f = torch.sparse_coo_tensor(
-            indices=torch.tensor([self.source_indices.tolist(), self.target_indices.tolist()]),
+            indices=torch.tensor(
+                [self.source_indices.tolist(), self.target_indices.tolist()]
+            ),
             values=F.leaky_relu(
-                torch.matmul(t_to_s, torch.cat(
-                    [self.att_weight[self.source_out_channels:], self.att_weight[:self.source_out_channels]])),
-                negative_slope=self.negative_slope).squeeze(1),
-            size=(s_message.shape[0], t_message.shape[0])
+                torch.matmul(
+                    t_to_s,
+                    torch.cat(
+                        [
+                            self.att_weight[self.source_out_channels :],
+                            self.att_weight[: self.source_out_channels],
+                        ]
+                    ),
+                ),
+                negative_slope=self.negative_slope,
+            ).squeeze(1),
+            size=(s_message.shape[0], t_message.shape[0]),
         )
         if self.softmax:
             return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
