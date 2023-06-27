@@ -15,6 +15,11 @@ def sparse_row_norm(sparse_tensor):
     Parameters
     ----------
     sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
+
+    Returns
+    -------
+    _ : torch.sparse, shape=[n_cells, n_cells]
+        Normalized by rows sparse tensor.
     """
     row_sum = torch.sparse.sum(sparse_tensor, dim=1)
     values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]

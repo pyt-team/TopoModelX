@@ -9,6 +9,7 @@ from multiprocessing import Pool
 
 from topomodelx.base.message_passing import MessagePassing
 
+
 # TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
 def sparse_row_norm(sparse_tensor):
     """Normalize a sparse tensor by row dividing each row by its sum.
@@ -16,6 +17,11 @@ def sparse_row_norm(sparse_tensor):
     Parameters
     ----------
     sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
+
+    Returns
+    -------
+    _ : torch.sparse, shape=[n_cells, n_cells]
+        Normalized by rows sparse tensor.
     """
     row_sum = torch.sparse.sum(sparse_tensor, dim=1)
     values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
