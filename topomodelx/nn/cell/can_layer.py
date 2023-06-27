@@ -211,7 +211,7 @@ class CANLayer(torch.nn.Module):
     heads : int, optional
         Number of attention heads, by default 1
     dropout : float, optional
-        Dropout probability, by default 0.0
+        Dropout probability of the normalized attention coefficients, by default 0.0
     concat : bool, optional
         If True, the output of each head is concatenated. Otherwise, the output of each head is averaged, by default True
     skip_connection : bool, optional
@@ -238,6 +238,8 @@ class CANLayer(torch.nn.Module):
         # TODO: add all the assertions
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
+        assert heads > 0, ValueError("Number of heads must be > 0")
+        assert dropout >= 0.0 and dropout <= 1.0, ValueError("Dropout must be in [0,1]")
 
         # lower attention
         self.lower_att = MultiHeadCellAttention(
