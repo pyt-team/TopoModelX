@@ -42,8 +42,9 @@ class AllSetTransformerLayer(nn.Module):
         hidden_channels,
         out_channels,
         dropout=0.2,
-        heads=3,
+        heads=4,
         att_dropout=0.0,
+        mlp_num_layers=2,
     ):
         super().__init__()  # AllSetLayer, self
 
@@ -55,8 +56,8 @@ class AllSetTransformerLayer(nn.Module):
             hidden_channels=hidden_channels,
             out_channels=hidden_channels,
             att_dropout=att_dropout,
-            att=True,
             heads=heads,
+            mlp_num_layers=mlp_num_layers,
         )
 
         self.e2v = AllSetTransformerConv(
@@ -64,8 +65,8 @@ class AllSetTransformerLayer(nn.Module):
             hidden_channels=hidden_channels,
             out_channels=out_channels,
             att_dropout=att_dropout,
-            att=True,
             heads=heads,
+            mlp_num_layers=mlp_num_layers,
         )
 
     def forward(self, x, incidence_1):
@@ -99,6 +100,152 @@ class AllSetTransformerLayer(nn.Module):
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         return x
+
+
+class AllSetTransformerConv(Conv):
+    """Message passing: steps 1, 2, and 3.
+
+    Builds the message passing route given by one neighborhood matrix.
+    Includes an option for a x-specific update function.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of input features.
+    out_channels : int
+        Dimension of output features.
+    aggr_norm : bool
+        Whether to normalize the aggregated message by the neighborhood size.
+    update_func : string
+        Update method to apply to message.
+    att : bool
+        Whether to use attention.
+        Optional, default: False.
+    initialization : string
+        Initialization method.
+    """
+
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels,
+        out_channels,
+        aggr_norm=False,
+        update_func=None,
+        # Transformer parameters
+        heads=4,
+        att_dropout=0.0,
+        mlp_num_layers=2,
+        negative_slope=0.2,
+        initialization="xavier_uniform",
+    ):
+        # assert att == True, "AllSetTransformerConv only works with attention"
+
+        super(Conv, self).__init__(
+            att=True,
+            initialization=initialization,
+        )
+
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels // heads
+        self.out_channels = out_channels
+        self.heads = heads
+
+        self.aggr_norm = aggr_norm
+        self.update_func = update_func
+
+        self.negative_slope = negative_slope
+        self.dropout = att_dropout
+
+        # For neighbor nodes (source side, key)
+        self.multihead_att = MultiHeadAttention(
+            in_channels=self.in_channels,
+            hidden_channels=self.hidden_channels,
+            out_channels=self.out_channels,
+            heads=self.heads,
+        )
+
+        self.rFF = MLP(
+            in_dim=self.heads * self.hidden_channels,
+            hid_dim=self.heads * self.hidden_channels,
+            out_dim=self.heads * self.hidden_channels,
+            num_layers=mlp_num_layers,
+            dropout=0.0,
+        )
+        # originally the normalisation should be NONE!!!!!!!!!!!!
+        # Normalization='None',)!!!!!!!!!!
+
+        self.ln0 = nn.LayerNorm(self.heads * self.hidden_channels)
+        self.ln1 = nn.LayerNorm(self.heads * self.hidden_channels)
+
+        self.reset_parameters()
+
+    def reset_parameters(self, gain=1.414):
+        r"""Reset learnable parameters.
+
+        Notes
+        -----
+        This function will be called by subclasses of
+        MessagePassing that have trainable weights.
+
+        Parameters
+        ----------
+        gain : float
+            Gain for the weight initialization.
+        """
+        pass
+
+    def forward(self, x_source, neighborhood, x_target=None):
+        """Forward pass.
+
+        This implements message passing:
+        - from source cells with input features `x_source`,
+        - via `neighborhood` defining where messages can pass,
+        - to target cells with input features `x_target`.
+
+        In practice, this will update the features on the target cells.
+
+        If not provided, x_target is assumed to be x_source,
+        i.e. source cells send messages to themselves.
+
+        Parameters
+        ----------
+        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
+        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+            Input features on target cells.
+            Assumes that all target cells have the same rank s.
+            Optional. If not provided, x_target is assumed to be x_source,
+            i.e. source cells send messages to themselves.
+
+        Returns
+        -------
+        _ : Tensor, shape=[..., n_target_cells, out_channels]
+            Output features on target cells.
+            Assumes that all target cells have the same rank s.
+        """
+        neighborhood = neighborhood.coalesce()
+        self.target_index_i, self.source_index_j = neighborhood.indices()
+        x_message_on_target = self.multihead_att(x_source, neighborhood)
+
+        # Skip-connection
+        x_message_on_target = x_message_on_target + self.multihead_att.att_weight
+
+        x_message_on_target = self.ln0(
+            x_message_on_target.view(-1, self.heads * self.hidden_channels)
+        )
+        # rFF and skip connection. Lhs of eq(7) in GMT paper.
+        x_message_on_target = self.ln1(
+            x_message_on_target + F.relu(self.rFF(x_message_on_target))
+        )
+
+        if self.update_func is None:
+            return x_message_on_target
+
+        return self.update(x_message_on_target, x_target)
 
 
 class MultiHeadAttention(MessagePassing):
@@ -244,152 +391,6 @@ class MultiHeadAttention(MessagePassing):
         x_message_on_target = torch.matmul(attention_values, x_message)
 
         return x_message_on_target
-
-
-class AllSetTransformerConv(Conv):
-    """Message passing: steps 1, 2, and 3.
-
-    Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a x-specific update function.
-
-    Parameters
-    ----------
-    in_channels : int
-        Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    aggr_norm : bool
-        Whether to normalize the aggregated message by the neighborhood size.
-    update_func : string
-        Update method to apply to message.
-    att : bool
-        Whether to use attention.
-        Optional, default: False.
-    initialization : string
-        Initialization method.
-    """
-
-    def __init__(
-        self,
-        in_channels,
-        hidden_channels,
-        out_channels,
-        aggr_norm=False,
-        update_func=None,
-        # Transformer parameters
-        heads=4,
-        att_dropout=0.0,
-        negative_slope=0.2,
-        initialization="xavier_uniform",
-    ):
-        # assert att == True, "AllSetTransformerConv only works with attention"
-
-        super(Conv, self).__init__(
-            att=True,
-            initialization=initialization,
-        )
-
-        self.in_channels = in_channels
-        self.hidden_channels = hidden_channels
-        self.out_channels = out_channels
-        self.aggr_norm = aggr_norm
-        self.update_func = update_func
-
-        self.out_channels = out_channels
-        self.heads = heads
-
-        self.negative_slope = negative_slope
-        self.dropout = att_dropout
-
-        # For neighbor nodes (source side, key)
-        self.multihead_att = MultiHeadAttention(
-            in_channels=in_channels,
-            hidden_channels=hidden_channels,
-            out_channels=out_channels,
-            heads=heads,
-        )
-
-        self.rFF = MLP(
-            in_dim=self.heads * self.hidden_channels,
-            hid_dim=self.heads * self.hidden_channels,
-            out_dim=out_channels,
-            num_layers=2,
-            dropout=0.0,
-        )
-        # originally the normalisation should be NONE!!!!!!!!!!!!
-        # Normalization='None',)!!!!!!!!!!
-
-        self.ln0 = nn.LayerNorm(self.heads * self.hidden_channels)
-        self.ln1 = nn.LayerNorm(self.heads * self.hidden_channels)
-
-        self.reset_parameters()
-
-    def reset_parameters(self, gain=1.414):
-        r"""Reset learnable parameters.
-
-        Notes
-        -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
-
-        Parameters
-        ----------
-        gain : float
-            Gain for the weight initialization.
-        """
-        pass
-
-    def forward(self, x_source, neighborhood, x_target=None):
-        """Forward pass.
-
-        This implements message passing:
-        - from source cells with input features `x_source`,
-        - via `neighborhood` defining where messages can pass,
-        - to target cells with input features `x_target`.
-
-        In practice, this will update the features on the target cells.
-
-        If not provided, x_target is assumed to be x_source,
-        i.e. source cells send messages to themselves.
-
-        Parameters
-        ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
-            Input features on source cells.
-            Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
-            Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
-            Input features on target cells.
-            Assumes that all target cells have the same rank s.
-            Optional. If not provided, x_target is assumed to be x_source,
-            i.e. source cells send messages to themselves.
-
-        Returns
-        -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
-            Output features on target cells.
-            Assumes that all target cells have the same rank s.
-        """
-        neighborhood = neighborhood.coalesce()
-        self.target_index_i, self.source_index_j = neighborhood.indices()
-        x_message_on_target = self.multihead_att(x_source, neighborhood)
-
-        # Skip-connection
-        x_message_on_target = x_message_on_target + self.multihead_att.att_weight
-
-        x_message_on_target = self.ln0(
-            x_message_on_target.view(-1, self.heads * self.hidden_channels)
-        )
-        # rFF and skip connection. Lhs of eq(7) in GMT paper.
-        x_message_on_target = self.ln1(
-            x_message_on_target + F.relu(self.rFF(x_message_on_target))
-        )
-
-        if self.update_func is None:
-            return x_message_on_target
-
-        return self.update(x_message_on_target, x_target)
 
 
 class MLP(nn.Module):
