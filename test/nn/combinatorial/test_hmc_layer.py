@@ -47,8 +47,16 @@ class TestHMCLayer:
         x_1 = torch.randn(3, in_channels[1])
         x_2 = torch.randn(1, in_channels[2])
 
-        x_0_out, x_1_out, x_2_out = hmc_layer.forward(x_0, x_1, x_2, adjacency_0, adjacency_1,
-                                                      coadjacency_2, incidence_1, incidence_2)
+        x_0_out, x_1_out, x_2_out = hmc_layer.forward(
+            x_0,
+            x_1,
+            x_2,
+            adjacency_0,
+            adjacency_1,
+            coadjacency_2,
+            incidence_1,
+            incidence_2,
+        )
         assert x_0_out.shape == (3, out_channels[0])
         assert x_1_out.shape == (3, out_channels[1])
         assert x_2_out.shape == (1, out_channels[2])
