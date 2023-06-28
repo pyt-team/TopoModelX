@@ -35,7 +35,7 @@ class HBNS(MessagePassing):
     Mathematically, a higher order attention block layer for non-squared neighborhood matrices N of shape
     [target_cells, source_cells] is a function that outputs new signals for the source and target cells of the
     application given by the neighborhood matrix N given input source and target cochain matrices Xs and Xt of shape
-    [source_cells, source_in_channels] and target_cells, target_in_channels], respectively. The output source and target
+    [source_cells, source_in_channels] and [target_cells, target_in_channels], respectively. The output source and target
     cochain matrices Ys and Yt are computed as
      ..  math::
         \begin{align}
@@ -199,8 +199,10 @@ class HBNS(MessagePassing):
                 negative_slope=self.negative_slope).squeeze(1),
             size=(s_message.shape[0], t_message.shape[0])
         )
+
         if self.softmax:
             return torch.sparse.softmax(e, dim=1), torch.sparse.softmax(f, dim=1)
+
         return sparse_row_norm(e), sparse_row_norm(f)
 
     def forward(self, x_source, x_target, neighborhood):
