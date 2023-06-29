@@ -7,9 +7,14 @@ from topomodelx.base.message_passing import MessagePassing
 
 
 class AllSetTransformerLayer(nn.Module):
-    """AllSet Layer Module.
+    r"""
+    Implementation of the AllSetTransformer Layer proposed in [ECCP22].
 
-    A module for AllSetTransformerLayer
+    References
+    ----------
+    .. [ECCP22] Chien, E., Pan, C., Peng, J., & Milenkovic, O. You are AllSet: A Multiset
+      Function Framework for Hypergraph Neural Networks. In International Conference on
+      Learning Representations, 2022 (https://arxiv.org/pdf/2106.13264.pdf)
 
     Parameters
     ----------
@@ -19,11 +24,18 @@ class AllSetTransformerLayer(nn.Module):
         Dimension of the hidden features.
     out_channels : int
         Dimension of the output features.
-    dropout : float
-        Dropout probability.
-    att_dropout : int
-    heads : int
-    Q_n: int
+    num_heads : int, optional
+        Number of attention heads. Default is 4.
+    dropout : float, optional
+        Dropout probability. Default is 0.2.
+    mlp_num_layers : int, optional
+        Number of layers in the MLP. Default is 2.
+    mlp_activation : callable or None, optional
+        Activation function in the MLP. Default is None.
+    mlp_dropout : float, optional
+        Dropout probability in the MLP. Default is 0.0.
+    mlp_norm : str or None, optional
+        Type of layer normalization in the MLP. Default is None.
     """
 
     def __init__(
@@ -31,101 +43,133 @@ class AllSetTransformerLayer(nn.Module):
         in_channels,
         hidden_channels,
         out_channels,
-        dropout=0.2,
         heads=4,
-        att_dropout=0.0,
-        Q_n=1,
+        number_queries=1,
+        dropout=0.0,
+        mlp_num_layers=1,
+        mlp_activation=None,
+        mlp_dropout=0.0,
+        mlp_norm=None,
     ):
-        super().__init__()  # AllSetLayer, self
+        super().__init__()
 
-        assert heads is not None, "AllSetTransformer requires heads to be specified."
         self.dropout = dropout
 
-        self.v2e = AllSetTransformerBlock(
+        self.vertex2set = AllSetTransformerBlock(
             in_channels=in_channels,
             hidden_channels=hidden_channels,
             out_channels=hidden_channels,
-            att_dropout=att_dropout,
+            dropout=dropout,
             heads=heads,
-            Q_n=Q_n,
+            number_queries=number_queries,
+            mlp_num_layers=mlp_num_layers,
+            mlp_activation=mlp_activation,
+            mlp_dropout=mlp_dropout,
+            mlp_norm=mlp_norm,
         )
 
-        self.e2v = AllSetTransformerBlock(
+        self.set2vertex = AllSetTransformerBlock(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
             out_channels=out_channels,
-            att_dropout=att_dropout,
+            dropout=dropout,
             heads=heads,
-            Q_n=Q_n,
+            number_queries=number_queries,
+            mlp_num_layers=mlp_num_layers,
+            mlp_activation=mlp_activation,
+            mlp_dropout=mlp_dropout,
+            mlp_norm=mlp_norm,
         )
 
     def forward(self, x, incidence_1):
-        """
-        Forward computation.
+        """Forward computation.
 
         Parameters
         ----------
-        x : torch.Tensor
-            Input features.
-        incidence_1 : torch.Tensor
-            Incidence matrix.
+        x : torch.Tensor, shape=[n_nodes, channels]
+            Node input features.
+        incidence_1 : torch.sparse, shape=[n_nodes, n_hyperedges]
+            Incidence matrix :math:`B_1` mapping hyperedges to nodes.
 
         Returns
         -------
         x : torch.Tensor
             Output features.
         """
-        if x.shape[-2] != incidence_1.shape[-2]:
-            raise ValueError(
-                f"Shape of input node features {x.shape[-2]} does not have the correct number of edges {incidence_1.shape[-2]}."
-            )
-
-        x = F.relu(self.v2e(x, incidence_1.transpose(1, 0)))
+        x = F.relu(self.vertex2set(x, incidence_1.transpose(1, 0)))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
-        x = F.relu(self.e2v(x, incidence_1))
+        x = F.relu(self.set2vertex(x, incidence_1))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         return x
 
 
 class AllSetTransformerBlock(nn.Module):
-    """AllSetTransformer Block Module."""
+    r"""
+    AllSetTransformer Block Module.
+
+    A module for AllSet Transformer block in a bipartite graph.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
+    out_channels : int
+        Dimension of the output features.
+    heads : int, optional
+        Number of attention heads. Default is 4.
+    number_queries : int, optional
+        Number of queries. Default is 1.
+    dropout : float, optional
+        Dropout probability. Default is 0.0.
+    mlp_num_layers : int, optional
+        Number of layers in the MLP. Default is 1.
+    mlp_activation : callable or None, optional
+        Activation function in the MLP. Default is None.
+    mlp_dropout : float, optional
+        Dropout probability in the MLP. Default is 0.0.
+    mlp_norm : str or None, optional
+        Type of layer normalization in the MLP. Default is None.
+    """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
         out_channels,
-        # Transformer parameters
-        Q_n=1,
         heads=4,
-        att_dropout=0.0,
+        number_queries=1,
+        dropout=0.0,
+        mlp_num_layers=1,
+        mlp_activation=None,
         mlp_dropout=0.0,
+        mlp_norm=None,
     ):
-        # assert att == True, "AllSetTransformerConv only works with attention"
-
         super().__init__()
 
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
         self.out_channels = out_channels
         self.heads = heads
-        self.Q_n = Q_n
-        self.dropout = att_dropout
+        self.number_queries = number_queries
+        self.dropout = dropout
 
         # For neighbor nodes (source side, key)
         self.multihead_att = MultiHeadAttention(
             in_channels=self.in_channels,
             hidden_channels=hidden_channels // heads,
             heads=self.heads,
-            Q_n=Q_n,
+            number_queries=number_queries,
         )
 
         self.FF = MLP(
-            in_dim=self.hidden_channels,
-            hid_dim=self.hidden_channels,
-            out_dim=self.hidden_channels,
+            in_channels=self.hidden_channels,
+            hidden_channels=[self.hidden_channels] * mlp_num_layers,
+            norm_layer=mlp_norm,
+            activation_layer=mlp_activation,
             dropout=mlp_dropout,
         )
 
@@ -134,33 +178,47 @@ class AllSetTransformerBlock(nn.Module):
 
         self.reset_parameters()
 
-    def reset_parameters(
-        self,
-    ):
+    def reset_parameters(self):
         r"""Reset learnable parameters."""
         self.multihead_att.reset_parameters()
-        self.FF.reset_parameters()
+        for layer in self.FF.children():
+            if hasattr(layer, "reset_parameters"):
+                layer.reset_parameters()
         self.ln0.reset_parameters()
         self.ln1.reset_parameters()
 
-    def forward(self, x_source, neighborhood, x_target=None):
-        """Forward pass."""
+    def forward(self, x_source, neighborhood):
+        """Forward computation.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input features.
+        incidence : torch.sparse
+            Incidence matrix between node/hyperedges
+
+        Returns
+        -------
+        x : torch.Tensor
+            Output features.
+        """
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
+
+        # Obtain MH from Eq(7) in AllSet paper [ECCP22]
         x_message_on_target = self.multihead_att(x_source, neighborhood)
 
-        # Obtain Y from Eq(8) in AllSet paper (https://arxiv.org/pdf/2106.13264.pdf)
-
+        # Obtain Y from Eq(8) in AllSet paper [ECCP22]
         # Skip-connection (broadcased)
         x_message_on_target = x_message_on_target + self.multihead_att.Q_weight
 
         # Permute: n,h,q,c -> n,q,h,c
         x_message_on_target = x_message_on_target.permute(0, 2, 1, 3)
         x_message_on_target = self.ln0(
-            x_message_on_target.reshape(-1, self.Q_n, self.hidden_channels)
+            x_message_on_target.reshape(-1, self.number_queries, self.hidden_channels)
         )
 
-        # LN(Y+FF(Y)) in Eq(8) in AllSet paper (https://arxiv.org/pdf/2106.13264.pdf)
+        # Obtain LN(Y+FF(Y)) in Eq(8) in AllSet paper [ECCP22]
         x_message_on_target = self.ln1(
             x_message_on_target + F.relu(self.FF(x_message_on_target))
         )
@@ -169,26 +227,26 @@ class AllSetTransformerBlock(nn.Module):
 
 
 class MultiHeadAttention(MessagePassing):
-    """Message passing: steps 1, 2, and 3.
+    """Computes the multi-head attention mechanism (QK^T)V of transformer-based architectures.
 
-    Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a x-specific update function.
+    MH module from Eq(7) in AllSet paper [ECCP22]
 
     Parameters
     ----------
     in_channels : int
         Dimension of input features.
-    out_channels : int
-        Dimension of output features.
-    aggr_norm : bool
-        Whether to normalize the aggregated message by the neighborhood size.
-    update_func : string
-        Update method to apply to message.
-    att : bool
-        Whether to use attention.
-        Optional, default: False.
-    initialization : string
-        Initialization method.
+    hidden_channels : int
+        Dimension of hidden features.
+    aggr_norm : bool, optional
+        Whether to normalize the aggregated message by the neighborhood size. Default is False.
+    update_func : str or None, optional
+        Update method to apply to message. Default is None.
+    heads : int, optional
+        Number of attention heads. Default is 4.
+    number_queries : int, optional
+        Number of queries. Default is 1.
+    initialization : str, optional
+        Initialization method. Default is "xavier_uniform".
     """
 
     def __init__(
@@ -197,13 +255,10 @@ class MultiHeadAttention(MessagePassing):
         hidden_channels,
         aggr_norm=False,
         update_func=None,
-        # Transformer parameters
         heads=4,
-        Q_n=1,
+        number_queries=1,
         initialization="xavier_uniform",
     ):
-        # assert att == True, "AllSetTransformerConv only works with attention"
-
         super().__init__(
             att=True,
             initialization=initialization,
@@ -216,31 +271,20 @@ class MultiHeadAttention(MessagePassing):
         self.update_func = update_func
 
         self.heads = heads
-        self.Q_n = Q_n
+        self.number_queries = number_queries
 
         self.K_weight = torch.nn.Parameter(
             torch.randn(self.heads, self.in_channels, self.hidden_channels)
         )
         self.Q_weight = torch.nn.Parameter(
-            torch.randn(self.heads, self.Q_n, self.hidden_channels)
+            torch.randn(self.heads, self.number_queries, self.hidden_channels)
         )
         self.V_weight = torch.nn.Parameter(
             torch.randn(self.heads, self.in_channels, self.hidden_channels)
         )
 
     def reset_parameters(self, gain=1.414):
-        r"""Reset learnable parameters.
-
-        Notes
-        -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
-
-        Parameters
-        ----------
-        gain : float
-            Gain for the weight initialization.
-        """
+        r"""Reset learnable parameters."""
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.K_weight, gain=gain)
             torch.nn.init.xavier_uniform_(self.Q_weight, gain=gain)
@@ -258,14 +302,7 @@ class MultiHeadAttention(MessagePassing):
             )
 
     def attention(self, x_source, neighborhood):
-        """Compute attention weights for messages.
-
-        This provides a default attention function to the message passing scheme.
-
-        Alternatively, users can subclass MessagePassing and overwrite
-        the attention method in order to replace it with their own attention mechanism.
-
-        Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
+        """Compute (QK^T) of transformer-based architectures.
 
         Parameters
         ----------
@@ -277,14 +314,16 @@ class MultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_target_cells, heads, Q_n, n_source_cells]
+        _ : torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_K = torch.matmul(x_source, self.K_weight)
         alpha = torch.matmul(self.Q_weight, x_K.transpose(1, 2))
         expanded_alpha = torch.sparse_coo_tensor(
             indices=neighborhood.indices(),
-            values=alpha.T[self.source_index_j],
+            values=alpha.permute(*torch.arange(alpha.ndim - 1, -1, -1))[
+                self.source_index_j
+            ],
             size=[
                 neighborhood.shape[0],
                 neighborhood.shape[1],
@@ -300,11 +339,8 @@ class MultiHeadAttention(MessagePassing):
     def forward(self, x_source, neighborhood):
         """Forward pass.
 
-        This implements message passing:
-        - from source cells with input features `x_source`,
-        - via `neighborhood` defining where messages can pass,
-
-        In practice, this will update the features on the target cells.
+        Computes (QK^T)V attention mechanism of transformer-based architectures.
+        Module MH from Eq(7) in AllSet paper [ECCP22]
 
         Parameters
         ----------
@@ -331,84 +367,51 @@ class MultiHeadAttention(MessagePassing):
         return x_message_on_target
 
 
-class MLP(nn.Module):
+class MLP(nn.Sequential):
     """MLP Module.
 
-    A multi-layer perceptron module with optional normalization.
+    A module for a multi-layer perceptron (MLP).
 
     Parameters
     ----------
-    in_dim : int
+    in_channels : int
         Dimension of the input features.
-    hid_dim : int
-        Dimension of the hidden features.
-    out_dim : int
-        Dimension of the output features.
-    num_layers : int
-        Number of layers in the MLP.
+    hidden_channels : list of int
+        List of dimensions of the hidden features.
+    norm_layer : callable or None, optional
+        Type of layer normalization. Default is None.
+    activation_layer : callable or None, optional
+        Type of activation function. Default is None.
     dropout : float, optional
-        Dropout probability. Defaults to 0.5.
-    layer_norm : bool, optional
-        Whichever normalization apply. Defaults to "None".
+        Dropout probability. Default is 0.0.
+    inplace : bool, optional
+        Whether to do the operation in-place. Default is False.
+    bias : bool, optional
+        Whether to add bias. Default is True.
     """
 
     def __init__(
-        self, in_dim, hid_dim, out_dim, num_layers=2, dropout=0.5, layer_norm="None"
+        self,
+        in_channels,
+        hidden_channels,
+        norm_layer=None,
+        activation_layer=None,
+        dropout=0.0,
+        inplace=None,
+        bias=False,
     ):
-        super(MLP, self).__init__()
-        self.lins = nn.ModuleList()
-        self.normalizations = nn.ModuleList()
-        assert layer_norm in ["None", "ln", "bn"]
+        params = {} if inplace is None else {"inplace": inplace}
+        layers = []
+        in_dim = in_channels
+        for hidden_dim in hidden_channels[:-1]:
+            layers.append(nn.Linear(in_dim, hidden_dim, bias=bias))
+            if norm_layer is not None:
+                layers.append(norm_layer(hidden_dim))
+            layers.append(activation_layer(**params))
+            layers.append(nn.Dropout(dropout, **params))
+            in_dim = hidden_dim
 
-        if layer_norm == "ln":
-            layer_norm_func = nn.LayerNorm
-        elif layer_norm == "bn":
-            layer_norm_func = nn.BatchNorm1d
-        else:
-            layer_norm_func = nn.Identity
+        layers.append(nn.Linear(in_dim, hidden_channels[-1], bias=bias))
+        layers.append(nn.Dropout(dropout, **params))
 
-        if num_layers == 1:
-            # Just a linear layer i.e. logistic regression
-            self.normalizations.append(layer_norm_func(in_dim))
-            self.lins.append(nn.Linear(in_dim, out_dim))
-        else:
-            self.normalizations.append(layer_norm_func(in_dim))
-            self.lins.append(nn.Linear(in_dim, hid_dim))
-            self.normalizations.append(layer_norm_func(hid_dim))
-            for _ in range(num_layers - 2):
-                self.lins.append(nn.Linear(hid_dim, hid_dim))
-                self.normalizations.append(nn.LayerNorm(hid_dim))
-            self.lins.append(nn.Linear(hid_dim, out_dim))
-
-        self.dropout = dropout
-
-    def reset_parameters(self):
-        """Reset learnable parameters."""
-        for lin in self.lins:
-            lin.reset_parameters()
-        for normalization in self.normalizations:
-            if not (normalization.__class__.__name__ == "Identity"):
-                normalization.reset_parameters()
-
-    def forward(self, x):
-        """
-        Forward computation.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input features.
-
-        Returns
-        -------
-        x : torch.Tensor
-            Output features.
-        """
-        x = self.normalizations[0](x)
-        for i, lin in enumerate(self.lins[:-1]):
-            x = lin(x)
-            x = F.relu(x, inplace=True)
-            x = self.normalizations[i + 1](x)
-            x = F.dropout(x, p=self.dropout, training=self.training)
-        x = self.lins[-1](x)
-        return x
+        super().__init__(*layers)
