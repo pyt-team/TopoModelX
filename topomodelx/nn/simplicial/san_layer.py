@@ -8,7 +8,19 @@ from topomodelx.base.conv import Conv
 
 
 class SANConv(Conv):
-    r"""Class for the SAN Convolution."""
+    r"""Simplicial Attention Network (SAN) Convolution from [LGCB22]_.
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    p_filters : int
+        Number of simplicial filters.
+    initialization : str, optional
+        Weight initialization method. Defaults to "xavier_uniform".
+    """
 
     def __init__(
         self,
@@ -48,9 +60,6 @@ class SANConv(Conv):
 
         In practice, this will update the features on the target cells.
 
-        If not provided, x_target is assumed to be x_source,
-        i.e. source cells send messages to themselves.
-
         Parameters
         ----------
         x_source : Tensor, shape=[..., n_source_cells, in_channels]
@@ -86,42 +95,54 @@ class SANConv(Conv):
 
         # Attention coeffs are normalized using softmax
         att_laplacian = torch.sparse.softmax(att_laplacian, dim=1).to_dense()
-        # We need to compute the power of the attention laplacian according to the filter order p
-        att_laplacian_power = torch.stack(
-            [
-                torch.linalg.matrix_power(att_laplacian, p + 1)
-                if p > 1
-                else att_laplacian
-                for p in range(1, self.p_filters + 1)
-            ]
-        )
+        # We need to compute the power of the attention laplacian according up to order p
+        att_laplacian_power = [att_laplacian]
+        for _ in range(1, self.p_filters):
+            att_laplacian_power.append(
+                torch.matmul(att_laplacian_power[-1], att_laplacian)
+            )
+        att_laplacian_power = torch.stack(att_laplacian_power)
 
-        # When computing the final message on targets, we need to compute the power of the attention laplacian
-        # according to the filter order p
+        # When computing the final message on targets, we multiply the message by each power
+        # of the attention laplacian and sum the results
         x_message_on_target = torch.matmul(att_laplacian_power, x_message).sum(dim=0)
 
         return x_message_on_target
 
 
 class SANLayer(torch.nn.Module):
-    r"""Class for the SAN layer."""
+    r"""Implementation of the Simplicial Attention Network (SAN) Layer proposed in [LGCB22]_.
+
+    Notes
+    -----
+    Architecture proposed for r-simplex (r>0) classification on simplicial complices.
+
+    References
+    ----------
+    .. [LGCB22]_ Lorenzo Giusti, Claudio Battiloro, Paolo Di Lorenzo, Stefania Sardellitti,
+    and Sergio Barbarossa. "Simplicial attention networks." arXiv preprint arXiv:2203.07485 (2022).
+
+    Parameters
+    ----------
+    in_channels : int
+        Number of input channels.
+    out_channels : int
+        Number of output channels.
+    num_filters_J : int, optional
+        Approximation order. Defaults to 2.
+    """
 
     def __init__(
         self,
         in_channels,
         out_channels,
-        num_filters_J=2,  # approximation order
-        J_har=5,  # approximation order for harmonic
-        epsilon_har=1e-1,  # epsilon for harmonic, it takes into account the normalization
+        num_filters_J=2,
     ):
         super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.num_filters_J = num_filters_J
-
-        self.J_har = J_har
-        self.epsilon_har = epsilon_har
 
         #  Convolutions
         # Down convolutions, one for each filter order p
@@ -135,21 +156,30 @@ class SANLayer(torch.nn.Module):
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""
-        # Following original repo.
-        gain = torch.nn.init.calculate_gain("relu")
-        for p in range(self.num_filters_J):
-            torch.nn.init.xavier_uniform_(self.convs_down[p].weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.convs_down[p].att_weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.convs_up[p].weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.convs_up[p].att_weight, gain=gain)
+        self.conv_down.reset_parameters()
+        self.conv_up.reset_parameters()
+        self.conv_har.reset_parameters()
 
     def forward(self, x, Lup, Ldown, P):
-        r"""Forward pass.
+        r"""Forward pass of the SAN Layer.
 
-        The forward pass was initially proposed in [HRGZ22]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor of shape (..., n_cells, in_channels).
+        down_indices : torch.Tensor
+            Down indices tensor of shape (..., n_cells_down, n_neighbors).
+        up_indices : torch.Tensor
+            Up indices tensor of shape (..., n_cells_up, n_neighbors).
+        laplacians : tuple of torch.Tensor
+            Tuple of lower and upper laplacians.
+
+        Returns
+        -------
+        torch.Tensor
+            Output tensor of shape (..., n_cells, out_channels).
         """
-        # For the down and up convolutions, we sum the outputs for each filter order p
+        # Compute the down and up convolutions
         z_down = self.conv_down(x, Ldown)
         z_up = self.conv_up(x, Lup)
         # For the harmonic convolution, we use the precomputed projection matrix P as the neighborhood
