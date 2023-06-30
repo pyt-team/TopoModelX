@@ -1,14 +1,12 @@
-"""Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN)."""
+# from typing import Callable
 
-from typing import Callable
+# import torch
+# import torch.nn as nn
+# import torch.nn.functional as F
+# from torch import Tensor
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch import Tensor
-
-from topomodelx.utils.scatter import scatter_add
-from topomodelx.base.message_passing import MessagePassing
+# from topomodelx.base.message_passing import MessagePassing
+# from topomodelx.utils.scatter import scatter_add
 
 # class CAPooLayer(nn.Module):
 #     """
@@ -86,11 +84,10 @@ from typing import Callable
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
+from torch import Tensor, topk
 
 from topomodelx.base.message_passing import MessagePassing
-from torch import topk
-from torch import scatter
+from topomodelx.utils.scatter import scatter_add
 
 
 class PoolLayer(MessagePassing):
