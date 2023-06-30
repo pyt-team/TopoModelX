@@ -1,40 +1,52 @@
 """Test the SAN layer."""
-
 import torch
 
-from topomodelx.nn.simplicial.hsn_layer import HSNLayer
+from topomodelx.nn.simplicial.san_layer import SANLayer
 
 
 class TestSANLayer:
-    """Test the SAN layer."""
+    """Unit tests for the SANLayer class."""
 
     def test_forward(self):
-        """Test the forward pass of the HSN layer."""
-        channels = 5
-        n_nodes = 10
-        n_edges = 20
-        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
-        adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
+        """Test the forward method of SANLayer."""
+        in_channels = 2
+        out_channels = 5
+        num_filters_J = 2
 
-        x_0 = torch.randn(n_nodes, channels)
+        san_layer = SANLayer(in_channels, out_channels, num_filters_J)
 
-        hsn = HSNLayer(channels)
-        output = hsn.forward(x_0, incidence_1, adjacency_0)
+        # Create input tensors
+        n_cells = 100
+        x = torch.randn(n_cells, in_channels)
+        Lup = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
+            values=torch.tensor([0.5, 0.3, 0.2]),
+            size=(n_cells, n_cells),
+        )
+        Ldown = torch.sparse_coo_tensor(
+            indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
+            values=torch.tensor([0.3, 0.4, 0.5]),
+            size=(n_cells, n_cells),
+        )
+        P = torch.randn(n_cells, n_cells)
 
-        assert output.shape == (n_nodes, channels)
+        # Perform forward pass
+        output = san_layer(x, Lup, Ldown, P)
+        assert output.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
-        """Test the reset of the parameters."""
-        channels = 5
+        """Test the reset_parameters method of SANLayer."""
+        in_channels = 2
+        out_channels = 5
+        num_filters_J = 2
 
-        hsn = HSNLayer(channels)
-        hsn.reset_parameters()
+        san_layer = SANLayer(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            num_filters_J=num_filters_J,
+        )
+        san_layer.reset_parameters()
 
-        for module in hsn.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+        for module in san_layer.modules():
+            if hasattr(module, "reset_parameters"):
+                module.reset_parameters()
