@@ -119,7 +119,7 @@ class SANLayer(torch.nn.Module):
 
     References
     ----------
-    .. [LGCB22]_ Lorenzo Giusti, Claudio Battiloro, Paolo Di Lorenzo, Stefania Sardellitti,
+    .. [LGCB22] Lorenzo Giusti, Claudio Battiloro, Paolo Di Lorenzo, Stefania Sardellitti,
     and Sergio Barbarossa. "Simplicial attention networks." arXiv preprint arXiv:2203.07485 (2022).
 
     Parameters
