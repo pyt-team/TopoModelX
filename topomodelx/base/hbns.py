@@ -134,6 +134,10 @@ class HBNS(MessagePassing):
 
         self.reset_parameters()
 
+    def get_device(self):
+        """Get the device on which the layer's learnable parameters are stored."""
+        return self.w_s.device
+
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
@@ -217,6 +221,7 @@ class HBNS(MessagePassing):
                 negative_slope=self.negative_slope,
             ).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0]),
+            device=self.get_device(),
         )
 
         f = torch.sparse_coo_tensor(
@@ -236,6 +241,7 @@ class HBNS(MessagePassing):
                 negative_slope=self.negative_slope,
             ).squeeze(1),
             size=(s_message.shape[0], t_message.shape[0]),
+            device=self.get_device(),
         )
 
         if self.softmax:
@@ -282,12 +288,14 @@ class HBNS(MessagePassing):
             indices=neighborhood_t_to_s.indices(),
             values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
             size=neighborhood_t_to_s.shape,
+            device=self.get_device(),
         )
 
         neighborhood_s_to_t_att = torch.sparse_coo_tensor(
             indices=neighborhood_s_to_t.indices(),
             values=s_to_t_attention.values() * neighborhood_s_to_t.values(),
             size=neighborhood_s_to_t.shape,
+            device=self.get_device(),
         )
 
         message_on_source = torch.mm(neighborhood_t_to_s_att, t_message)

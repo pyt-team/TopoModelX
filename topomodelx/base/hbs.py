@@ -118,6 +118,10 @@ class HBS(MessagePassing):
 
         self.reset_parameters()
 
+    def get_device(self):
+        """Get the device on which the layer's learnable parameters are stored."""
+        return self.weight[0].device
+
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
@@ -188,6 +192,7 @@ class HBS(MessagePassing):
                 torch.matmul(s_to_s, a_p), negative_slope=self.negative_slope
             ).squeeze(1),
             size=(n_messages, n_messages),
+            device=self.get_device(),
         )
         att_p = (
             torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
@@ -216,7 +221,8 @@ class HBS(MessagePassing):
         message = [
             torch.mm(x_source, w) for w in self.weight
         ]  # [m-hop, n_source_cells, d_t_out]
-        result = torch.eye(x_source.shape[0]).to_sparse_coo()
+        # Create a torch.eye with the device of x_source
+        result = torch.eye(x_source.shape[0], device=self.get_device()).to_sparse_coo()
         neighborhood = [
             result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)
         ]
@@ -231,6 +237,7 @@ class HBS(MessagePassing):
                 indices=A_p.indices(),
                 values=att_p.values() * A_p.values(),
                 size=A_p.shape,
+                device=self.get_device(),
             )
 
         neighborhood = [
