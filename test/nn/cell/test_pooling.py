@@ -5,6 +5,7 @@ import torch
 
 from topomodelx.nn.cell.attentional_pooling_layer import PoolLayer
 
+
 # Write the test for the PoolLayer class here
 class TestPoolLayer:
     """Unit tests for the PoolLayer class."""
@@ -31,8 +32,14 @@ class TestPoolLayer:
             x_0, lower_neighborhood, upper_neighborhood
         )
         assert out.shape == (int(k_pool * x_0.size(0)), in_channels_0)
-        assert lower_neighborhood.shape == (int(k_pool * x_0.size(0)), int(k_pool * x_0.size(0)))
-        assert upper_neighborhood.shape == (int(k_pool * x_0.size(0)), int(k_pool * x_0.size(0)))
+        assert lower_neighborhood.shape == (
+            int(k_pool * x_0.size(0)),
+            int(k_pool * x_0.size(0)),
+        )
+        assert upper_neighborhood.shape == (
+            int(k_pool * x_0.size(0)),
+            int(k_pool * x_0.size(0)),
+        )
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of PoolLayer."""

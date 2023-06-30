@@ -36,7 +36,7 @@ from topomodelx.utils.scatter import scatter_add
 #     pool = CAPooLayer(k_pool=.75,
 #                       F_in=3*att_heads,
 #                       cell_forward_activation=nn.ReLU)
-    
+
 #     References
 #     ----------
 #     .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
@@ -57,15 +57,15 @@ from topomodelx.utils.scatter import scatter_add
 #         # Initialize the attention parameter using Xavier initialization
 #         nn.init.xavier_normal_(self.att_pool.data, gain=1.41)
 
-        
+
 #     def __repr__(self):
 #        s = "PoolLayer(" + \
 #            "K Pool="+str(self.k_pool)+ ")"
 #        return s
-    
+
 
 #     def forward(self,  x: EdgeSignal) -> EdgeSignal:
-        
+
 #         x, G = x
 #         shape = x.shape
 #         Zp = x @ self.att_pool
@@ -75,7 +75,7 @@ from topomodelx.utils.scatter import scatter_add
 #         G.ros.append(readout(x, G.edge_batch, 'sum'))
 #         G.connectivities['up'] = tuple(filter_adj(torch.stack(G.connectivities['up']), None, idx, shape[0])[0])
 #         G.connectivities['do'] = tuple(filter_adj(torch.stack(G.connectivities['do']), None, idx, shape[0])[0])
-        
+
 
 #         return x, G
 
@@ -91,6 +91,7 @@ from torch import Tensor
 from topomodelx.base.message_passing import MessagePassing
 from torch import topk
 from torch import scatter
+
 
 class PoolLayer(MessagePassing):
     """Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
@@ -120,7 +121,6 @@ class PoolLayer(MessagePassing):
         in_channels_0: int,
         signal_pool_activation: Callable,
         readout: True,
-        
     ):
         super(PoolLayer, self).__init__()
 
@@ -132,12 +132,12 @@ class PoolLayer(MessagePassing):
         self.signal_pool_activation = signal_pool_activation
 
         # Initialize the attention parameter using Xavier initialization
-        self.reset_parameters()   
+        self.reset_parameters()
 
     def reset_parameters(self):
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         gain = nn.init.calculate_gain("relu")
-        nn.init.xavier_uniform_(self.att_pool.data, gain=gain)    
+        nn.init.xavier_uniform_(self.att_pool.data, gain=gain)
 
     def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
         """Forward pass.
@@ -166,14 +166,15 @@ class PoolLayer(MessagePassing):
         # Readout operation
         if self.readout:
             # TODO double check this and also should this be in the aggregation function of MessagePassing?
-            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[top_indices]
+            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[
+                top_indices
+            ]
 
         # Update lower and upper neighborhood matrices with the top-k pooled edges
         lower_neighborhood = lower_neighborhood[top_indices]
         lower_neighborhood = lower_neighborhood[:, top_indices]
         upper_neighborhood = upper_neighborhood[top_indices]
         upper_neighborhood = upper_neighborhood[:, top_indices]
-        
 
         return out, lower_neighborhood, upper_neighborhood
 
@@ -203,5 +204,3 @@ if __name__ == "__main__":
     out = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
     print(out.shape)
     print(out)
-
- 
