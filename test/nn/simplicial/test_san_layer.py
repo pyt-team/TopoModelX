@@ -1,15 +1,8 @@
 """Test the SAN layer."""
-
 import torch
 
 from topomodelx.nn.simplicial.san_layer import SANLayer
 
-"""Unit tests for the CANLayer class."""
-
-import pytest
-import torch
-
-from topomodelx.nn.simplicial.san_layer import SANLayer
 
 class TestSANLayer:
     """Unit tests for the SANLayer class."""
@@ -26,14 +19,14 @@ class TestSANLayer:
         n_cells = 100
         x = torch.randn(n_cells, in_channels)
         Lup = torch.sparse_coo_tensor(
-        indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
-        values=torch.tensor([0.5, 0.3, 0.2]),
-        size=(n_cells, n_cells),
+            indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
+            values=torch.tensor([0.5, 0.3, 0.2]),
+            size=(n_cells, n_cells),
         )
         Ldown = torch.sparse_coo_tensor(
-        indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
-        values=torch.tensor([0.3, 0.4, 0.5]),
-        size=(n_cells, n_cells),
+            indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
+            values=torch.tensor([0.3, 0.4, 0.5]),
+            size=(n_cells, n_cells),
         )
         P = torch.randn(n_cells, n_cells)
 
