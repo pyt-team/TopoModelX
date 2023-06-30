@@ -178,26 +178,26 @@ class PoolLayer(MessagePassing):
 
 # main with class PoolLayer
 
-if __name__ == "__main__":
-    # Parameters
-    k_pool = 0.75
-    in_channels_0 = 96
-    signal_pool_activation = nn.ReLU()
+# if __name__ == "__main__":
+#     # Parameters
+#     k_pool = 0.75
+#     in_channels_0 = 96
+#     signal_pool_activation = nn.ReLU()
 
-    # Input
-    x_0 = torch.randn(38, in_channels_0)
-    lower_neighborhood = torch.randn(38, 38)
-    upper_neighborhood = torch.randn(38, 38)
+#     # Input
+#     x_0 = torch.randn(38, in_channels_0)
+#     lower_neighborhood = torch.randn(38, 38)
+#     upper_neighborhood = torch.randn(38, 38)
 
-    # Instantiate the PoolLayer
-    pool_layer = PoolLayer(
-        k_pool=k_pool,
-        in_channels_0=in_channels_0,
-        signal_pool_activation=signal_pool_activation,
-        readout=True,
-    )
+#     # Instantiate the PoolLayer
+#     pool_layer = PoolLayer(
+#         k_pool=k_pool,
+#         in_channels_0=in_channels_0,
+#         signal_pool_activation=signal_pool_activation,
+#         readout=True,
+#     )
 
-    # Forward pass
-    out = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
-    print(out.shape)
-    print(out)
+#     # Forward pass
+#     out = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
+#     print(out.shape)
+#     print(out)
