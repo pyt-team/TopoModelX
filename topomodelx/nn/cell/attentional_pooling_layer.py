@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 
-from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_add
+from topomodelx.base.message_passing import MessagePassing
 
 # class CAPooLayer(nn.Module):
 #     """
