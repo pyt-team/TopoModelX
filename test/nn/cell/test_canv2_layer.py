@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.cell.can_layer import CANLayer
+from topomodelx.nn.cell.canv2_layer import CANLayer
 
 
 class TestCANLayer:
@@ -11,22 +11,19 @@ class TestCANLayer:
 
     def test_forward(self):
         """Test the forward method of CANLayer."""
-        # set seed for reproducibility
-        torch.manual_seed(0)
-
         in_channels = 7
-        out_channels = 2
-        dropout = 0.0
-        heads = 1
+        out_channels = 64
+        dropout = 0.5
+        heads = 3
         concat = True
         skip_connection = True
 
-        n_cells = 3
+        n_cells = 21
 
         x_1 = torch.randn(n_cells, in_channels)
 
-        lower_neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
-        upper_neighborhood = torch.randint(0, 2, (n_cells, n_cells)).float()
+        lower_neighborhood = torch.randn(n_cells, n_cells)
+        upper_neighborhood = torch.randn(n_cells, n_cells)
 
         lower_neighborhood = lower_neighborhood.to_sparse().float()
         upper_neighborhood = upper_neighborhood.to_sparse().float()
