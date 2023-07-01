@@ -33,6 +33,8 @@ class MultiHeadCellAttention(MessagePassing):
     Notes
     -----
     [] If there are no non-zero values in the neighborhood, then the neighborhood is empty.
+    [] Add in utils add_self_loops function
+    [] Add in utils softmax function
 
     References
     ----------
@@ -48,6 +50,7 @@ class MultiHeadCellAttention(MessagePassing):
         heads: int,
         concat: bool,
         att_activation: torch.nn.Module,
+        add_self_loops: bool = False,
         aggr_func: str = "sum",
         initialization: str = "xavier_uniform",
     ):
@@ -64,6 +67,9 @@ class MultiHeadCellAttention(MessagePassing):
         self.concat = concat
         self.dropout = dropout
 
+        if not add_self_loops:
+            self.add_self_loops = None
+
         self.lin = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
         self.att_weight_src = Parameter(torch.Tensor(1, heads, out_channels))
         self.att_weight_dst = Parameter(torch.Tensor(1, heads, out_channels))
@@ -76,26 +82,28 @@ class MultiHeadCellAttention(MessagePassing):
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
         self.lin.reset_parameters()
 
-    def attention(self, x_source):
+    def attention(self, x_source, x_target):
         """Compute attention weights for messages.
 
         Parameters
         ----------
         x_source : torch.Tensor
             Source node features. Shape: [n_k_cells, in_channels]
+        x_target : torch.Tensor
+            Target node features. Shape: [n_k_cells, in_channels]
 
         Returns
         -------
-        alpha : torch.Tensor
+        _ : torch.Tensor
             Attention weights. Shape: [n_k_cells, heads]
         """
         # Compute attention coefficients
         alpha_src = torch.einsum(
-            "ijk,tjk->ij", self.x_source_per_message, self.att_weight_src
-        )  # (|neighborhood|, H)
+            "ijk,tjk->ij", x_source, self.att_weight_src
+        )  # (|n_k_cells|, H)
         alpha_dst = torch.einsum(
-            "ijk,tjk->ij", self.x_target_per_message, self.att_weight_dst
-        )  # (|neighborhood|, H)
+            "ijk,tjk->ij", x_target, self.att_weight_dst
+        )  # (|n_k_cells|, H)
 
         alpha = alpha_src + alpha_dst
 
@@ -103,22 +111,72 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = self.att_activation(alpha)
 
         # Normalize the attention coefficients
-        self.softmax(alpha, self.target_index_i, x_source.shape[0])
+        alpha = self.softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
-        return alpha  # (|neighborhood|, H)
+        return alpha  # (|n_k_cells|, H)
 
-    def softmax(self, src: torch.Tensor, index: torch.Tensor, num_cells: int):
-        """Compute the softmax of the attention coefficients."""
+    def softmax(self, src, index, num_cells):
+        """Compute the softmax of the attention coefficients.
+
+        Notes
+        -----
+        There should be of a default implementation of softmax in the utils file.
+        Subtracting the maximum element in it from all elements to avoid overflow and underflow.
+
+        Parameters
+        ----------
+        src : torch.Tensor
+            Attention coefficients. Shape: [n_k_cells, heads]
+        index : torch.Tensor
+            Indices of the target nodes. Shape: [n_k_cells]
+        num_cells : int
+            Number of cells in the batch.
+
+        Returns
+        -------
+        _ : torch.Tensor
+            Softmax of the attention coefficients. Shape: [n_k_cells, heads]
+        """
         src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
-        src -= src_max  # (|neighborhood|, H)
-        src_exp = torch.exp(src)  # (|neighborhood|, H)
+        src -= src_max  # (|n_k_cells|, H)
+        src_exp = torch.exp(src)  # (|n_k_cells|, H)
         src_sum = scatter_sum(src_exp, index, dim=0, dim_size=num_cells)[
             index
-        ]  # (|neighborhood|, H)
-        return src_exp / (src_sum + 1e-16)  # (|neighborhood|, H)
+        ]  # (|n_k_cells|, H)
+        return src_exp / (src_sum + 1e-16)  # (|n_k_cells|, H)
+
+    def add_self_loops(self, neighborhood):
+        """Add self-loops to the neighborhood matrix.
+
+        Parameters
+        ----------
+        neighborhood : torch.sparse_coo_tensor
+            Neighborhood matrix. Shape: [n_k_cells, n_k_cells]
+
+        Returns
+        -------
+        _ : torch.sparse_coo_tensor
+            Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
+        """
+        N = neighborhood.shape[0]
+        cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
+        # create loop index
+        loop_index = torch.arange(0, N, dtype=torch.long, device=neighborhood.device)
+        loop_index = loop_index.unsqueeze(0).repeat(2, 1)
+        # add loop index to neighborhood
+        cell_index = torch.cat([cell_index, loop_index], dim=1)
+        cell_weight = torch.cat(
+            [cell_weight, torch.ones(N, dtype=torch.float, device=neighborhood.device)]
+        )
+
+        return torch.sparse_coo_tensor(
+            indices=cell_index,
+            values=cell_weight,
+            size=(N, N),
+        ).coalesce()
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -151,23 +209,28 @@ class MultiHeadCellAttention(MessagePassing):
             -1, self.heads, self.out_channels
         )  # (n_k_cells, H, C)
 
-        # Compute the attention coefficients
+        # Add self-loops to the neighborhood matrix if necessary
+        if self.add_self_loops is not None:
+            # TODO: check if the self-loops are already added
+            # TODO: should we remove the self-loops from the neighborhood matrix after the message passing?
+            neighborhood = self.add_self_loops(neighborhood)
+
+        # returns the indices of the non-zero values in the neighborhood matrix
         (
             self.target_index_i,
             self.source_index_j,
-        ) = neighborhood.indices()  # (|neighborhood|, 1), (|neighborhood|, 1)
-        self.x_source_per_message = x_message[
-            self.source_index_j
-        ]  # (|neighborhood|, H, C)
-        self.x_target_per_message = x_message[
-            self.target_index_i
-        ]  # (|neighborhood|, H, C)
-        alpha = self.attention(x_message)  # (|neighborhood|, H)
+        ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
 
-        # for each head, Aggregate the messages # TODO: check if the aggregation is correct
-        message = (
-            self.x_source_per_message * alpha[:, :, None]
-        )  # (|neighborhood|, H, C)
+        # compute the source and target messages
+        x_source_per_message = x_message[self.source_index_j]  # (|n_k_cells|, H, C)
+        x_target_per_message = x_message[self.target_index_i]  # (|n_k_cells|, H, C)
+        # compute the attention coefficients
+        alpha = self.attention(
+            x_source_per_message, x_target_per_message
+        )  # (|n_k_cells|, H)
+
+        # for each head, Aggregate the messages
+        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
         aggregated_message = self.aggregate(message)  # (n_k_cells, H, C)
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
@@ -202,6 +265,10 @@ class CANLayer(torch.nn.Module):
         Cell attention networks.
         (2022) paper: https://arxiv.org/pdf/2209.08179.pdf
 
+    Notes
+    -----
+    Add_self_loops is preferred to be False. If necessary, the self-loops should be added to the neighborhood matrix in the preprocessing step.
+
     Parameters
     ----------
     in_channels : int
@@ -216,6 +283,8 @@ class CANLayer(torch.nn.Module):
         If True, the output of each head is concatenated. Otherwise, the output of each head is averaged, by default True
     skip_connection : bool, optional
         If True, skip connection is added, by default True
+    add_self_loops : bool, optional
+        If True, self-loops are added to the neighborhood matrix, by default False
     att_activation : Callable, optional
         Activation function applied to the attention coefficients, by default torch.nn.LeakyReLU()
     """
@@ -229,13 +298,13 @@ class CANLayer(torch.nn.Module):
         concat: bool = True,
         skip_connection: bool = True,
         att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
+        add_self_loops: bool = False,
         aggr_func="sum",
         update_func: str = "relu",
         **kwargs,
     ):
         super().__init__()
 
-        # TODO: add all the assertions
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
         assert heads > 0, ValueError("Number of heads must be > 0")
@@ -245,6 +314,7 @@ class CANLayer(torch.nn.Module):
         self.lower_att = MultiHeadCellAttention(
             in_channels=in_channels,
             out_channels=out_channels,
+            add_self_loops=add_self_loops,
             dropout=dropout,
             heads=heads,
             att_activation=att_activation,
@@ -255,6 +325,7 @@ class CANLayer(torch.nn.Module):
         self.upper_att = MultiHeadCellAttention(
             in_channels=in_channels,
             out_channels=out_channels,
+            add_self_loops=add_self_loops,
             dropout=dropout,
             heads=heads,
             att_activation=att_activation,
