@@ -249,14 +249,16 @@ class CANLayer(torch.nn.Module):
     Additionally a skip connection can be added to the output of the layer.
 
     ..  math::
-        \mathcal N_k \in  \mathcal N = \{A_{\uparrow, r}, A_{\downarrow, r}\}
+        \mathcal N = \{\mathcal N_1, \mathcal N_2\} = \{A_{\uparrow, r}, A_{\downarrow, r}\}
 
     ..  math::
         \begin{align*}
-        &🟥 \quad m_{y \rightarrow x}^{(r \rightarrow r)} = M_{\mathcal N_k}(h_x^{t}, h_y^{t}, \Theta^{t}_k)\\
-        &🟧 \quad m_x^{(r \rightarrow r)} = \text{AGG}_{y \in \mathcal{N}_k(x)}(m_{y \rightarrow x}^{(r \rightarrow r)})\\
-        &🟩 \quad m_x^{(r)} = \text{AGG}_{\mathcal{N}_k\in\mathcal N}m_x^{(r \rightarrow r)}\\
-        &🟦 \quad h_x^{t+1,(r)} = U^{t}(h_x^{t}, m_x^{(r)})
+        &🟥 \quad m_{(y \rightarrow x),k}^{(r)} =
+        \alpha_k(h_x^t,h_y^t) =
+        a_k(h_x^{t}, h_y^{t}) \cdot \psi_k^t(h_x^{t})\quad \forall \mathcal N_k\\
+        &🟧 \quad m_{x,k}^{(r)}               = \bigoplus_{y \in \mathcal{N}_k(x)}  m^{(r)}  _{(y \rightarrow x),k}\\
+        &🟩 \quad m_{x}^{(r)} = \bigotimes_{\mathcal{N}_k\in\mathcal N}m_{x,k}^{(r)}\\
+        &🟦 \quad h_x^{t+1,(r)}                = \phi^{t}(h_x^t, m_{x}^{(r)})
         \end{align*}
 
     References

@@ -91,7 +91,14 @@ class LiftLayer(MessagePassing):
 
 
 class MultiHeadLiftLayer(nn.Module):
-    """Multi Head Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+    r"""Multi Head Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+
+    .. math::
+        \begin{align*}
+        &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}                &=&\ \alpha(h_y, h_z)\\
+        &&=&\  \Theta(h_z||h_y)\\
+        &🟦 \quad h_x^{(1)}                &=&\ \phi(h_x, m_x^{(1)})\\
+        \end{align*}
 
     References
     ----------
