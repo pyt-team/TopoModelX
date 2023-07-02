@@ -56,9 +56,9 @@ class HMCLayer(torch.nn.Module):
         using softmax over all the columns that are not zero in the associated neighborhood matrix. If False,
         the normalization is done by dividing by the sum of the values of the coefficients in its row
         whose columns are not zero in the associated neighborhood matrix. Default is False.
-    update_func_attention : callable, optional
+    update_func_attention : string, optional
         Activation function used in the attention block. If None, no activation function is applied. Default is None.
-    update_func_aggregation : callable, optional
+    update_func_aggregation : string, optional
         Function used to aggregate the messages computed in each attention block. If None, the messages are aggregated
         by summing them. Default is None.
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
