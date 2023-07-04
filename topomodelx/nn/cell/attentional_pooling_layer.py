@@ -80,7 +80,6 @@
 #         return x, G
 
 
-
 """Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN)."""
 
 from typing import Callable
@@ -168,7 +167,9 @@ class PoolLayer(MessagePassing):
         # Readout operation
         if self.readout:
             # TODO double check this and also should this be in the aggregation function of MessagePassing?
-            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[top_indices]
+            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[
+                top_indices
+            ]
 
         # Update lower and upper neighborhood matrices with the top-k pooled edges
         lower_neighborhood_modified = lower_neighborhood[top_indices]
@@ -176,8 +177,11 @@ class PoolLayer(MessagePassing):
         upper_neighborhood_modified = upper_neighborhood[top_indices]
         upper_neighborhood_modified = upper_neighborhood_modified[:, top_indices]
 
-        return out, lower_neighborhood_modified.to_sparse().float(), upper_neighborhood_modified.to_sparse().float()
-
+        return (
+            out,
+            lower_neighborhood_modified.to_sparse().float(),
+            upper_neighborhood_modified.to_sparse().float(),
+        )
 
 
 # main with class PoolLayer
@@ -207,8 +211,8 @@ class PoolLayer(MessagePassing):
 #     print(l_n.shape)
 #     print(u_n.shape)
 #     print('**********')
-    # print(out)
-    # print('**********')
-    # print(l_n)
-    # print('**********')
-    # print(u_n)
+# print(out)
+# print('**********')
+# print(l_n)
+# print('**********')
+# print(u_n)
