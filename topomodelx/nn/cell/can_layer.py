@@ -148,7 +148,7 @@ class MultiHeadCellAttention(MessagePassing):
         ]  # (|n_k_cells|, H)
         return src_exp / (src_sum + 1e-16)  # (|n_k_cells|, H)
 
-    def add_self_loops(self, neighborhood, N):
+    def add_self_loops(self, neighborhood):
         """Add self-loops to the neighborhood matrix.
 
         Parameters
@@ -161,7 +161,8 @@ class MultiHeadCellAttention(MessagePassing):
         _ : torch.sparse_coo_tensor
             Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
         """
-        cell_index, cell_weight = neighborhood.indices(), neighborhood.values()
+        N = neighborhood.shape[0]
+        cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
         # create loop index
         loop_index = torch.arange(0, N, dtype=torch.long, device=neighborhood.device)
         loop_index = loop_index.unsqueeze(0).repeat(2, 1)
@@ -171,13 +172,11 @@ class MultiHeadCellAttention(MessagePassing):
             [cell_weight, torch.ones(N, dtype=torch.float, device=neighborhood.device)]
         )
 
-        out = torch.sparse_coo_tensor(
+        return torch.sparse_coo_tensor(
             indices=cell_index,
             values=cell_weight,
             size=(N, N),
         ).coalesce()
-
-        return out
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -214,7 +213,7 @@ class MultiHeadCellAttention(MessagePassing):
         if self.add_self_loops is not None:
             # TODO: check if the self-loops are already added
             # TODO: should we remove the self-loops from the neighborhood matrix after the message passing?
-            neighborhood = self.add_self_loops(neighborhood, neighborhood.shape[0])
+            neighborhood = self.add_self_loops(neighborhood)
 
         # returns the indices of the non-zero values in the neighborhood matrix
         (

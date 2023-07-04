@@ -182,11 +182,13 @@ class MultiHeadLiftLayer(nn.Module):
         if self.signal_lift_readout == "cat":
             combined_x_1 = attention_heads_x_1
         if self.signal_lift_readout == "sum":
-            combined_x_1 = attention_heads_x_1.sum(dim=1)  # (num_edges, 1)
+            combined_x_1 = attention_heads_x_1.sum(dim=1)[:, None]  # (num_edges, 1)
         if self.signal_lift_readout == "avg":
-            combined_x_1 = attention_heads_x_1.mean(dim=1)  # (num_edges, 1)
+            combined_x_1 = attention_heads_x_1.mean(dim=1)[:, None]  # (num_edges, 1)
         if self.signal_lift_readout == "max":
-            combined_x_1 = attention_heads_x_1.max(dim=1)  # (num_edges, 1)
+            combined_x_1 = attention_heads_x_1.max(dim=1).values[
+                :, None
+            ]  # (num_edges, 1)
 
         # Apply dropout to the combined edge signal
         combined_x_1 = F.dropout(
