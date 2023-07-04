@@ -42,11 +42,9 @@ class TestAttentionalLiftLayer:
                 assert x_out.shape == (n_edges, 1)
         else:
             if signal_lift_readout == "cat":
-                nn = heads + in_channels_1
-                assert x_out.shape == (n_nodes, nn)
+                assert x_out.shape == (n_edges, heads + in_channels_1)
             else:
-                nn = 1 + in_channels_1
-                assert x_out.shape == (n_nodes, nn)
+                assert x_out.shape == (n_edges, 1 + in_channels_1)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of Attentional Lift."""
