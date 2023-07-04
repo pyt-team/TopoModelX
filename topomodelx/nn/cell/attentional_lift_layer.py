@@ -158,7 +158,7 @@ class MultiHeadLiftLayer(nn.Module):
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         self.lifts.reset_parameters()
 
-    def forward(self, x_0, neighborhood_0_to_0, x_1=None) -> Tensor:
+    def forward(self, x_0, neighborhood_0_to_0, x_1=None) -> torch.Tensor:
         """Forward pass.
 
         Parameters
@@ -179,16 +179,13 @@ class MultiHeadLiftLayer(nn.Module):
         attention_heads_x_1 = self.lifts(x_0, neighborhood_0_to_0)
 
         # Combine the output edge signals using the specified readout strategy
-        if self.signal_lift_readout == "cat":
-            combined_x_1 = attention_heads_x_1
-        if self.signal_lift_readout == "sum":
-            combined_x_1 = attention_heads_x_1.sum(dim=1)[:, None]  # (num_edges, 1)
-        if self.signal_lift_readout == "avg":
-            combined_x_1 = attention_heads_x_1.mean(dim=1)[:, None]  # (num_edges, 1)
-        if self.signal_lift_readout == "max":
-            combined_x_1 = attention_heads_x_1.max(dim=1).values[
-                :, None
-            ]  # (num_edges, 1)
+        readout_methods= {
+            "cat": lambda x: x,
+            "sum": lambda x: x.sum(dim=1)[:, None],
+            "avg": lambda x: x.mean(dim=1)[:, None],
+            "max": lambda x: x.max(dim=1).values[:, None]
+        }
+        combined_x_1 = readout_methods[self.signal_lift_readout](attention_heads_x_1)
 
         # Apply dropout to the combined edge signal
         combined_x_1 = F.dropout(
