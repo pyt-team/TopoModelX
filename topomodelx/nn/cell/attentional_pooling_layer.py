@@ -1,3 +1,6 @@
+# from torch_geometric.utils import to_scipy_sparse_matrix
+# from torch_geometric.utils import to_torch_sparse_matrix
+# from torch.nn import init
 # from typing import Callable
 
 # import torch
@@ -5,8 +8,7 @@
 # import torch.nn.functional as F
 # from torch import Tensor
 
-# from topomodelx.base.message_passing import MessagePassing
-# from topomodelx.utils.scatter import scatter_add
+# from torch_geometric.nn.pool.topk_pool import topk, filter_adj
 
 # class CAPooLayer(nn.Module):
 #     """
@@ -62,7 +64,7 @@
 #        return s
 
 
-#     def forward(self,  x: EdgeSignal) -> EdgeSignal:
+#     def forward(self,  x):
 
 #         x, G = x
 #         shape = x.shape
@@ -77,6 +79,8 @@
 
 #         return x, G
 
+
+
 """Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN)."""
 
 from typing import Callable
@@ -88,6 +92,9 @@ from torch import Tensor, topk
 
 from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_add
+
+from torch.nn import init
+
 
 
 class PoolLayer(MessagePassing):
@@ -133,8 +140,8 @@ class PoolLayer(MessagePassing):
 
     def reset_parameters(self):
         """Reinitialize learnable parameters using Xavier uniform initialization."""
-        gain = nn.init.calculate_gain("relu")
-        nn.init.xavier_uniform_(self.att_pool.data, gain=gain)
+        gain = init.calculate_gain("relu")
+        init.xavier_uniform_(self.att_pool.data, gain=gain)
 
     def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
         """Forward pass.
@@ -163,17 +170,19 @@ class PoolLayer(MessagePassing):
         # Readout operation
         if self.readout:
             # TODO double check this and also should this be in the aggregation function of MessagePassing?
-            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[
-                top_indices
-            ]
+            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[top_indices]
 
         # Update lower and upper neighborhood matrices with the top-k pooled edges
-        lower_neighborhood = lower_neighborhood[top_indices]
-        lower_neighborhood = lower_neighborhood[:, top_indices]
-        upper_neighborhood = upper_neighborhood[top_indices]
-        upper_neighborhood = upper_neighborhood[:, top_indices]
+        lower_neighborhood_modified = lower_neighborhood[top_indices]
+        lower_neighborhood_modified = lower_neighborhood_modified[:, top_indices]
+        upper_neighborhood_modified = upper_neighborhood[top_indices]
+        upper_neighborhood_modified = upper_neighborhood_modified[:, top_indices]
 
-        return out, lower_neighborhood, upper_neighborhood
+        return out, lower_neighborhood_modified.to_sparse().float(), upper_neighborhood_modified.to_sparse().float()
+
+    def get_att_pool(self):
+        """Getter method for the att_pool attribute."""
+        return self.att_pool
 
 
 # main with class PoolLayer
@@ -198,6 +207,13 @@ class PoolLayer(MessagePassing):
 #     )
 
 #     # Forward pass
-#     out = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
+#     out, l_n, u_n = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
 #     print(out.shape)
-#     print(out)
+#     print(l_n.shape)
+#     print(u_n.shape)
+#     print('**********')
+    # print(out)
+    # print('**********')
+    # print(l_n)
+    # print('**********')
+    # print(u_n)
