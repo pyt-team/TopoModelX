@@ -179,11 +179,11 @@ class MultiHeadLiftLayer(nn.Module):
         attention_heads_x_1 = self.lifts(x_0, neighborhood_0_to_0)
 
         # Combine the output edge signals using the specified readout strategy
-        readout_methods= {
+        readout_methods = {
             "cat": lambda x: x,
             "sum": lambda x: x.sum(dim=1)[:, None],
             "avg": lambda x: x.mean(dim=1)[:, None],
-            "max": lambda x: x.max(dim=1).values[:, None]
+            "max": lambda x: x.max(dim=1).values[:, None],
         }
         combined_x_1 = readout_methods[self.signal_lift_readout](attention_heads_x_1)
 
