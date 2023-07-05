@@ -16,8 +16,6 @@ class AllSetLayer(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     dropout : float, optional
         Dropout probability. Default is 0.2.
     mlp_num_layers : int, optional
@@ -34,7 +32,6 @@ class AllSetLayer(nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         dropout=0.2,
         mlp_num_layers=2,
         mlp_activation=None,
@@ -45,10 +42,9 @@ class AllSetLayer(nn.Module):
 
         self.dropout = dropout
 
-        self.vertex2set = AllSetBlock(
+        self.vertex2edge = AllSetBlock(
             in_channels=in_channels,
             hidden_channels=hidden_channels,
-            out_channels=hidden_channels,
             dropout=dropout,
             mlp_num_layers=mlp_num_layers,
             mlp_activation=mlp_activation,
@@ -56,10 +52,9 @@ class AllSetLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
-        self.set2vertex = AllSetBlock(
+        self.edge2vertex = AllSetBlock(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
-            out_channels=out_channels,
             dropout=dropout,
             mlp_num_layers=mlp_num_layers,
             mlp_activation=mlp_activation,
@@ -83,10 +78,10 @@ class AllSetLayer(nn.Module):
         x : torch.Tensor
             Output features.
         """
-        x = self.vertex2set(x, incidence_1.transpose(1, 0))
+        x = self.vertex2edge(x, incidence_1.transpose(1, 0))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
-        x = self.set2vertex(x, incidence_1)
+        x = self.edge2vertex(x, incidence_1)
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         return x
@@ -103,8 +98,6 @@ class AllSetBlock(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     dropout : float, optional
         Dropout probability. Default is 0.2.
     mlp_num_layers : int, optional
@@ -121,7 +114,6 @@ class AllSetBlock(nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         dropout,
         mlp_num_layers=2,
         mlp_activation=None,
@@ -132,9 +124,7 @@ class AllSetBlock(nn.Module):
 
         self.dropout = dropout
         if mlp_num_layers > 0:
-            mlp_hidden_channels = [hidden_channels] * (mlp_num_layers - 1) + [
-                out_channels
-            ]
+            mlp_hidden_channels = [hidden_channels] * mlp_num_layers
             self.encoder = MLP(
                 in_channels,
                 mlp_hidden_channels,
