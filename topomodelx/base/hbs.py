@@ -107,6 +107,7 @@ class HBS(MessagePassing):
                 for _ in range(self.m_hop)
             ]
         )
+
         self.att_weight = torch.nn.ParameterList(
             [
                 Parameter(torch.Tensor(2 * self.source_out_channels, 1))
@@ -117,6 +118,8 @@ class HBS(MessagePassing):
         self.softmax = softmax
 
         self.reset_parameters()
+
+
 
     def get_device(self):
         """Get the device on which the layer's learnable parameters are stored."""
