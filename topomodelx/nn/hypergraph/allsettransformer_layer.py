@@ -51,9 +51,18 @@ class AllSetTransformerLayer(nn.Module):
         mlp_norm=None,
     ):
         super().__init__()
-        assert (
-            hidden_channels % heads
-        ) == 0, "hidden_channels must be divisible by heads"
+
+        if heads <= 0:
+            raise ValueError(f"heads ({heads}) must be positive")
+
+        if mlp_num_layers <= 0:
+            raise ValueError(f"mlp_num_layers ({mlp_num_layers}) must be positive")
+
+        if (hidden_channels % heads) != 0:
+            raise ValueError(
+                f"hidden_channels ({hidden_channels}) must be divisible by heads ({heads})"
+            )
+
         self.dropout = dropout
 
         self.vertex2edge = AllSetTransformerBlock(
