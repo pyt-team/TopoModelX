@@ -34,7 +34,7 @@ class AllSetLayer(nn.Module):
         hidden_channels,
         dropout=0.2,
         mlp_num_layers=2,
-        mlp_activation=None,
+        mlp_activation=nn.ReLU,
         mlp_dropout=0.0,
         mlp_norm=None,
     ):
@@ -123,7 +123,7 @@ class AllSetBlock(nn.Module):
         hidden_channels,
         dropout,
         mlp_num_layers=2,
-        mlp_activation=None,
+        mlp_activation=nn.ReLU,
         mlp_dropout=0.0,
         mlp_norm=None,
     ):
