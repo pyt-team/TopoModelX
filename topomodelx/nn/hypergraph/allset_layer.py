@@ -40,6 +40,8 @@ class AllSetLayer(nn.Module):
     ):
         super().__init__()
 
+        if mlp_num_layers <= 0:
+            raise ValueError(f"mlp_num_layers ({mlp_num_layers}) must be positive")
         self.dropout = dropout
 
         self.vertex2edge = AllSetBlock(
@@ -78,6 +80,11 @@ class AllSetLayer(nn.Module):
         x : torch.Tensor
             Output features.
         """
+        if x.shape[-2] != incidence_1.shape[-2]:
+            raise ValueError(
+                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x.shape[0]})."
+            )
+
         x = self.vertex2edge(x, incidence_1.transpose(1, 0))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
