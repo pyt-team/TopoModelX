@@ -42,23 +42,23 @@ class AllSetTransformerLayer(nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         heads=4,
         number_queries=1,
         dropout=0.0,
         mlp_num_layers=1,
-        mlp_activation=None,
+        mlp_activation=F.relu,
         mlp_dropout=0.0,
         mlp_norm=None,
     ):
         super().__init__()
-
+        assert (
+            hidden_channels % heads
+        ) == 0, "hidden_channels must be divisible by heads"
         self.dropout = dropout
 
-        self.vertex2set = AllSetTransformerBlock(
+        self.vertex2edge = AllSetTransformerBlock(
             in_channels=in_channels,
             hidden_channels=hidden_channels,
-            out_channels=hidden_channels,
             dropout=dropout,
             heads=heads,
             number_queries=number_queries,
@@ -68,10 +68,9 @@ class AllSetTransformerLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
-        self.set2vertex = AllSetTransformerBlock(
+        self.edge2vertex = AllSetTransformerBlock(
             in_channels=hidden_channels,
             hidden_channels=hidden_channels,
-            out_channels=out_channels,
             dropout=dropout,
             heads=heads,
             number_queries=number_queries,
@@ -96,10 +95,15 @@ class AllSetTransformerLayer(nn.Module):
         x : torch.Tensor
             Output features.
         """
-        x = F.relu(self.vertex2set(x, incidence_1.transpose(1, 0)))
+        if x.shape[-2] != incidence_1.shape[-2]:
+            raise ValueError(
+                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x.shape[0]})."
+            )
+
+        x = F.relu(self.vertex2edge(x, incidence_1.transpose(1, 0)))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
-        x = F.relu(self.set2vertex(x, incidence_1))
+        x = F.relu(self.edge2vertex(x, incidence_1))
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         return x
@@ -117,8 +121,6 @@ class AllSetTransformerBlock(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     heads : int, optional
         Number of attention heads. Default is 4.
     number_queries : int, optional
@@ -139,7 +141,6 @@ class AllSetTransformerBlock(nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         heads=4,
         number_queries=1,
         dropout=0.0,
@@ -152,7 +153,6 @@ class AllSetTransformerBlock(nn.Module):
 
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
-        self.out_channels = out_channels
         self.heads = heads
         self.number_queries = number_queries
         self.dropout = dropout
@@ -395,7 +395,7 @@ class MLP(nn.Sequential):
         in_channels,
         hidden_channels,
         norm_layer=None,
-        activation_layer=None,
+        activation_layer=torch.nn.ReLU,
         dropout=0.0,
         inplace=None,
         bias=False,
