@@ -32,7 +32,6 @@ class TestCANLayer:
         lower_neighborhood = lower_neighborhood.to_sparse().float()
         upper_neighborhood = upper_neighborhood.to_sparse().float()
 
-
         can_layer = CANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -46,7 +45,7 @@ class TestCANLayer:
             assert x_1.shape == (n_cells, out_channels * heads)
         else:
             assert x_1.shape == (n_cells, out_channels)
-                
+
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
         in_channels = 2
