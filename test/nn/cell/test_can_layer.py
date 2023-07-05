@@ -18,7 +18,7 @@ class TestCANLayer:
         out_channels = 2
         dropout = 0.0
 
-        heads = 6
+        heads = 1
         concat = True
         skip_connection = True
 
@@ -40,11 +40,49 @@ class TestCANLayer:
             concat=concat,
             skip_connection=skip_connection,
         )
-        x_1 = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
+        x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
         if concat:
-            assert x_1.shape == (n_cells, out_channels * heads)
+            assert x_out.shape == (n_cells, out_channels * heads)
         else:
-            assert x_1.shape == (n_cells, out_channels)
+            assert x_out.shape == (n_cells, out_channels)
+
+        # test forward with different number of heads predifined arguments
+        heads = 3
+        can_layer = CANLayer(
+            in_channels=in_channels, out_channels=out_channels, heads=heads
+        )
+        x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
+        if concat:
+            assert x_out.shape == (n_cells, out_channels * heads)
+        else:
+            assert x_out.shape == (n_cells, out_channels)
+
+        # test forward without skip connection predifined arguments
+        skip_connection = False
+        heads = 1
+        can_layer = CANLayer(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            skip_connection=skip_connection,
+        )
+        x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
+        if concat:
+            assert x_out.shape == (n_cells, out_channels * heads)
+        else:
+            assert x_out.shape == (n_cells, out_channels)
+
+        # test forward without concat and predifined arguments
+        concat = False
+        heads = 1
+        skip_connection = True
+        can_layer = CANLayer(
+            in_channels=in_channels, out_channels=out_channels, concat=concat
+        )
+        x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
+        if concat:
+            assert x_out.shape == (n_cells, out_channels * heads)
+        else:
+            assert x_out.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
