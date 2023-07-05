@@ -46,7 +46,7 @@ class AllSetTransformerLayer(nn.Module):
         number_queries=1,
         dropout=0.0,
         mlp_num_layers=1,
-        mlp_activation=F.relu,
+        mlp_activation=nn.ReLU,
         mlp_dropout=0.0,
         mlp_norm=None,
     ):
