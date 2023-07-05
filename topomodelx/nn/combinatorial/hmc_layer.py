@@ -241,7 +241,7 @@ class HMCLayer(torch.nn.Module):
 
         x_0_level1 = self.aggr([x_0_to_0, x_1_to_0])
         x_1_level1 = self.aggr([x_0_to_1, x_2_to_1])
-        x_2_level1 = x_1_to_2
+        x_2_level1 = self.aggr([x_1_to_2])
 
         # Computing messages from Higher Order Attention Blocks Level 2
         x_0_to_0 = self.hbs_0_level2(x_0_level1, adjacency_0)
@@ -251,7 +251,7 @@ class HMCLayer(torch.nn.Module):
         x_0_to_1, _ = self.hbns_0_1_level2(x_1_level1, x_0_level1, incidence_1)
         x_1_to_2, _ = self.hbns_1_2_level2(x_2_level1, x_1_level1, incidence_2)
 
-        x_0_level2 = x_0_to_0
+        x_0_level2 = self.aggr([x_0_to_0])
         x_1_level2 = self.aggr([x_0_to_1, x_1_to_1])
         x_2_level2 = self.aggr([x_1_to_2, x_2_to_2])
 
