@@ -3,11 +3,31 @@
 import pytest
 import torch
 
-from topomodelx.nn.cell.attentional_lift_layer import MultiHeadLiftLayer as ALLayer
+from topomodelx.nn.cell.attentional_lift_layer import MultiHeadLiftLayer
 
 
 class TestAttentionalLiftLayer:
     """Unit tests for the Attentional Lift class."""
+
+    def test_default_parameters(self):
+        """Test the default parameters of Attentional Lift."""
+        layer = MultiHeadLiftLayer(in_channels_0=16, heads=32)
+        assert layer is not None
+
+    def test_skip_connection_false(self):
+        """Test without skip connection."""
+        layer = MultiHeadLiftLayer(in_channels_0=16, heads=32, skip_connection=False)
+        assert layer is not None
+
+    def test_heads_0(self):
+        """Test with heads=0."""
+        with pytest.raises(AssertionError):
+            MultiHeadLiftLayer(in_channels_0=16, heads=0)
+
+    def test_invalid_readout_method(self):
+        """Test with invalid readout method."""
+        with pytest.raises(AssertionError):
+            MultiHeadLiftLayer(in_channels_0=16, signal_lift_readout="invalid")
 
     def test_forward(self):
         """Test the forward method of Attentional Lift."""
@@ -27,7 +47,7 @@ class TestAttentionalLiftLayer:
         neighborhood = torch.randn(n_nodes, n_nodes)
         neighborhood = neighborhood.to_sparse().float()
 
-        can_layer = ALLayer(
+        can_layer = MultiHeadLiftLayer(
             in_channels_0=in_channels_0,
             heads=heads,
             signal_lift_activation=signal_lift_activation,
@@ -50,7 +70,7 @@ class TestAttentionalLiftLayer:
         """Test the reset_parameters method of Attentional Lift."""
         in_channels = 2
 
-        can_layer = ALLayer(
+        can_layer = MultiHeadLiftLayer(
             in_channels_0=in_channels,
         )
         can_layer.reset_parameters()
