@@ -23,7 +23,7 @@ class TestCANLayer:
         for module in can_layer.modules():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
-    
+
     def test_default_parameters(self):
         """Test the default parameters of CANLayer."""
         layer = CANLayer(in_channels=16, out_channels=32)
@@ -33,22 +33,22 @@ class TestCANLayer:
         """Test without skip connection."""
         layer = CANLayer(in_channels=16, out_channels=32, skip_connection=False)
         assert layer is not None
-    
+
     def test_concat_false(self):
         """Test without concatenation."""
         layer = CANLayer(in_channels=16, out_channels=32, concat=False)
         assert layer is not None
-    
+
     def test_heads(self):
         """Test with multiple heads."""
         layer = CANLayer(in_channels=16, out_channels=32, heads=3)
         assert layer is not None
-    
+
     def test_dropout(self):
         """Test with dropout."""
         layer = CANLayer(in_channels=16, out_channels=32, dropout=0.5)
         assert layer is not None
-    
+
     def test_in_channels_0(self):
         """Test with in_channels_0."""
         with pytest.raises(ValueError):
@@ -89,4 +89,3 @@ class TestCANLayer:
             assert x_1.shape == (n_cells, out_channels * heads)
         else:
             assert x_1.shape == (n_cells, out_channels)
-
