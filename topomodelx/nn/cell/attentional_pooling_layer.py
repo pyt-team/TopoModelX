@@ -1,85 +1,3 @@
-# from torch_geometric.utils import to_scipy_sparse_matrix
-# from torch_geometric.utils import to_torch_sparse_matrix
-# from torch.nn import init
-# from typing import Callable
-
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
-# from torch import Tensor
-
-# from torch_geometric.nn.pool.topk_pool import topk, filter_adj
-
-# class CAPooLayer(nn.Module):
-#     """
-#     CAPooLayer (Cellular Attention Pooling Layer) is responsible for pooling
-#     operations in the Cellular Graph Attention Network.
-
-#     This layer applies attention-based pooling to a given edge signal
-#     and updates the graph accordingly.
-
-#     Parameters
-#     ----------
-#     k_pool : float
-#         Fraction of edges to keep after the pooling operation.
-#     F_in : int
-#         Number of input features for the pooling layer.
-#     cell_forward_activation : Callable
-#         Non-linear activation function used in the forward pass.
-
-#     Returns
-#     -------
-#     CAPooLayer.
-
-#     Examples
-#     -------
-#     pool = CAPooLayer(k_pool=.75,
-#                       F_in=3*att_heads,
-#                       cell_forward_activation=nn.ReLU)
-
-#     References
-#     ----------
-#     .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-#         Cell attention networks. (2022)
-#         paper: https://arxiv.org/pdf/2209.08179.pdf
-#         repository: https://github.com/lrnzgiusti/can
-#     """
-
-#     def __init__(self, k_pool: float, F_in: int, cell_forward_activation: Callable):
-#         super(CAPooLayer, self).__init__()
-
-#         self.k_pool = k_pool
-#         self.cell_forward_activation = cell_forward_activation
-
-#         # Learnable attention parameter for the pooling operation
-#         self.att_pool = nn.Parameter(torch.empty(size=(F_in, 1)))
-
-#         # Initialize the attention parameter using Xavier initialization
-#         nn.init.xavier_normal_(self.att_pool.data, gain=1.41)
-
-
-#     def __repr__(self):
-#        s = "PoolLayer(" + \
-#            "K Pool="+str(self.k_pool)+ ")"
-#        return s
-
-
-#     def forward(self,  x):
-
-#         x, G = x
-#         shape = x.shape
-#         Zp = x @ self.att_pool
-#         idx = topk(Zp.view(-1), self.k_pool, G.edge_batch)
-#         x = x[idx] * self.cell_forward_activation(Zp)[idx].view(-1, 1)
-#         G.edge_batch = G.edge_batch[idx]
-#         G.ros.append(readout(x, G.edge_batch, 'sum'))
-#         G.connectivities['up'] = tuple(filter_adj(torch.stack(G.connectivities['up']), None, idx, shape[0])[0])
-#         G.connectivities['do'] = tuple(filter_adj(torch.stack(G.connectivities['do']), None, idx, shape[0])[0])
-
-
-#         return x, G
-
-
 """Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN)."""
 
 from typing import Callable
@@ -95,7 +13,15 @@ from topomodelx.utils.scatter import scatter_add
 
 
 class PoolLayer(MessagePassing):
-    """Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+    r"""Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+
+    .. math::
+        \begin{align*}            
+        &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}                &=&\ \psi^t(h_x)\\
+        &&=&\  a^t(\tau^t(h_x))\\
+        &🟦 \quad h_x^{(1)}                &=&\ \phi^t(\tau^t(h_x)m_{j}^{(1)}), \forall j \in \{1,... ,J\}\\
+            where J \subset X 
+        \end{align*}
 
     Parameters
     ----------
@@ -155,7 +81,6 @@ class PoolLayer(MessagePassing):
         out: torch.Tensor
             Pooled node signal of shape (num_pooled_nodes, in_channels_0).
         """
-        # TODO should I overwrite the attention function in MessagePassing?
         # Compute the output edge signal by applying the activation function
         Zp = torch.einsum("nc,ce->ne", x_0, self.att_pool)
         # Apply top-k pooling to the edge signal
@@ -166,7 +91,6 @@ class PoolLayer(MessagePassing):
 
         # Readout operation
         if self.readout:
-            # TODO double check this and also should this be in the aggregation function of MessagePassing?
             out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[
                 top_indices
             ]
@@ -182,37 +106,3 @@ class PoolLayer(MessagePassing):
             lower_neighborhood_modified.to_sparse().float(),
             upper_neighborhood_modified.to_sparse().float(),
         )
-
-
-# main with class PoolLayer
-
-# if __name__ == "__main__":
-#     # Parameters
-#     k_pool = 0.75
-#     in_channels_0 = 96
-#     signal_pool_activation = nn.ReLU()
-
-#     # Input
-#     x_0 = torch.randn(38, in_channels_0)
-#     lower_neighborhood = torch.randn(38, 38)
-#     upper_neighborhood = torch.randn(38, 38)
-
-#     # Instantiate the PoolLayer
-#     pool_layer = PoolLayer(
-#         k_pool=k_pool,
-#         in_channels_0=in_channels_0,
-#         signal_pool_activation=signal_pool_activation,
-#         readout=True,
-#     )
-
-#     # Forward pass
-#     out, l_n, u_n = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
-#     print(out.shape)
-#     print(l_n.shape)
-#     print(u_n.shape)
-#     print('**********')
-# print(out)
-# print('**********')
-# print(l_n)
-# print('**********')
-# print(u_n)
