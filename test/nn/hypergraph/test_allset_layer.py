@@ -49,7 +49,6 @@ class TestAllSetLayer:
             _ = AllSetLayer(
                 in_channels=10,
                 hidden_channels=64,
-                heads=4,
                 mlp_num_layers=mlp_num_layers,
             )
 
