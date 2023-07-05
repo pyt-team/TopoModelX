@@ -119,8 +119,6 @@ class HBS(MessagePassing):
 
         self.reset_parameters()
 
-
-
     def get_device(self):
         """Get the device on which the layer's learnable parameters are stored."""
         return self.weight[0].device

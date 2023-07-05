@@ -11,7 +11,7 @@ from topomodelx.base.hbs import HBS
 
 
 class HMCLayer(torch.nn.Module):
-    """Layer of a Combinatorial Complex Attention Neural Network for Mesh Classification.
+    r"""Layer of a Combinatorial Complex Attention Neural Network for Mesh Classification.
 
     Implementation of the Combinatorial Complex Attention Neural Network layer for mesh classification
     introduced in [HAJIJ23]_, Figure 35(b).
@@ -19,7 +19,7 @@ class HMCLayer(torch.nn.Module):
     This layer works with combinatorial complexes of dimension two. It is composed of two message passing steps,
     meaning that all cochains in cells are updated twice. Message passing is performed using combinatorial complex
     attention push-forward operations. See Definitions 32 and 33 in [HAJIJ23]_ for more details.
-    message passing. The steps are
+    message passing. The steps are:
 
     1. 0-dimensional cells (vertices) receive messages from 0-dimensional cells (vertices) and from 1-dimensional cells
     (edges). In the first case, adjacency matrices are used. In the second case, the incidence matrix from dimension 1
@@ -33,50 +33,56 @@ class HMCLayer(torch.nn.Module):
     receive messages from 1-dimensional cells (edges) and from 2-dimensional cells (faces) using
     incidence and coadjacency matrices, respectively.
 
-    Following the notations of [PSHM23]_, the steps are:
+    Following the notations of [PSHM23]_, the steps can be summarized as follows:
 
+    1.First level:
 
-    🟥 $\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{\uparrow, 0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 0}$
-    🟥 $\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 1}$
-    🟥 $\quad  m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,(1)} \Theta^t_{1\rightarrow 0}$
-    🟥 $\quad  m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right) h_y^{t,(1)} \Theta^t_{1\rightarrow 2}$
-    🟥 $\quad m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,(2)} \Theta^t_{2\rightarrow 1}$
-    🟧 $\quad m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{\uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{1}(x)} m^{1\rightarrow 0}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{2}(x)} m^{2\rightarrow 1}_{y\rightarrow x}\right)$
-    🟩 $\quad m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{1\rightarrow 0}_{x}\right)$
-    🟩 $\quad m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{2\rightarrow 1}_{x}\right)$
-    🟩 $\quad m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)$
-    🟦 $\quad i_x^{t,(0)} = m_x^{(0)}$
-    🟦 $\quad i_x^{t,(1)} = m_x^{(1)}$
-    🟦 $\quad i_x^{t,(2)} = m_x^{(2)}$
-
-    where $i_x^{t,(\cdot)}$ represents intermediate feature vectors.
-
+    ..  math::
+        \begin{align}
+            m^{0\rightarrow 0}_{y\rightarrow x} &= \left((A_{\uparrow, 0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+            m^{0\rightarrow 1}_{y\rightarrow x} &= \left((B_{1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+            m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,(1)} \Theta^t_{1\rightarrow 0}\\
+            m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right) h_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+            m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,(2)} \Theta^t_{2\rightarrow 1}\\
+            m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{\uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+            m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+            m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{1}(x)} m^{1\rightarrow 0}_{y\rightarrow x}\right)\\
+            m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+            m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{2}(x)} m^{2\rightarrow 1}_{y\rightarrow x}\right)\\
+            m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{1\rightarrow 0}_{x}\right)\\
+            m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{2\rightarrow 1}_{x}\right)\\
+            m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)\\
+            i_x^{t,(0)} = m_x^{(0)}\\
+            i_x^{t,(1)} = m_x^{(1)}\\
+            i_x^{t,(2)} = m_x^{(2)}
+         \end{align}
+    where :math:`i_x^{t,(\cdot)}` represents intermediate feature vectors.
 
     2. Second level:
+    ..  math::
+        \begin{align}
+            m^{0\rightarrow 0}_{y\rightarrow x} &= \left((A_{\uparrow, 0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right) i_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+            m^{1\rightarrow 1}_{y\rightarrow x} &= \left((A_{\uparrow, 1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right) i_y^{t,(1)} \Theta^t_{1\rightarrow 1}\\
+            m^{2\rightarrow 2}_{y\rightarrow x} &= \left((A_{\downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow 2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}\\
+            m^{0\rightarrow 1}_{y\rightarrow x} &= \left((B_{1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right) i_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+            m^{1\rightarrow 2}_{y\rightarrow x} &= \left((B_{2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right) i_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+            m^{0\rightarrow 0}_{x} &= \phi_u\left(\sum_{y\in A_{\uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+            m^{1\rightarrow 1}_{x} &= \phi_u\left(\sum_{y\in A_{\uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)\\
+            m^{2\rightarrow 2}_{x} &= \phi_u\left(\sum_{y\in A_{\downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)\\
+            m^{0\rightarrow 1}_{x} &= \phi_u\left(\sum_{y\in B_{1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+            m^{1\rightarrow 2}_{x} &= \phi_u\left(\sum_{y\in B_{2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+            m_x^{(0)} &= \phi_a\left(m^{0\rightarrow 0}_{x}+m^{1\rightarrow 0}_{x}\right)\\
+            m_x^{(1)} &= \phi_a\left(m^{1\rightarrow 1}_{x} + m^{0\rightarrow 1}_{x}\right)\\
+            m_x^{(2)} &= \phi_a\left(m^{1\rightarrow 2}_{x} + m^{2\rightarrow 2}_{x}\right)\\
+            h_x^{t+1,(0)} &= m_x^{(0)}\\
+            h_x^{t+1,(1)} &= m_x^{(1)}\\
+            h_x^{t+1,(2)} &= m_x^{(2)}
+        \end{align}
 
+    In both message passing levels, :math:`phi_u` and :math:`phi_a` represent common activation functions for
+    within and between neighborhood aggregations, and are passed to the constructor of the class
+    as arguments update_func_attention and update_func_aggregation, respectively.
 
-    🟥 $\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{\uparrow, 0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right) i_y^{t,(0)} \Theta^t_{0\rightarrow 0}$
-    🟥 $\quad m^{1\rightarrow 1}_{y\rightarrow x} = \left((A_{\uparrow, 1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right) i_y^{t,(1)} \Theta^t_{1\rightarrow 1}$
-    🟥 $\quad m^{2\rightarrow 2}_{y\rightarrow x} = \left((A_{\downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow 2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}$
-    🟥 $\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right) i_y^{t,(0)} \Theta^t_{0\rightarrow 1}$
-    🟥 $\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right) i_y^{t,(1)} \Theta^t_{1\rightarrow 2}$
-    🟧 $\quad m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{\uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{1\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in A_{\uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{2\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in A_{\downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)$
-    🟧 $\quad m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)$
-    🟩 $\quad m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{1\rightarrow 0}_{x}\right)$
-    🟩 $\quad m_x^{(1)}=\phi_a\left(m^{1\rightarrow 1}_{x} + m^{0\rightarrow 1}_{x}\right)$
-    🟩 $\quad m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x} + m^{2\rightarrow 2}_{x}\right)$
-    🟦 $\quad h_x^{t+1,(0)} = m_x^{(0)}$
-    🟦 $\quad h_x^{t+1,(1)} = m_x^{(1)}$
-    🟦 $\quad h_x^{t+1,(2)} = m_x^{(2)}$
-
-    Using the notation of [PSHM23]_, the following steps are computed in order.
 
 
 
