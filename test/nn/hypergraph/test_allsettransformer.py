@@ -1,4 +1,4 @@
-"""Test the template layer."""
+"""Test the AllSetTransformer layer."""
 import pytest
 import torch
 
@@ -6,7 +6,7 @@ from topomodelx.nn.hypergraph.allsettransformer_layer import MLP, AllSetTransfor
 
 
 class TestAllSetTransformerLayer:
-    """Test the template layer."""
+    """Test the AllSetTransformer layer."""
 
     @pytest.fixture
     def allsettransformer_layer(self):
