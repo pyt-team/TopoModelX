@@ -6,6 +6,7 @@ import torch
 from topomodelx.nn.cell.canv2_layer import CANLayer
 import itertools
 
+
 class TestCANLayer:
     """Unit tests for the CANLayer class."""
 
@@ -185,8 +186,7 @@ class TestCANLayer:
                 heads=heads,
                 concat=concat,
                 skip_connection=skip_connection,
-                add_self_loops = self_loops
-
+                add_self_loops=self_loops,
             )
             x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
             if concat:
