@@ -10,7 +10,7 @@ class TestAllSetTransformerLayer:
 
     @pytest.fixture
     def allsettransformer_layer(self):
-        """Return a allsettransformer  layer."""
+        """Return a allsettransformer layer."""
         in_dim = 10
         hid_dim = 64
         heads = 4
