@@ -52,6 +52,17 @@ class TestAllSetLayer:
                 mlp_num_layers=mlp_num_layers,
             )
 
+    def reset_parameters(self):
+        """Test the reset_parameters method of the AllSet layer."""
+        layer = AllSetLayer(
+            in_channels=10,
+            hidden_channels=64,
+            mlp_num_layers=1,
+        )
+        layer.reset_parameters()
+        assert layer.mlp[0].weight.requires_grad
+        assert layer.mlp[0].bias.requires_grad
+
     def test_MLP(self):
         """Test the MLP class.
 
