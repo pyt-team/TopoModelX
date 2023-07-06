@@ -96,13 +96,18 @@ class PoolLayer(MessagePassing):
             ]
 
         # Update lower and upper neighborhood matrices with the top-k pooled edges
-        lower_neighborhood_modified = lower_neighborhood[top_indices]
-        lower_neighborhood_modified = lower_neighborhood_modified[:, top_indices]
-        upper_neighborhood_modified = upper_neighborhood[top_indices]
-        upper_neighborhood_modified = upper_neighborhood_modified[:, top_indices]
-
-        return (
-            out,
-            lower_neighborhood_modified.to_sparse().float(),
-            upper_neighborhood_modified.to_sparse().float(),
+        # write it with torch.index_select
+        lower_neighborhood_modified = torch.index_select(
+            lower_neighborhood, 0, top_indices
         )
+        lower_neighborhood_modified = torch.index_select(
+            lower_neighborhood_modified, 1, top_indices
+        )
+        upper_neighborhood_modified = torch.index_select(
+            upper_neighborhood, 0, top_indices
+        )
+        upper_neighborhood_modified = torch.index_select(
+            upper_neighborhood_modified, 1, top_indices
+        )
+
+        return out
