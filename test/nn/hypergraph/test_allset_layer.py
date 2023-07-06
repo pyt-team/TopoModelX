@@ -42,10 +42,20 @@ class TestAllSetLayer:
         with pytest.raises(ValueError):
             AllSet_layer.forward(x_0, incidence_1)
 
-    def test_initialisation_mlp_num_layers(self):
+    def test_initialisation_mlp_num_layers_zero(self):
         """Test the initialisation of the AllSet layer with invalid input."""
         with pytest.raises(ValueError):
             mlp_num_layers = 0
+            _ = AllSetLayer(
+                in_channels=10,
+                hidden_channels=64,
+                mlp_num_layers=mlp_num_layers,
+            )
+
+    def test_initialisation_mlp_num_layers_negative(self):
+        """Test the initialisation of the AllSet layer with invalid input."""
+        with pytest.raises(ValueError):
+            mlp_num_layers = -1
             _ = AllSetLayer(
                 in_channels=10,
                 hidden_channels=64,
