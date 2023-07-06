@@ -34,6 +34,7 @@ class TestCANLayer:
         concat_values = [True, False]
         skip_connection_values = [True, False]
         self_loop_values = [True, False]
+        share_weights_values = [True, False]
 
         n_cells = 21
         x_1 = torch.randn(n_cells, in_channels)
@@ -48,10 +49,18 @@ class TestCANLayer:
             concat_values,
             skip_connection_values,
             self_loop_values,
+            share_weights_values,
         )
 
         for parameters in all_parameter_combinations:
-            dropout, heads, concat, skip_connection, self_loops = parameters
+            (
+                dropout,
+                heads,
+                concat,
+                skip_connection,
+                self_loops,
+                share_weights,
+            ) = parameters
             can_layer = CANLayer(
                 in_channels=in_channels,
                 out_channels=out_channels,
@@ -60,6 +69,7 @@ class TestCANLayer:
                 concat=concat,
                 skip_connection=skip_connection,
                 add_self_loops=self_loops,
+                share_weights=share_weights,
             )
             x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
             if concat:

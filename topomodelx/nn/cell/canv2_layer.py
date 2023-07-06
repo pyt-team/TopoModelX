@@ -53,6 +53,7 @@ class MultiHeadCellAttention(MessagePassing):
         add_self_loops: bool = True,
         aggr_func: str = "sum",
         initialization: str = "xavier_uniform",
+        share_weights: bool = False,
     ):
         super().__init__(
             att=True,
@@ -70,8 +71,18 @@ class MultiHeadCellAttention(MessagePassing):
         if not add_self_loops:
             self.add_self_loops = None
 
-        self.lin_src = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
-        self.lin_dst = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
+        if share_weights:
+            self.lin_src = self.lin_dst = torch.nn.Linear(
+                in_channels, heads * out_channels, bias=False
+            )
+        else:
+            self.lin_src = torch.nn.Linear(
+                in_channels, heads * out_channels, bias=False
+            )
+            self.lin_dst = torch.nn.Linear(
+                in_channels, heads * out_channels, bias=False
+            )
+
         self.att_weight = Parameter(torch.Tensor(1, heads, out_channels))
 
         self.reset_parameters()
@@ -303,6 +314,7 @@ class CANLayer(torch.nn.Module):
         add_self_loops: bool = False,
         aggr_func="sum",
         update_func: str = "relu",
+        share_weights: bool = False,
         **kwargs,
     ):
         super().__init__()
@@ -322,6 +334,7 @@ class CANLayer(torch.nn.Module):
             att_activation=att_activation,
             concat=concat,
             add_self_loops=add_self_loops,
+            share_weights=share_weights,
         )
 
         # upper attention
@@ -333,6 +346,7 @@ class CANLayer(torch.nn.Module):
             att_activation=att_activation,
             concat=concat,
             add_self_loops=add_self_loops,
+            share_weights=share_weights,
         )
 
         # linear transformation
