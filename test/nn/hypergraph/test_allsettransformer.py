@@ -13,10 +13,11 @@ class TestAllSetTransformerLayer:
         """Return a allsettransformer layer."""
         in_dim = 10
         hid_dim = 64
+        heads = 4
         layer = AllSetTransformerLayer(
             in_channels=in_dim,
             hidden_channels=hid_dim,
-            heads=4,
+            heads=heads,
             number_queries=1,
             dropout=0.0,
             mlp_num_layers=1,
@@ -46,9 +47,32 @@ class TestAllSetTransformerLayer:
 
     def test_reset_parameters(self, allsettransformer_layer):
         """Test the reset_parameters method."""
+        in_dim = 10
+        hid_dim = 64
+        heads = 4
+
         allsettransformer_layer.reset_parameters()
         assert allsettransformer_layer.vertex2edge.mlp[0].weight.requires_grad
-        assert allsettransformer_layer.edge2vertex.mlp[0].bias.requires_grad
+        assert allsettransformer_layer.edge2vertex.mlp[0].weight.requires_grad
+
+        # Test with attention weights & xavier_uniform
+        allsettransformer_layer.vertex2edge.multihead_att.initialization = (
+            "xavier_uniform"
+        )
+        allsettransformer_layer.edge2vertex.multihead_att.initialization = (
+            "xavier_uniform"
+        )
+        allsettransformer_layer.reset_parameters()
+        assert allsettransformer_layer.vertex2edge.multihead_att.K_weight.shape == (
+            heads,
+            in_dim,
+            hid_dim // heads,
+        )
+        assert allsettransformer_layer.edge2vertex.multihead_att.K_weight.shape == (
+            heads,
+            hid_dim,
+            hid_dim // heads,
+        )
 
     def test_initialisation_heads_zero(self):
         """Test the initialisation of the allsettransformer layer with invalid input."""

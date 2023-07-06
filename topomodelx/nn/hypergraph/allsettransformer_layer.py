@@ -162,6 +162,7 @@ class AllSetTransformerBlock(nn.Module):
         mlp_activation=None,
         mlp_dropout=0.0,
         mlp_norm=None,
+        initialization="xavier_uniform",
     ):
         super().__init__()
 
@@ -177,9 +178,10 @@ class AllSetTransformerBlock(nn.Module):
             hidden_channels=hidden_channels // heads,
             heads=self.heads,
             number_queries=number_queries,
+            initialization=initialization,
         )
 
-        self.FF = MLP(
+        self.mlp = MLP(
             in_channels=self.hidden_channels,
             hidden_channels=[self.hidden_channels] * mlp_num_layers,
             norm_layer=mlp_norm,
@@ -195,7 +197,7 @@ class AllSetTransformerBlock(nn.Module):
     def reset_parameters(self):
         r"""Reset learnable parameters."""
         self.multihead_att.reset_parameters()
-        for layer in self.FF.children():
+        for layer in self.mlp.children():
             if hasattr(layer, "reset_parameters"):
                 layer.reset_parameters()
         self.ln0.reset_parameters()
@@ -234,7 +236,7 @@ class AllSetTransformerBlock(nn.Module):
 
         # Obtain LN(Y+FF(Y)) in Eq(8) in AllSet paper [ECCP22]
         x_message_on_target = self.ln1(
-            x_message_on_target + F.relu(self.FF(x_message_on_target))
+            x_message_on_target + F.relu(self.mlp(x_message_on_target))
         )
 
         return x_message_on_target.sum(dim=1)
