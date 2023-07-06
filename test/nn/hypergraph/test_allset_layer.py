@@ -9,7 +9,7 @@ class TestAllSetLayer:
     """Test the AllSet layer."""
 
     @pytest.fixture
-    def AllSet_layer(self):
+    def allset_layer(self):
         """Return a AllSet layer."""
         in_dim = 10
         hid_dim = 64
@@ -24,23 +24,23 @@ class TestAllSetLayer:
         )
         return layer
 
-    def test_forward(self, AllSet_layer):
+    def test_forward(self, allset_layer):
         """Test the forward pass of the AllSet layer."""
         x_0 = torch.randn(3, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
-        output = AllSet_layer.forward(x_0, incidence_1)
+        output = allset_layer.forward(x_0, incidence_1)
         assert output.shape == (3, 64)
 
-    def test_forward_with_invalid_input(self, AllSet_layer):
+    def test_forward_with_invalid_input(self, allset_layer):
         """Test the forward pass of the AllSet layer with invalid input."""
         x_0 = torch.randn(4, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
         with pytest.raises(ValueError):
-            AllSet_layer.forward(x_0, incidence_1)
+            allset_layer.forward(x_0, incidence_1)
 
     def test_initialisation_mlp_num_layers_zero(self):
         """Test the initialisation of the AllSet layer with invalid input."""
@@ -52,6 +52,15 @@ class TestAllSetLayer:
                 mlp_num_layers=mlp_num_layers,
             )
 
+    def reset_parameters(self, allset_layer):
+        """Test the reset_parameters method of the AllSet layer."""
+        allset_layer.reset_parameters()
+        if not (allset_layer.vertex2edge.encoder.__class__.__name__ != "Identity"):
+            assert allset_layer.vertex2edge.encoder.weight.requires_grad
+
+        if not (allset_layer.edge2vertex.encoder.__class__.__name__ != "Identity"):
+            assert allset_layer.edge2vertex.encoder.weight.requires_grad
+
     def test_initialisation_mlp_num_layers_negative(self):
         """Test the initialisation of the AllSet layer with invalid input."""
         with pytest.raises(ValueError):
@@ -61,17 +70,6 @@ class TestAllSetLayer:
                 hidden_channels=64,
                 mlp_num_layers=mlp_num_layers,
             )
-
-    def reset_parameters(self):
-        """Test the reset_parameters method of the AllSet layer."""
-        layer = AllSetLayer(
-            in_channels=10,
-            hidden_channels=64,
-            mlp_num_layers=1,
-        )
-        layer.reset_parameters()
-        assert layer.mlp[0].weight.requires_grad
-        assert layer.mlp[0].bias.requires_grad
 
     def test_MLP(self):
         """Test the MLP class.
