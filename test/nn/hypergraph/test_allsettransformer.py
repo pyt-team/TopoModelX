@@ -44,6 +44,12 @@ class TestAllSetTransformerLayer:
         with pytest.raises(ValueError):
             allsettransformer_layer.forward(x_0, incidence_1)
 
+    def test_reset_parameters(self, allsettransformer_layer):
+        """Test the reset_parameters method."""
+        allsettransformer_layer.reset_parameters()
+        assert allsettransformer_layer.vertex2edge.mlp[0].weight.requires_grad
+        assert allsettransformer_layer.edge2vertex.mlp[0].bias.requires_grad
+
     def test_initialisation_heads_zero(self):
         """Test the initialisation of the allsettransformer layer with invalid input."""
         with pytest.raises(ValueError):
@@ -66,10 +72,21 @@ class TestAllSetTransformerLayer:
                 heads=heads,
             )
 
-    def test_initialisation_mlp_num_layers(self):
+    def test_initialisation_mlp_num_layers_zero(self):
         """Test the initialisation of the allsettransformer layer with invalid input."""
         with pytest.raises(ValueError):
             mlp_num_layers = 0
+            _ = AllSetTransformerLayer(
+                in_channels=10,
+                hidden_channels=64,
+                heads=4,
+                mlp_num_layers=mlp_num_layers,
+            )
+
+    def test_initialisation_mlp_num_layers_negative(self):
+        """Test the initialisation of the allsettransformer layer with invalid input."""
+        with pytest.raises(ValueError):
+            mlp_num_layers = -1
             _ = AllSetTransformerLayer(
                 in_channels=10,
                 hidden_channels=64,

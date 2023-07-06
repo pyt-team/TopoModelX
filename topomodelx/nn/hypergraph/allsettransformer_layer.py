@@ -89,6 +89,11 @@ class AllSetTransformerLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
+    def reset_parameters(self):
+        """Reset parameters."""
+        self.vertex2edge.reset_parameters()
+        self.edge2vertex.reset_parameters()
+
     def forward(self, x, incidence_1):
         """Forward computation.
 
