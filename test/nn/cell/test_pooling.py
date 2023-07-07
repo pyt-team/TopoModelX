@@ -28,21 +28,18 @@ class TestPoolLayer:
             signal_pool_activation=signal_pool_activation,
             readout=True,
         )
-        out = pool_layer.forward(x_0, lower_neighborhood, upper_neighborhood)
+        out, lower_neighborhood, upper_neighborhood = pool_layer.forward(
+            x_0, lower_neighborhood, upper_neighborhood
+        )
         assert out.shape == (int(k_pool * x_0.size(0)), in_channels_0)
-        # TODO: clean, does it have to return the neighborhood matrices?
-        # out, lower_neighborhood, upper_neighborhood = pool_layer.forward(
-        #     x_0, lower_neighborhood, upper_neighborhood
-        # )
-        # assert out.shape == (int(k_pool * x_0.size(0)), in_channels_0)
-        # assert lower_neighborhood.shape == (
-        #     int(k_pool * x_0.size(0)),
-        #     int(k_pool * x_0.size(0)),
-        # )
-        # assert upper_neighborhood.shape == (
-        #     int(k_pool * x_0.size(0)),
-        #     int(k_pool * x_0.size(0)),
-        # )
+        assert lower_neighborhood.shape == (
+            int(k_pool * x_0.size(0)),
+            int(k_pool * x_0.size(0)),
+        )
+        assert upper_neighborhood.shape == (
+            int(k_pool * x_0.size(0)),
+            int(k_pool * x_0.size(0)),
+        )
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of PoolLayer."""
