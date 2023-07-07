@@ -152,7 +152,7 @@ class MultiHeadLiftLayer(nn.Module):
         self.lifts.reset_parameters()
 
     def forward(self, x_0, neighborhood_0_to_0, x_1=None) -> torch.Tensor:
-        """Forward pass.
+        r"""Forward pass.
 
         .. math::
             \begin{align*}

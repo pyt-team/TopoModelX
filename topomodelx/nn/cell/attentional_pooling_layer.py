@@ -59,7 +59,7 @@ class PoolLayer(MessagePassing):
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
     def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
-        """Forward pass.
+        r"""Forward pass.
 
         .. math::
             \begin{align*}

@@ -344,7 +344,7 @@ class CANLayer(torch.nn.Module):
             self.lin.reset_parameters()
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
-        """Forward pass.
+        r"""Forward pass.
 
         .. math::
             \mathcal N = \{\mathcal N_1, \mathcal N_2\} = \{A_{\uparrow, r}, A_{\downarrow, r}\}
