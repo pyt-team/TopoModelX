@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.allset_layer import MLP, AllSetLayer
+from topomodelx.nn.hypergraph.allset_layer import MLP, AllSetLayer, AllSetBlock
 
 
 class TestAllSetLayer:
@@ -32,6 +32,29 @@ class TestAllSetLayer:
         ).to_sparse()
         output = allset_layer.forward(x_0, incidence_1)
         assert output.shape == (3, 64)
+
+    def test_AllSetBlock(self):
+        """Test the AllSetBlock class.
+
+        (used in AllSetLayer)
+        """
+        in_channels = 10
+        hidden_channels = 64
+        mlp_num_layers = [0, 1, 2]
+        dropout = 0.0
+        for mlp in mlp_num_layers:
+            allset_block = AllSetBlock(
+                in_channels=in_channels,
+                hidden_channels=hidden_channels,
+                mlp_num_layers=mlp,
+                dropout=dropout,
+            )
+            x_0 = torch.randn(3, 10)
+            incidence_1 = torch.tensor(
+                [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
+            ).to_sparse()
+            output = allset_block.forward(x_0, incidence_1)
+            assert output.shape == (3, 64)
 
     def test_forward_with_invalid_input(self, allset_layer):
         """Test the forward pass of the AllSet layer with invalid input."""
