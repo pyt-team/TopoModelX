@@ -108,5 +108,9 @@ class PoolLayer(MessagePassing):
         upper_neighborhood_modified = torch.index_select(
             upper_neighborhood_modified, 1, top_indices
         )
-
-        return out
+        # return sparse matrices of neighborhood
+        return (
+            out,
+            lower_neighborhood_modified.to_sparse().float().coalesce(),
+            upper_neighborhood_modified.to_sparse().float().coalesce(),
+        )
