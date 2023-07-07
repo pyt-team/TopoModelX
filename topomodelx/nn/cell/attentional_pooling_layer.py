@@ -15,14 +15,6 @@ from topomodelx.utils.scatter import scatter_add
 class PoolLayer(MessagePassing):
     r"""Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
 
-    .. math::
-        \begin{align*}            
-        &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}                &=&\ \psi^t(h_x)\\
-        &&=&\  a^t(\tau^t(h_x))\\
-        &🟦 \quad h_x^{(1)}                &=&\ \phi^t(\tau^t(h_x)m_{j}^{(1)}), \forall j \in \{1,... ,J\}\\
-            where J \subset X 
-        \end{align*}
-
     Parameters
     ----------
     k_pool: float
@@ -69,6 +61,14 @@ class PoolLayer(MessagePassing):
     def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
         """Forward pass.
 
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{x}^{(r)} 
+                = \gamma^t(h_x^t) = \tau^t (a^t\cdot h_x^t)\\
+            &🟦 \quad h_x^{t+1,(r)} 
+                = \phi^t(h_x^t, m_{x}^{(r)}), \forall x\in \mathcal C_r^{t+1}
+            \end{align*}
+
         Parameters
         ----------
         x_0: torch.Tensor
@@ -96,7 +96,6 @@ class PoolLayer(MessagePassing):
             ]
 
         # Update lower and upper neighborhood matrices with the top-k pooled edges
-        # write it with torch.index_select
         lower_neighborhood_modified = torch.index_select(
             lower_neighborhood, 0, top_indices
         )

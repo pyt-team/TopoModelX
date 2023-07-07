@@ -248,19 +248,6 @@ class CANLayer(torch.nn.Module):
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
     Additionally a skip connection can be added to the output of the layer.
 
-    ..  math::
-        \mathcal N = \{\mathcal N_1, \mathcal N_2\} = \{A_{\uparrow, r}, A_{\downarrow, r}\}
-
-    ..  math::
-        \begin{align*}
-        &🟥 \quad m_{(y \rightarrow x),k}^{(r)} =
-        \alpha_k(h_x^t,h_y^t) =
-        a_k(h_x^{t}, h_y^{t}) \cdot \psi_k^t(h_x^{t})\quad \forall \mathcal N_k\\
-        &🟧 \quad m_{x,k}^{(r)}               = \bigoplus_{y \in \mathcal{N}_k(x)}  m^{(r)}  _{(y \rightarrow x),k}\\
-        &🟩 \quad m_{x}^{(r)} = \bigotimes_{\mathcal{N}_k\in\mathcal N}m_{x,k}^{(r)}\\
-        &🟦 \quad h_x^{t+1,(r)}                = \phi^{t}(h_x^t, m_{x}^{(r)})
-        \end{align*}
-
     References
     ----------
     .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
@@ -358,6 +345,22 @@ class CANLayer(torch.nn.Module):
 
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
         """Forward pass.
+
+        .. math::
+            \mathcal N = \{\mathcal N_1, \mathcal N_2\} = \{A_{\uparrow, r}, A_{\downarrow, r}\}
+
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{(y \rightarrow x),k}^{(r)} 
+                = \alpha_k(h_x^t,h_y^t) = a_k(h_x^{t}, h_y^{t}) \cdot \psi_k^t(h_x^{t})\quad \forall \mathcal N_k\\
+            &🟧 \quad m_{x,k}^{(r)} 
+                = \bigoplus_{y \in \mathcal{N}_k(x)}  m^{(r)}  _{(y \rightarrow x),k}\\
+            &🟩 \quad m_{x}^{(r)} 
+                = \bigotimes_{\mathcal{N}_k\in\mathcal N}m_{x,k}^{(r)}\\
+            &🟦 \quad h_x^{t+1,(r)} 
+                = \phi^{t}(h_x^t, m_{x}^{(r)})
+            \end{align*}
+
 
         Parameters
         ----------
