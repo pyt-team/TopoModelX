@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.allset_layer import MLP, AllSetLayer, AllSetBlock
+from topomodelx.nn.hypergraph.allset_layer import MLP, AllSetBlock, AllSetLayer
 
 
 class TestAllSetLayer:
