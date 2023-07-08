@@ -6,6 +6,7 @@
 .coverage.*
 coverage.xml
 .vscode
+.history
 .idea
 .venv
 *.out
