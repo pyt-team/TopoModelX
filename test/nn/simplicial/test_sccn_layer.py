@@ -1,8 +1,8 @@
 """Test the SCCN layer."""
 
 import torch
-import topomodelx
 
+import topomodelx
 from topomodelx.nn.simplicial.sccn_layer import SCCNLayer
 
 
