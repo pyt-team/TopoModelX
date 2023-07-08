@@ -121,7 +121,7 @@ class SCCNLayer(torch.nn.Module):
 
         Returns
         -------
-        out_features : Dict[int, torch.Tensor],
+        _ : Dict[int, torch.Tensor],
                 length=max_rank+1,
                 shape=[n_rank_r_cells, channels]
             Output features on the cells of the simplicial complex.
