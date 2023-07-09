@@ -1,6 +1,9 @@
 """Simplicial 2-complex convolutional neural network."""
 import torch
 
+from topomodelx.base.aggregation import Aggregation
+from topomodelx.base.conv import Conv
+
 
 class SCConvLayer(torch.nn.Module):
     """Layer of a Simplicial 2-complex convolutional neural network (SCConv).
@@ -15,17 +18,66 @@ class SCConvLayer(torch.nn.Module):
 
     """
 
-    def __init__(
-        self,
-        channels,
-    ):
+    def __init__(self, node_channels, edge_channels, face_channels):
         super().__init__()
+
+        self.node_channels = node_channels
+        self.edge_channels = edge_channels
+        self.face_channels = face_channels
+
+        self.conv_0_to_0 = Conv(
+            in_channels=self.node_channels,
+            out_channels=self.node_channels,
+            update_func=None,
+        )
+        self.conv_0_to_1 = Conv(
+            in_channels=self.node_channels,
+            out_channels=self.edge_channels,
+            update_func=None,
+        )
+
+        self.conv_1_to_1 = Conv(
+            in_channels=self.edge_channels,
+            out_channels=self.edge_channels,
+            update_func=None,
+        )
+        self.conv_1_to_0 = Conv(
+            in_channels=self.edge_channels,
+            out_channels=self.node_channels,
+            update_func=None,
+        )
+
+        self.conv_1_to_2 = Conv(
+            in_channels=self.edge_channels,
+            out_channels=self.face_channels,
+            update_func=None,
+        )
+
+        self.conv_2_to_1 = Conv(
+            in_channels=self.face_channels,
+            out_channels=self.edge_channels,
+            update_func=None,
+        )
+
+        self.conv_2_to_2 = Conv(
+            in_channels=self.face_channels,
+            out_channels=self.face_channels,
+            update_func=None,
+        )
+
+        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func="sigmoid")
+        self.aggr_on_edges = Aggregation(aggr_func="sum", update_func="sigmoid")
+        self.aggr_on_faces = Aggregation(aggr_func="sum", update_func="sigmoid")
 
     def reset_parameters(self):
         r"""Reset parameters."""
-
-    #
-    # def  normalize_adjacency(self, A):
+        self.conv_0_to_0.reset_parameters()
+        self.conv_0_to_1.reset_parameters()
+        self.conv_1_to_0.reset_parameters()
+        self.conv_1_to_1.reset_parameters()
+        self.conv_1_to_2.reset_parameters()
+        self.conv_2_to_1.reset_parameters()
+        self.conv_2_to_2.reset_parameters()
 
     def forward(
         self,
@@ -110,4 +162,27 @@ class SCConvLayer(torch.nn.Module):
 
         """
 
-        return x_0, x_1, x_2
+        x0_level_0_0 = self.conv_0_to_0(x_0, adjacency_up_0_norm)
+        x0_level_1_0 = self.conv_0_to_1(x_0, incidence_1)
+        x0_level_0_1 = self.conv_0_to_1(x_0, incidence_1_norm)
+
+        adj_norm = adjacency_down_1_norm.add(adjacency_up_1_norm)
+        x1_level_1_1 = self.conv_1_to_1(x_1, adj_norm)
+
+        x2_level_2_1 = self.conv_2_to_1(x_2, incidence_2)
+
+        x1_level_1_2 = self.conv_1_to_2(x_1, incidence_2_norm)
+
+        x_2_level_2_2 = self.conv_2_to_2(x_2, adjacency_down_2_norm)
+
+        x_0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0, x0_level_0_1])
+        x_1_out = self.aggr_on_nodes(
+            [
+                x1_level_1_1,
+                x1_level_1_2,
+            ]
+        )
+        x_2_out = self.aggr_on_nodes([x2_level_2_1, x_2_level_2_2])
+
+        return x_0_out, x_1_out, x_2_out
+        # return x_0, x_1, x_2
