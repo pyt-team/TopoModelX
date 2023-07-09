@@ -22,14 +22,25 @@ class SCConvLayer(torch.nn.Module):
         super().__init__()
 
     def reset_parameters(self):
-        r"""reset parameters."""
+        r"""Reset parameters."""
 
     #
     # def  normalize_adjacency(self, A):
 
-
-    def forward(self,x_0,x_1,x_2, incidence_1, incidence_1_norm,incidence_2, incidence_2_norm, adjacency_up_0_norm,
-                adjacency_up_1_norm, adjacency_down_1_norm, adjacency_down_2_norm ):
+    def forward(
+        self,
+        x_0,
+        x_1,
+        x_2,
+        incidence_1,
+        incidence_1_norm,
+        incidence_2,
+        incidence_2_norm,
+        adjacency_up_0_norm,
+        adjacency_up_1_norm,
+        adjacency_down_1_norm,
+        adjacency_down_2_norm,
+    ):
         r"""Forward pass.
 
         .. math::
@@ -76,10 +87,6 @@ class SCConvLayer(torch.nn.Module):
             Input features on the edges of the simplicial complex.
         x_2: torch.Tensor, shape=[n_faces, channels]
             Input features on the faces of the simplicial complex.
-
-            incidence_1, incidence_1_norm,incidence_2, incidence_2_norm, adjacency_up_0_norm,
-                adjacency_up_1_norm, adjacency_down_1_norm, adjacency_down_2_norm
-
         incidence_1: torch.Tensor, shape=[n_faces, channels]
             incidence matrix of rank 1.
         incidence_1_norm: torch.Tensor,
@@ -95,8 +102,10 @@ class SCConvLayer(torch.nn.Module):
         adjacency_down_1_norm: torch.Tensor,
             normalized down adjacency matrix of rank 1.
         adjacency_down_2_norm: torch.Tensor,
-            normalized down adjacency matrix of rank 1.
+            normalized down adjacency matrix of rank 2.
+
+        Note:
+        -----
+        For normalization of incidence matrix use helper functions here:
+
         """
-
-
-
