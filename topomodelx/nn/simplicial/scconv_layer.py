@@ -28,7 +28,8 @@ class SCConvLayer(torch.nn.Module):
     # def  normalize_adjacency(self, A):
 
 
-    def forward(self,x_0,x_1,x_2):
+    def forward(self,x_0,x_1,x_2, incidence_1, incidence_1_norm,incidence_2, incidence_2_norm, adjacency_up_0_norm,
+                adjacency_up_1_norm, adjacency_down_1_norm, adjacency_down_2_norm ):
         r"""Forward pass.
 
         .. math::
@@ -76,6 +77,25 @@ class SCConvLayer(torch.nn.Module):
         x_2: torch.Tensor, shape=[n_faces, channels]
             Input features on the faces of the simplicial complex.
 
+            incidence_1, incidence_1_norm,incidence_2, incidence_2_norm, adjacency_up_0_norm,
+                adjacency_up_1_norm, adjacency_down_1_norm, adjacency_down_2_norm
+
+        incidence_1: torch.Tensor, shape=[n_faces, channels]
+            incidence matrix of rank 1.
+        incidence_1_norm: torch.Tensor,
+            normalized incidence matrix of rank 1 .
+        incidence_2: torch.Tensor,
+             incidence matrix of rank 2.
+        incidence_2_norm: torch.Tensor,
+            normalized incidence matrix of rank 2.
+        adjacency_up_0_norm: torch.Tensor,
+            normalized upper adjacency matrix of rank 0.
+        adjacency_up_1_norm: torch.Tensor,
+            normalized upper adjacency matrix of rank 1.
+        adjacency_down_1_norm: torch.Tensor,
+            normalized down adjacency matrix of rank 1.
+        adjacency_down_2_norm: torch.Tensor,
+            normalized down adjacency matrix of rank 1.
         """
 
 
