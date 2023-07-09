@@ -104,8 +104,10 @@ class SCConvLayer(torch.nn.Module):
         adjacency_down_2_norm: torch.Tensor,
             normalized down adjacency matrix of rank 2.
 
-        Note:
+        Notes:
         -----
-        For normalization of incidence matrix use helper functions here:
+        For normalization of incidence matrix use the helper functions here: https://github.com/pyt-team/TopoModelX/blob/dev/topomodelx/normalization/normalization.py
 
         """
+
+        return x_0, x_1, x_2
