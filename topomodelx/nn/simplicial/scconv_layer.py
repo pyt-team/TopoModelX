@@ -66,6 +66,7 @@ class SCConvLayer(torch.nn.Module):
             Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
             (2023) https://arxiv.org/abs/2304.10031.
 
+
         Parameters
         ----------
         x_0: torch.Tensor, shape=[n_nodes, channels]
