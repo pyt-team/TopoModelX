@@ -1,20 +1,21 @@
+"""Simplicial Convolutional Neural Network Layer."""
 import torch
 from torch.nn.parameter import Parameter
 
 
 class SCNNLayer(torch.nn.Module):
     r"""Layer of a Simplicial Convolutional Neural Network (SCNN).
-    
+
     Notes
     -----
     This is Implementation of the SCNN layer.
-    
+
     References
     ----------
-    .. Maosheng Yang et. al
-        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)]
+    .. Maosheng Yang et. al.
+        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)].
         https://arxiv.org/pdf/2110.02585.pdf
-    
+
     Parameters
     ----------
     in_channels : int
@@ -24,10 +25,10 @@ class SCNNLayer(torch.nn.Module):
     conv_order: int
       The order of the convolutions.
       if conv_order == 0:
-        the corresponding convolution is not performed
-      - down: for the lower convolutions
-      - up: for the upper convolutions
-      
+        the corresponding convolution is not performed.
+      - down: for the lower convolutions.
+      - up: for the upper convolutions.
+
     Example
     -------
     Here we provide an example of pseudocode for SCNN layer
@@ -36,9 +37,9 @@ class SCNNLayer(torch.nn.Module):
     conv_order_down: int, e.g., 2
     conv_order_up: int, e.g., 2
     output Y: [n_simplices, out_channels]
-    
+
     SCNN layer looks like:
-      
+
       Y = torch.einsum(concat(X, Lap_down@X, Lap_down@Lap_down@X, Lap_up@X,
                               Lap_up@Lap_up@X), weight)
     where
@@ -83,15 +84,15 @@ class SCNNLayer(torch.nn.Module):
     def reset_parameters(self, gain=1.414):
         r"""Reset learnable parameters.
 
-          Notes
-          -----
-          This function will be called by subclasses of
-          MessagePassing that have trainable weights.
+        Notes
+        -----
+        This function will be called by subclasses of
+        MessagePassing that have trainable weights.
 
-          Parameters
-          ----------
-          gain : float
-              Gain for the weight initialization.
+        Parameters
+        ----------
+        gain : float
+            Gain for the weight initialization.
         """
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight, gain=gain)
@@ -104,8 +105,7 @@ class SCNNLayer(torch.nn.Module):
             )
 
     def aggr_norm_func(self, conv_operator, x):
-        r""" aggregation normalization
-        """
+        r"""Perform aggregation normalization."""
         neighborhood_size = torch.sum(conv_operator.to_dense(), dim=1)
         neighborhood_size_inv = 1 / neighborhood_size
         neighborhood_size_inv[~(torch.isfinite(neighborhood_size_inv))] = 0
@@ -133,7 +133,8 @@ class SCNNLayer(torch.nn.Module):
             return torch.nn.functional.relu(x)
 
     def chebyshev_conv(self, conv_operator, conv_order, x):
-        r"""A Chebyshev convolution method.
+        r"""Perform Chebyshev convolution.
+
         Parameters
         ----------
         conv_operator: torch.sparse
@@ -143,7 +144,7 @@ class SCNNLayer(torch.nn.Module):
           the order of the convolution
         x : torch.Tensor
           shape = [n_simplices,num_channels]
-          
+
         Return
         ------
           x[:,:,k] = (conv_operator@....@conv_operator) @ x
@@ -160,7 +161,7 @@ class SCNNLayer(torch.nn.Module):
 
     def forward(self, x, laplacian_down, laplacian_up):
         r"""Forward computation.
-    
+
         Parameters
         ----------
         x: torch.Tensor, shape=[n_simplex,in_channels]
@@ -172,13 +173,12 @@ class SCNNLayer(torch.nn.Module):
             - can also be adjacency matrix
             - lower part
             - upper part
-            
+
         Returns
         -------
         _ : torch.Tensor, shape=[n_edges, channels]
           Output features on the edges of the simplical complex.
         """
-
         num_simplices, _ = x.shape
 
         identity = torch.eye(num_simplices)
