@@ -54,43 +54,25 @@ class TestCANLayer:
 
         # Test if there are no non-zero values in the neighborhood
         heads = 1
-        concat = True
+        concat = [True, False]
         skip_connection = True
-        can_layer = CANLayer(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            concat=concat,
-            skip_connection=skip_connection,
-        )
-        x_out = can_layer.forward(
-            x_1,
-            torch.zeros_like(lower_neighborhood),
-            torch.zeros_like(upper_neighborhood),
-        )
-        if concat:
-            assert x_out.shape == (n_cells, out_channels * heads)
-        else:
-            assert x_out.shape == (n_cells, out_channels)
 
-        # Now without concat
-        concat = False
-        heads = 1
-        skip_connection = True
-        can_layer = CANLayer(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            concat=concat,
-            skip_connection=skip_connection,
-        )
-        x_out = can_layer.forward(
-            x_1,
-            torch.zeros_like(lower_neighborhood),
-            torch.zeros_like(upper_neighborhood),
-        )
-        if concat:
-            assert x_out.shape == (n_cells, out_channels * heads)
-        else:
-            assert x_out.shape == (n_cells, out_channels)
+        for concat in concat:
+            can_layer = CANLayer(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                concat=concat,
+                skip_connection=skip_connection,
+            )
+            x_out = can_layer.forward(
+                x_1,
+                torch.zeros_like(lower_neighborhood),
+                torch.zeros_like(upper_neighborhood),
+            )
+            if concat:
+                assert x_out.shape == (n_cells, out_channels * heads)
+            else:
+                assert x_out.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
