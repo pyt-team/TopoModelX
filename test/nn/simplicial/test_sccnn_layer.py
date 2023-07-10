@@ -29,39 +29,45 @@ class TestSCCNNLayer:
         laplacian_all = (laplacian_0, laplacian_down_1, laplacian_up_1, laplacian_2)
         incidence_all = (incidence_1, incidence_2)
 
-        # Without aggregation norm, without update function 
-        sccnn = SCCNNLayer(in_channels=channels_all,
-                           out_channels=channels_all,
-                           conv_order=2,
-                           sc_order=2,
-                           aggr_norm=False,
-                           update_func=None)
+        # Without aggregation norm, without update function
+        sccnn = SCCNNLayer(
+            in_channels=channels_all,
+            out_channels=channels_all,
+            conv_order=2,
+            sc_order=2,
+            aggr_norm=False,
+            update_func=None,
+        )
         output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
         assert y_2.shape == (n_faces, channels)
 
-        # Without aggregation norm, with update function 
-        sccnn = SCCNNLayer(in_channels=channels_all, 
-                           out_channels=channels_all, 
-                           conv_order=2, 
-                           sc_order=2, 
-                           aggr_norm=False, 
-                           update_func='sigmoid')
+        # Without aggregation norm, with update function
+        sccnn = SCCNNLayer(
+            in_channels=channels_all,
+            out_channels=channels_all,
+            conv_order=2,
+            sc_order=2,
+            aggr_norm=False,
+            update_func="sigmoid",
+        )
         output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
         assert y_2.shape == (n_faces, channels)
 
-        # With aggregation norm, with update function 
-        sccnn = SCCNNLayer(in_channels=channels_all, 
-                           out_channels=channels_all, 
-                           conv_order=2, 
-                           sc_order=2, 
-                           aggr_norm=True, 
-                           update_func='sigmoid')
+        # With aggregation norm, with update function
+        sccnn = SCCNNLayer(
+            in_channels=channels_all,
+            out_channels=channels_all,
+            conv_order=2,
+            sc_order=2,
+            aggr_norm=True,
+            update_func="sigmoid",
+        )
         output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
