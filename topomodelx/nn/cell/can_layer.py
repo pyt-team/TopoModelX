@@ -6,7 +6,7 @@ from torch.nn import Linear, Parameter
 from torch.nn import functional as F
 
 from topomodelx.base.aggregation import Aggregation
-from topomodelx.base.conv import MessagePassing
+from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_sum
 
 
@@ -81,6 +81,38 @@ class MultiHeadCellAttention(MessagePassing):
         torch.nn.init.xavier_uniform_(self.att_weight_src)
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
         self.lin.reset_parameters()
+
+    def message(self, x_source):
+        """Construct message from source cells to target cells.
+
+        🟥 This provides a default message function to the message passing scheme.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+
+        Returns
+        -------
+        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+            Messages on source cells.
+        """
+        # Compute the linear transformation on the source features
+        x_message = self.lin(x_source).view(
+            -1, self.heads, self.out_channels
+        )  # (n_k_cells, H, C)
+
+        # compute the source and target messages
+        x_source_per_message = x_message[self.source_index_j]  # (|n_k_cells|, H, C)
+        x_target_per_message = x_message[self.target_index_i]  # (|n_k_cells|, H, C)
+        # compute the attention coefficients
+        alpha = self.attention(
+            x_source_per_message, x_target_per_message
+        )  # (|n_k_cells|, H)
+
+        # for each head, Aggregate the messages
+        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+        return message
 
     def attention(self, x_source, x_target):
         """Compute attention weights for messages.
@@ -204,15 +236,8 @@ class MultiHeadCellAttention(MessagePassing):
                 (x_source.shape[0], self.out_channels), device=x_source.device
             )  # (n_k_cells, C)
 
-        # Compute the linear transformation on the source features
-        x_message = self.lin(x_source).view(
-            -1, self.heads, self.out_channels
-        )  # (n_k_cells, H, C)
-
         # Add self-loops to the neighborhood matrix if necessary
         if self.add_self_loops is not None:
-            # TODO: check if the self-loops are already added
-            # TODO: should we remove the self-loops from the neighborhood matrix after the message passing?
             neighborhood = self.add_self_loops(neighborhood)
 
         # returns the indices of the non-zero values in the neighborhood matrix
@@ -221,16 +246,9 @@ class MultiHeadCellAttention(MessagePassing):
             self.source_index_j,
         ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
 
-        # compute the source and target messages
-        x_source_per_message = x_message[self.source_index_j]  # (|n_k_cells|, H, C)
-        x_target_per_message = x_message[self.target_index_i]  # (|n_k_cells|, H, C)
-        # compute the attention coefficients
-        alpha = self.attention(
-            x_source_per_message, x_target_per_message
-        )  # (|n_k_cells|, H)
-
-        # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+        # compute message passing step
+        message = self.message(x_source)  # (|n_k_cells|, H, C)
+        # compute within-neighborhood aggregation step
         aggregated_message = self.aggregate(message)  # (n_k_cells, H, C)
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
@@ -279,7 +297,7 @@ class CANLayer(torch.nn.Module):
     aggr_func : str, optional
         Between-neighborhood aggregation function applied to the messages, by default "sum"
     update_func : str, optional
-        Update function applied to the messages, by default "relu"
+        Update function applied to the messages, by default "relu". If None, no update function is applied.
     """
 
     def __init__(
@@ -351,13 +369,13 @@ class CANLayer(torch.nn.Module):
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{(y \rightarrow x),k}^{(r)} 
+            &🟥 \quad m_{(y \rightarrow x),k}^{(r)}
                 = \alpha_k(h_x^t,h_y^t) = a_k(h_x^{t}, h_y^{t}) \cdot \psi_k^t(h_x^{t})\quad \forall \mathcal N_k\\
-            &🟧 \quad m_{x,k}^{(r)} 
+            &🟧 \quad m_{x,k}^{(r)}
                 = \bigoplus_{y \in \mathcal{N}_k(x)}  m^{(r)}  _{(y \rightarrow x),k}\\
-            &🟩 \quad m_{x}^{(r)} 
+            &🟩 \quad m_{x}^{(r)}
                 = \bigotimes_{\mathcal{N}_k\in\mathcal N}m_{x,k}^{(r)}\\
-            &🟦 \quad h_x^{t+1,(r)} 
+            &🟦 \quad h_x^{t+1,(r)}
                 = \phi^{t}(h_x^t, m_{x}^{(r)})
             \end{align*}
 
