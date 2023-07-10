@@ -197,21 +197,22 @@ class HBS(MessagePassing):
             return torch.nn.functional.tanh(message)
 
     def attention(self, message, A_p, a_p):
-        """Compute attention matrix.
+        """Compute the attention matrix.
 
         Parameters
         ----------
-        message : torch.Tensor, shape [n_messages, source_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix X with the weight
-            matrix W_p.
+        message : torch.Tensor, shape=[n_messages, source_out_channels]
+            Message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X`
+            with the learnable weights matrix :math:`W_p`.
         A_p : torch.sparse, shape [n_cells, n_cells]
-            Neighborhood matrix to the power p.
+            Neighborhood matrix to the power p. Indicates which cells how many paths of lenght p exist from
+            one cell to another.
         a_p : torch.Tensor, shape [2*source_out_channels, 1]
-            Attention weight vector.
+            Learnable attention weight vector.
 
         Returns
         -------
-        att_p : torch.sparse, shape [n_messages, n_messages]. Represents the attention matrix A_p.
+        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the attention matrix :math:`A_p`.
         """
         n_messages = message.shape[0]
         source_index_i, source_index_j = A_p._indices()

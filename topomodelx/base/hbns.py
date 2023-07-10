@@ -1,5 +1,6 @@
 """Higher Order Attention Block for non-squared neighborhood matrices (HBNS)."""
 
+
 import torch
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
@@ -95,15 +96,15 @@ class HBNS(MessagePassing):
 
     def __init__(
         self,
-        source_in_channels,
-        source_out_channels,
-        target_in_channels,
-        target_out_channels,
+        source_in_channels: int,
+        source_out_channels: int,
+        target_in_channels: int,
+        target_out_channels: int,
         negative_slope=0.2,
         softmax=False,
         update_func=None,
         initialization="xavier_uniform",
-    ):
+    ) -> None:
         super().__init__(
             att=True,
             initialization=initialization,
@@ -137,11 +138,11 @@ class HBNS(MessagePassing):
 
         self.reset_parameters()
 
-    def get_device(self):
+    def get_device(self) -> torch.device:
         """Get the device on which the layer's learnable parameters are stored."""
         return self.w_s.device
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain=1.414) -> None:
         r"""Reset learnable parameters.
 
         Parameters
@@ -164,7 +165,9 @@ class HBNS(MessagePassing):
                 "Should be either xavier_uniform or xavier_normal."
             )
 
-    def update(self, message_on_source, message_on_target):
+    def update(
+        self, message_on_source: torch.Tensor, message_on_target: torch.Tensor
+    ) -> tuple[torch.Tensor]:
         r"""Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.
 
         Parameters
@@ -176,10 +179,10 @@ class HBNS(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[source_cells, source_out_channels]
+        _ phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]
             Source output signal features after the activation function :math:`\phi`.
-        _ : torch.Tensor, shape=[target_cells, target_out_channels]
-            arget output signal features after the activation function :math:`\phi`.
+        _ phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]
+            Target output signal features after the activation function :math:`\phi`.
         """
         if self.update_func == "sigmoid":
             message_on_source = torch.sigmoid(message_on_source)
@@ -193,7 +196,9 @@ class HBNS(MessagePassing):
 
         return message_on_source, message_on_target
 
-    def attention(self, s_message, t_message):
+    def attention(
+        self, s_message: torch.Tensor, t_message: torch.Tensor
+    ) -> tuple[torch.Tensor]:
         r"""Compute attention matrices :math:`A_s` and :math:`A_t`.
 
         ..  math::
@@ -222,8 +227,8 @@ class HBNS(MessagePassing):
 
         Returns
         -------
-        :math:`A_s` : torch.sparse, shape=[target_cells, source_cells].
-        :math:`A_t` : torch.sparse, shape=[source_cells, target_cells].
+        A_s : torch.sparse, shape=[target_cells, source_cells].
+        A_t : torch.sparse, shape=[source_cells, target_cells].
         """
         s_to_t = torch.cat(
             [s_message[self.source_indices], t_message[self.target_indices]], dim=1
@@ -270,7 +275,9 @@ class HBNS(MessagePassing):
 
         return sparse_row_norm(e), sparse_row_norm(f)
 
-    def forward(self, x_source, x_target, neighborhood):
+    def forward(
+        self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
+    ) -> tuple[torch.Tensor]:
         r"""Forward pass of the Higher Order Attention Block.
 
         The forward pass computes:
