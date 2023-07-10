@@ -35,37 +35,7 @@ class TestSCNNLayer:
 
         assert output.shape == (n_simplices, out_channels)
 
-        # Test 2: conv_order_down is 0 and conv_order_up is not
-        scnn = SCNNLayer(
-            in_channels,
-            out_channels,
-            conv_order_down=0,
-            conv_order_up=conv_order_up,
-            aggr_norm=False,
-            update_func="sigmoid",
-        )
-        output = scnn.forward(
-            x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
-        )
-
-        assert output.shape == (n_simplices, out_channels)
-
-        # Test 2: conv_order_down is 3 and conv_order_up is 0
-        scnn = SCNNLayer(
-            in_channels,
-            out_channels,
-            conv_order_down,
-            conv_order_up=0,
-            aggr_norm=False,
-            update_func="sigmoid",
-        )
-        output = scnn.forward(
-            x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
-        )
-
-        assert output.shape == (n_simplices, out_channels)
-
-        # Test 3: Without aggregation normalization, With update function
+        # Test 2: Without aggregation normalization, With update function
         scnn = SCNNLayer(
             in_channels,
             out_channels,
@@ -80,7 +50,7 @@ class TestSCNNLayer:
 
         assert output.shape == (n_simplices, out_channels)
 
-        # Test 4: With aggregation normalization, with update function
+        # Test 3: With aggregation normalization, with Relu update function
         scnn = SCNNLayer(
             in_channels,
             out_channels,
@@ -88,6 +58,31 @@ class TestSCNNLayer:
             conv_order_up,
             aggr_norm=True,
             update_func="relu",
+        )
+        output = scnn.forward(
+            x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
+        )
+
+        assert output.shape == (n_simplices, out_channels)
+        # Test 4: conv_order_down is 0 and conv_order_up is not
+        scnn = SCNNLayer(
+            in_channels,
+            out_channels,
+            conv_order_down=0,
+            conv_order_up=conv_order_up,
+        )
+        output = scnn.forward(
+            x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
+        )
+
+        assert output.shape == (n_simplices, out_channels)
+
+        # Test 5: conv_order_down is 3 and conv_order_up is 0
+        scnn = SCNNLayer(
+            in_channels,
+            out_channels,
+            conv_order_down=conv_order_down,
+            conv_order_up=0,
         )
         output = scnn.forward(
             x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
