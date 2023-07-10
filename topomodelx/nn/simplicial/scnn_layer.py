@@ -4,10 +4,10 @@ from torch.nn.parameter import Parameter
 
 class SCNNLayer(torch.nn.Module):
     """Layer of a Simplicial Convolutional Neural Network (SCNN).
-    Implementation of the SCNN layer.
-
+    
     Notes
     -----
+    This is Implementation of the SCNN layer.
     
     References
     ----------
@@ -26,8 +26,6 @@ class SCNNLayer(torch.nn.Module):
         the corresponding convolution is not performed
       - down: for the lower convolutions
       - up: for the upper convolutions
-      
-      
     Example
     -------
     Here we provide an example of pseudocode for SCNN layer
