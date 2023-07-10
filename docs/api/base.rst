@@ -10,3 +10,9 @@ Base
 
 .. automodule:: topomodelx.base.aggregation
    :members:
+
+.. automodule:: topomodelx.base.hbns
+   :members:
+
+.. automodule:: topomodelx.base.hbns2
+    :members:

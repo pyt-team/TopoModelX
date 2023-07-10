@@ -100,10 +100,10 @@ class HBNS(MessagePassing):
         source_out_channels: int,
         target_in_channels: int,
         target_out_channels: int,
-        negative_slope=0.2,
-        softmax=False,
-        update_func=None,
-        initialization="xavier_uniform",
+        negative_slope: float = 0.2,
+        softmax: bool = False,
+        update_func: str = None,
+        initialization: str = "xavier_uniform",
     ) -> None:
         super().__init__(
             att=True,
@@ -278,7 +278,7 @@ class HBNS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
     ) -> tuple[torch.Tensor]:
-        r"""Forward pass of the Higher Order Attention Block.
+        r"""Forward pass of the Higher Order Attention Block for non-squared matrices.
 
         The forward pass computes:
 
@@ -298,7 +298,7 @@ class HBNS(MessagePassing):
         Parameters
         ----------
         x_source : torch.Tensor, shape=[source_cells, source_in_channels]
-            Cochain matrix :math:`X_s` containing the signal features over the source cells.
+            Cochain matrix representation :math:`X_s` containing the signal features over the source cells.
         x_target : torch.Tensor, shape=[target_cells, target_in_channels]
             Cochain matrix :math:`X_t` containing the signal features over the target cells.
         neighborhood : torch.sparse, shape=[target_cells, source_cells]

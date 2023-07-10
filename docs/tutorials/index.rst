@@ -11,3 +11,4 @@ Tutorials
    ../notebooks/cell/*
    ../notebooks/hypergraph/*
    ../notebooks/simplicial/*
+   ../notebooks/combinatorial/*

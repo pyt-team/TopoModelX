@@ -19,3 +19,9 @@ Cell Complex Neural Networks
 
 .. automodule:: topomodelx.nn.cell.ccxn_layer
    :members:
+
+Combinatorial Complex Neural Networks
+=====================================
+.. automodule:: topomodelx.nn.complex.hmc_layer
+   :members:
+

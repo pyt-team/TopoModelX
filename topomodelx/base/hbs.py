@@ -1,35 +1,12 @@
 """Higher Order Attention Block for squared neighborhoods (HBS) for message passing module."""
 
-from multiprocessing import Pool
-
-import numpy as np
 import torch
 import torch.nn.functional as F
-from scipy.sparse import coo_matrix
 from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
 
-
-# TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
-def sparse_row_norm(sparse_tensor):
-    """Normalize a sparse tensor by row dividing each row by its sum.
-
-    Parameters
-    ----------
-    sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
-
-    Returns
-    -------
-    _ : torch.sparse, shape=[n_cells, n_cells]
-        Normalized by rows sparse tensor.
-    """
-    row_sum = torch.sparse.sum(sparse_tensor, dim=1)
-    values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-    sparse_tensor = torch.sparse_coo_tensor(
-        sparse_tensor._indices(), values, sparse_tensor.shape
-    )
-    return sparse_tensor.coalesce()
+from ..utils.srn import sparse_row_norm
 
 
 class HBS(MessagePassing):
@@ -106,14 +83,14 @@ class HBS(MessagePassing):
 
     def __init__(
         self,
-        source_in_channels,
-        source_out_channels,
-        negative_slope,
-        softmax=False,
-        m_hop=1,
-        update_func=None,
-        initialization="xavier_uniform",
-    ):
+        source_in_channels: int,
+        source_out_channels: int,
+        negative_slope: float = 0.2,
+        softmax: bool = False,
+        m_hop: int = 1,
+        update_func: str = None,
+        initialization: str = "xavier_uniform",
+    ) -> None:
 
         super().__init__(
             att=True,
@@ -146,11 +123,11 @@ class HBS(MessagePassing):
 
         self.reset_parameters()
 
-    def get_device(self):
+    def get_device(self) -> torch.device:
         """Get the device on which the layer's learnable parameters are stored."""
         return self.weight[0].device
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414) -> None:
         r"""Reset learnable parameters.
 
         Parameters
@@ -176,13 +153,13 @@ class HBS(MessagePassing):
         for w, a in zip(self.weight, self.att_weight):
             reset_specific_hop_parameters(w, a)
 
-    def update(self, message):
+    def update(self, message: torch.Tensor) -> torch.Tensor:
         r"""Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.
 
         Parameters
         ----------
         message : torch.Tensor, shape=[n_cells, out_channels]
-            Output signal features before the activation function.
+            Output signal features before the activation function :math:`\phi`.
 
         Returns
         -------
@@ -196,7 +173,9 @@ class HBS(MessagePassing):
         elif self.update_func == "tanh":
             return torch.nn.functional.tanh(message)
 
-    def attention(self, message, A_p, a_p):
+    def attention(
+        self, message: torch.Tensor, A_p: torch.Tensor, a_p: torch.Tensor
+    ) -> torch.Tensor:
         """Compute the attention matrix.
 
         Parameters
@@ -230,19 +209,24 @@ class HBS(MessagePassing):
         )
         return att_p
 
-    def forward(self, x_source, neighborhood):
-        """Forward pass.
+    def forward(
+        self, x_source: torch.Tensor, neighborhood: torch.Tensor
+    ) -> torch.Tensor:
+        r"""Forward pass of the Higher Order Attention Block for squareed neighborhood matrices.
 
-        The forward pass of the Higher Order Attention Block layer. x_source is the cochain matrix X used as input
-        features for the layer. neighborhood is the neighborhood matrix A. Note that the neighborhood matrix shape
-        should be [n_cells, n_cells] where n_cells is the number of rows in x_source.
+        The forward pass computes:
+
+        ..  math::
+            HBS_N(X) = \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p ).
 
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_cells, source_in_channels]
-            Cochain matrix X used as input of the layer.
+            Cochain matrix representation :math:`X` whose rows correspond to
+            the signal features over each cell following the order of the cells
+            in :math:`\Sigma^s`.
         neighborhood : torch.sparse, shape=[n_cells, n_cells]
-            Neighborhood matrix used to compute the HBS layer.
+            Neighborhood matrix :math:`N`.
 
         Returns
         -------
