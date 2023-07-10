@@ -2,20 +2,16 @@
 
 import itertools
 
-import pytest
 import torch
 
-from topomodelx.nn.cell.can_layer_final import (
-    CANLayer,
-    MultiHeadLiftLayer,
-    PoolLayer,
-)
+from topomodelx.nn.cell.can_layer_final import CANLayer, MultiHeadLiftLayer, PoolLayer
 
 
 class TestCANLayer:
     """Unit tests for the CANLayer class."""
 
     def test_forward(self):
+        """Test the forward method of CANLayer."""
         in_channels = 7
         out_channels = 64
         dropout_values = [0.5, 0.7]
