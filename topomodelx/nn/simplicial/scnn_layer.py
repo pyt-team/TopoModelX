@@ -3,7 +3,7 @@ from torch.nn.parameter import Parameter
 
 
 class SCNNLayer(torch.nn.Module):
-    """Layer of a Simplicial Convolutional Neural Network (SCNN).
+    r"""Layer of a Simplicial Convolutional Neural Network (SCNN).
     
     Notes
     -----
@@ -11,8 +11,9 @@ class SCNNLayer(torch.nn.Module):
     
     References
     ----------
-    [Yang et. al : SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)]
-    (https://arxiv.org/pdf/2110.02585.pdf)
+    .. Maosheng Yang et. al
+        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)]
+        https://arxiv.org/pdf/2110.02585.pdf
     
     Parameters
     ----------
@@ -26,6 +27,7 @@ class SCNNLayer(torch.nn.Module):
         the corresponding convolution is not performed
       - down: for the lower convolutions
       - up: for the upper convolutions
+      
     Example
     -------
     Here we provide an example of pseudocode for SCNN layer
