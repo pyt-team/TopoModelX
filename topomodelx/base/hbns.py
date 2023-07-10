@@ -1,4 +1,4 @@
-"""Higher Order Attention Block for non-squared neighborhoods (HBNS) for message passing module."""
+"""Higher Order Attention Block for non-squared neighborhood matrices (HBNS)."""
 
 import torch
 import torch.nn.functional as F
@@ -6,26 +6,7 @@ from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
 
-
-# TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
-def sparse_row_norm(sparse_tensor):
-    r"""Normalize a sparse tensor by row dividing each row by its sum.
-
-    Parameters
-    ----------
-    sparse_tensor : torch.sparse, shape=[n_cells, n_cells]
-
-    Returns
-    -------
-    _ : torch.sparse, shape=[n_cells, n_cells]
-        Normalized by rows sparse tensor.
-    """
-    row_sum = torch.sparse.sum(sparse_tensor, dim=1)
-    values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
-    sparse_tensor = torch.sparse_coo_tensor(
-        sparse_tensor._indices(), values, sparse_tensor.shape
-    )
-    return sparse_tensor.coalesce()
+from ..utils.srn import sparse_row_norm
 
 
 class HBNS(MessagePassing):
@@ -52,7 +33,7 @@ class HBNS(MessagePassing):
             HBNS_N(X_s, X_t) = (Y_s, Y_t),
         \end{align}
 
-    where the source and target output cochain matrices Y_s and Y_t are computed as
+    where the source and target output cochain matrices :math:`Y_s` and :math:`Y_t` are computed as
 
      ..  math::
         \begin{align}
@@ -83,7 +64,7 @@ class HBNS(MessagePassing):
     :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the first :math:`c` elements and the last elements of :math:`v` starting from the :math:`(c+1)`-th element, respectively.
     S is the exponential function if softmax is used and the identity function otherwise.
 
-    This is a sparse implementation of an HBNS layer.
+    The HBNS class just contains the sparse implementation of the block.
 
     References
     ----------
@@ -184,14 +165,14 @@ class HBNS(MessagePassing):
             )
 
     def update(self, message_on_source, message_on_target):
-        """Update embeddings on each cell with an activation function, either sigmoid or ReLU.
+        r"""Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.
 
         Parameters
         ----------
         message_on_source : torch.Tensor, shape=[source_cells, source_out_channels]
-            Output features of the layer for the source before the update function.
+            Source output signal features before the activation.
         message_on_target : torch.Tensor, shape=[target_cells, target_out_channels]
-            Output features of the layer for the target before the update function.
+            Target output signal features before the activation.
 
         Returns
         -------
@@ -213,21 +194,36 @@ class HBNS(MessagePassing):
         return message_on_source, message_on_target
 
     def attention(self, s_message, t_message):
-        """Compute attention matrices A_s and A_t.
+        r"""Compute attention matrices :math:`A_s` and :math:`A_t`.
+
+        ..  math::
+            \begin{align}
+                A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
+                A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
+            \end{align}
+
+        where,
+
+        ..  math::
+            \begin{align}
+                e_{i,j} &= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\
+                f_{i,j} &= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])).
+            \end{align}
+
 
         Parameters
         ----------
-        s_message : torch.Tensor, shape [source_cells, source_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix Xs with the weight
-            matrix W_s.
-        t_message : torch.Tensor, shape [target_cells, target_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix Xt with the weight
-            matrix W_t.
+        s_message : torch.Tensor, shape [n_source_cells, target_out_channels]
+            Source message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X_s` with the weight
+            matrix :math:`W_s`.
+        t_message : torch.Tensor, shape [n_target_cells, source_out_channels]
+            Target message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X_t` with the weight
+            matrix :math:`W_t`.
 
         Returns
         -------
-        A_s : torch.sparse, shape [target_cells, source_cells]. Represents the attention matrix A_s.
-        A_t : torch.sparse, shape [source_cells, target_cells]. Represents the attention matrix A_t.
+        :math:`A_s` : torch.sparse, shape=[target_cells, source_cells].
+        :math:`A_t` : torch.sparse, shape=[source_cells, target_cells].
         """
         s_to_t = torch.cat(
             [s_message[self.source_indices], t_message[self.target_indices]], dim=1
@@ -275,51 +271,64 @@ class HBNS(MessagePassing):
         return sparse_row_norm(e), sparse_row_norm(f)
 
     def forward(self, x_source, x_target, neighborhood):
-        """Forward pass.
+        r"""Forward pass of the Higher Order Attention Block.
 
-        The forward pass of the Higher Order Attention Block layer for non-squared matrices.
-        x_source and x_target are the cochain matrices Xs and Xt used as input features for the layer. neighborhood is
-        the neighborhood matrix A from source cells to target cells. Note that the neighborhood matrix shape
-        should be [target_cells, source_cells] where target_cells and source_cells are the number of rows in x_target
-        and x_source, respectively.
+        The forward pass computes:
+
+        ..  math::
+            \begin{align}
+                HBNS_N(X_s, X_t) = (Y_s, Y_t),
+            \end{align}
+
+        where the source and target outputs :math:`Y_s` and :math:`Y_t` are computed as
+
+        ..  math::
+            \begin{align}
+                Y_s &= \phi((N^T \odot A_t) X_t W_t), \\
+                Y_t &= \phi((N \odot A_s) X_s W_s ).
+            \end{align}
 
         Parameters
         ----------
         x_source : torch.Tensor, shape=[source_cells, source_in_channels]
-            Cochain matrix Xs used as input of the layer.
+            Cochain matrix :math:`X_s` containing the signal features over the source cells.
         x_target : torch.Tensor, shape=[target_cells, target_in_channels]
-            Cochain matrix Xt used as input of the layer.
+            Cochain matrix :math:`X_t` containing the signal features over the target cells.
         neighborhood : torch.sparse, shape=[target_cells, source_cells]
-            Neighborhood matrix used to compute the HBNS layer.
+            Neighborhood matrix :math:`N` inducing the HBNS block.
 
         Returns
         -------
-        _ : Tensor, shape=[source_cells, source_out_channels]
+        _ :math:`Y_s` : torch.Tensor, shape=[source_cells, source_out_channels]
             Output features of the layer for the source cells.
-        _ : Tensor, shape=[target_cells, target_out_channels]
+        _ :math:`Y_t` : torch.Tensor, shape=[target_cells, target_out_channels]
             Output features of the layer for the target cells.
         """
         s_message = torch.mm(x_source, self.w_s)  # [n_source_cells, d_t_out]
         t_message = torch.mm(x_target, self.w_t)  # [n_target_cells, d_s_out]
 
-        neighborhood_s_to_t = neighborhood.coalesce()
-        neighborhood_t_to_s = neighborhood.t().coalesce()
+        neighborhood_s_to_t = (
+            neighborhood.coalesce()
+        )  # [n_target_cells, n_source_cells]
+        neighborhood_t_to_s = (
+            neighborhood.t().coalesce()
+        )  # [n_source_cells, n_target_cells]
 
         self.target_indices, self.source_indices = neighborhood_s_to_t.indices()
 
         s_to_t_attention, t_to_s_attention = self.attention(s_message, t_message)
 
-        neighborhood_t_to_s_att = torch.sparse_coo_tensor(
-            indices=neighborhood_t_to_s.indices(),
-            values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
-            size=neighborhood_t_to_s.shape,
-            device=self.get_device(),
-        )
-
         neighborhood_s_to_t_att = torch.sparse_coo_tensor(
             indices=neighborhood_s_to_t.indices(),
             values=s_to_t_attention.values() * neighborhood_s_to_t.values(),
             size=neighborhood_s_to_t.shape,
+            device=self.get_device(),
+        )
+
+        neighborhood_t_to_s_att = torch.sparse_coo_tensor(
+            indices=neighborhood_t_to_s.indices(),
+            values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
+            size=neighborhood_t_to_s.shape,
             device=self.get_device(),
         )
 
