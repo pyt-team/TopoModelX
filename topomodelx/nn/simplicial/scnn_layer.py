@@ -188,8 +188,6 @@ class SCNNLayer(torch.nn.Module):
         elif self.conv_order_down == 0 and self.conv_order_up > 0:
             x_up = self.chebyshev_conv(laplacian_up, self.conv_order_up, x)
             x = torch.cat((x_identity, x_up), 2)
-        else:
-            x = x_identity
 
         y = torch.einsum("nik,iok->no", x, self.weight)
 
