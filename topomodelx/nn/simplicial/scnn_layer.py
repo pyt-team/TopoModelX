@@ -21,11 +21,11 @@ class SCNNLayer(torch.nn.Module):
     out_channels : int
         Dimension of output features.
     conv_order: int
-      The order of the convolutions. 
+      The order of the convolutions.
       if conv_order == 0:
-        the corresponding convolution is not performed 
+        the corresponding convolution is not performed
       - down: for the lower convolutions
-      - up: for the upper convolutions 
+      - up: for the upper convolutions
       
       
     Example
@@ -41,11 +41,11 @@ class SCNNLayer(torch.nn.Module):
       
       Y = torch.einsum(concat(X, Lap_down@X, Lap_down@Lap_down@X, Lap_up@X,
                               Lap_up@Lap_up@X), weight)
-    where 
-      - weight is the trainable parameters of dimension 
+    where
+      - weight is the trainable parameters of dimension
             [out_channels,in_channels, total_order]
       - total_order = 1 + conv_order_down + conv_order_up
-      - to implement Lap_down@Lap_down@X, we consider chebyshev 
+      - to implement Lap_down@Lap_down@X, we consider chebyshev
         method to avoid matrix@matrix computation
     """
 
@@ -104,7 +104,7 @@ class SCNNLayer(torch.nn.Module):
             )
 
     def aggr_norm_func(self, conv_operator, x):
-        r""" aggregation normalization 
+        r""" aggregation normalization
         """
         neighborhood_size = torch.sum(conv_operator.to_dense(), dim=1)
         neighborhood_size_inv = 1 / neighborhood_size
@@ -146,7 +146,7 @@ class SCNNLayer(torch.nn.Module):
           
         Return
         ------
-          x[:,:,k] = (conv_operator@....@conv_operator) @ x 
+          x[:,:,k] = (conv_operator@....@conv_operator) @ x
         """
         num_simplices, num_channels = x.shape
         X = torch.empty(size=(num_simplices, num_channels, conv_order))
@@ -159,8 +159,8 @@ class SCNNLayer(torch.nn.Module):
         return X
 
     def forward(self, x, laplacian_down, laplacian_up):
-        r"""Forward computation. 
-        
+        r"""Forward computation.
+    
         Parameters
         ----------
         x: torch.Tensor, shape=[n_simplex,in_channels]
@@ -168,10 +168,10 @@ class SCNNLayer(torch.nn.Module):
 
         laplacian: torch.sparse
           shape = [n_simplices,n_simplices]
-          The Hodge Laplacian matrix 
-            - can also be adjacency matrix 
-            - lower part 
-            - upper part 
+          The Hodge Laplacian matrix
+            - can also be adjacency matrix
+            - lower part
+            - upper part
             
         Returns
         -------
@@ -196,7 +196,8 @@ class SCNNLayer(torch.nn.Module):
                 laplacian_down, self.conv_order_down, x)
             x = torch.cat((x_identity, x_down), 2)
         elif self.conv_order_down == 0 and self.conv_order_up > 0:
-            x_up = self.chebyshev_conv(laplacian_up, self.conv_order_up, x)
+            x_up = self.chebyshev_conv(
+                laplacian_up, self.conv_order_up, x)
             x = torch.cat((x_identity, x_up), 2)
         else:
             x = x_identity
