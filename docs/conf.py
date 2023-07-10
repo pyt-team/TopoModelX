@@ -1,10 +1,10 @@
 """Sphinx configuration file."""
-import sys
 import os
-
-sys.path.insert(0, os.path.abspath(".."))
+import sys
 
 import topomodelx
+
+sys.path.insert(0, os.path.abspath(".."))
 
 project = "TopoModelX_UBTeam"
 copyright = "2022-2023, PyT-Team, Inc."

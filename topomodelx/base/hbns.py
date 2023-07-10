@@ -1,4 +1,7 @@
-"""Higher Order Attention Block for non-squared neighborhood matrices (HBNS)."""
+"""Higher Order Attention Block for non-squared neighborhood matrices (HBNS).
+
+HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
+"""
 
 
 import torch
@@ -11,8 +14,7 @@ from ..utils.srn import sparse_row_norm
 
 
 class HBNS(MessagePassing):
-    r"""Higher Order Attention Block for non-squared neighborhood matrices
-    (HBNS). HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
+    r"""Higher Order Attention Block for non-squared neighborhood matrices.
 
     Let :math:`\mathcal{X}` be a combinatorial complex, we denote
     :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the
@@ -167,8 +169,7 @@ class HBNS(MessagePassing):
         self.reset_parameters()
 
     def get_device(self) -> torch.device:
-        """Get the device on which the layer's learnable parameters are
-        stored."""
+        """Get device on which the layer's learnable parameters are stored."""
         return self.w_s.device
 
     def reset_parameters(self, gain=1.414) -> None:
@@ -197,8 +198,9 @@ class HBNS(MessagePassing):
     def update(
         self, message_on_source: torch.Tensor, message_on_target: torch.Tensor
     ) -> tuple[torch.Tensor]:
-        r"""Update signal features on each cell with an activation function,
-        either sigmoid, ReLU or tanh.
+        r"""Update signal features on each cell with an activation function.
+
+        The implemented activation functions are sigmoid, ReLU and tanh.
 
         Parameters
         ----------
@@ -317,10 +319,10 @@ class HBNS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
     ) -> tuple[torch.Tensor]:
-        r"""Forward pass of the Higher Order Attention Block for non-squared
-        matrices.
+        r"""Forward pass.
 
-        The forward pass computes:
+        The forward pass of the Higher Order Attention Block for non-squared
+        matrices (HBNS) is defined as
 
         ..  math::
             \begin{align}

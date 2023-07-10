@@ -331,7 +331,8 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for topomodelx.base.hbs</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for squared neighborhoods (HBS) for message passing module.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for squared neighborhoods (HBS) for message</span>
+<span class="sd">passing module.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
@@ -343,38 +344,51 @@ document.write(`
 
 
 <div class="viewcode-block" id="HBS"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbs.HBS">[docs]</a><span class="k">class</span> <span class="nc">HBS</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block layer for squared neighborhoods (HBS). HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block layer for squared neighborhoods (HBS). HBS</span>
+<span class="sd">    layers were introduced in [HAJIJ23]_, Definitions 31 and 32.</span>
 
-<span class="sd">    Let :math:`\mathcal{X}` be a combinatorial complex, we denote :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the :math:`d`-dimensional</span>
-<span class="sd">    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total order.</span>
-<span class="sd">    Elements of this space are called :math:`k`-cochains of :math:`\mathcal{X}`.</span>
-<span class="sd">    If :math:`d = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.</span>
+<span class="sd">    Let :math:`\mathcal{X}` be a combinatorial complex, we denote by</span>
+<span class="sd">    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`d`-dimensional</span>
+<span class="sd">    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`,</span>
+<span class="sd">    the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total</span>
+<span class="sd">    order. Elements of this space are called :math:`k`-cochains of</span>
+<span class="sd">    :math:`\mathcal{X}`. If :math:`d = 1`, we denote :math:`\mathcal{C}^k(</span>
+<span class="sd">    \mathcal{X})`.</span>
 
-<span class="sd">    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(\mathcal{X})` be a cochain map endomorphism of the space of signals over</span>
-<span class="sd">    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N` has shape :math:`n_{cells} \times n_{cells}`, where</span>
-<span class="sd">    :math:`n_{cells}` denotes the cardinality of :math:`\Sigma^s`.</span>
+<span class="sd">    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(</span>
+<span class="sd">    \mathcal{X})` be a cochain map endomorphism of the space of signals over</span>
+<span class="sd">    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N`</span>
+<span class="sd">    has shape :math:`n_{cells} \times n_{cells}`, where :math:`n_{cells}`</span>
+<span class="sd">    denotes the cardinality of :math:`\Sigma^s`.</span>
 
 <span class="sd">    The higher order attention block induced by :math:`N` is the cochain map</span>
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        \begin{align}</span>
-<span class="sd">            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),</span>
+<span class="sd">            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})</span>
+<span class="sd">            \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),</span>
 <span class="sd">        \end{align}</span>
 
-<span class="sd">    where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and output dimensions of the HBS block, respectively,</span>
-<span class="sd">    also denoted as source_in_channels and source_out_channels, respectively.</span>
+<span class="sd">    where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and</span>
+<span class="sd">    output dimensions of the HBS block, respectively, also denoted as</span>
+<span class="sd">    source_in_channels and source_out_channels, respectively.</span>
 
 <span class="sd">    :math:`HBS_N` is defined by</span>
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )</span>
 
-<span class="sd">    where :math:`X` is the cochain matrix representation of shape [n_cells, source_in_channels] under the canonical basis</span>
-<span class="sd">    of :math:`\mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})`, induced by the total order of :math:`\Sigma^s`, that contains</span>
-<span class="sd">    the input features for each cell. The :math:`\odot` symbol denotes the Hadamard product, namely the entry-wise product, and</span>
-<span class="sd">    :math:`\phi` is a non-linear activation function. :math:`W_p` is a learnable weight matrix of shape [source_in_channels, source_out_channels]</span>
-<span class="sd">    for each :math:`p`, and :math:`A_p` is an attention matrix with the same dimensionality as the input neighborhood matrix :math:`N`, i.e., [n_cells, n_cells].</span>
-<span class="sd">    The indices :math:`(i,j)` of the attention matrix :math:`A_p` are computed as</span>
+<span class="sd">    where :math:`X` is the cochain matrix representation of shape [n_cells,</span>
+<span class="sd">    source_in_channels] under the canonical basis of :math:`\mathcal{C}^s(</span>
+<span class="sd">    \mathcal{X},\mathbb{R}^{d^{s_{in}}})`, induced by the total order of</span>
+<span class="sd">    :math:`\Sigma^s`, that contains the input features for each cell. The</span>
+<span class="sd">    :math:`\odot` symbol denotes the Hadamard product, namely the entry-wise</span>
+<span class="sd">    product, and :math:`\phi` is a non-linear activation function.</span>
+<span class="sd">    :math:`W_p` is a learnable weight matrix of shape [source_in_channels,</span>
+<span class="sd">    source_out_channels] for each :math:`p`, and :math:`A_p` is an attention</span>
+<span class="sd">    matrix with the same dimensionality as the input neighborhood matrix</span>
+<span class="sd">    :math:`N`, i.e., [n_cells, n_cells]. The indices :math:`(i,j)` of the</span>
+<span class="sd">    attention matrix :math:`A_p` are computed as</span>
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}</span>
@@ -384,14 +398,17 @@ document.write(`
 <span class="sd">    ..  math::</span>
 <span class="sd">        e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))</span>
 
-<span class="sd">    and where || denotes concatenation, :math:`a_p` is a learnable column vector of length :math:`2*source_out_channels`, and :math:`S` is</span>
-<span class="sd">    the exponential function if softmax is used and the identity function otherwise.</span>
+<span class="sd">    and where || denotes concatenation, :math:`a_p` is a learnable column</span>
+<span class="sd">    vector of length :math:`2*source_out_channels`, and :math:`S` is the</span>
+<span class="sd">    exponential function if softmax is used and the identity function</span>
+<span class="sd">    otherwise.</span>
 
 <span class="sd">    This HBS class just contains the sparse implementation of the block.</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
-<span class="sd">    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.</span>
+<span class="sd">    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going</span>
+<span class="sd">    Beyond Graph Data.</span>
 <span class="sd">        arXiv:2206.00606.</span>
 <span class="sd">        https://arxiv.org/pdf/2206.00606v3.pdf</span>
 
@@ -404,14 +421,18 @@ document.write(`
 <span class="sd">    negative_slope : float</span>
 <span class="sd">        Negative slope of the LeakyReLU activation function.</span>
 <span class="sd">    softmax : bool, optional</span>
-<span class="sd">        Whether to use softmax in the computation of the attention matrix. Default is False.</span>
+<span class="sd">        Whether to use softmax in the computation of the attention matrix.</span>
+<span class="sd">        Default is False.</span>
 <span class="sd">    m_hop : int, optional</span>
-<span class="sd">        Maximum number of hops to consider in the computation of the layer function. Default is 1.</span>
-<span class="sd">    update_func : {None, &#39;sigmoid&#39;, &#39;relu&#39;, &#39;tanh}, optional</span>
-<span class="sd">        Activation function :math:`phi` in the computation of the output of the layer.</span>
+<span class="sd">        Maximum number of hops to consider in the computation of the layer</span>
+<span class="sd">        function. Default is 1.</span>
+<span class="sd">    update_func : {None, &#39;sigmoid&#39;, &#39;relu&#39;, &#39;tanh&#39;}, optional</span>
+<span class="sd">        Activation function :math:`phi` in the computation of the output of</span>
+<span class="sd">        the layer.</span>
 <span class="sd">        If None, :math:`phi` is the identity function. Default is None.</span>
 <span class="sd">    initialization : {&#39;xavier_uniform&#39;, &#39;xavier_normal&#39;}, optional</span>
-<span class="sd">        Initialization method for the weights of W_p and :math:`a_p`. Default is &#39;xavier_uniform&#39;.</span>
+<span class="sd">        Initialization method for the weights of W_p and :math:`a_p`.</span>
+<span class="sd">        Default is &#39;xavier_uniform&#39;.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -457,7 +478,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_parameters</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HBS.get_device"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbs.HBS.get_device">[docs]</a>    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the device on which the layer&#39;s learnable parameters are stored.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the device on which the layer&#39;s learnable parameters are</span>
+<span class="sd">        stored.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">device</span></div>
 
 <div class="viewcode-block" id="HBS.reset_parameters"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbs.HBS.reset_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">reset_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gain</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.414</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -487,7 +509,8 @@ document.write(`
             <span class="n">reset_specific_hop_parameters</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HBS.update"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbs.HBS.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update signal features on each cell with an activation function,</span>
+<span class="sd">        either sigmoid, ReLU or tanh.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -514,17 +537,20 @@ document.write(`
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        message : torch.Tensor, shape=[n_messages, source_out_channels]</span>
-<span class="sd">            Message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X`</span>
+<span class="sd">            Message tensor. This is the result of the matrix multiplication</span>
+<span class="sd">            of the cochain matrix :math:`X`</span>
 <span class="sd">            with the learnable weights matrix :math:`W_p`.</span>
 <span class="sd">        A_p : torch.sparse, shape [n_cells, n_cells]</span>
-<span class="sd">            Neighborhood matrix to the power p. Indicates which cells how many paths of lenght p exist from</span>
+<span class="sd">            Neighborhood matrix to the power p. Indicates which cells how</span>
+<span class="sd">            many paths of lenght p exist from</span>
 <span class="sd">            one cell to another.</span>
 <span class="sd">        a_p : torch.Tensor, shape [2*source_out_channels, 1]</span>
 <span class="sd">            Learnable attention weight vector.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the attention matrix :math:`A_p`.</span>
+<span class="sd">        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the</span>
+<span class="sd">        attention matrix :math:`A_p`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n_messages</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">source_index_i</span><span class="p">,</span> <span class="n">source_index_j</span> <span class="o">=</span> <span class="n">A_p</span><span class="o">.</span><span class="n">_indices</span><span class="p">()</span>
@@ -545,7 +571,8 @@ document.write(`
 <div class="viewcode-block" id="HBS.forward"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbs.HBS.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x_source</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">neighborhood</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Forward pass of the Higher Order Attention Block for squared neighborhood matrices.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Forward pass of the Higher Order Attention Block for squared</span>
+<span class="sd">        neighborhood matrices.</span>
 
 <span class="sd">        The forward pass computes:</span>
 
@@ -571,6 +598,7 @@ document.write(`
         <span class="p">]</span>  <span class="c1"># [m-hop, n_source_cells, d_t_out]</span>
         <span class="c1"># Create a torch.eye with the device of x_source</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">x_source</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">())</span><span class="o">.</span><span class="n">to_sparse_coo</span><span class="p">()</span>
+
         <span class="n">neighborhood</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">result</span> <span class="o">:=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">neighborhood</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">m_hop</span><span class="p">)</span>
         <span class="p">]</span>

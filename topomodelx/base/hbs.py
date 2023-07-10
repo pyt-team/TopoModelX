@@ -1,5 +1,7 @@
-"""Higher Order Attention Block for squared neighborhoods (HBS) for message
-passing module."""
+"""Higher Order Attention Block for squared neighborhood matrices (HBS).
+
+HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
+"""
 
 import torch
 import torch.nn.functional as F
@@ -11,8 +13,7 @@ from ..utils.srn import sparse_row_norm
 
 
 class HBS(MessagePassing):
-    r"""Higher Order Attention Block layer for squared neighborhoods (HBS). HBS
-    layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
+    r"""Higher Order Attention Block layer for squared neighborhoods (HBS).
 
     Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
     :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`d`-dimensional
@@ -145,8 +146,7 @@ class HBS(MessagePassing):
         self.reset_parameters()
 
     def get_device(self) -> torch.device:
-        """Get the device on which the layer's learnable parameters are
-        stored."""
+        """Get device on which the layer's learnable parameters are stored."""
         return self.weight[0].device
 
     def reset_parameters(self, gain: float = 1.414) -> None:
@@ -176,8 +176,9 @@ class HBS(MessagePassing):
             reset_specific_hop_parameters(w, a)
 
     def update(self, message: torch.Tensor) -> torch.Tensor:
-        r"""Update signal features on each cell with an activation function,
-        either sigmoid, ReLU or tanh.
+        r"""Update signal features on each cell with an activation function.
+
+        Implemented activation functions are sigmoid, ReLU and tanh.
 
         Parameters
         ----------
@@ -238,10 +239,10 @@ class HBS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
     ) -> torch.Tensor:
-        r"""Forward pass of the Higher Order Attention Block for squared
-        neighborhood matrices.
+        r"""Forward pass.
 
-        The forward pass computes:
+        The forward pass of the Higher Order Attention Block for squared
+        neighborhood matrices is defined as:
 
         ..  math::
             HBS_N(X) = \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p ).
