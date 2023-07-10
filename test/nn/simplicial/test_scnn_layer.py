@@ -10,31 +10,42 @@ class TestSCNNLayer:
 
     def test_forward(self):
         """Test the forward pass of the SCNN layer."""
-        channels = 5
-        n_nodes = 10
-        n_edges = 20
-        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
-        adjacency_0 = torch.randint(0, 2, (n_nodes, n_nodes)).float()
+        in_channels = 5
+        out_channels = 5
+        conv_order_down = 3
+        conv_order_up = 3
+        
+        n_simplices = 10 
+        laplacian_down = torch.randint(0, 2, (n_simplices, n_simplices)).float()
+        laplacian_up = torch.randint(0, 2, (n_simplices, n_simplices)).float()
+        x = torch.randn(n_simplices, in_channels)
 
-        x_0 = torch.randn(n_nodes, channels)
+        # Without aggregation normalization, without update function 
+        scnn = SCNNLayer(in_channels, out_channels, conv_order_down,
+                         conv_order_up,
+                         aggr_norm=False,
+                         update_func=None,)
+        output = scnn.forward(x, laplacian_down=laplacian_down,
+                              laplacian_up=laplacian_up)
 
-        scnn = SCNNLayer(channels)
-        output = scnn.forward(x_0, incidence_1, adjacency_0)
+        assert output.shape == (n_simplices, out_channels)
 
-        assert output.shape == (n_nodes, channels)
+        # Without aggregation normalization, With update function 
+        scnn = SCNNLayer(in_channels, out_channels, conv_order_down,
+                         conv_order_up,
+                         aggr_norm=False,
+                         update_func='sigmoid',)
+        output = scnn.forward(x, laplacian_down=laplacian_down,
+                              laplacian_up=laplacian_up)
 
-    def test_reset_parameters(self):
-        """Test the reset of the parameters."""
-        channels = 5
+        assert output.shape == (n_simplices, out_channels)
 
-        scnn = SCNNLayer(channels)
-        scnn.reset_parameters()
+        # With aggregation normalization, with update function 
+        scnn = SCNNLayer(in_channels, out_channels, conv_order_down,
+                         conv_order_up,
+                         aggr_norm=True,
+                         update_func='sigmoid',)
+        output = scnn.forward(x, laplacian_down=laplacian_down,
+                              laplacian_up=laplacian_up)
 
-        for module in scnn.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+        assert output.shape == (n_simplices, out_channels)
