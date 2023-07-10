@@ -118,7 +118,7 @@ class Conv(MessagePassing):
             )
 
         x_message = torch.mm(x_source, self.weight)
-        x_message_on_target = torch.mm(neighborhood, x_message)
+        x_message_on_target = torch.sparse.mm(neighborhood, x_message)
 
         if self.aggr_norm:
             neighborhood_size = torch.sum(neighborhood.to_dense(), dim=1)
