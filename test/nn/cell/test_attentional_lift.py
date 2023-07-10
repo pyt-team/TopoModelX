@@ -1,5 +1,7 @@
 """Unit tests for the attentional lift layer."""
 
+import itertools
+
 import pytest
 import torch
 
@@ -34,8 +36,8 @@ class TestAttentionalLiftLayer:
         in_channels_0 = 7
         in_channels_1 = 3
         dropout = 0.5
-        heads = 3
-        signal_lift_readout = "cat"
+        heads = [1,3]
+        signal_lift_readout = ["cat", "sum", "avg", "max"]
         signal_lift_activation = torch.nn.ReLU()
 
         n_nodes = 3
@@ -47,22 +49,21 @@ class TestAttentionalLiftLayer:
         neighborhood = torch.randn(n_nodes, n_nodes)
         neighborhood = neighborhood.to_sparse().float()
 
-        can_layer = MultiHeadLiftLayer(
-            in_channels_0=in_channels_0,
-            heads=heads,
-            signal_lift_activation=signal_lift_activation,
-            signal_lift_dropout=dropout,
-            signal_lift_readout=signal_lift_readout,
-        )
-        x_out = can_layer.forward(x_0, neighborhood, x_1)
-        if x_1 is None:
-            if signal_lift_readout == "cat":
-                assert x_out.shape == (n_edges, heads)
-            else:
-                assert x_out.shape == (n_edges, 1)
-        else:
-            if signal_lift_readout == "cat":
-                assert x_out.shape == (n_edges, heads + in_channels_1)
+        combinations = itertools.product(heads, signal_lift_readout)
+
+        for head, signal_lift_read in combinations:
+
+            can_layer = MultiHeadLiftLayer(
+                in_channels_0=in_channels_0,
+                heads=head,
+                signal_lift_activation=signal_lift_activation,
+                signal_lift_dropout=dropout,
+                signal_lift_readout=signal_lift_read,
+            )
+            x_out = can_layer.forward(x_0, neighborhood, x_1)
+
+            if signal_lift_read == "cat":
+                assert x_out.shape == (n_edges, head + in_channels_1)
             else:
                 assert x_out.shape == (n_edges, 1 + in_channels_1)
 

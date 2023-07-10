@@ -126,7 +126,7 @@ class MultiHeadLiftLayer(nn.Module):
     ):
         super(MultiHeadLiftLayer, self).__init__()
 
-        assert heads > 0, "Number of attention heads must be greater than 0."
+        assert heads > 0, ValueError("Number of heads must be > 0")
         assert signal_lift_readout in [
             "cat",
             "sum",
