@@ -184,18 +184,14 @@ class SCNNLayer(torch.nn.Module):
         x_identity = torch.unsqueeze(identity @ x, 2)
 
         if self.conv_order_down > 0 and self.conv_order_up > 0:
-            x_down = self.chebyshev_conv(
-                laplacian_down, self.conv_order_down, x)
-            x_up = self.chebyshev_conv(
-                laplacian_up, self.conv_order_up, x)
+            x_down = self.chebyshev_conv(laplacian_down, self.conv_order_down, x)
+            x_up = self.chebyshev_conv(laplacian_up, self.conv_order_up, x)
             x = torch.cat((x_identity, x_down, x_up), 2)
         elif self.conv_order_down > 0 and self.conv_order_up == 0:
-            x_down = self.chebyshev_conv(
-                laplacian_down, self.conv_order_down, x)
+            x_down = self.chebyshev_conv(laplacian_down, self.conv_order_down, x)
             x = torch.cat((x_identity, x_down), 2)
         elif self.conv_order_down == 0 and self.conv_order_up > 0:
-            x_up = self.chebyshev_conv(
-                laplacian_up, self.conv_order_up, x)
+            x_up = self.chebyshev_conv(laplacian_up, self.conv_order_up, x)
             x = torch.cat((x_identity, x_up), 2)
         else:
             x = x_identity
