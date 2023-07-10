@@ -2,7 +2,6 @@
 
 import torch
 import torch.nn.functional as F
-from scipy.sparse import coo_matrix
 from torch.nn.parameter import Parameter
 
 from topomodelx.base.message_passing import MessagePassing
@@ -10,7 +9,7 @@ from topomodelx.base.message_passing import MessagePassing
 
 # TODO : This should be in a utils file. We keep it here for now to present the code to the challenge.
 def sparse_row_norm(sparse_tensor):
-    """Normalize a sparse tensor by row dividing each row by its sum.
+    r"""Normalize a sparse tensor by row dividing each row by its sum.
 
     Parameters
     ----------
@@ -30,39 +29,61 @@ def sparse_row_norm(sparse_tensor):
 
 
 class HBNS(MessagePassing):
-    r"""Higher Order Attention Block layer for non-squared neighborhoods (HBNS).
+    r"""Higher Order Attention Block for non-squared neighborhood matrices (HBNS). HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
 
-    This is a sparse implementation of an HBNS layer. HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
+    Let :math:`\mathcal{X}` be a combinatorial complex, we denote :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the :math:`d`-dimensional
+    :math:`\mathbb{R}`-valued vector space of signals over the :math:`k`-th skeleton of :math:`\mathcal{X}`. Elements of this space are called :math:`k`-cochains of :math:`\mathcal{X}`.
+    If :math:`d = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.
 
-    Mathematically, a higher order attention block layer for non-squared neighborhood matrices N of shape
-    [target_cells, source_cells] is a function that outputs new signals for the source and target cells of the
-    application given by the neighborhood matrix N given input source and target cochain matrices Xs and Xt of shape
-    [source_cells, source_in_channels] and [target_cells, target_in_channels], respectively. The output source and target
-    cochain matrices Ys and Yt are computed as
+    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^t(\mathcal{X})` with :math:`s \neq t` be a non-squared neighborhood matrix from the space of signals over :math:`s`th-skeleton of :math:`\mathcal{X}` to the :math:`t`-skeleton of :math:`\mathcal{X}`.
+    The higher order attention block induced by :math:`N` is a cochain map
+
+    ..  math::
+        \begin{align}
+            HBNS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{t_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{t_{out}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+        \end{align}
+
+    where :math:`d^{s_{in}}`, :math:`d^{t_{in}}`, :math:`d^{s_{out}}`, and :math:`d^{t_{out}}` are the input and output dimensions of the source and target cochains, respectively, also denoted as source_in_channels, target_in_channels, source_out_channels, and target_out_channels.
+
+    The cochain map :math:`HBNS_N` is defined as
+
+    ..  math::
+        \begin{align}
+            HBNS_N(X_s, X_t) = (Y_s, Y_t),
+        \end{align}
+
+    where the source and target output cochain matrices Y_s and Y_t are computed as
+
      ..  math::
         \begin{align}
-            Ys &= \phi((N^T \odot A_t) Xt W_t)\\
-            Yt &= \phi((N \odot A_s) Xs W_s )
+            Y_s &= \phi((N^T \odot A_t) X_t W_t), \\
+            Y_t &= \phi((N \odot A_s) X_s W_s ).
         \end{align}
-    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_t
-    and W_s are learnable weight matrices of shapes [target_in_channels, target_out_channels] and
-    [source_in_channels, source_out_channels], respectively, and A_t and A_s are attention matrices with the same shape
-    of N^T and N, respectively. The entries (i, j) of the attention matrices A_t and A_s are computed as
+
+    Here, :math:`\odot` denotes the Hadamard product, namely the entry-wise product, and :math:`\phi` is a non-linear activation function.
+    :math:`W_t` and :math:`W_s` are learnable weight matrices of shapes [target_in_channels, source_out_channels] and
+    [source_in_channels, target_out_channels], respectively. Attention matrices are denoted as :math:`A_t` and :math:`A_s` and have the same dimensions as
+    :math:`N^T` and :math:`N`, respectively. The entries :math:`(i, j)` of the attention matrices :math:`A_t` and :math:`A_s` are defined as
+
     ..  math::
         \begin{align}
-            A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}} \\
-            A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}}
+            A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
+            A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
         \end{align}
-    where
+
+    where,
+
     ..  math::
         \begin{align}
-            e_{i,j} &= S(\text{LeakyReLU}([Xs_jW_s||Xt_iW_t]a))\\
-            f_{i,j} &= S(\text{LeakyReLU}([Xt_jW_t||Xs_iW_s][a[source_out_channels:]||a[:source_out_channels]]))\\
+            e_{i,j} &= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\
+            f_{i,j} &= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])),\\
         \end{align}
-    and where || denotes concatenation, a is a learnable column vector of length
-    source_out_channels + target_out_channels, v[:c] is the vector consisting of the first c elements of v, v[c:]
-    is the vector consisting of the last elements of v, starting from the (c+1)-th element, and S is the exponential
-    function if softmax is used and the identity function otherwise.
+
+    where || denotes concatenation, :math:`a` is a learnable column vector of length
+    :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the first :math:`c` elements and the last elements of :math:`v` starting from the :math:`(c+1)`-th element, respectively.
+    S is the exponential function if softmax is used and the identity function otherwise.
+
+    This is a sparse implementation of an HBNS layer.
 
     References
     ----------
@@ -83,12 +104,12 @@ class HBNS(MessagePassing):
     negative_slope : float
         Negative slope of the LeakyReLU activation function.
     softmax : bool, optional
-        Whether to use softmax in the computation of the attention matrix. Default is False.
+        Whether to use softmax or sparse_row_norm in the computation of the attention matrix. Default is False.
     update_func : {None, 'sigmoid', 'relu'}, optional
-        phi function in the computation of the output of the layer. If None, phi is the identity function. Default is
+        Activation function :math:`\phi` in the computation of the output of the layer. If None, :math:`\phi` is the identity function. Default is
         None.
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
-        Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
+        Initialization method for the weights of :math:`W_p` and the attention vector :math:`a`. Default is 'xavier_uniform'.
     """
 
     def __init__(
@@ -128,6 +149,7 @@ class HBNS(MessagePassing):
         self.att_weight = Parameter(
             torch.Tensor(self.target_out_channels + self.source_out_channels, 1)
         )
+
         self.negative_slope = negative_slope
 
         self.softmax = softmax
@@ -162,13 +184,13 @@ class HBNS(MessagePassing):
             )
 
     def update(self, message_on_source, message_on_target):
-        """Update embeddings on each cell.
+        """Update embeddings on each cell with an activation function, either sigmoid or ReLU.
 
         Parameters
         ----------
-        message_on_source : torch.Tensor, shape=[n_cells, out_channels]
+        message_on_source : torch.Tensor, shape=[source_cells, source_out_channels]
             Output features of the layer for the source before the update function.
-        message_on_target : torch.Tensor, shape=[n_cells, out_channels]
+        message_on_target : torch.Tensor, shape=[target_cells, target_out_channels]
             Output features of the layer for the target before the update function.
 
         Returns
@@ -184,6 +206,9 @@ class HBNS(MessagePassing):
         elif self.update_func == "relu":
             message_on_source = torch.nn.functional.relu(message_on_source)
             message_on_target = torch.nn.functional.relu(message_on_target)
+        elif self.update_func == "tanh":
+            message_on_source = torch.nn.functional.tanh(message_on_source)
+            message_on_target = torch.nn.functional.tanh(message_on_target)
 
         return message_on_source, message_on_target
 
