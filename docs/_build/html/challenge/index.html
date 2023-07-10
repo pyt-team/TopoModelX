@@ -1,0 +1,570 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>ICML 2023 Topological Deep Learning Challenge &#8212; TopoModelX_UBTeam  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'challenge/index';</script>
+    <link rel="canonical" href="pyt-team.github.io/challenge/index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Train a Combinatorial Complex Attention Neural Network for Mesh Classification." href="../notebooks/combinatorial/hmc_train.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">TopoModelX_UBTeam  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">ICML 2023 Topological Deep Learning Challenge</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="icml-2023-topological-deep-learning-challenge">
+<h1>ICML 2023 Topological Deep Learning Challenge<a class="headerlink" href="#icml-2023-topological-deep-learning-challenge" title="Permalink to this heading">#</a></h1>
+<p>Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the second annual <a class="reference external" href="https://www.tagds.com/events/conference-workshops/tag-ml23">Topology and Geometry (TAG) in Machine Learning Workshop</a> at ICML.</p>
+<p>Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.</p>
+<p><strong>IMPORTANT: Recent (June 7) changes have been made to dataset availability for domains with faces. Please see the updated Pre-Processing submission requirements below.</strong>:</p>
+<section id="description-of-the-challenge">
+<h2>Description of the Challenge<a class="headerlink" href="#description-of-the-challenge" title="Permalink to this heading">#</a></h2>
+<p>The purpose of this challenge is to foster reproducible research in Topological Deep Learning by crowdsourcing the open-source implementation of neural networks on topological domains. Participants are asked to contribute code for a previously existing Topological Neural Network (TNN) and train it on a benchmark dataset.</p>
+<p>Implementations are built using  <a class="reference external" href="https://github.com/pyt-team/TopoModelX/tree/main/topomodelx">TopoModelX</a>, a Python package for deep learning on topological domains. Each submission takes the form of a  <a class="reference external" href="https://github.com/pyt-team/TopoModelX/pulls">Pull Request</a> to TopoModelX containing the necessary code for implementing a TNN from the literature. The implementation leverages the coding infrastructure and building blocks from TopoModelX.</p>
+<p><em>Note:</em> <em>We invite participants to review this file regularly, as details are added when questions are submitted to the organizers.</em></p>
+</section>
+<section id="publication-outcomes-for-participants">
+<h2>⭐️ Publication Outcomes for Participants ⭐️<a class="headerlink" href="#publication-outcomes-for-participants" title="Permalink to this heading">#</a></h2>
+<p>🎉 <strong>Every submission respecting the submission requirements</strong> will be included in a white paper summarizing findings of the challenge, published through the  <a class="reference external" href="https://www.tagds.com/events/conference-workshops/tag-ml23">2023 TAG in Machine Learning Workshop</a> at ICML. All participants with qualifying submissions will have the opportunity to co-author this publication.</p>
+<p>📘 Participants with the top 8 best submissions will have the additional opportunity to co-author a software paper on TopoModelX submitted to the <strong>Journal of Machine Learning Research</strong>.</p>
+<p>🏆 The best submissions in each topological domain (hypergraph, simplicial, cell, combinatorial) will receive special recognition at the ICML TAG in Machine Learning Workshop.</p>
+</section>
+<section id="deadline">
+<h2>Deadline<a class="headerlink" href="#deadline" title="Permalink to this heading">#</a></h2>
+<p>The final Pull Request submission date and time must take place before <strong>July 13, 2023 at 16:59 (Pacific Standard Time)</strong>.
+Participants are welcome to modify their Pull Request until this time.</p>
+</section>
+<section id="how-to-submit">
+<h2>How to Submit<a class="headerlink" href="#how-to-submit" title="Permalink to this heading">#</a></h2>
+<p>Everyone can participate and participation is free. It is sufficient to:</p>
+<ul class="simple">
+<li><p>send a Pull Request</p></li>
+<li><p>respect Submission Requirements</p></li>
+</ul>
+<p>An acceptable Pull Request automatically subscribes a participant/team to the challenge.</p>
+</section>
+<section id="guidelines">
+<h2>Guidelines<a class="headerlink" href="#guidelines" title="Permalink to this heading">#</a></h2>
+<p>We encourage the participants to start submitting their Pull Request early on. This helps debug failing tests and helps address potential issues with the code.</p>
+<p>In the case of multiple submissions of similar quality implementing the same TNN, earlier Pull Requests will be given priority consideration.</p>
+<p>Teams are accepted and there is no restriction on the number of team members.</p>
+<p>A Pull Request should contain no more than one model (TNN). There is no restriction on the amount of submissions (Pull Requests) per participant/team.</p>
+<p>The principal developers of TopoModelX are not allowed to participate.</p>
+</section>
+<section id="submission-requirements">
+<h2>Submission Requirements<a class="headerlink" href="#submission-requirements" title="Permalink to this heading">#</a></h2>
+<p>The submission must implement a pre-existing model from the literature included in <a class="reference external" href="https://github.com/pyt-team/TopoModelX/blob/main/topomodelx.jpeg">Fig. 11</a> of the review <a class="reference external" href="https://arxiv.org/pdf/2304.10031.pdf">Architectures of Topological Deep Learning: A Survey of Topological Neural Networks</a>.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/topomodelx.jpeg"><img alt="tnns" src="../_images/topomodelx.jpeg" style="width: 250px;" /></a>
+</figure>
+<p>All submitted code must comply with TopoModelX’s GitHub Action workflow, successfully passing all tests, linting, and formatting (i.e. Black, isort, flake8).</p>
+<p>The submission consists of a Pull Request to TopoModelX that contains three new files:</p>
+<ol class="arabic simple">
+<li><p>{name of model}_layer.py (ex.: hsn_layer.py) :</p></li>
+</ol>
+<ul class="simple">
+<li><p>stored in the directory <code class="docutils literal notranslate"><span class="pre">topomodelx/nn/{domain</span> <span class="pre">of</span> <span class="pre">model}</span></code>, where <code class="docutils literal notranslate"><span class="pre">{domain</span> <span class="pre">of</span> <span class="pre">model}</span></code> is <code class="docutils literal notranslate"><span class="pre">simplicial</span></code>, <code class="docutils literal notranslate"><span class="pre">cell</span></code>, <code class="docutils literal notranslate"><span class="pre">hypergraph</span></code>, or <code class="docutils literal notranslate"><span class="pre">combinatorial</span></code>.</p></li>
+<li><p>contains one class, <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> (ex.: <code class="docutils literal notranslate"><span class="pre">HSNLayer</span></code>), which uses TopoModelX computational primitives to implement one layer of the model. One layer is equivalent to the message passing depicted in the tensor diagram representation for the model (Fig. 11, Architectures of Topological Deep Learning).</p></li>
+<li><p>for examples, check out example layers in <code class="docutils literal notranslate"><span class="pre">topomodelx/nn/simplicial</span></code>, <code class="docutils literal notranslate"><span class="pre">topomodelx/nn/cell</span></code>, and <code class="docutils literal notranslate"><span class="pre">topomodelx/nn/hypergraph</span></code>.</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>{name of model}_train.ipynb (ex.: hsn_train.ipynb) :</p></li>
+</ol>
+<ul class="simple">
+<li><p>stored in the directory <code class="docutils literal notranslate"><span class="pre">tutorials/{domain</span> <span class="pre">of</span> <span class="pre">model}</span></code> and contains the following steps:</p>
+<ol class="arabic simple">
+<li><dl class="simple">
+<dt>Pre-processing</dt><dd><ul>
+<li><p>imports necessary packages as well as <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> class</p></li>
+<li><dl class="simple">
+<dt>loads a dataset (<strong>NEW</strong>)</dt><dd><ul>
+<li><p>for models requiring features on faces or rank-2 neighborhood matrices: using TopoNetX, load either <a class="reference external" href="https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/mesh.py#L64">shrec16</a> (suitable for complex-level classification, see example in tutorials/hypergraph/template_layer.ipynb) or <a class="reference external" href="https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/graph.py#LL29C5-L29C16">Karate Club</a> (suitable for node-level classification, see example in tutorials/simplicial/hsn_train.ipynb).</p></li>
+<li><p>for models only requiring features on nodes/edges and rank-0/1 neighborhood matrices: use either TopoNetX (see above) or <a class="reference external" href="https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html">Torch Geometric</a> to load a benchmark graph dataset.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cell complex, combinatorial complex) using TopoNetX.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Creating the neural network</dt><dd><ul>
+<li><p>defines a class <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}</span></code> (ex.: <code class="docutils literal notranslate"><span class="pre">HSN</span></code>) that inherits from <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> and uses <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> along with <code class="docutils literal notranslate"><span class="pre">torch.Linear</span></code> layers to create a Topological Neural Network.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Training the neural network on a classification task</dt><dd><ul>
+<li><p>defines a simple training loop for node/edge/complex classification (depending on which features the model outputs).</p></li>
+<li><p>note: submissions are not evaluated based on model performance, but rather code quality and accuracy of model implementation.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</li>
+<li><p>examples are provided in tutorials/</p></li>
+</ul>
+<ol class="arabic simple" start="3">
+<li><p>test_{name_of_model}_layer.py (ex.: test_hsn_layer.py)</p></li>
+</ol>
+<ul>
+<li><p>stored in directory <code class="docutils literal notranslate"><span class="pre">test/nn/{domain</span> <span class="pre">of</span> <span class="pre">model}</span></code></p></li>
+<li><p>contains one class, <code class="docutils literal notranslate"><span class="pre">Test{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> (ex.: <code class="docutils literal notranslate"><span class="pre">TestHSNLayer</span></code>), which contains unit tests for all of the functions contained in the <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> class. Please use pytest (not unittest).
+- for examples, check out <code class="docutils literal notranslate"><span class="pre">test/nn/simplicial</span></code>, <code class="docutils literal notranslate"><span class="pre">test/nn/cell</span></code>, and <code class="docutils literal notranslate"><span class="pre">test/nn/hypergraph</span></code>.</p>
+<p><strong>Note :</strong> in the case that <code class="docutils literal notranslate"><span class="pre">{Name</span> <span class="pre">of</span> <span class="pre">model}Layer</span></code> requires further manipulation of the computational primitives in <code class="docutils literal notranslate"><span class="pre">topomodelx/base</span></code>, a Pull Request may include modifications to the files in <code class="docutils literal notranslate"><span class="pre">topomodelx/base</span></code> or new files in <code class="docutils literal notranslate"><span class="pre">topomodelx/base</span></code>. Every single new function MUST be accompanied by a new unit test stored in an appropriately named/located test file. With that being said, we highly encourage participants to make the most of TopoModelX’s computational primitives as is and only resort to this option if absolutely necessary (ex.: implementing a new attention function or aggregation method).</p>
+</li>
+</ul>
+</section>
+<section id="evaluation">
+<h2>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/Condorcet_method">Condorcet method</a> will be used to rank the submissions and decide on the winners in each topological domain. The evaluation criteria will be:</p>
+<ul class="simple">
+<li><p>Does the submission implement the chosen model correctly, specifically in terms of its message passing scheme? (The training schemes do not need to match that of the original model).</p></li>
+<li><p>How readable/clean is the implementation? How well does the submission respect TopoModelX’s APIs?</p></li>
+<li><p>Is the submission well-written? Do the docstrings clearly explain the methods? Are the unit tests robust?</p></li>
+</ul>
+<p>Note that these criteria do not reward model performance, nor complexity of training. Rather, the goal is to implement well-written and accurate model architectures that will foster reproducible research in our field.</p>
+<p>Selected TopoModelX maintainers and collaborators, as well as each team whose submission(s) respect(s) the guidelines, will vote once on Google Form to express their preference for the best submission in each topological domain. Note that each team gets only one vote/domain, even if there are several participants in the team.</p>
+<p>A link to a Google Form will be provided to record the votes. While the form will ask for an email address to identify the voter, voters’ identities will remain secret–only the final ranking will be shared.</p>
+</section>
+<section id="questions">
+<h2>Questions<a class="headerlink" href="#questions" title="Permalink to this heading">#</a></h2>
+<p>Feel free to contact us through GitHub issues on this repository, or through the <a class="reference external" href="https://tda-in-ml.slack.com/join/shared_invite/enQtOTIyMTIyNTYxMTM2LTA2YmQyZjVjNjgxZWYzMDUyODY5MjlhMGE3ZTI1MzE4NjI2OTY0MmUyMmQ3NGE0MTNmMzNiMTViMjM2MzE4OTc#/">Geometry and Topology in Machine Learning slack</a>. Alternatively, you can contact Mathilde Papillon at <a class="reference external" href="mailto:papillon&#37;&#52;&#48;ucsb&#46;edu">papillon<span>&#64;</span>ucsb<span>&#46;</span>edu</a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../notebooks/combinatorial/hmc_train.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Train a Combinatorial Complex Attention Neural Network for Mesh Classification.</p>
+      </div>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description-of-the-challenge">Description of the Challenge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publication-outcomes-for-participants">⭐️ Publication Outcomes for Participants ⭐️</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deadline">Deadline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-submit">How to Submit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#guidelines">Guidelines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submission-requirements">Submission Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation">Evaluation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions">Questions</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/challenge/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022-2023, PyT-Team, Inc..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

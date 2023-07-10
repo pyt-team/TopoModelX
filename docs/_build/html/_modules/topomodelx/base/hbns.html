@@ -1,0 +1,754 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>topomodelx.base.hbns &#8212; TopoModelX_UBTeam  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/topomodelx/base/hbns';</script>
+    <link rel="canonical" href="pyt-team.github.io/_modules/topomodelx/base/hbns.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">TopoModelX_UBTeam  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">topomodelx.base.hbns</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for topomodelx.base.hbns</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices (HBNS).&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch.nn.parameter</span> <span class="kn">import</span> <span class="n">Parameter</span>
+
+<span class="kn">from</span> <span class="nn">topomodelx.base.message_passing</span> <span class="kn">import</span> <span class="n">MessagePassing</span>
+
+<span class="kn">from</span> <span class="nn">..utils.srn</span> <span class="kn">import</span> <span class="n">sparse_row_norm</span>
+
+
+<div class="viewcode-block" id="HBNS"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS">[docs]</a><span class="k">class</span> <span class="nc">HBNS</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices (HBNS). HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.</span>
+
+<span class="sd">    Let :math:`\mathcal{X}` be a combinatorial complex, we denote :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the :math:`d`-dimensional</span>
+<span class="sd">    :math:`\mathbb{R}`-valued vector space of signals over the :math:`k`-th skeleton of :math:`\mathcal{X}`. Elements of this space are called :math:`k`-cochains of :math:`\mathcal{X}`.</span>
+<span class="sd">    If :math:`d = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.</span>
+
+<span class="sd">    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^t(\mathcal{X})` with :math:`s \neq t` be a non-squared neighborhood matrix from the space of signals over :math:`s`th-skeleton of :math:`\mathcal{X}` to the :math:`t`-skeleton of :math:`\mathcal{X}`.</span>
+<span class="sd">    The higher order attention block induced by :math:`N` is a cochain map</span>
+
+<span class="sd">    ..  math::</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            HBNS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{t_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{t_{out}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),</span>
+<span class="sd">        \end{align}</span>
+
+<span class="sd">    where :math:`d^{s_{in}}`, :math:`d^{t_{in}}`, :math:`d^{s_{out}}`, and :math:`d^{t_{out}}` are the input and output dimensions of the source and target cochains, respectively, also denoted as source_in_channels, target_in_channels, source_out_channels, and target_out_channels.</span>
+
+<span class="sd">    The cochain map :math:`HBNS_N` is defined as</span>
+
+<span class="sd">    ..  math::</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            HBNS_N(X_s, X_t) = (Y_s, Y_t),</span>
+<span class="sd">        \end{align}</span>
+
+<span class="sd">    where the source and target output cochain matrices :math:`Y_s` and :math:`Y_t` are computed as</span>
+
+<span class="sd">     ..  math::</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            Y_s &amp;= \phi((N^T \odot A_t) X_t W_t), \\</span>
+<span class="sd">            Y_t &amp;= \phi((N \odot A_s) X_s W_s ).</span>
+<span class="sd">        \end{align}</span>
+
+<span class="sd">    Here, :math:`\odot` denotes the Hadamard product, namely the entry-wise product, and :math:`\phi` is a non-linear activation function.</span>
+<span class="sd">    :math:`W_t` and :math:`W_s` are learnable weight matrices of shapes [target_in_channels, source_out_channels] and</span>
+<span class="sd">    [source_in_channels, target_out_channels], respectively. Attention matrices are denoted as :math:`A_t` and :math:`A_s` and have the same dimensions as</span>
+<span class="sd">    :math:`N^T` and :math:`N`, respectively. The entries :math:`(i, j)` of the attention matrices :math:`A_t` and :math:`A_s` are defined as</span>
+
+<span class="sd">    ..  math::</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\</span>
+<span class="sd">            A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},</span>
+<span class="sd">        \end{align}</span>
+
+<span class="sd">    where,</span>
+
+<span class="sd">    ..  math::</span>
+<span class="sd">        \begin{align}</span>
+<span class="sd">            e_{i,j} &amp;= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\</span>
+<span class="sd">            f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])),\\</span>
+<span class="sd">        \end{align}</span>
+
+<span class="sd">    where || denotes concatenation, :math:`a` is a learnable column vector of length</span>
+<span class="sd">    :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the first :math:`c` elements and the last elements of :math:`v` starting from the :math:`(c+1)`-th element, respectively.</span>
+<span class="sd">    S is the exponential function if softmax is used and the identity function otherwise.</span>
+
+<span class="sd">    This HBNS class just contains the sparse implementation of the block.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.</span>
+<span class="sd">        arXiv:2206.00606.</span>
+<span class="sd">        https://arxiv.org/pdf/2206.00606v3.pdf</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    source_in_channels : int</span>
+<span class="sd">        Number of input features for the source cells.</span>
+<span class="sd">    source_out_channels : int</span>
+<span class="sd">        Number of output features for the source cells.</span>
+<span class="sd">    target_in_channels : int</span>
+<span class="sd">        Number of input features for the target cells.</span>
+<span class="sd">    target_out_channels : int</span>
+<span class="sd">        Number of output features for the target cells.</span>
+<span class="sd">    negative_slope : float</span>
+<span class="sd">        Negative slope of the LeakyReLU activation function.</span>
+<span class="sd">    softmax : bool, optional</span>
+<span class="sd">        Whether to use softmax or sparse_row_norm in the computation of the attention matrix. Default is False.</span>
+<span class="sd">    update_func : {None, &#39;sigmoid&#39;, &#39;relu&#39;}, optional</span>
+<span class="sd">        Activation function :math:`\phi` in the computation of the output of the layer. If None, :math:`\phi` is the identity function. Default is</span>
+<span class="sd">        None.</span>
+<span class="sd">    initialization : {&#39;xavier_uniform&#39;, &#39;xavier_normal&#39;}, optional</span>
+<span class="sd">        Initialization method for the weights of :math:`W_p` and the attention vector :math:`a`. Default is &#39;xavier_uniform&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">source_in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">source_out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">target_in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">target_out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">negative_slope</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">softmax</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">update_func</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">initialization</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xavier_uniform&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">att</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_in_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_in_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_out_channels</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">target_in_channels</span><span class="p">,</span>
+            <span class="n">target_out_channels</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_func</span> <span class="o">=</span> <span class="n">update_func</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_s</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_in_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_out_channels</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_t</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_in_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_out_channels</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_slope</span> <span class="o">=</span> <span class="n">negative_slope</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">softmax</span> <span class="o">=</span> <span class="n">softmax</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_parameters</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HBNS.get_device"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.get_device">[docs]</a>    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the device on which the layer&#39;s learnable parameters are stored.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_s</span><span class="o">.</span><span class="n">device</span></div>
+
+<div class="viewcode-block" id="HBNS.reset_parameters"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.reset_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">reset_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.414</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Reset learnable parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gain : float, optional</span>
+<span class="sd">            Gain for the weight initialization. Default is 1.414.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialization</span> <span class="o">==</span> <span class="s2">&quot;xavier_uniform&quot;</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_s</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_t</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialization</span> <span class="o">==</span> <span class="s2">&quot;xavier_normal&quot;</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_s</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_t</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">gain</span><span class="o">=</span><span class="n">gain</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Initialization method not recognized. &quot;</span>
+                <span class="s2">&quot;Should be either xavier_uniform or xavier_normal.&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HBNS.update"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">message_on_source</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">message_on_target</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        message_on_source : torch.Tensor, shape=[source_cells, source_out_channels]</span>
+<span class="sd">            Source output signal features before the activation function :math:`\phi`.</span>
+<span class="sd">        message_on_target : torch.Tensor, shape=[target_cells, target_out_channels]</span>
+<span class="sd">            Target output signal features before the activation function :math:`\phi`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]</span>
+<span class="sd">            Source output signal features after the activation function :math:`\phi`.</span>
+<span class="sd">        _ phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]</span>
+<span class="sd">            Target output signal features after the activation function :math:`\phi`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_func</span> <span class="o">==</span> <span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span>
+            <span class="n">message_on_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">message_on_source</span><span class="p">)</span>
+            <span class="n">message_on_target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">message_on_target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_func</span> <span class="o">==</span> <span class="s2">&quot;relu&quot;</span><span class="p">:</span>
+            <span class="n">message_on_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">message_on_source</span><span class="p">)</span>
+            <span class="n">message_on_target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">message_on_target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_func</span> <span class="o">==</span> <span class="s2">&quot;tanh&quot;</span><span class="p">:</span>
+            <span class="n">message_on_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">message_on_source</span><span class="p">)</span>
+            <span class="n">message_on_target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">message_on_target</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">message_on_source</span><span class="p">,</span> <span class="n">message_on_target</span></div>
+
+<div class="viewcode-block" id="HBNS.attention"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.attention">[docs]</a>    <span class="k">def</span> <span class="nf">attention</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">s_message</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">t_message</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute attention matrices :math:`A_s` and :math:`A_t`.</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\</span>
+<span class="sd">                A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},</span>
+<span class="sd">            \end{align}</span>
+
+<span class="sd">        where,</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                e_{i,j} &amp;= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\</span>
+<span class="sd">                f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])).</span>
+<span class="sd">            \end{align}</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s_message : torch.Tensor, shape [n_source_cells, target_out_channels]</span>
+<span class="sd">            Source message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X_s` with the weight</span>
+<span class="sd">            matrix :math:`W_s`.</span>
+<span class="sd">        t_message : torch.Tensor, shape [n_target_cells, source_out_channels]</span>
+<span class="sd">            Target message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X_t` with the weight</span>
+<span class="sd">            matrix :math:`W_t`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        A_s : torch.sparse, shape=[target_cells, source_cells].</span>
+<span class="sd">        A_t : torch.sparse, shape=[source_cells, target_cells].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s_to_t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">s_message</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_indices</span><span class="p">],</span> <span class="n">t_message</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_indices</span><span class="p">]],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="n">t_to_s</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">t_message</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_indices</span><span class="p">],</span> <span class="n">s_message</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_indices</span><span class="p">]],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+            <span class="p">),</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">s_to_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">),</span>
+                <span class="n">negative_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">t_message</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">s_message</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_indices</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
+            <span class="p">),</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span>
+                    <span class="n">t_to_s</span><span class="p">,</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span> <span class="p">:],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span><span class="p">],</span>
+                        <span class="p">]</span>
+                    <span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">negative_slope</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">s_message</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t_message</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">softmax</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sparse_row_norm</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">sparse_row_norm</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HBNS.forward"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">x_source</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x_target</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">neighborhood</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Forward pass of the Higher Order Attention Block for non-squared matrices.</span>
+
+<span class="sd">        The forward pass computes:</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                HBNS_N(X_s, X_t) = (Y_s, Y_t),</span>
+<span class="sd">            \end{align}</span>
+
+<span class="sd">        where the source and target outputs :math:`Y_s` and :math:`Y_t` are computed as</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                Y_s &amp;= \phi((N^T \odot A_t) X_t W_t), \\</span>
+<span class="sd">                Y_t &amp;= \phi((N \odot A_s) X_s W_s ).</span>
+<span class="sd">            \end{align}</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_source : torch.Tensor, shape=[source_cells, source_in_channels]</span>
+<span class="sd">            Cochain matrix representation :math:`X_s` containing the signal features over the source cells.</span>
+<span class="sd">        x_target : torch.Tensor, shape=[target_cells, target_in_channels]</span>
+<span class="sd">            Cochain matrix :math:`X_t` containing the signal features over the target cells.</span>
+<span class="sd">        neighborhood : torch.sparse, shape=[target_cells, source_cells]</span>
+<span class="sd">            Neighborhood matrix :math:`N` inducing the HBNS block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ :math:`Y_s` : torch.Tensor, shape=[source_cells, source_out_channels]</span>
+<span class="sd">            Output features of the layer for the source cells.</span>
+<span class="sd">        _ :math:`Y_t` : torch.Tensor, shape=[target_cells, target_out_channels]</span>
+<span class="sd">            Output features of the layer for the target cells.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s_message</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">x_source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_s</span><span class="p">)</span>  <span class="c1"># [n_source_cells, d_t_out]</span>
+        <span class="n">t_message</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">x_target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_t</span><span class="p">)</span>  <span class="c1"># [n_target_cells, d_s_out]</span>
+
+        <span class="n">neighborhood_s_to_t</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">neighborhood</span><span class="o">.</span><span class="n">coalesce</span><span class="p">()</span>
+        <span class="p">)</span>  <span class="c1"># [n_target_cells, n_source_cells]</span>
+        <span class="n">neighborhood_t_to_s</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">neighborhood</span><span class="o">.</span><span class="n">t</span><span class="p">()</span><span class="o">.</span><span class="n">coalesce</span><span class="p">()</span>
+        <span class="p">)</span>  <span class="c1"># [n_source_cells, n_target_cells]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_indices</span> <span class="o">=</span> <span class="n">neighborhood_s_to_t</span><span class="o">.</span><span class="n">indices</span><span class="p">()</span>
+
+        <span class="n">s_to_t_attention</span><span class="p">,</span> <span class="n">t_to_s_attention</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attention</span><span class="p">(</span><span class="n">s_message</span><span class="p">,</span> <span class="n">t_message</span><span class="p">)</span>
+
+        <span class="n">neighborhood_s_to_t_att</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">neighborhood_s_to_t</span><span class="o">.</span><span class="n">indices</span><span class="p">(),</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">s_to_t_attention</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="o">*</span> <span class="n">neighborhood_s_to_t</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">neighborhood_s_to_t</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">neighborhood_t_to_s_att</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sparse_coo_tensor</span><span class="p">(</span>
+            <span class="n">indices</span><span class="o">=</span><span class="n">neighborhood_t_to_s</span><span class="o">.</span><span class="n">indices</span><span class="p">(),</span>
+            <span class="n">values</span><span class="o">=</span><span class="n">t_to_s_attention</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="o">*</span> <span class="n">neighborhood_t_to_s</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">neighborhood_t_to_s</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">message_on_source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">neighborhood_t_to_s_att</span><span class="p">,</span> <span class="n">t_message</span><span class="p">)</span>
+        <span class="n">message_on_target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mm</span><span class="p">(</span><span class="n">neighborhood_s_to_t_att</span><span class="p">,</span> <span class="n">s_message</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">message_on_source</span><span class="p">,</span> <span class="n">message_on_target</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">message_on_source</span><span class="p">,</span> <span class="n">message_on_target</span><span class="p">)</span></div></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022-2023, PyT-Team, Inc..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

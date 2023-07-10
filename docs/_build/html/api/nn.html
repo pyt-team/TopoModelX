@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Neural Networks &#8212; TopoModelX_UBTeam  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/nn';</script>
+    <link rel="canonical" href="pyt-team.github.io/api/nn.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Utils" href="utils.html" />
+    <link rel="prev" title="Base" href="base.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">TopoModelX_UBTeam  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Packages &amp; Modules</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="base.html">Base</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Neural Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Neural Networks</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="neural-networks">
+<h1>Neural Networks<a class="headerlink" href="#neural-networks" title="Permalink to this heading">#</a></h1>
+<section id="module-topomodelx.nn.hypergraph.template_layer">
+<span id="hypergraph-neural-networks"></span><h2>Hypergraph Neural Networks<a class="headerlink" href="#module-topomodelx.nn.hypergraph.template_layer" title="Permalink to this heading">#</a></h2>
+<p>Template Layer with two conv passing steps.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.nn.hypergraph.template_layer.TemplateLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.nn.hypergraph.template_layer.</span></span><span class="sig-name descname"><span class="pre">TemplateLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/hypergraph/template_layer.html#TemplateLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer" title="Permalink to this definition">#</a></dt>
+<dd><p>Template Layer with two conv passing steps.</p>
+<p>A two-step message passing layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> (<em>int</em>) – Dimension of input features.</p></li>
+<li><p><strong>intermediate_channels</strong> (<em>int</em>) – Dimension of intermediate features.</p></li>
+<li><p><strong>out_channels</strong> (<em>int</em>) – Dimension of output features.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.hypergraph.template_layer.TemplateLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/hypergraph/template_layer.html#TemplateLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward computation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_1</strong> (<em>torch.Tensor, shape=[n_edges, in_channels]</em>) – Input features on the edges of the simplicial complex.</p></li>
+<li><p><strong>incidence_1</strong> (<em>torch.sparse</em>) – shape=[n_nodes, n_edges]
+Incidence matrix mapping edges to nodes (B_1).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>x_1</strong> (<em>torch.Tensor, shape=[n_edges, out_channels]</em>) – Output features on the edges of the simplicial complex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.hypergraph.template_layer.TemplateLayer.reset_parameters">
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/hypergraph/template_layer.html#TemplateLayer.reset_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer.reset_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset learnable parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-topomodelx.nn.simplicial.hsn_layer">
+<span id="simplicial-complex-neural-networks"></span><h2>Simplicial Complex Neural Networks<a class="headerlink" href="#module-topomodelx.nn.simplicial.hsn_layer" title="Permalink to this heading">#</a></h2>
+<p>High Skip Network Layer.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.nn.simplicial.hsn_layer.HSNLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.nn.simplicial.hsn_layer.</span></span><span class="sig-name descname"><span class="pre">HSNLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/simplicial/hsn_layer.html#HSNLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer" title="Permalink to this definition">#</a></dt>
+<dd><p>Layer of a High Skip Network (HSN).</p>
+<p>Implementation of the HSN layer proposed in <a class="reference internal" href="#id5" id="id1"><span>[HRGZ22]</span></a>.</p>
+<p class="rubric">Notes</p>
+<p>This is the architecture proposed for node classification on simplicial complices.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="hrgz22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HRGZ22<span class="fn-bracket">]</span></span>
+<p>Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
+High Skip Networks: A Higher Order Generalization of Skip Connections.
+Geometrical and Topological Representation Learning Workshop at ICLR 2022.
+<a class="reference external" href="https://openreview.net/pdf?id=Sc8glB-k6e9">https://openreview.net/pdf?id=Sc8glB-k6e9</a></p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>int</em>) – Dimension of features on each simplicial cell.</p></li>
+<li><p><strong>initialization</strong> (<em>string</em>) – Initialization method.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.simplicial.hsn_layer.HSNLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/simplicial/hsn_layer.html#HSNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<p>The forward pass was initially proposed in <a class="reference internal" href="#id5" id="id2"><span>[HRGZ22]</span></a>.
+Its equations are given in <a class="reference internal" href="#id11" id="id3"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id12" id="id4"><span>[PSHM23]</span></a>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+&amp;🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
+&amp;🟥 \quad m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}\\
+&amp;🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})\\
+&amp;🟥 \quad m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}\\
+&amp;🟧 \quad m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}\\
+&amp;🟧 \quad m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}\\
+&amp;🟩 \quad m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}\\
+&amp;🟦 \quad h_x^{t+1,(0)}  = I(m_x^{(0)})
+\end{align*}\end{split}\]</div>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HRGZ22<span class="fn-bracket">]</span></span>
+<p>Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
+High Skip Networks: A Higher Order Generalization of Skip Connections.
+Geometrical and Topological Representation Learning Workshop at ICLR 2022.
+<a class="reference external" href="https://openreview.net/pdf?id=Sc8glB-k6e9">https://openreview.net/pdf?id=Sc8glB-k6e9</a></p>
+</div>
+<div class="citation" id="tnn23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TNN23<span class="fn-bracket">]</span></span>
+<p>Equations of Topological Neural Networks.
+<a class="github reference external" href="https://github.com/awesome-tnns/awesome-tnns/">awesome-tnns/awesome-tnns</a></p>
+</div>
+<div class="citation" id="pshm23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
+<p>Papillon, Sanborn, Hajij, Miolane.
+Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2304.10031">https://arxiv.org/abs/2304.10031</a>.</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor, shape=[n_nodes, channels]</em>) – Input features on the nodes of the simplicial complex.</p></li>
+<li><p><strong>incidence_1</strong> (<em>torch.sparse, shape=[n_nodes, n_edges]</em>) – Incidence matrix <span class="math notranslate nohighlight">\(B_1\)</span> mapping edges to nodes.</p></li>
+<li><p><strong>adjacency_0</strong> (<em>torch.sparse, shape=[n_nodes, n_nodes]</em>) – Adjacency matrix <span class="math notranslate nohighlight">\(A_0^{\uparrow}\)</span> mapping nodes to nodes via edges.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape=[n_nodes, channels]</em>) – Output features on the nodes of the simplicial complex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.simplicial.hsn_layer.HSNLayer.reset_parameters">
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/simplicial/hsn_layer.html#HSNLayer.reset_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.reset_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset learnable parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-topomodelx.nn.cell.ccxn_layer">
+<span id="cell-complex-neural-networks"></span><h2>Cell Complex Neural Networks<a class="headerlink" href="#module-topomodelx.nn.cell.ccxn_layer" title="Permalink to this heading">#</a></h2>
+<p>Implementation of a simplified, convolutional version of CCXN layer from Hajij et. al: Cell Complex Neural Networks.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.nn.cell.ccxn_layer.CCXNLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.nn.cell.ccxn_layer.</span></span><span class="sig-name descname"><span class="pre">CCXNLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/cell/ccxn_layer.html#CCXNLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer" title="Permalink to this definition">#</a></dt>
+<dd><p>Layer of a Convolutional Cell Complex Network (CCXN).</p>
+<p>Implementation of a simplified version of the CCXN layer proposed in <a class="reference internal" href="#id10" id="id6"><span>[HIZ20]</span></a>.</p>
+<p>This layer is composed of two convolutional layers:
+1. A convolutional layer sending messages from nodes to nodes.
+2. A convolutional layer sending messages from edges to faces.
+Optionally, attention mechanisms can be used.</p>
+<p class="rubric">Notes</p>
+<p>This is the architecture proposed for entire complex classification.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="hiz20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HIZ20<span class="fn-bracket">]</span></span>
+<p>Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
+Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+<a class="reference external" href="https://arxiv.org/pdf/2010.00743.pdf">https://arxiv.org/pdf/2010.00743.pdf</a></p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels_0</strong> (<em>int</em>) – Dimension of input features on nodes (0-cells).</p></li>
+<li><p><strong>in_channels_1</strong> (<em>int</em>) – Dimension of input features on edges (1-cells).</p></li>
+<li><p><strong>in_channels_2</strong> (<em>int</em>) – Dimension of input features on faces (2-cells).</p></li>
+<li><p><strong>att</strong> (<em>bool</em>) – Whether to use attention.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.cell.ccxn_layer.CCXNLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_0_to_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_1_to_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/cell/ccxn_layer.html#CCXNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<p>The forward pass was initially proposed in <a class="reference internal" href="#id10" id="id7"><span>[HIZ20]</span></a>.
+Its equations are given in <a class="reference internal" href="#id11" id="id8"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id12" id="id9"><span>[PSHM23]</span></a>.</p>
+<p>The forward pass of this layer is composed of two steps.</p>
+<ol class="arabic simple">
+<li><p>The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+&amp;🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(0 \rightarrow 1 \rightarrow 0)}
+    = M_{\mathcal{L}_\uparrow}(h_x^{(0)}, h_y^{(0)}, \Theta^{(y \rightarrow x)})\\
+&amp;🟧 \quad m_x^{(0 \rightarrow 1 \rightarrow 0)}
+    = \text{AGG}_{y \in \mathcal{L}_\uparrow(x)}(m_{y \rightarrow \{z\} \rightarrow x}^{0 \rightarrow 1 \rightarrow 0})\\
+&amp;🟩 \quad m_x^{(0)}
+    = m_x^{(0 \rightarrow 1 \rightarrow 0)}\\
+&amp;🟦 \quad h_x^{t+1,(0)}
+    = U^{t}(h_x^{(0)}, m_x^{(0)})
+\end{align*}\end{split}\]</div>
+<ol class="arabic simple" start="2">
+<li><p>The convolution from edges to faces is given by cohomology message passing scheme, using the coboundary neighborhood:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+&amp;🟥 \quad m_{y \rightarrow x}^{(r' \rightarrow r)}
+    = M^t_{\mathcal{C}}(h_{x}^{t,(r)}, h_y^{t,(r')}, x, y)\\
+&amp;🟧 \quad m_x^{(r' \rightarrow r)}
+    = \text{AGG}_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r' \rightarrow r)}\\
+&amp;🟩 \quad m_x^{(r)}
+    = m_x^{(r' \rightarrow r)}\\
+&amp;🟦 \quad h_{x}^{t+1,(r)}
+    = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
+\end{align*}\end{split}\]</div>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="id10" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HIZ20<span class="fn-bracket">]</span></span>
+<p>Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
+Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+<a class="reference external" href="https://arxiv.org/pdf/2010.00743.pdf">https://arxiv.org/pdf/2010.00743.pdf</a></p>
+</div>
+<div class="citation" id="id11" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TNN23<span class="fn-bracket">]</span></span>
+<p>Equations of Topological Neural Networks.
+<a class="github reference external" href="https://github.com/awesome-tnns/awesome-tnns/">awesome-tnns/awesome-tnns</a></p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
+<p>Papillon, Sanborn, Hajij, Miolane.
+Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2304.10031">https://arxiv.org/abs/2304.10031</a>.</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_0</strong> (<em>torch.Tensor, shape=[n_0_cells, channels]</em>) – Input features on the nodes of the cell complex.</p></li>
+<li><p><strong>x_1</strong> (<em>torch.Tensor, shape=[n_1_cells, channels]</em>) – Input features on the edges of the cell complex.</p></li>
+<li><p><strong>neighborhood_0_to_0</strong> (<em>torch.sparse</em>) – shape=[n_0_cells, n_0_cells]
+Neighborhood matrix mapping nodes to nodes (A_0_up).</p></li>
+<li><p><strong>neighborhood_1_to_2</strong> (<em>torch.sparse</em>) – shape=[n_2_cells, n_1_cells]
+Neighborhood matrix mapping edges to faces (B_2^T).</p></li>
+<li><p><strong>x_2</strong> (<em>torch.Tensor, shape=[n_2_cells, channels]</em>) – Input features on the faces of the cell complex.
+Optional, only required if attention is used between edges and faces.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape=[1, num_classes]</em>) – Output prediction on the entire cell complex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="combinatorial-complex-neural-networks">
+<h2>Combinatorial Complex Neural Networks<a class="headerlink" href="#combinatorial-complex-neural-networks" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="base.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Base</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="utils.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Utils</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.nn.hypergraph.template_layer">Hypergraph Neural Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer"><code class="docutils literal notranslate"><span class="pre">TemplateLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer.forward"><code class="docutils literal notranslate"><span class="pre">TemplateLayer.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.hypergraph.template_layer.TemplateLayer.reset_parameters"><code class="docutils literal notranslate"><span class="pre">TemplateLayer.reset_parameters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.nn.simplicial.hsn_layer">Simplicial Complex Neural Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer"><code class="docutils literal notranslate"><span class="pre">HSNLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.forward"><code class="docutils literal notranslate"><span class="pre">HSNLayer.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.reset_parameters"><code class="docutils literal notranslate"><span class="pre">HSNLayer.reset_parameters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.nn.cell.ccxn_layer">Cell Complex Neural Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer"><code class="docutils literal notranslate"><span class="pre">CCXNLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer.forward"><code class="docutils literal notranslate"><span class="pre">CCXNLayer.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combinatorial-complex-neural-networks">Combinatorial Complex Neural Networks</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api/nn.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022-2023, PyT-Team, Inc..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

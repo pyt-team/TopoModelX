@@ -1,0 +1,1144 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Base &#8212; TopoModelX_UBTeam  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/base';</script>
+    <link rel="canonical" href="pyt-team.github.io/api/base.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Neural Networks" href="nn.html" />
+    <link rel="prev" title="API Reference" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">TopoModelX_UBTeam  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Packages &amp; Modules</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nn.html">Neural Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Base</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="base">
+<h1>Base<a class="headerlink" href="#base" title="Permalink to this heading">#</a></h1>
+<section id="module-topomodelx.base.message_passing">
+<span id="message-passing"></span><h2>Message passing<a class="headerlink" href="#module-topomodelx.base.message_passing" title="Permalink to this heading">#</a></h2>
+<p>Message passing module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.base.message_passing.</span></span><span class="sig-name descname"><span class="pre">MessagePassing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggr_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing" title="Permalink to this definition">#</a></dt>
+<dd><p>MessagePassing.</p>
+<p>This class defines message passing through a single neighborhood N,
+by decomposing it into 2 steps:</p>
+<ol class="arabic simple">
+<li><p>🟥 Create messages going from source cells to target cells through N.</p></li>
+<li><p>🟧 Aggregate messages coming from different sources cells onto each target cell.</p></li>
+</ol>
+<p>This class should not be instantiated directly, but rather inherited
+through subclasses that effectively define a message passing function.</p>
+<p>This class does not have trainable weights, but its subclasses should
+define these weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aggr_func</strong> (<em>string</em>) – Aggregation function to use.</p></li>
+<li><p><strong>att</strong> (<em>bool</em>) – Whether to use attention.</p></li>
+<li><p><strong>initialization</strong> (<em>string</em>) – Initialization method for the weights of the layer.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="h23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>H23<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id3">2</a>,<a role="doc-backlink" href="#id4">3</a>)</span>
+<p>Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2206.00606">https://arxiv.org/abs/2206.00606</a>.</p>
+</div>
+<div class="citation" id="pshm23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p>Papillon, Sanborn, Hajij, Miolane.
+Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2304.10031">https://arxiv.org/abs/2304.10031</a>.</p>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing.aggregate">
+<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing.aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing.aggregate" title="Permalink to this definition">#</a></dt>
+<dd><p>Aggregate messages on each target cell.</p>
+<p>A target cell receives messages from several source cells.
+This function aggregates these messages into a single output
+feature per target cell.</p>
+<p>🟧 This function corresponds to the within-neighborhood aggregation
+defined in <a class="reference internal" href="#h23" id="id1"><span>[H23]</span></a> and <a class="reference internal" href="nn.html#id12" id="id2"><span>[PSHM23]</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x_messages</strong> (<em>Tensor, shape=[…, n_messages, out_channels]</em>) – Features associated with each message.
+One message is sent from a source cell to a target cell.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>Tensor, shape=[…,  n_target_cells, out_channels]</em>) – Output features on target cells.
+Each target cell aggregates messages from several source cells.
+Assumes that all target cells have the same rank s.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing.attention">
+<span class="sig-name descname"><span class="pre">attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing.attention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing.attention" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute attention weights for messages.</p>
+<p>This provides a default attention function to the message passing scheme.</p>
+<p>Alternatively, users can subclass MessagePassing and overwrite
+the attention method in order to replace it with their own attention mechanism.</p>
+<p>Details in <a class="reference internal" href="#h23" id="id3"><span>[H23]</span></a>, Definition of “Attention Higher-Order Message Passing”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>torch.Tensor, shatpe=[n_source_cells, in_channels]</em>) – Input features on source cells.
+Assumes that all source cells have the same rank r.</p></li>
+<li><p><strong>x_target</strong> (<em>torch.Tensor, shape=[n_target_cells, in_channels]</em>) – Input features on source cells.
+Assumes that all source cells have the same rank r.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape = [n_messages, 1]</em>) – Attention weights: one scalar per message between a source and a target cell.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<p>This implements message passing for a given neighborhood:</p>
+<ul class="simple">
+<li><p>from source cells with input features <cite>x_source</cite>,</p></li>
+<li><p>via <cite>neighborhood</cite> defining where messages can pass,</p></li>
+<li><p>to target cells with input features <cite>x_target</cite>.</p></li>
+</ul>
+<p>In practice, this will update the features on the target cells.</p>
+<p>If not provided, x_target is assumed to be x_source,
+i.e. source cells send messages to themselves.</p>
+<p>The message passing is decomposed into two steps:</p>
+<p>1. 🟥 Message: A message <span class="math notranslate nohighlight">\(m_{y \rightarrow x}^{\left(r \rightarrow s\right)}\)</span>
+travels from a source cell <span class="math notranslate nohighlight">\(y\)</span> of rank r to a target cell <span class="math notranslate nohighlight">\(x\)</span> of rank s
+through a neighborhood of <span class="math notranslate nohighlight">\(x\)</span>, denoted <span class="math notranslate nohighlight">\(\mathcal{N} (x)\)</span>,
+via the message function <span class="math notranslate nohighlight">\(M_\mathcal{N}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
+    = M_{\mathcal{N}}\left(\mathbf{h}_x^{(s)}, \mathbf{h}_y^{(r)}, \Theta \right),\]</div>
+<p>where:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{h}_y^{(r)}\)</span> are input features on the source cells, called <cite>x_source</cite>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{h}_x^{(s)}\)</span> are input features on the target cells, called <cite>x_target</cite>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Theta\)</span> are optional parameters (weights) of the message passing function.</p></li>
+</ul>
+<p>Optionally, attention can be applied to the message, such that:</p>
+<div class="math notranslate nohighlight">
+\[m_{y \rightarrow x}^{\left(r \rightarrow s\right)}
+    \leftarrow att(\mathbf{h}_y^{(r)}, \mathbf{h}_x^{(s)}) . m_{y \rightarrow x}^{\left(r \rightarrow s\right)}\]</div>
+<p>2. 🟧 Aggregation: Messages are aggregated across source cells <span class="math notranslate nohighlight">\(y\)</span> belonging to the
+neighborhood <span class="math notranslate nohighlight">\(\mathcal{N}(x)\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[m_x^{\left(r \rightarrow s\right)}
+    = \text{AGG}_{y \in \mathcal{N}(x)} m_{y \rightarrow x}^{\left(r\rightarrow s\right)},\]</div>
+<p>resulting in the within-neighborhood aggregated message <span class="math notranslate nohighlight">\(m_x^{\left(r \rightarrow s\right)}\)</span>.</p>
+<p>Details in <a class="reference internal" href="#h23" id="id4"><span>[H23]</span></a> and <a class="reference internal" href="nn.html#id12" id="id5"><span>[PSHM23]</span></a> “The Steps of Message Passing”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>Tensor, shape=[…, n_source_cells, in_channels]</em>) – Input features on source cells.
+Assumes that all source cells have the same rank r.</p></li>
+<li><p><strong>neighborhood</strong> (<em>torch.sparse, shape=[n_target_cells, n_source_cells]</em>) – Neighborhood matrix.</p></li>
+<li><p><strong>x_target</strong> (<em>Tensor, shape=[…, n_target_cells, in_channels]</em>) – Input features on target cells.
+Assumes that all target cells have the same rank s.
+Optional. If not provided, x_target is assumed to be x_source,
+i.e. source cells send messages to themselves.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>Tensor, shape=[…, n_target_cells, out_channels]</em>) – Output features on target cells.
+Assumes that all target cells have the same rank s.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing.message">
+<span class="sig-name descname"><span class="pre">message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing.message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing.message" title="Permalink to this definition">#</a></dt>
+<dd><p>Construct message from source cells to target cells.</p>
+<p>🟥 This provides a default message function to the message passing scheme.</p>
+<p>Alternatively, users can subclass MessagePassing and overwrite
+the message method in order to replace it with their own message mechanism.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>Tensor, shape=[…, n_source_cells, in_channels]</em>) – Input features on source cells.
+Assumes that all source cells have the same rank r.</p></li>
+<li><p><strong>x_target</strong> (<em>Tensor, shape=[…, n_target_cells, in_channels]</em>) – Input features on target cells.
+Assumes that all target cells have the same rank s.
+Optional. If not provided, x_target is assumed to be x_source,
+i.e. source cells send messages to themselves.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>Tensor, shape=[…, n_source_cells, in_channels]</em>) – Messages on source cells.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.message_passing.MessagePassing.reset_parameters">
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.414</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/message_passing.html#MessagePassing.reset_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.message_passing.MessagePassing.reset_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset learnable parameters.</p>
+<p class="rubric">Notes</p>
+<p>This function will be called by subclasses of
+MessagePassing that have trainable weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gain</strong> (<em>float</em>) – Gain for the weight initialization.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-topomodelx.base.conv">
+<span id="convolution"></span><h2>Convolution<a class="headerlink" href="#module-topomodelx.base.conv" title="Permalink to this heading">#</a></h2>
+<p>Convolutional layer for message passing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.base.conv.Conv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.base.conv.</span></span><span class="sig-name descname"><span class="pre">Conv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">att</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/conv.html#Conv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.conv.Conv" title="Permalink to this definition">#</a></dt>
+<dd><p>Message passing: steps 1, 2, and 3.</p>
+<p>Builds the message passing route given by one neighborhood matrix.
+Includes an option for a x-specific update function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> (<em>int</em>) – Dimension of input features.</p></li>
+<li><p><strong>out_channels</strong> (<em>int</em>) – Dimension of output features.</p></li>
+<li><p><strong>aggr_norm</strong> (<em>bool</em>) – Whether to normalize the aggregated message by the neighborhood size.</p></li>
+<li><p><strong>update_func</strong> (<em>string</em>) – Update method to apply to message.</p></li>
+<li><p><strong>att</strong> (<em>bool</em>) – Whether to use attention.
+Optional, default: False.</p></li>
+<li><p><strong>initialization</strong> (<em>string</em>) – Initialization method.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.conv.Conv.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/conv.html#Conv.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.conv.Conv.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<p>This implements message passing:
+- from source cells with input features <cite>x_source</cite>,
+- via <cite>neighborhood</cite> defining where messages can pass,
+- to target cells with input features <cite>x_target</cite>.</p>
+<p>In practice, this will update the features on the target cells.</p>
+<p>If not provided, x_target is assumed to be x_source,
+i.e. source cells send messages to themselves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>Tensor, shape=[…, n_source_cells, in_channels]</em>) – Input features on source cells.
+Assumes that all source cells have the same rank r.</p></li>
+<li><p><strong>neighborhood</strong> (<em>torch.sparse, shape=[n_target_cells, n_source_cells]</em>) – Neighborhood matrix.</p></li>
+<li><p><strong>x_target</strong> (<em>Tensor, shape=[…, n_target_cells, in_channels]</em>) – Input features on target cells.
+Assumes that all target cells have the same rank s.
+Optional. If not provided, x_target is assumed to be x_source,
+i.e. source cells send messages to themselves.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>Tensor, shape=[…, n_target_cells, out_channels]</em>) – Output features on target cells.
+Assumes that all target cells have the same rank s.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.conv.Conv.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_message_on_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/conv.html#Conv.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.conv.Conv.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update embeddings on each cell (step 4).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x_message_on_target</strong> (<em>torch.Tensor, shape=[n_target_cells, out_channels]</em>) – Output features on target cells.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape=[n_target_cells, out_channels]</em>) – Updated output features on target cells.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-topomodelx.base.aggregation">
+<span id="aggregation"></span><h2>Aggregation<a class="headerlink" href="#module-topomodelx.base.aggregation" title="Permalink to this heading">#</a></h2>
+<p>Aggregation module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.base.aggregation.Aggregation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.base.aggregation.</span></span><span class="sig-name descname"><span class="pre">Aggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggr_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sigmoid'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/aggregation.html#Aggregation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.aggregation.Aggregation" title="Permalink to this definition">#</a></dt>
+<dd><p>Message passing layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aggr_func</strong> (<em>string</em>) – Aggregation method.
+(Inter-neighborhood).</p></li>
+<li><p><strong>update_func</strong> (<em>string</em>) – Update method to apply to merged message.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.aggregation.Aggregation.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/aggregation.html#Aggregation.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.aggregation.Aggregation.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>list</em>) – len = n_messages_to_merge
+Each message has shape [n_skeleton_in, channels]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.aggregation.Aggregation.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/aggregation.html#Aggregation.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.aggregation.Aggregation.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update (Step 4).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>h</strong> (<em>array-like, shape=[n_skeleton_out, out_channels]</em>) – Features on the skeleton out.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>array-like, shape=[n_skeleton_out, out_channels]</em>) – Updated features on the skeleton out.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="higher-order-attention-blocks-hb">
+<h2>Higher Order Attention Blocks (HB)<a class="headerlink" href="#higher-order-attention-blocks-hb" title="Permalink to this heading">#</a></h2>
+<p>Hello</p>
+<section id="module-topomodelx.base.hbs">
+<span id="squared-neighbourhood-matrices-hbs"></span><h3>Squared Neighbourhood Matrices (HBS)<a class="headerlink" href="#module-topomodelx.base.hbs" title="Permalink to this heading">#</a></h3>
+<p>Higher Order Attention Block for squared neighborhoods (HBS) for message passing module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.base.hbs.</span></span><span class="sig-name descname"><span class="pre">HBS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_slope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_hop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS" title="Permalink to this definition">#</a></dt>
+<dd><p>Higher Order Attention Block layer for squared neighborhoods (HBS). HBS layers were introduced in <a class="reference internal" href="#id8" id="id6"><span>[HAJIJ23]</span></a>, Definitions 31 and 32.</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathcal{X}\)</span> be a combinatorial complex, we denote <span class="math notranslate nohighlight">\(\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)\)</span> as the <span class="math notranslate nohighlight">\(d\)</span>-dimensional
+<span class="math notranslate nohighlight">\(\mathbb{R}\)</span>-valued vector space of signals over <span class="math notranslate nohighlight">\(\Sigma^k\)</span>, the <span class="math notranslate nohighlight">\(k\)</span>-th skeleton of <span class="math notranslate nohighlight">\(\mathcal{X}\)</span> subject to a certain total order.
+Elements of this space are called <span class="math notranslate nohighlight">\(k\)</span>-cochains of <span class="math notranslate nohighlight">\(\mathcal{X}\)</span>.
+If <span class="math notranslate nohighlight">\(d = 1\)</span>, we denote <span class="math notranslate nohighlight">\(\mathcal{C}^k(\mathcal{X})\)</span>.</p>
+<p>Let <span class="math notranslate nohighlight">\(N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(\mathcal{X})\)</span> be a cochain map endomorphism of the space of signals over
+<span class="math notranslate nohighlight">\(\Sigma^s\)</span> of mathcal{X}. The matrix representation of <span class="math notranslate nohighlight">\(N\)</span> has shape <span class="math notranslate nohighlight">\(n_{cells} \times n_{cells}\)</span>, where
+<span class="math notranslate nohighlight">\(n_{cells}\)</span> denotes the cardinality of <span class="math notranslate nohighlight">\(\Sigma^s\)</span>.</p>
+<p>The higher order attention block induced by <span class="math notranslate nohighlight">\(N\)</span> is the cochain map</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+    HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+\end{align}\]</div>
+<p>where <span class="math notranslate nohighlight">\(d^{s_{in}}\)</span> and <span class="math notranslate nohighlight">\(d^{s_{out}}\)</span> are the input and output dimensions of the HBS block, respectively,
+also denoted as source_in_channels and source_out_channels, respectively.</p>
+<p><span class="math notranslate nohighlight">\(HBS_N\)</span> is defined by</p>
+<div class="math notranslate nohighlight">
+\[\phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )\]</div>
+<p>where <span class="math notranslate nohighlight">\(X\)</span> is the cochain matrix representation of shape [n_cells, source_in_channels] under the canonical basis
+of <span class="math notranslate nohighlight">\(\mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})\)</span>, induced by the total order of <span class="math notranslate nohighlight">\(\Sigma^s\)</span>, that contains
+the input features for each cell. The <span class="math notranslate nohighlight">\(\odot\)</span> symbol denotes the Hadamard product, namely the entry-wise product, and
+<span class="math notranslate nohighlight">\(\phi\)</span> is a non-linear activation function. <span class="math notranslate nohighlight">\(W_p\)</span> is a learnable weight matrix of shape [source_in_channels, source_out_channels]
+for each <span class="math notranslate nohighlight">\(p\)</span>, and <span class="math notranslate nohighlight">\(A_p\)</span> is an attention matrix with the same dimensionality as the input neighborhood matrix <span class="math notranslate nohighlight">\(N\)</span>, i.e., [n_cells, n_cells].
+The indices <span class="math notranslate nohighlight">\((i,j)\)</span> of the attention matrix <span class="math notranslate nohighlight">\(A_p\)</span> are computed as</p>
+<div class="math notranslate nohighlight">
+\[A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))\]</div>
+<p>and where || denotes concatenation, <span class="math notranslate nohighlight">\(a_p\)</span> is a learnable column vector of length <span class="math notranslate nohighlight">\(2*source_out_channels\)</span>, and <span class="math notranslate nohighlight">\(S\)</span> is
+the exponential function if softmax is used and the identity function otherwise.</p>
+<p>This HBS class just contains the sparse implementation of the block.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="hajij23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HAJIJ23<span class="fn-bracket">]</span></span>
+<p>Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+arXiv:2206.00606.
+https://arxiv.org/pdf/2206.00606v3.pdf</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_in_channels</strong> (<em>int</em>) – Number of input features for the source cells.</p></li>
+<li><p><strong>source_out_channels</strong> (<em>int</em>) – Number of output features for the source cells.</p></li>
+<li><p><strong>negative_slope</strong> (<em>float</em>) – Negative slope of the LeakyReLU activation function.</p></li>
+<li><p><strong>softmax</strong> (<em>bool, optional</em>) – Whether to use softmax in the computation of the attention matrix. Default is False.</p></li>
+<li><p><strong>m_hop</strong> (<em>int, optional</em>) – Maximum number of hops to consider in the computation of the layer function. Default is 1.</p></li>
+<li><p><strong>update_func</strong> (<em>{None, ‘sigmoid’, ‘relu’, ‘tanh}, optional</em>) – Activation function <span class="math notranslate nohighlight">\(phi\)</span> in the computation of the output of the layer.
+If None, <span class="math notranslate nohighlight">\(phi\)</span> is the identity function. Default is None.</p></li>
+<li><p><strong>initialization</strong> (<em>{‘xavier_uniform’, ‘xavier_normal’}, optional</em>) – Initialization method for the weights of W_p and <span class="math notranslate nohighlight">\(a_p\)</span>. Default is ‘xavier_uniform’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS.attention">
+<span class="sig-name descname"><span class="pre">attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS.attention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS.attention" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute the attention matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>torch.Tensor, shape=[n_messages, source_out_channels]</em>) – Message tensor. This is the result of the matrix multiplication of the cochain matrix <span class="math notranslate nohighlight">\(X\)</span>
+with the learnable weights matrix <span class="math notranslate nohighlight">\(W_p\)</span>.</p></li>
+<li><p><strong>A_p</strong> (<em>torch.sparse, shape [n_cells, n_cells]</em>) – Neighborhood matrix to the power p. Indicates which cells how many paths of lenght p exist from
+one cell to another.</p></li>
+<li><p><strong>a_p</strong> (<em>torch.Tensor, shape [2*source_out_channels, 1]</em>) – Learnable attention weight vector.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>att_p</strong> (torch.sparse, shape=[n_messages, n_messages]. Represents the attention matrix <span class="math notranslate nohighlight">\(A_p\)</span>.)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass of the Higher Order Attention Block for squared neighborhood matrices.</p>
+<p>The forward pass computes:</p>
+<div class="math notranslate nohighlight">
+\[HBS_N(X) = \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p ).\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>torch.Tensor, shape=[n_cells, source_in_channels]</em>) – Cochain matrix representation <span class="math notranslate nohighlight">\(X\)</span> whose rows correspond to
+the signal features over each cell following the order of the cells
+in <span class="math notranslate nohighlight">\(\Sigma^s\)</span>.</p></li>
+<li><p><strong>neighborhood</strong> (<em>torch.sparse, shape=[n_cells, n_cells]</em>) – Neighborhood matrix <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>Tensor, shape=[n_cells, source_out_channels]</em>) – Output features of the layer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS.get_device">
+<span class="sig-name descname"><span class="pre">get_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">device</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS.get_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS.get_device" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the device on which the layer’s learnable parameters are stored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS.reset_parameters">
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.414</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS.reset_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS.reset_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset learnable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gain</strong> (<em>float, optional</em>) – Gain for the weight initialization. Default is 1.414.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbs.HBS.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbs.html#HBS.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbs.HBS.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>torch.Tensor, shape=[n_cells, out_channels]</em>) – Output signal features before the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape=[n_cells, out_channels]</em>) – Output signal features after the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-topomodelx.base.hbns">
+<span id="non-squared-neighbourhood-matrices-hbns"></span><h3>Non-Squared Neighbourhood Matrices (HBNS)<a class="headerlink" href="#module-topomodelx.base.hbns" title="Permalink to this heading">#</a></h3>
+<p>Higher Order Attention Block for non-squared neighborhood matrices (HBNS).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.base.hbns.</span></span><span class="sig-name descname"><span class="pre">HBNS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_slope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS" title="Permalink to this definition">#</a></dt>
+<dd><p>Higher Order Attention Block for non-squared neighborhood matrices (HBNS). HBNS layers were introduced in <a class="reference internal" href="#id8" id="id7"><span>[HAJIJ23]</span></a>, Definition 31 and 33.</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathcal{X}\)</span> be a combinatorial complex, we denote <span class="math notranslate nohighlight">\(\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)\)</span> as the <span class="math notranslate nohighlight">\(d\)</span>-dimensional
+<span class="math notranslate nohighlight">\(\mathbb{R}\)</span>-valued vector space of signals over the <span class="math notranslate nohighlight">\(k\)</span>-th skeleton of <span class="math notranslate nohighlight">\(\mathcal{X}\)</span>. Elements of this space are called <span class="math notranslate nohighlight">\(k\)</span>-cochains of <span class="math notranslate nohighlight">\(\mathcal{X}\)</span>.
+If <span class="math notranslate nohighlight">\(d = 1\)</span>, we denote <span class="math notranslate nohighlight">\(\mathcal{C}^k(\mathcal{X})\)</span>.</p>
+<p>Let <span class="math notranslate nohighlight">\(N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^t(\mathcal{X})\)</span> with <span class="math notranslate nohighlight">\(s \neq t\)</span> be a non-squared neighborhood matrix from the space of signals over <span class="math notranslate nohighlight">\(s`th-skeleton of :math:\)</span>mathcal{X}` to the <span class="math notranslate nohighlight">\(t\)</span>-skeleton of <span class="math notranslate nohighlight">\(\mathcal{X}\)</span>.
+The higher order attention block induced by <span class="math notranslate nohighlight">\(N\)</span> is a cochain map</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+    HBNS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{t_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{t_{out}}}) \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+\end{align}\]</div>
+<p>where <span class="math notranslate nohighlight">\(d^{s_{in}}\)</span>, <span class="math notranslate nohighlight">\(d^{t_{in}}\)</span>, <span class="math notranslate nohighlight">\(d^{s_{out}}\)</span>, and <span class="math notranslate nohighlight">\(d^{t_{out}}\)</span> are the input and output dimensions of the source and target cochains, respectively, also denoted as source_in_channels, target_in_channels, source_out_channels, and target_out_channels.</p>
+<p>The cochain map <span class="math notranslate nohighlight">\(HBNS_N\)</span> is defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+    HBNS_N(X_s, X_t) = (Y_s, Y_t),
+\end{align}\]</div>
+<p>where the source and target output cochain matrices <span class="math notranslate nohighlight">\(Y_s\)</span> and <span class="math notranslate nohighlight">\(Y_t\)</span> are computed as</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    Y_s &amp;= \phi((N^T \odot A_t) X_t W_t), \\
+    Y_t &amp;= \phi((N \odot A_s) X_s W_s ).
+\end{align}\end{split}\]</div>
+</div></blockquote>
+<p>Here, <span class="math notranslate nohighlight">\(\odot\)</span> denotes the Hadamard product, namely the entry-wise product, and <span class="math notranslate nohighlight">\(\phi\)</span> is a non-linear activation function.
+<span class="math notranslate nohighlight">\(W_t\)</span> and <span class="math notranslate nohighlight">\(W_s\)</span> are learnable weight matrices of shapes [target_in_channels, source_out_channels] and
+[source_in_channels, target_out_channels], respectively. Attention matrices are denoted as <span class="math notranslate nohighlight">\(A_t\)</span> and <span class="math notranslate nohighlight">\(A_s\)</span> and have the same dimensions as
+<span class="math notranslate nohighlight">\(N^T\)</span> and <span class="math notranslate nohighlight">\(N\)</span>, respectively. The entries <span class="math notranslate nohighlight">\((i, j)\)</span> of the attention matrices <span class="math notranslate nohighlight">\(A_t\)</span> and <span class="math notranslate nohighlight">\(A_s\)</span> are defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
+    A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
+\end{align}\end{split}\]</div>
+<p>where,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    e_{i,j} &amp;= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\
+    f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])),\\
+\end{align}\end{split}\]</div>
+<p>where || denotes concatenation, <span class="math notranslate nohighlight">\(a\)</span> is a learnable column vector of length
+<span class="math notranslate nohighlight">\(d_{s_{out}} + d_{t_{out}}\)</span>. Given a vector <span class="math notranslate nohighlight">\(v\)</span>, we denote by <span class="math notranslate nohighlight">\(v[:c]\)</span> and <span class="math notranslate nohighlight">\(v[c:]\)</span> to the projection onto the first <span class="math notranslate nohighlight">\(c\)</span> elements and the last elements of <span class="math notranslate nohighlight">\(v\)</span> starting from the <span class="math notranslate nohighlight">\((c+1)\)</span>-th element, respectively.
+S is the exponential function if softmax is used and the identity function otherwise.</p>
+<p>This HBNS class just contains the sparse implementation of the block.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="id8" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>HAJIJ23<span class="fn-bracket">]</span></span>
+<p>Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+arXiv:2206.00606.
+https://arxiv.org/pdf/2206.00606v3.pdf</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_in_channels</strong> (<em>int</em>) – Number of input features for the source cells.</p></li>
+<li><p><strong>source_out_channels</strong> (<em>int</em>) – Number of output features for the source cells.</p></li>
+<li><p><strong>target_in_channels</strong> (<em>int</em>) – Number of input features for the target cells.</p></li>
+<li><p><strong>target_out_channels</strong> (<em>int</em>) – Number of output features for the target cells.</p></li>
+<li><p><strong>negative_slope</strong> (<em>float</em>) – Negative slope of the LeakyReLU activation function.</p></li>
+<li><p><strong>softmax</strong> (<em>bool, optional</em>) – Whether to use softmax or sparse_row_norm in the computation of the attention matrix. Default is False.</p></li>
+<li><p><strong>update_func</strong> (<em>{None, ‘sigmoid’, ‘relu’}, optional</em>) – Activation function <span class="math notranslate nohighlight">\(\phi\)</span> in the computation of the output of the layer. If None, <span class="math notranslate nohighlight">\(\phi\)</span> is the identity function. Default is
+None.</p></li>
+<li><p><strong>initialization</strong> (<em>{‘xavier_uniform’, ‘xavier_normal’}, optional</em>) – Initialization method for the weights of <span class="math notranslate nohighlight">\(W_p\)</span> and the attention vector <span class="math notranslate nohighlight">\(a\)</span>. Default is ‘xavier_uniform’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS.attention">
+<span class="sig-name descname"><span class="pre">attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS.attention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS.attention" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute attention matrices <span class="math notranslate nohighlight">\(A_s\)</span> and <span class="math notranslate nohighlight">\(A_t\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
+    A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
+\end{align}\end{split}\]</div>
+<p>where,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    e_{i,j} &amp;= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\
+    f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{out}}:]||a[:d_{s_{out}}])).
+\end{align}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s_message</strong> (<em>torch.Tensor, shape [n_source_cells, target_out_channels]</em>) – Source message tensor. This is the result of the matrix multiplication of the cochain matrix <span class="math notranslate nohighlight">\(X_s\)</span> with the weight
+matrix <span class="math notranslate nohighlight">\(W_s\)</span>.</p></li>
+<li><p><strong>t_message</strong> (<em>torch.Tensor, shape [n_target_cells, source_out_channels]</em>) – Target message tensor. This is the result of the matrix multiplication of the cochain matrix <span class="math notranslate nohighlight">\(X_t\)</span> with the weight
+matrix <span class="math notranslate nohighlight">\(W_t\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>A_s</strong> (<em>torch.sparse, shape=[target_cells, source_cells].</em>)</p></li>
+<li><p><strong>A_t</strong> (<em>torch.sparse, shape=[source_cells, target_cells].</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass of the Higher Order Attention Block for non-squared matrices.</p>
+<p>The forward pass computes:</p>
+<div class="math notranslate nohighlight">
+\[\begin{align}
+    HBNS_N(X_s, X_t) = (Y_s, Y_t),
+\end{align}\]</div>
+<p>where the source and target outputs <span class="math notranslate nohighlight">\(Y_s\)</span> and <span class="math notranslate nohighlight">\(Y_t\)</span> are computed as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    Y_s &amp;= \phi((N^T \odot A_t) X_t W_t), \\
+    Y_t &amp;= \phi((N \odot A_s) X_s W_s ).
+\end{align}\end{split}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_source</strong> (<em>torch.Tensor, shape=[source_cells, source_in_channels]</em>) – Cochain matrix representation <span class="math notranslate nohighlight">\(X_s\)</span> containing the signal features over the source cells.</p></li>
+<li><p><strong>x_target</strong> (<em>torch.Tensor, shape=[target_cells, target_in_channels]</em>) – Cochain matrix <span class="math notranslate nohighlight">\(X_t\)</span> containing the signal features over the target cells.</p></li>
+<li><p><strong>neighborhood</strong> (<em>torch.sparse, shape=[target_cells, source_cells]</em>) – Neighborhood matrix <span class="math notranslate nohighlight">\(N\)</span> inducing the HBNS block.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>_ :math:`Y_s`</strong> (<em>torch.Tensor, shape=[source_cells, source_out_channels]</em>) – Output features of the layer for the source cells.</p></li>
+<li><p><strong>_ :math:`Y_t`</strong> (<em>torch.Tensor, shape=[target_cells, target_out_channels]</em>) – Output features of the layer for the target cells.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS.get_device">
+<span class="sig-name descname"><span class="pre">get_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">device</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS.get_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS.get_device" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the device on which the layer’s learnable parameters are stored.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS.reset_parameters">
+<span class="sig-name descname"><span class="pre">reset_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.414</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS.reset_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS.reset_parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Reset learnable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gain</strong> (<em>float, optional</em>) – Gain for the weight initialization. Default is 1.414.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.base.hbns.HBNS.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message_on_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_on_target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/topomodelx/base/hbns.html#HBNS.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.base.hbns.HBNS.update" title="Permalink to this definition">#</a></dt>
+<dd><p>Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message_on_source</strong> (<em>torch.Tensor, shape=[source_cells, source_out_channels]</em>) – Source output signal features before the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p></li>
+<li><p><strong>message_on_target</strong> (<em>torch.Tensor, shape=[target_cells, target_out_channels]</em>) – Target output signal features before the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>_ phi(Y_s)</strong> (<em>torch.Tensor, shape=[source_cells, source_out_channels]</em>) – Source output signal features after the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p></li>
+<li><p><strong>_ phi(Y_t)</strong> (<em>torch.Tensor, shape=[target_cells, target_out_channels]</em>) – Target output signal features after the activation function <span class="math notranslate nohighlight">\(\phi\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="nn.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Neural Networks</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.base.message_passing">Message passing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing"><code class="docutils literal notranslate"><span class="pre">MessagePassing</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing.aggregate"><code class="docutils literal notranslate"><span class="pre">MessagePassing.aggregate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing.attention"><code class="docutils literal notranslate"><span class="pre">MessagePassing.attention()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing.forward"><code class="docutils literal notranslate"><span class="pre">MessagePassing.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing.message"><code class="docutils literal notranslate"><span class="pre">MessagePassing.message()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.message_passing.MessagePassing.reset_parameters"><code class="docutils literal notranslate"><span class="pre">MessagePassing.reset_parameters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.base.conv">Convolution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.conv.Conv"><code class="docutils literal notranslate"><span class="pre">Conv</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.conv.Conv.forward"><code class="docutils literal notranslate"><span class="pre">Conv.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.conv.Conv.update"><code class="docutils literal notranslate"><span class="pre">Conv.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.base.aggregation">Aggregation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.aggregation.Aggregation"><code class="docutils literal notranslate"><span class="pre">Aggregation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.aggregation.Aggregation.forward"><code class="docutils literal notranslate"><span class="pre">Aggregation.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.aggregation.Aggregation.update"><code class="docutils literal notranslate"><span class="pre">Aggregation.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#higher-order-attention-blocks-hb">Higher Order Attention Blocks (HB)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.base.hbs">Squared Neighbourhood Matrices (HBS)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS"><code class="docutils literal notranslate"><span class="pre">HBS</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS.attention"><code class="docutils literal notranslate"><span class="pre">HBS.attention()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS.forward"><code class="docutils literal notranslate"><span class="pre">HBS.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS.get_device"><code class="docutils literal notranslate"><span class="pre">HBS.get_device()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS.reset_parameters"><code class="docutils literal notranslate"><span class="pre">HBS.reset_parameters()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbs.HBS.update"><code class="docutils literal notranslate"><span class="pre">HBS.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#module-topomodelx.base.hbns">Non-Squared Neighbourhood Matrices (HBNS)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS"><code class="docutils literal notranslate"><span class="pre">HBNS</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS.attention"><code class="docutils literal notranslate"><span class="pre">HBNS.attention()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS.forward"><code class="docutils literal notranslate"><span class="pre">HBNS.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS.get_device"><code class="docutils literal notranslate"><span class="pre">HBNS.get_device()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS.reset_parameters"><code class="docutils literal notranslate"><span class="pre">HBNS.reset_parameters()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.base.hbns.HBNS.update"><code class="docutils literal notranslate"><span class="pre">HBNS.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api/base.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022-2023, PyT-Team, Inc..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

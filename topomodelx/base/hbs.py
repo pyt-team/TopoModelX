@@ -1,4 +1,5 @@
-"""Higher Order Attention Block for squared neighborhoods (HBS) for message passing module."""
+"""Higher Order Attention Block for squared neighborhoods (HBS) for message
+passing module."""
 
 import torch
 import torch.nn.functional as F
@@ -10,38 +11,51 @@ from ..utils.srn import sparse_row_norm
 
 
 class HBS(MessagePassing):
-    r"""Higher Order Attention Block layer for squared neighborhoods (HBS). HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
+    r"""Higher Order Attention Block layer for squared neighborhoods (HBS). HBS
+    layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
 
-    Let :math:`\mathcal{X}` be a combinatorial complex, we denote :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the :math:`d`-dimensional
-    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total order.
-    Elements of this space are called :math:`k`-cochains of :math:`\mathcal{X}`.
-    If :math:`d = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.
+    Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
+    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`d`-dimensional
+    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`,
+    the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total
+    order. Elements of this space are called :math:`k`-cochains of
+    :math:`\mathcal{X}`. If :math:`d = 1`, we denote :math:`\mathcal{C}^k(
+    \mathcal{X})`.
 
-    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(\mathcal{X})` be a cochain map endomorphism of the space of signals over
-    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N` has shape :math:`n_{cells} \times n_{cells}`, where
-    :math:`n_{cells}` denotes the cardinality of :math:`\Sigma^s`.
+    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(
+    \mathcal{X})` be a cochain map endomorphism of the space of signals over
+    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N`
+    has shape :math:`n_{cells} \times n_{cells}`, where :math:`n_{cells}`
+    denotes the cardinality of :math:`\Sigma^s`.
 
     The higher order attention block induced by :math:`N` is the cochain map
 
     ..  math::
         \begin{align}
-            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})
+            \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
         \end{align}
 
-    where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and output dimensions of the HBS block, respectively,
-    also denoted as source_in_channels and source_out_channels, respectively.
+    where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and
+    output dimensions of the HBS block, respectively, also denoted as
+    source_in_channels and source_out_channels, respectively.
 
     :math:`HBS_N` is defined by
 
     ..  math::
         \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
 
-    where :math:`X` is the cochain matrix representation of shape [n_cells, source_in_channels] under the canonical basis
-    of :math:`\mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})`, induced by the total order of :math:`\Sigma^s`, that contains
-    the input features for each cell. The :math:`\odot` symbol denotes the Hadamard product, namely the entry-wise product, and
-    :math:`\phi` is a non-linear activation function. :math:`W_p` is a learnable weight matrix of shape [source_in_channels, source_out_channels]
-    for each :math:`p`, and :math:`A_p` is an attention matrix with the same dimensionality as the input neighborhood matrix :math:`N`, i.e., [n_cells, n_cells].
-    The indices :math:`(i,j)` of the attention matrix :math:`A_p` are computed as
+    where :math:`X` is the cochain matrix representation of shape [n_cells,
+    source_in_channels] under the canonical basis of :math:`\mathcal{C}^s(
+    \mathcal{X},\mathbb{R}^{d^{s_{in}}})`, induced by the total order of
+    :math:`\Sigma^s`, that contains the input features for each cell. The
+    :math:`\odot` symbol denotes the Hadamard product, namely the entry-wise
+    product, and :math:`\phi` is a non-linear activation function.
+    :math:`W_p` is a learnable weight matrix of shape [source_in_channels,
+    source_out_channels] for each :math:`p`, and :math:`A_p` is an attention
+    matrix with the same dimensionality as the input neighborhood matrix
+    :math:`N`, i.e., [n_cells, n_cells]. The indices :math:`(i,j)` of the
+    attention matrix :math:`A_p` are computed as
 
     ..  math::
         A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}
@@ -51,14 +65,17 @@ class HBS(MessagePassing):
     ..  math::
         e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
 
-    and where || denotes concatenation, :math:`a_p` is a learnable column vector of length :math:`2*source_out_channels`, and :math:`S` is
-    the exponential function if softmax is used and the identity function otherwise.
+    and where || denotes concatenation, :math:`a_p` is a learnable column
+    vector of length :math:`2*source_out_channels`, and :math:`S` is the
+    exponential function if softmax is used and the identity function
+    otherwise.
 
     This HBS class just contains the sparse implementation of the block.
 
     References
     ----------
-    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going Beyond Graph Data.
+    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going
+    Beyond Graph Data.
         arXiv:2206.00606.
         https://arxiv.org/pdf/2206.00606v3.pdf
 
@@ -71,14 +88,18 @@ class HBS(MessagePassing):
     negative_slope : float
         Negative slope of the LeakyReLU activation function.
     softmax : bool, optional
-        Whether to use softmax in the computation of the attention matrix. Default is False.
+        Whether to use softmax in the computation of the attention matrix.
+        Default is False.
     m_hop : int, optional
-        Maximum number of hops to consider in the computation of the layer function. Default is 1.
-    update_func : {None, 'sigmoid', 'relu', 'tanh}, optional
-        Activation function :math:`phi` in the computation of the output of the layer.
+        Maximum number of hops to consider in the computation of the layer
+        function. Default is 1.
+    update_func : {None, 'sigmoid', 'relu', 'tanh'}, optional
+        Activation function :math:`phi` in the computation of the output of
+        the layer.
         If None, :math:`phi` is the identity function. Default is None.
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
-        Initialization method for the weights of W_p and :math:`a_p`. Default is 'xavier_uniform'.
+        Initialization method for the weights of W_p and :math:`a_p`.
+        Default is 'xavier_uniform'.
     """
 
     def __init__(
@@ -124,7 +145,8 @@ class HBS(MessagePassing):
         self.reset_parameters()
 
     def get_device(self) -> torch.device:
-        """Get the device on which the layer's learnable parameters are stored."""
+        """Get the device on which the layer's learnable parameters are
+        stored."""
         return self.weight[0].device
 
     def reset_parameters(self, gain: float = 1.414) -> None:
@@ -154,7 +176,8 @@ class HBS(MessagePassing):
             reset_specific_hop_parameters(w, a)
 
     def update(self, message: torch.Tensor) -> torch.Tensor:
-        r"""Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.
+        r"""Update signal features on each cell with an activation function,
+        either sigmoid, ReLU or tanh.
 
         Parameters
         ----------
@@ -181,17 +204,20 @@ class HBS(MessagePassing):
         Parameters
         ----------
         message : torch.Tensor, shape=[n_messages, source_out_channels]
-            Message tensor. This is the result of the matrix multiplication of the cochain matrix :math:`X`
+            Message tensor. This is the result of the matrix multiplication
+            of the cochain matrix :math:`X`
             with the learnable weights matrix :math:`W_p`.
         A_p : torch.sparse, shape [n_cells, n_cells]
-            Neighborhood matrix to the power p. Indicates which cells how many paths of lenght p exist from
+            Neighborhood matrix to the power p. Indicates which cells how
+            many paths of lenght p exist from
             one cell to another.
         a_p : torch.Tensor, shape [2*source_out_channels, 1]
             Learnable attention weight vector.
 
         Returns
         -------
-        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the attention matrix :math:`A_p`.
+        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the
+        attention matrix :math:`A_p`.
         """
         n_messages = message.shape[0]
         source_index_i, source_index_j = A_p._indices()
@@ -212,7 +238,8 @@ class HBS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
     ) -> torch.Tensor:
-        r"""Forward pass of the Higher Order Attention Block for squareed neighborhood matrices.
+        r"""Forward pass of the Higher Order Attention Block for squared
+        neighborhood matrices.
 
         The forward pass computes:
 
@@ -238,6 +265,7 @@ class HBS(MessagePassing):
         ]  # [m-hop, n_source_cells, d_t_out]
         # Create a torch.eye with the device of x_source
         result = torch.eye(x_source.shape[0], device=self.get_device()).to_sparse_coo()
+
         neighborhood = [
             result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)
         ]

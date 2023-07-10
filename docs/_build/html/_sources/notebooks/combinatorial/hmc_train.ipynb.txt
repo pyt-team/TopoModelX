@@ -1,0 +1,843 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Train a Combinatorial Complex Attention Neural Network for Mesh Classification.\n",
+    "\n",
+    "We create and train a mesh classification high order attentional neural network operating over combinatorial complexes. The model was introduced in [Figure 35(b), Hajij et. al : Topological Deep Learning: Going Beyond Graph Data (2023)](https://arxiv.org/pdf/2206.00606.pdf).\n",
+    "\n",
+    "## The Neural Network:\n",
+    "\n",
+    "The core of the neural network model resides in the implementation of the higher-order attentional message passing scheme among nodes, edges and faces of combinatorial complexes, as first illustrated in [Definitions 31, 32, and 33, Hajij et. al : Topological Deep Learning: Going Beyond Graph Data (2023)](https://arxiv.org/pdf/2206.00606.pdf). Below, we provide the formulas representing the two levels of message passing, following the notations used in [Papillon et al : Architectures of Topological Deep Learning: A Survey of Topological Neural Networks (2023)](https://arxiv.org/abs/2304.10031). For a visual representation of the tensor diagram check the first column and last row of Fig. 11 of the same paper.\n",
+    "\n",
+    "1. First level:\n",
+    "\n",
+    "🟥 $\\quad m^{0\\rightarrow 0}_{y\\rightarrow x} = \\left((A_{\\uparrow, 0})_{xy} \\cdot \\text{att}_{xy}^{0\\rightarrow 0}\\right) h_y^{t,(0)} \\Theta^t_{0\\rightarrow 0}$\n",
+    "\n",
+    "🟥 $\\quad m^{0\\rightarrow 1}_{y\\rightarrow x} = \\left((B_{1}^T)_{xy} \\cdot \\text{att}_{xy}^{0\\rightarrow 1}\\right) h_y^{t,(0)} \\Theta^t_{0\\rightarrow 1}$\n",
+    "\n",
+    "🟥 $\\quad  m^{1\\rightarrow 0}_{y\\rightarrow x} = \\left((B_{1})_{xy} \\cdot \\text{att}_{xy}^{1\\rightarrow 0}\\right) h_y^{t,(1)} \\Theta^t_{1\\rightarrow 0}$\n",
+    "\n",
+    "🟥 $\\quad  m^{1\\rightarrow 2}_{y\\rightarrow x} = \\left((B_{2}^T)_{xy} \\cdot \\text{att}_{xy}^{1\\rightarrow 2}\\right) h_y^{t,(1)} \\Theta^t_{1\\rightarrow 2}$\n",
+    "\n",
+    "🟥 $\\quad m^{2\\rightarrow 1}_{y\\rightarrow x} = \\left((B_{2})_{xy} \\cdot \\text{att}_{xy}^{2\\rightarrow 1}\\right) h_y^{t,(2)} \\Theta^t_{2\\rightarrow 1}$\n",
+    "\n",
+    "🟧 $\\quad m^{0\\rightarrow 0}_{x}=\\phi_u\\left(\\sum_{y\\in A_{\\uparrow, 0}(x)} m^{0\\rightarrow 0}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{0\\rightarrow 1}_{x}=\\phi_u\\left(\\sum_{y\\in B_{1}^T(x)} m^{0\\rightarrow 1}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{1\\rightarrow 0}_{x}=\\phi_u\\left(\\sum_{y\\in B_{1}(x)} m^{1\\rightarrow 0}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{1\\rightarrow 2}_{x}=\\phi_u\\left(\\sum_{y\\in B_{2}^T(x)} m^{1\\rightarrow 2}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{2\\rightarrow 1}_{x}=\\phi_u\\left(\\sum_{y\\in B_{2}(x)} m^{2\\rightarrow 1}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(0)}=\\phi_a\\left(m^{0\\rightarrow 0}_{x}+m^{1\\rightarrow 0}_{x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(1)}=\\phi_a\\left(m^{0\\rightarrow 1}_{x}+m^{2\\rightarrow 1}_{x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(2)}=\\phi_a\\left(m^{1\\rightarrow 2}_{x}\\right)$\n",
+    "\n",
+    "🟦 $\\quad i_x^{t,(0)} = m_x^{(0)}$\n",
+    "\n",
+    "🟦 $\\quad i_x^{t,(1)} = m_x^{(1)}$\n",
+    "\n",
+    "🟦 $\\quad i_x^{t,(2)} = m_x^{(2)}$\n",
+    "\n",
+    "where $i_x^{t,(\\cdot)}$ represents intermediate feature vectors.\n",
+    "\n",
+    "\n",
+    "2. Second level:\n",
+    "\n",
+    "\n",
+    "🟥 $\\quad m^{0\\rightarrow 0}_{y\\rightarrow x} = \\left((A_{\\uparrow, 0})_{xy} \\cdot \\text{att}_{xy}^{0\\rightarrow 0}\\right) i_y^{t,(0)} \\Theta^t_{0\\rightarrow 0}$\n",
+    "\n",
+    "🟥 $\\quad m^{1\\rightarrow 1}_{y\\rightarrow x} = \\left((A_{\\uparrow, 1})_{xy} \\cdot \\text{att}_{xy}^{1\\rightarrow 1}\\right) i_y^{t,(1)} \\Theta^t_{1\\rightarrow 1}$\n",
+    "\n",
+    "🟥 $\\quad m^{2\\rightarrow 2}_{y\\rightarrow x} = \\left((A_{\\downarrow, 2})_{xy} \\cdot \\text{att}_{xy}^{2\\rightarrow 2}\\right) i_y^{t,(2)} \\Theta^t_{2\\rightarrow 2}$\n",
+    "\n",
+    "🟥 $\\quad m^{0\\rightarrow 1}_{y\\rightarrow x} = \\left((B_{1}^T)_{xy} \\cdot \\text{att}_{xy}^{0\\rightarrow 1}\\right) i_y^{t,(0)} \\Theta^t_{0\\rightarrow 1}$\n",
+    "\n",
+    "🟥 $\\quad m^{1\\rightarrow 2}_{y\\rightarrow x} = \\left((B_{2}^T)_{xy} \\cdot \\text{att}_{xy}^{1\\rightarrow 2}\\right) i_y^{t,(1)} \\Theta^t_{1\\rightarrow 2}$\n",
+    "\n",
+    "🟧 $\\quad m^{0\\rightarrow 0}_{x}=\\phi_u\\left(\\sum_{y\\in A_{\\uparrow, 0}(x)} m^{0\\rightarrow 0}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{1\\rightarrow 1}_{x}=\\phi_u\\left(\\sum_{y\\in A_{\\uparrow, 1}(x)} m^{1\\rightarrow 1}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{2\\rightarrow 2}_{x}=\\phi_u\\left(\\sum_{y\\in A_{\\downarrow, 2}(x)} m^{2\\rightarrow 2}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{0\\rightarrow 1}_{x}=\\phi_u\\left(\\sum_{y\\in B_{1}^T(x)} m^{0\\rightarrow 1}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟧 $\\quad m^{1\\rightarrow 2}_{x}=\\phi_u\\left(\\sum_{y\\in B_{2}^T(x)} m^{1\\rightarrow 2}_{y\\rightarrow x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(0)}=\\phi_a\\left(m^{0\\rightarrow 0}_{x}+m^{1\\rightarrow 0}_{x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(1)}=\\phi_a\\left(m^{1\\rightarrow 1}_{x} + m^{0\\rightarrow 1}_{x}\\right)$\n",
+    "\n",
+    "🟩 $\\quad m_x^{(2)}=\\phi_a\\left(m^{1\\rightarrow 2}_{x} + m^{2\\rightarrow 2}_{x}\\right)$\n",
+    "\n",
+    "🟦 $\\quad h_x^{t+1,(0)} = m_x^{(0)}$\n",
+    "\n",
+    "🟦 $\\quad h_x^{t+1,(1)} = m_x^{(1)}$\n",
+    "\n",
+    "🟦 $\\quad h_x^{t+1,(2)} = m_x^{(2)}$\n",
+    "\n",
+    "In both levels, $\\phi_u$ and $\\phi_a$ denote common activation functions used within and across neighborhood aggregations. $\\Theta$ and $\\text{att}$, on the other hand, represent learnable weights and attention matrices, respectively, which differ at each level. The introduction of the higher order attention matrices is made in [Figure 35(b), Hajij et. al : Topological Deep Learning: Going Beyond Graph Data (2023)](https://arxiv.org/pdf/2206.00606.pdf). In our implementation, attention matrices are calculated using the LeakyReLU activation function, consistent with earlier versions of the paper. Further details on the actual implementation of the neural network within this notebook will be provided in subsequent sections.\n",
+    "\n",
+    "\n",
+    "## The Task:\n",
+    "\n",
+    "We train this model to perform entire mesh classification on [`SHREC 2016` from the ShapeNet Dataset](http://shapenet.cs.stanford.edu/shrec16/). This dataset contains 480 3D mesh samples belonging to 30 distinct classes and represented as simplicial complexes.\n",
+    "\n",
+    "Each mesh contains a set of vertices, edges, and faces. Each of the latter entities have a set of features associated to them:\n",
+    "\n",
+    "- Node features $v \\in \\mathbb{R}^6$ defined as the direct sum of the following features:\n",
+    "    - Position $p_v \\in \\mathbb{R}^3$ coordinates.\n",
+    "    - Normal $n_v \\in \\mathbb{R}^3$ coordinates.\n",
+    "- Edge features $e \\in \\mathbb{R}^{10}$ defined as the direct sum of the following features:\n",
+    "    - Dihedral angle $\\phi \\in \\mathbb{R}$.\n",
+    "    - Edge span $l \\in \\mathbb{R}$.\n",
+    "    - 2 edge angle in the triangle that $\\theta_e \\in \\mathbb{R}^2$.\n",
+    "    - 6 edge ratios $r \\in \\mathbb{R}^6$.\n",
+    "- Face features\n",
+    "    - Face area $a \\in \\mathbb{R}$.\n",
+    "    - Face normal $n_f \\in \\mathbb{R}^3$.\n",
+    "    - 3 face angles $\\theta_f \\in \\mathbb{R}^3$.\n",
+    "\n",
+    "We lift the simplicial complexes representing each mesh to a topologically equivalent combinatorial complex (CC) representation.\n",
+    "\n",
+    "The task is to predict the class that a certain mesh belongs to, given its combinatorial complex representation. For this purpose we implement the Higher Order Attention Model for Mesh Classification first introduced in [Hajij et. al : Topological Deep Learning: Going Beyond Graph Data (2023)](https://arxiv.org/pdf/2206.00606.pdf)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Set-up\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-07-05T15:49:56.709418Z",
+     "start_time": "2023-07-05T15:49:56.698686Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "import torch\n",
+    "import numpy as np\n",
+    "from toponetx.datasets.mesh import shrec_16\n",
+    "from torch.utils.data import Dataset, DataLoader\n",
+    "from topomodelx.nn.combinatorial.hmc_layer import HMCLayer"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Pre-processing\n",
+    "\n",
+    "## Import data ##\n",
+    "\n",
+    "We first create a class for the SHREC 2016 dataset. This class will be used to load the data and create the necessary neighborhood matrices for each combinatorial complex in the dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:55:44.193139Z",
+     "start_time": "2023-07-05T14:55:44.191525Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "class SHRECDataset(Dataset):\n",
+    "    \"\"\"Class for the SHREC 2016 dataset.\n",
+    "\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    data : npz file\n",
+    "        npz file containing the SHREC 2016 data.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    def __init__(self, data):\n",
+    "        self.complexes = [cc.to_combinatorial_complex() for cc in data[\"complexes\"]]\n",
+    "        self.x_0 = data[\"node_feat\"]\n",
+    "        self.x_1 = data[\"edge_feat\"]\n",
+    "        self.x_2 = data[\"face_feat\"]\n",
+    "        self.y = data[\"label\"]\n",
+    "        self.a0, self.a1, self.coa2, self.b1, self.b2 = self._get_neighborhood_matrix()\n",
+    "\n",
+    "    def _get_neighborhood_matrix(self):\n",
+    "        \"\"\"Following the Higher Order Attention Model for Mesh Classification message passing scheme, this method computes the necessary neighborhood matrices\n",
+    "        for each combinatorial complex in the dataset. This method computes:\n",
+    "\n",
+    "        - Adjacency matrices for each 0-cell in the dataset.\n",
+    "        - Adjacency matrices for each 1-cell in the dataset.\n",
+    "        - Coadjacency matrices for each 2-cell in the dataset.\n",
+    "        - Incidence matrices from 1-cells to 0-cells for each 1-cell in the dataset.\n",
+    "        - Incidence matrices from 2-cells to 1-cells for each 2-cell in the dataset.\n",
+    "\n",
+    "        Returns\n",
+    "        -------\n",
+    "        a0 : list of torch.sparse.FloatTensor\n",
+    "            Adjacency matrices for each 0-cell in the dataset.\n",
+    "        a1 : list of torch.sparse.FloatTensor\n",
+    "            Adjacency matrices for each 1-cell in the dataset.\n",
+    "        coa2 : list of torch.sparse.FloatTensor\n",
+    "            Coadjacency matrices for each 2-cell in the dataset.\n",
+    "        b1 : list of torch.sparse.FloatTensor\n",
+    "            Incidence matrices from 1-cells to 0-cells for each 1-cell in the dataset.\n",
+    "        b2 : list of torch.sparse.FloatTensor\n",
+    "            Incidence matrices from 2-cells to 1-cells for each 2-cell in the dataset.\n",
+    "        \"\"\"\n",
+    "\n",
+    "        a0 = []\n",
+    "        a1 = []\n",
+    "        coa2 = []\n",
+    "        b1 = []\n",
+    "        b2 = []\n",
+    "\n",
+    "        for cc in self.complexes:\n",
+    "\n",
+    "            a0.append(torch.from_numpy(cc.adjacency_matrix(0, 1).todense()).to_sparse())\n",
+    "            a1.append(torch.from_numpy(cc.adjacency_matrix(1, 2).todense()).to_sparse())\n",
+    "\n",
+    "            B = cc.incidence_matrix(rank=2, to_rank=1)\n",
+    "            A = B.T @ B\n",
+    "            A.setdiag(0)\n",
+    "            coa2.append(torch.from_numpy(A.todense()).to_sparse())\n",
+    "\n",
+    "            b1.append(torch.from_numpy(cc.incidence_matrix(1, 0).todense()).to_sparse())\n",
+    "            b2.append(torch.from_numpy(cc.incidence_matrix(2, 1).todense()).to_sparse())\n",
+    "\n",
+    "        return a0, a1, coa2, b1, b2\n",
+    "\n",
+    "    def num_classes(self):\n",
+    "        \"\"\"Returns the number of classes in the dataset.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        int\n",
+    "            Number of classes in the dataset.\n",
+    "        \"\"\"\n",
+    "        return len(np.unique(self.y))\n",
+    "\n",
+    "    def channels_dim(self):\n",
+    "        \"\"\"Returns the number of channels for each input signal.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        tuple of int\n",
+    "            Number of channels for each input signal.\n",
+    "        \"\"\"\n",
+    "        return [self.x_0[0].shape[1], self.x_1[0].shape[1], self.x_2[0].shape[1]]\n",
+    "\n",
+    "    def __len__(self):\n",
+    "        \"\"\"Returns the number of elements in the dataset.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        int\n",
+    "            Number of elements in the dataset.\n",
+    "        \"\"\"\n",
+    "        return len(self.complexes)\n",
+    "\n",
+    "    def __getitem__(self, idx):\n",
+    "        \"\"\"Returns the idx-th element in the dataset.\n",
+    "        Parameters\n",
+    "        ----------\n",
+    "        idx : int\n",
+    "            Index of the element to return.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        tuple of torch.Tensor\n",
+    "            Tuple containing the idx-th element in the dataset, including the input signals on nodes, edges and faces, the neighborhood matrices and the label.\n",
+    "        \"\"\"\n",
+    "        return (\n",
+    "            self.x_0[idx],\n",
+    "            self.x_1[idx],\n",
+    "            self.x_2[idx],\n",
+    "            self.a0[idx],\n",
+    "            self.a1[idx],\n",
+    "            self.coa2[idx],\n",
+    "            self.b1[idx],\n",
+    "            self.b2[idx],\n",
+    "            self.y[idx],\n",
+    "        )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We load the data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Loading shrec 16 full dataset...\n",
+      "\n",
+      "done!\n"
+     ]
+    }
+   ],
+   "source": [
+    "shrec_training, shrec_testing = shrec_16()"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:55:44.196786Z",
+     "start_time": "2023-07-05T14:55:44.193550Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Creating the train dataset and dataloader."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:56:35.216008Z",
+     "start_time": "2023-07-05T14:55:44.197214Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "training_dataset = SHRECDataset(shrec_training)\n",
+    "training_dataloader = DataLoader(training_dataset, batch_size=1, shuffle=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Creating the train dataset and dataloader."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "outputs": [],
+   "source": [
+    "testing_dataset = SHRECDataset(shrec_training)\n",
+    "testing_dataloader = DataLoader(training_dataset, batch_size=1, shuffle=True)"
+   ],
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:57:32.463734Z",
+     "start_time": "2023-07-05T14:56:35.216690Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-29T09:12:40.935701Z",
+     "start_time": "2023-06-29T09:12:40.933077Z"
+    }
+   },
+   "source": [
+    "# Create the Neural Network\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "The task is to classify the meshes into their corresponding classes. To address this, we employ the Higher Order Attention Network Model for Mesh Classification, as outlined in the article [Higher Order Attention Networks](https://www.researchgate.net/publication/361022512_Higher-Order_Attention_Networks). This model integrates a hierarchical and attention-based message passing scheme as per the article's descriptions. In addition, the model utilizes a final sum pooling layer which effectively maps the nodal, edge, and face features of the meshes into a shared N-dimensional Euclidean space, where N represents the number of different classes."
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "outputs": [],
+   "source": [
+    "class HoanMeshClassifier(torch.nn.Module):\n",
+    "    \"\"\"Higher Order Attention Network for Mesh Classification.\n",
+    "\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    in_channels : List[int]\n",
+    "        Dimension of input features on nodes, edges and faces respectively.\n",
+    "    intermediate_channels : List[int]\n",
+    "        Dimension of intermediate features on nodes, edges and faces respectively.\n",
+    "    out_channels : List[int]\n",
+    "        Dimension of output features on nodes, edges and faces respectively.\n",
+    "    num_classes : int\n",
+    "        Number of classes.\n",
+    "    negative_slope : float\n",
+    "        Negative slope for the LeakyReLU activation.\n",
+    "    n_layers : int\n",
+    "        Number of HMC layers.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    def __init__(\n",
+    "        self,\n",
+    "        in_channels,\n",
+    "        intermediate_channels,\n",
+    "        out_channels,\n",
+    "        num_classes,\n",
+    "        negative_slope=0.2,\n",
+    "        n_layers=1,\n",
+    "        update_func_attention=\"relu\",\n",
+    "        update_func_aggregation=\"relu\",\n",
+    "    ) -> None:\n",
+    "\n",
+    "        super().__init__()\n",
+    "        self.num_classes = num_classes\n",
+    "\n",
+    "        self.layers = torch.nn.ModuleList(\n",
+    "            HMCLayer(\n",
+    "                in_channels=in_channels,\n",
+    "                intermediate_channels=intermediate_channels,\n",
+    "                out_channels=out_channels,\n",
+    "                negative_slope=negative_slope,\n",
+    "                softmax_attention=True,\n",
+    "                update_func_attention=update_func_attention,\n",
+    "                update_func_aggregation=update_func_aggregation,\n",
+    "            )\n",
+    "            for _ in range(n_layers)\n",
+    "        )\n",
+    "\n",
+    "        self.l0 = torch.nn.Linear(out_channels[0], num_classes)\n",
+    "        self.l1 = torch.nn.Linear(out_channels[1], num_classes)\n",
+    "        self.l2 = torch.nn.Linear(out_channels[2], num_classes)\n",
+    "\n",
+    "    def forward(\n",
+    "        self,\n",
+    "        x_0,\n",
+    "        x_1,\n",
+    "        x_2,\n",
+    "        neighborhood_0_to_0,\n",
+    "        neighborhood_1_to_1,\n",
+    "        neighborhood_2_to_2,\n",
+    "        neighborhood_0_to_1,\n",
+    "        neighborhood_1_to_2,\n",
+    "    ) -> torch.Tensor:\n",
+    "\n",
+    "        \"\"\"Forward pass.\n",
+    "\n",
+    "        Parameters\n",
+    "        ----------\n",
+    "        x_0 : torch.Tensor\n",
+    "            Input features on nodes.\n",
+    "        x_1 : torch.Tensor\n",
+    "            Input features on edges.\n",
+    "        x_2 : torch.Tensor\n",
+    "            Input features on faces.\n",
+    "        neighborhood_0_to_0 : torch.Tensor\n",
+    "            Adjacency  matrix from nodes to nodes.\n",
+    "        neighborhood_1_to_1 : torch.Tensor\n",
+    "            Adjacency  matrix from edges to edges.\n",
+    "        neighborhood_2_to_2 : torch.Tensor\n",
+    "            Adjacency  matrix from faces to faces.\n",
+    "        neighborhood_0_to_1 : torch.Tensor\n",
+    "            Incidence matrix from nodes to edges.\n",
+    "        neighborhood_1_to_2 : torch.Tensor\n",
+    "            Incidence matrix from edges to faces.\n",
+    "\n",
+    "        Returns\n",
+    "        -------\n",
+    "        y_hat : torch.Tensor, shape=[num_classes]\n",
+    "            Vector embedding that represents the probability of the input mesh to belong to each class.\n",
+    "        \"\"\"\n",
+    "\n",
+    "        for layer in self.layers:\n",
+    "            x_0, x_1, x_2 = layer(\n",
+    "                x_0,\n",
+    "                x_1,\n",
+    "                x_2,\n",
+    "                neighborhood_0_to_0,\n",
+    "                neighborhood_1_to_1,\n",
+    "                neighborhood_2_to_2,\n",
+    "                neighborhood_0_to_1,\n",
+    "                neighborhood_1_to_2,\n",
+    "            )\n",
+    "\n",
+    "        x_0 = self.l0(x_0)\n",
+    "        x_1 = self.l1(x_1)\n",
+    "        x_2 = self.l2(x_2)\n",
+    "\n",
+    "        # Sum all the elements in the dimension zero\n",
+    "        x_0 = torch.nanmean(x_0, dim=0)\n",
+    "        x_1 = torch.nanmean(x_1, dim=0)\n",
+    "        x_2 = torch.nanmean(x_2, dim=0)\n",
+    "\n",
+    "        return x_0 + x_1 + x_2"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:57:32.467447Z",
+     "start_time": "2023-07-05T14:57:32.465463Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "ExecuteTime": {
+     "end_time": "2023-06-29T10:21:11.467775Z",
+     "start_time": "2023-06-29T10:21:11.463344Z"
+    }
+   },
+   "source": [
+    "# Train the Neural Network\n",
+    "\n",
+    "We create the trainer class. The model is trained using the Adam optimizer and the Cross Entropy Loss function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "outputs": [],
+   "source": [
+    "class Trainer:\n",
+    "    \"\"\"Trainer for the HOANMeshClassifier.\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    model : torch.nn.Module\n",
+    "        The model to train.\n",
+    "    training_dataloader : torch.utils.data.DataLoader\n",
+    "        The dataloader for the training set.\n",
+    "    testing_dataloader : torch.utils.data.DataLoader\n",
+    "        The dataloader for the testing set.\n",
+    "    learning_rate : float\n",
+    "        The learning rate for the Adam optimizer.\n",
+    "    device : torch.device\n",
+    "        The device to use for training.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    def __init__(\n",
+    "        self, model, training_dataloader, testing_dataloader, learning_rate, device\n",
+    "    ):\n",
+    "        self.model = model.to(device)\n",
+    "        self.training_dataloader = training_dataloader\n",
+    "        self.testing_dataloader = testing_dataloader\n",
+    "        self.device = device\n",
+    "        self.crit = torch.nn.CrossEntropyLoss()\n",
+    "        self.opt = torch.optim.Adam(model.parameters(), lr=learning_rate)\n",
+    "\n",
+    "    def _to_device(self, x):\n",
+    "        \"\"\"Converts tensors to the correct type and moves them to the device.\n",
+    "        Parameters\n",
+    "        ----------\n",
+    "        x : List[torch.Tensor]\n",
+    "            List of tensors to convert.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        List[torch.Tensor]\n",
+    "            List of converted tensors to float type and moved to the device.\n",
+    "        \"\"\"\n",
+    "\n",
+    "        return [el[0].float().to(self.device) for el in x]\n",
+    "\n",
+    "    def train(self, num_epochs=500, test_interval=25):\n",
+    "        \"\"\"Trains the model for the specified number of epochs.\n",
+    "        Parameters\n",
+    "        ----------\n",
+    "        num_epochs : int\n",
+    "            Number of epochs to train.\n",
+    "        test_interval : int\n",
+    "            Interval between testing epochs.\n",
+    "        \"\"\"\n",
+    "        for epoch_i in range(num_epochs):\n",
+    "            training_accuracy, epoch_loss = self._train_epoch()\n",
+    "            print(\n",
+    "                f\"Epoch: {epoch_i} loss: {epoch_loss:.4f} Train_acc: {training_accuracy:.4f}\",\n",
+    "                flush=True,\n",
+    "            )\n",
+    "            if (epoch_i + 1) % test_interval == 0:\n",
+    "                test_accuracy = self.validate()\n",
+    "                print(f\"Test_acc: {test_accuracy:.4f}\", flush=True)\n",
+    "\n",
+    "    def _train_epoch(self):\n",
+    "        \"\"\"Trains the model for one epoch.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        training_accuracy : float\n",
+    "            The mean training accuracy for the epoch.\n",
+    "        epoch_loss : float\n",
+    "            The mean loss for the epoch.\n",
+    "        \"\"\"\n",
+    "        training_samples = len(self.training_dataloader.dataset)\n",
+    "        total_loss = 0\n",
+    "        correct = 0\n",
+    "        self.model.train()\n",
+    "        for sample in self.training_dataloader:\n",
+    "            (\n",
+    "                x_0,\n",
+    "                x_1,\n",
+    "                x_2,\n",
+    "                adjacency_0,\n",
+    "                adjacency_1,\n",
+    "                coadjacency_2,\n",
+    "                incidence_1,\n",
+    "                incidence_2,\n",
+    "            ) = self._to_device(sample[:-1])\n",
+    "\n",
+    "            self.opt.zero_grad()\n",
+    "\n",
+    "            y_hat = self.model.forward(\n",
+    "                x_0,\n",
+    "                x_1,\n",
+    "                x_2,\n",
+    "                adjacency_0,\n",
+    "                adjacency_1,\n",
+    "                coadjacency_2,\n",
+    "                incidence_1,\n",
+    "                incidence_2,\n",
+    "            )\n",
+    "\n",
+    "            y = sample[-1][0].long().to(self.device)\n",
+    "            total_loss += self._compute_loss_and_update(y_hat, y)\n",
+    "            correct += (y_hat.argmax() == y).sum().item()\n",
+    "\n",
+    "        training_accuracy = correct / training_samples\n",
+    "        epoch_loss = total_loss / training_samples\n",
+    "\n",
+    "        return training_accuracy, epoch_loss\n",
+    "\n",
+    "    def _compute_loss_and_update(self, y_hat, y):\n",
+    "        \"\"\"Computes the loss, performs backpropagation, and updates the model's parameters.\n",
+    "        Parameters\n",
+    "        ----------\n",
+    "        y_hat : torch.Tensor\n",
+    "            The output of the model.\n",
+    "        y : torch.Tensor\n",
+    "            The ground truth.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        loss: float\n",
+    "            The loss value.\n",
+    "        \"\"\"\n",
+    "\n",
+    "        loss = self.crit(y_hat, y)\n",
+    "        loss.backward()\n",
+    "        self.opt.step()\n",
+    "        return loss.item()\n",
+    "\n",
+    "    def validate(self):\n",
+    "        \"\"\"Validates the model using the testing dataloader.\n",
+    "        Returns\n",
+    "        -------\n",
+    "        test_accuracy : float\n",
+    "            The mean testing accuracy.\n",
+    "        \"\"\"\n",
+    "        correct = 0\n",
+    "        self.model.eval()\n",
+    "        test_samples = len(self.testing_dataloader.dataset)\n",
+    "        with torch.no_grad():\n",
+    "            for sample in self.testing_dataloader:\n",
+    "                (\n",
+    "                    x_0,\n",
+    "                    x_1,\n",
+    "                    x_2,\n",
+    "                    adjacency_0,\n",
+    "                    adjacency_1,\n",
+    "                    coadjacency_2,\n",
+    "                    incidence_1,\n",
+    "                    incidence_2,\n",
+    "                ) = self._to_device(sample[:-1])\n",
+    "\n",
+    "                y_hat = self.model(\n",
+    "                    x_0,\n",
+    "                    x_1,\n",
+    "                    x_2,\n",
+    "                    adjacency_0,\n",
+    "                    adjacency_1,\n",
+    "                    coadjacency_2,\n",
+    "                    incidence_1,\n",
+    "                    incidence_2,\n",
+    "                )\n",
+    "                y = sample[-1][0].long().to(self.device)\n",
+    "                correct += (y_hat.argmax() == y).sum().item()\n",
+    "            test_accuracy = correct / test_samples\n",
+    "            return test_accuracy"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:57:32.475926Z",
+     "start_time": "2023-07-05T14:57:32.471462Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "source": [
+    "We define the parameters for the model. We use softmax activation for the attention layers. Moreover, we use relu activation for the update and the aggregation steps. We set the negative slope parameter for the Leaky ReLU activation to 0.2."
+   ],
+   "metadata": {
+    "collapsed": false
+   }
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "outputs": [],
+   "source": [
+    "in_channels = training_dataset.channels_dim()\n",
+    "intermediate_channels = [60, 60, 60]\n",
+    "final_channels = [60, 60, 60]\n",
+    "\n",
+    "model = HoanMeshClassifier(\n",
+    "    in_channels,\n",
+    "    intermediate_channels,\n",
+    "    in_channels,\n",
+    "    negative_slope=0.2,\n",
+    "    num_classes=training_dataset.num_classes(),\n",
+    "    n_layers=2,\n",
+    ")\n",
+    "\n",
+    "# If GPU's are available, we will make use of them. Otherwise, this will run on CPU.\n",
+    "device = torch.device(\"cuda\" if torch.cuda.is_available() else \"cpu\")\n",
+    "\n",
+    "trainer = Trainer(model, training_dataloader, testing_dataloader, 0.001, device)"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:57:32.595785Z",
+     "start_time": "2023-07-05T14:57:32.476087Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We train the HoanMeshClassifier using low amount of epochs: we keep training minimal for the purpose of rapid testing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/Users/manuellecha/PycharmProjects/TopoModelX_UBTeam/topomodelx/base/hbs.py:230: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /Users/runner/work/_temp/anaconda/conda-bld/pytorch_1688195355927/work/aten/src/ATen/SparseCsrTensorImpl.cpp:55.)\n",
+      "  result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Epoch: 0 loss: 3.5425 Train_acc: 0.0292\n",
+      "Epoch: 1 loss: 3.3499 Train_acc: 0.0625\n",
+      "Epoch: 2 loss: 3.1204 Train_acc: 0.1187\n",
+      "Epoch: 3 loss: 2.9182 Train_acc: 0.1313\n",
+      "Epoch: 4 loss: 2.6723 Train_acc: 0.1708\n"
+     ]
+    }
+   ],
+   "source": [
+    "trainer.train(num_epochs=5)"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T14:58:53.254825Z",
+     "start_time": "2023-07-05T14:57:32.594950Z"
+    }
+   }
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Letting the model train for longer, we can see that the model achieves an outstanding performance on both the training and testing sets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Epoch: 0 loss: 2.4683 Train_acc: 0.2271\n",
+      "Epoch: 1 loss: 2.3292 Train_acc: 0.2625\n",
+      "Epoch: 2 loss: 2.1646 Train_acc: 0.3187\n",
+      "Epoch: 3 loss: 2.0353 Train_acc: 0.3375\n",
+      "Epoch: 4 loss: 1.8637 Train_acc: 0.3667\n",
+      "Epoch: 5 loss: 1.7065 Train_acc: 0.4354\n",
+      "Epoch: 6 loss: 1.5008 Train_acc: 0.5083\n",
+      "Epoch: 7 loss: 1.3720 Train_acc: 0.5625\n",
+      "Epoch: 37 loss: 0.2312 Train_acc: 0.9292\n",
+      "Epoch: 38 loss: 0.2187 Train_acc: 0.9396\n",
+      "Epoch: 39 loss: 0.2889 Train_acc: 0.9042\n",
+      "Test_acc: 0.8958\n",
+      "Epoch: 40 loss: 0.6459 Train_acc: 0.8854\n",
+      "Epoch: 41 loss: 0.1884 Train_acc: 0.9333\n",
+      "Epoch: 42 loss: 0.2333 Train_acc: 0.9250\n",
+      "Epoch: 43 loss: 0.1772 Train_acc: 0.9396\n",
+      "Epoch: 44 loss: 0.1433 Train_acc: 0.9563\n",
+      "Epoch: 45 loss: 0.2147 Train_acc: 0.9250\n",
+      "Epoch: 46 loss: 0.2404 Train_acc: 0.9083\n",
+      "Epoch: 47 loss: 0.2014 Train_acc: 0.9417\n",
+      "Epoch: 48 loss: 0.1212 Train_acc: 0.9625\n",
+      "Epoch: 49 loss: 0.1206 Train_acc: 0.9625\n",
+      "Test_acc: 0.9750\n"
+     ]
+    }
+   ],
+   "source": [
+    "trainer.train(num_epochs=50, test_interval=10)"
+   ],
+   "metadata": {
+    "collapsed": false,
+    "ExecuteTime": {
+     "end_time": "2023-07-05T15:13:06.070903Z",
+     "start_time": "2023-07-05T14:58:53.253557Z"
+    }
+   }
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
