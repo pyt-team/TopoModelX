@@ -36,7 +36,7 @@ class TestAttentionalLiftLayer:
         in_channels_0 = 7
         in_channels_1 = 3
         dropout = 0.5
-        heads = [1,3]
+        heads = [1, 3]
         signal_lift_readout = ["cat", "sum", "avg", "max"]
         signal_lift_activation = torch.nn.ReLU()
 
@@ -52,7 +52,6 @@ class TestAttentionalLiftLayer:
         combinations = itertools.product(heads, signal_lift_readout)
 
         for head, signal_lift_read in combinations:
-
             can_layer = MultiHeadLiftLayer(
                 in_channels_0=in_channels_0,
                 heads=head,
