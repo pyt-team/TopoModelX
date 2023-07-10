@@ -64,7 +64,7 @@ class HBNS(MessagePassing):
     :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the first :math:`c` elements and the last elements of :math:`v` starting from the :math:`(c+1)`-th element, respectively.
     S is the exponential function if softmax is used and the identity function otherwise.
 
-    The HBNS class just contains the sparse implementation of the block.
+    This HBNS class just contains the sparse implementation of the block.
 
     References
     ----------
@@ -170,16 +170,16 @@ class HBNS(MessagePassing):
         Parameters
         ----------
         message_on_source : torch.Tensor, shape=[source_cells, source_out_channels]
-            Source output signal features before the activation.
+            Source output signal features before the activation function :math:`\phi`.
         message_on_target : torch.Tensor, shape=[target_cells, target_out_channels]
-            Target output signal features before the activation.
+            Target output signal features before the activation function :math:`\phi`.
 
         Returns
         -------
         _ : torch.Tensor, shape=[source_cells, source_out_channels]
-            Updated output features on source cells.
+            Source output signal features after the activation function :math:`\phi`.
         _ : torch.Tensor, shape=[target_cells, target_out_channels]
-            Updated output features on target cells.
+            arget output signal features after the activation function :math:`\phi`.
         """
         if self.update_func == "sigmoid":
             message_on_source = torch.sigmoid(message_on_source)

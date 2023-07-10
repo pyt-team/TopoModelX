@@ -33,24 +33,51 @@ def sparse_row_norm(sparse_tensor):
 
 
 class HBS(MessagePassing):
-    r"""Higher Order Attention Block layer for squared neighborhoods (HBS).
+    r"""Higher Order Attention Block layer for squared neighborhoods (HBS). HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
 
-    This is a sparse implementation of an HBS layer. HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
-    Mathematically, a higher order attention block layer for squared neighborhood matrices N of shape [n_cells, n_cells]
-    and a cochain matrix X of shape [n_cells, source_in_channels] is a function
-     ..  math::
+    Let :math:`\mathcal{X}` be a combinatorial complex, we denote :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the :math:`d`-dimensional
+    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total order.
+    Elements of this space are called :math:`k`-cochains of :math:`\mathcal{X}`.
+    If :math:`d = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.
+
+    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(\mathcal{X})` be a cochain map endomorphism of the space of signals over
+    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N` has shape :math:`n_{cells} \times n_{cells}`, where
+    :math:`n_{cells}` denotes the cardinality of :math:`\Sigma^s`.
+
+    The higher order attention block induced by :math:`N` is the cochain map
+
+    ..  math::
+        \begin{align}
+            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+        \end{align}
+
+    where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and output dimensions of the HBS block, respectively,
+    also denoted as source_in_channels and source_out_channels, respectively.
+
+    :math:`HBS_N` is defined by
+
+    ..  math::
         \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
-    where the first product is the Hadamard product, and the other products are the usual matrix multiplication, W_p
-    is a learnable weight matrix of shape [source_in_channels, source_out_channels] for each p, and A_p is an
-    attention matrix with the same shape as the input neighborhood matrix N, i.e., [n_cells, n_cells]. The indices (i,j)
-    of the attention matrix A_p are computed as
+
+    where :math:`X` is the cochain matrix representation of shape [n_cells, source_in_channels] under the canonical basis
+    of :math:`\mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})`, induced by the total order of :math:`\Sigma^s`, that contains
+    the input features for each cell. The :math:`\odot` symbol denotes the Hadamard product, namely the entry-wise product, and
+    :math:`\phi` is a non-linear activation function. :math:`W_p` is a learnable weight matrix of shape [source_in_channels, source_out_channels]
+    for each :math:`p`, and :math:`A_p` is an attention matrix with the same dimensionality as the input neighborhood matrix :math:`N`, i.e., [n_cells, n_cells].
+    The indices :math:`(i,j)` of the attention matrix :math:`A_p` are computed as
+
     ..  math::
         A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}
+
     where
+
     ..  math::
         e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
-    and where || denotes concatenation, a_p is a learnable column vector of length 2*source_out_channels, and S is
+
+    and where || denotes concatenation, :math:`a_p` is a learnable column vector of length :math:`2*source_out_channels`, and :math:`S` is
     the exponential function if softmax is used and the identity function otherwise.
+
+    This HBS class just contains the sparse implementation of the block.
 
     References
     ----------
@@ -70,11 +97,11 @@ class HBS(MessagePassing):
         Whether to use softmax in the computation of the attention matrix. Default is False.
     m_hop : int, optional
         Maximum number of hops to consider in the computation of the layer function. Default is 1.
-    update_func : {None, 'sigmoid', 'relu'}, optional
-        phi function in the computation of the output of the layer. If None, phi is the identity function. Default is
-        None.
+    update_func : {None, 'sigmoid', 'relu', 'tanh}, optional
+        Activation function :math:`phi` in the computation of the output of the layer.
+        If None, :math:`phi` is the identity function. Default is None.
     initialization : {'xavier_uniform', 'xavier_normal'}, optional
-        Initialization method for the weights of W_p and a. Default is 'xavier_uniform'.
+        Initialization method for the weights of W_p and :math:`a_p`. Default is 'xavier_uniform'.
     """
 
     def __init__(
@@ -150,22 +177,24 @@ class HBS(MessagePassing):
             reset_specific_hop_parameters(w, a)
 
     def update(self, message):
-        """Update embeddings on each cell.
+        r"""Update signal features on each cell with an activation function, either sigmoid, ReLU or tanh.
 
         Parameters
         ----------
         message : torch.Tensor, shape=[n_cells, out_channels]
-            Output features of the layer before the update function.
+            Output signal features before the activation function.
 
         Returns
         -------
         _ : torch.Tensor, shape=[n_cells, out_channels]
-            Updated output features on target cells.
+            Output signal features after the activation function :math:`\phi`.
         """
         if self.update_func == "sigmoid":
             return torch.sigmoid(message)
-        if self.update_func == "relu":
+        elif self.update_func == "relu":
             return torch.nn.functional.relu(message)
+        elif self.update_func == "tanh":
+            return torch.nn.functional.tanh(message)
 
     def attention(self, message, A_p, a_p):
         """Compute attention matrix.
