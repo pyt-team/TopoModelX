@@ -36,7 +36,7 @@ class TestSCCNNLayer:
                            sc_order=2,
                            aggr_norm=False,
                            update_func=None)
-        output = sccnn.forward(x_all, incidence_all, laplacian_all)
+        output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
@@ -49,7 +49,7 @@ class TestSCCNNLayer:
                            sc_order=2, 
                            aggr_norm=False, 
                            update_func='sigmoid')
-        output = sccnn.forward(x_all, incidence_all, laplacian_all)
+        output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
@@ -62,7 +62,7 @@ class TestSCCNNLayer:
                            sc_order=2, 
                            aggr_norm=True, 
                            update_func='sigmoid')
-        output = sccnn.forward(x_all, incidence_all, laplacian_all)
+        output = sccnn.forward(x_all, laplacian_all, incidence_all)
         y_0, y_1, y_2 = output
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
