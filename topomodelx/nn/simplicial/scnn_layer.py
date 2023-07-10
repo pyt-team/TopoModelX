@@ -96,13 +96,6 @@ class SCNNLayer(torch.nn.Module):
         """
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight, gain=gain)
-        elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.weight, gain=gain)
-        else:
-            raise RuntimeError(
-                "Initialization method not recognized. "
-                "Should be either xavier_uniform or xavier_normal."
-            )
 
     def aggr_norm_func(self, conv_operator, x):
         r"""Perform aggregation normalization."""

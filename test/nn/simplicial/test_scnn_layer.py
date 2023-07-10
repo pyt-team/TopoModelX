@@ -57,7 +57,7 @@ class TestSCNNLayer:
             conv_order_down,
             conv_order_up,
             aggr_norm=True,
-            update_func="sigmoid",
+            update_func="relu",
         )
         output = scnn.forward(
             x, laplacian_down=laplacian_down, laplacian_up=laplacian_up
