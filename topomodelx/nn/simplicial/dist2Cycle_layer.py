@@ -58,8 +58,7 @@ class Dist2CycleLayer(torch.nn.Module):
             update_func=None,
         )
 
-        self.aggr_on_nodes = Aggregation(
-            aggr_func="sum", update_func="sigmoid")
+        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func="sigmoid")
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""
