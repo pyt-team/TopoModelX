@@ -11,8 +11,8 @@ Base
 .. automodule:: topomodelx.base.aggregation
    :members:
 
-.. automodule:: topomodelx.base.hbns
+.. automodule:: topomodelx.base.hbs
    :members:
 
-.. automodule:: topomodelx.base.hbns2
+.. automodule:: topomodelx.base.hbns
     :members:

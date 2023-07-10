@@ -1,7 +1,10 @@
 """Sphinx configuration file."""
+import sys
+import os
+sys.path.insert(0, os.path.abspath('..'))
 
 import topomodelx
-project = "TopoModelX"
+project = "TopoModelX_UBTeam"
 copyright = "2022-2023, PyT-Team, Inc."
 author = "PyT-Team Authors"
 language = "en"
@@ -46,8 +49,6 @@ templates_path = ["_templates"]
 source_suffix = [".rst"]
 
 master_doc = "index"
-
-language = None
 
 nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base=None) %}
