@@ -4,6 +4,10 @@
 [![Python](https://img.shields.io/badge/python-3.10+-blue?logo=python)](https://www.python.org/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7958513.svg)](https://doi.org/10.5281/zenodo.7958513)
 
+
+![pyt](https://github.com/mhajij/shrec_16/blob/main/logo.png)
+
+
 # 🌐 TopoModelX (TMX) 🍩
 ## Topological Deep Learning
 
@@ -39,8 +43,9 @@ Then:
 2. Install tmx in editable mode:
 
    ```bash
-   pip install -e .[all]
+   pip install -e '.[all]'
    ```
+   **Note:** Requires pip >= 21.3. Refer: [PEP 660](https://peps.python.org/pep-0660/). 
 
 3. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
