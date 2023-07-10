@@ -63,9 +63,9 @@ class PoolLayer(MessagePassing):
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{x}^{(r)} 
+            &🟥 \quad m_{x}^{(r)}
                 = \gamma^t(h_x^t) = \tau^t (a^t\cdot h_x^t)\\
-            &🟦 \quad h_x^{t+1,(r)} 
+            &🟦 \quad h_x^{t+1,(r)}
                 = \phi^t(h_x^t, m_{x}^{(r)}), \forall x\in \mathcal C_r^{t+1}
             \end{align*}
 

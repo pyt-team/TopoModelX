@@ -156,9 +156,9 @@ class MultiHeadLiftLayer(nn.Module):
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)} 
+            &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}
                 = \alpha(h_y, h_z) = \Theta(h_z||h_y)\\
-            &🟦 \quad h_x^{(1)} 
+            &🟦 \quad h_x^{(1)}
                 = \phi(h_x, m_x^{(1)})
             \end{align*}
 
