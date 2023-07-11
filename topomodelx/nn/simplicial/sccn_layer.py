@@ -17,12 +17,18 @@ class SCCNLayer(torch.nn.Module):
         Dimension of features on each simplicial cell.
     max_rank : int
         Maximum rank of the cells in the simplicial complex.
+    aggr_func : str
+        The function to be used for aggregation.
+    update_func : str
+        The activation function.
     """
 
     def __init__(
         self,
         channels,
         max_rank,
+        aggr_func="sum",
+        update_func="sigmoid",
     ):
         super().__init__()
         self.channels = channels
@@ -67,7 +73,7 @@ class SCCNLayer(torch.nn.Module):
         # aggregation functions
         self.aggregations = torch.nn.ModuleDict(
             {
-                f"rank_{rank}": Aggregation(aggr_func="sum", update_func="sigmoid")
+                f"rank_{rank}": Aggregation(aggr_func=aggr_func, update_func=update_func)
                 for rank in range(max_rank + 1)
             }
         )
