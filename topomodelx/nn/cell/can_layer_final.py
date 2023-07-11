@@ -384,6 +384,38 @@ class MultiHeadCellAttention(MessagePassing):
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
         self.lin.reset_parameters()
 
+    def message(self, x_source):
+        """Construct message from source cells to target cells.
+
+        🟥 This provides a default message function to the message passing scheme.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+
+        Returns
+        -------
+        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+            Messages on source cells.
+        """
+        # Compute the linear transformation on the source features
+        x_message = self.lin(x_source).view(
+            -1, self.heads, self.out_channels
+        )  # (n_k_cells, H, C)
+
+        # compute the source and target messages
+        x_source_per_message = x_message[self.source_index_j]  # (|n_k_cells|, H, C)
+        x_target_per_message = x_message[self.target_index_i]  # (|n_k_cells|, H, C)
+        # compute the attention coefficients
+        alpha = self.attention(
+            x_source_per_message, x_target_per_message
+        )  # (|n_k_cells|, H)
+
+        # for each head, Aggregate the messages
+        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+        return message
+
     def attention(self, x_source, x_target):
         """Compute attention weights for messages.
 
@@ -506,15 +538,8 @@ class MultiHeadCellAttention(MessagePassing):
                 (x_source.shape[0], self.out_channels), device=x_source.device
             )  # (n_k_cells, C)
 
-        # Compute the linear transformation on the source features
-        x_message = self.lin(x_source).view(
-            -1, self.heads, self.out_channels
-        )  # (n_k_cells, H, C)
-
         # Add self-loops to the neighborhood matrix if necessary
         if self.add_self_loops is not None:
-            # TODO: check if the self-loops are already added
-            # TODO: should we remove the self-loops from the neighborhood matrix after the message passing?
             neighborhood = self.add_self_loops(neighborhood)
 
         # returns the indices of the non-zero values in the neighborhood matrix
@@ -523,16 +548,9 @@ class MultiHeadCellAttention(MessagePassing):
             self.source_index_j,
         ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
 
-        # compute the source and target messages
-        x_source_per_message = x_message[self.source_index_j]  # (|n_k_cells|, H, C)
-        x_target_per_message = x_message[self.target_index_i]  # (|n_k_cells|, H, C)
-        # compute the attention coefficients
-        alpha = self.attention(
-            x_source_per_message, x_target_per_message
-        )  # (|n_k_cells|, H)
-
-        # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+        # compute message passing step
+        message = self.message(x_source)  # (|n_k_cells|, H, C)
+        # compute within-neighborhood aggregation step
         aggregated_message = self.aggregate(message)  # (n_k_cells, H, C)
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
@@ -629,6 +647,46 @@ class MultiHeadCellAttention_v2(MessagePassing):
         torch.nn.init.xavier_uniform_(self.att_weight)
         self.lin_src.reset_parameters()
         self.lin_dst.reset_parameters()
+
+    def message(self, x_source):
+        """Construct message from source cells to target cells.
+
+        🟥 This provides a default message function to the message passing scheme.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+
+        Returns
+        -------
+        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+            Messages on source cells.
+        """
+        # Compute the linear transformation on the source features
+        x_src_message = self.lin_src(x_source).view(
+            -1, self.heads, self.out_channels
+        )  # (n_k_cells, H, C)
+
+        # Compute the linear transformation on the source features
+        x_dst_message = self.lin_dst(x_source).view(
+            -1, self.heads, self.out_channels
+        )  # (n_k_cells, H, C)
+
+        # Get the source and target projections of the neighborhood
+        x_source_per_message = x_src_message[self.source_index_j]  # (|n_k_cells|, H, C)
+        x_target_per_message = x_dst_message[self.target_index_i]  # (|n_k_cells|, H, C)
+
+        # concatenate the source and target projections of the neighborhood
+        x_message = x_source_per_message + x_target_per_message  # (|n_k_cells|, H, C)
+
+        # Compute the attention coefficients
+        alpha = self.attention(x_message)  # (|n_k_cells|, H)
+
+        # for each head, Aggregate the messages
+        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+
+        return message
 
     def attention(self, x_source):
         """Compute attention weights for messages.
@@ -745,16 +803,6 @@ class MultiHeadCellAttention_v2(MessagePassing):
                 (x_source.shape[0], self.out_channels), device=x_source.device
             )  # (n_k_cells, C)
 
-        # Compute the linear transformation on the source features
-        x_src_message = self.lin_src(x_source).view(
-            -1, self.heads, self.out_channels
-        )  # (n_k_cells, H, C)
-
-        # Compute the linear transformation on the source features
-        x_dst_message = self.lin_dst(x_source).view(
-            -1, self.heads, self.out_channels
-        )  # (n_k_cells, H, C)
-
         # Add self-loops to the neighborhood matrix if necessary
         if self.add_self_loops is not None:
             # TODO: check if the self-loops are already added
@@ -767,18 +815,9 @@ class MultiHeadCellAttention_v2(MessagePassing):
             self.source_index_j,
         ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
 
-        # Get the source and target projections of the neighborhood
-        x_source_per_message = x_src_message[self.source_index_j]  # (|n_k_cells|, H, C)
-        x_target_per_message = x_dst_message[self.target_index_i]  # (|n_k_cells|, H, C)
-
-        # concatenate the source and target projections of the neighborhood
-        x_message = x_source_per_message + x_target_per_message  # (|n_k_cells|, H, C)
-
-        # Compute the attention coefficients
-        alpha = self.attention(x_message)  # (|n_k_cells|, H)
-
-        # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
+        # compute message passing step
+        message = self.message(x_source)  # (|n_k_cells|, H, C)
+        # compute within-neighborhood aggregation step
         aggregated_message = self.aggregate(message)  # (n_k_cells, H, C)
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
