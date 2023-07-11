@@ -25,8 +25,8 @@ Higher Order Attention Blocks (HB)
 
 Higher Order Attention Blocks (HB) for Combinatorial Complexes. The HBs were introduced first on the following paper:
 
-    * `Higher-Order Graph Convolutional Networks <https://arxiv.org/abs/1901.09847>`_
-      *Federico Monti, Michael M. Bronstein, Xavier Bresson*
+    `Topological Deep Learning: Going Beyond Graph Data <https://arxiv.org/pdf/2206.00606v3.pdf>`_.
+    *Mustafa Hajij et al.*
 
 Squared Neighbourhood Matrices (HBS)
 ------------------------------------

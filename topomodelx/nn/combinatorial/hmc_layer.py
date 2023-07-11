@@ -1,9 +1,4 @@
-"""Higher-Order Attentional NN Layer for Mesh Classification.
-
-Implementation of the Message Passing Layer for the Combinatorial Complex
-Attentional Neural Network for Mesh Classification introduced in [HAJIJ23]_,
-Figure 35(b).
-"""
+"""Higher-Order Attentional NN Layer for Mesh Classification."""
 
 from typing import List
 
@@ -18,11 +13,15 @@ from topomodelx.base.hbs import HBS
 class HMCLayer(torch.nn.Module):
     r"""Higher-Order Attentional NN Layer for Mesh Classification.
 
+    Implementation of the Message Passing Layer for the Combinatorial Complex
+    Attentional Neural Network for Mesh Classification, first introduced in
+    [H23]_ and graphically illustrated in Figure 35(b) of [H23]_.
+
     The layer is composed of two message passing steps, both of which
     update the signal features over the cells of the zeroth, first and second
     skeleton of the combinatorial complex. The message passing operation is
     defined by means of combinatorial complex attention push-forward
-    operations. See Definitions 32 and 33 in [HAJIJ23]_ for more details.
+    operations. See Definitions 32 and 33 in [H23]_ for more details.
 
     The steps are:
 
@@ -31,11 +30,10 @@ class HMCLayer(torch.nn.Module):
     case, adjacency matrices are used. In the second case, the incidence
     matrix from dimension 1 to dimension 0 is used. 1-dimensional cells
     (edges) receive messages from 1-dimensional cells (edges) and from
-    2-dimensional cells (faces).  n both cases, incidence matrices are
+    2-dimensional cells (faces). In both cases, incidence matrices are
     used. 2-dimensional cells (faces) receive messages only from
     1-dimensional cells (edges). In this case, the incidence matrix
-    from dimension 2 to
-    dimension 1 is used.
+    from dimension 2 to dimension 1 is used.
     2. 0-dimensional cells (vertices) receive messages from 0-dimensional
     cells (vertices) using their adjacency matrix.
     1-dimensional cells (edges) receive messages from 0-dimensional
@@ -45,103 +43,19 @@ class HMCLayer(torch.nn.Module):
     2-dimensional cells (faces) using incidence and coadjacency
     matrices, respectively.
 
-    Following the notations of [PSHM23]_, the steps can be summarized as
-    follows:
-
-    1.First level:
-
-    ..  math::
-        \begin{align}
-            m^{0\rightarrow 0}_{y\rightarrow x} &= \left((A_{\uparrow,
-            0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right) h_y^{
-            t,(0)} \Theta^t_{0\rightarrow 0}\\
-            m^{0\rightarrow 1}_{y\rightarrow x} &= \left((B_{1}^T)_{xy}
-            \cdot \text{att}_{xy}^{0\rightarrow 1}\right) h_y^{t,
-            (0)} \Theta^t_{0\rightarrow 1}\\
-            m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{1})_{xy}
-            \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,
-            (1)} \Theta^t_{1\rightarrow 0}\\
-            m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{2}^T)_{xy}
-            \cdot \text{att}_{xy}^{1\rightarrow 2}\right) h_y^{t,
-            (1)} \Theta^t_{1\rightarrow 2}\\
-            m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{xy} \cdot
-            \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,
-            (2)} \Theta^t_{2\rightarrow 1}\\
-            m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{\uparrow,
-            0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
-            m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{1}^T(x)}
-            m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
-            m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{1}(x)} m^{
-            1\rightarrow 0}_{y\rightarrow x}\right)\\
-            m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{2}^T(x)}
-            m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
-            m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{2}(x)} m^{
-            2\rightarrow 1}_{y\rightarrow x}\right)\\
-            m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{
-            1\rightarrow 0}_{x}\right)\\
-            m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{
-            2\rightarrow 1}_{x}\right)\\
-            m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)\\
-            i_x^{t,(0)} = m_x^{(0)}\\
-            i_x^{t,(1)} = m_x^{(1)}\\
-            i_x^{t,(2)} = m_x^{(2)}
-         \end{align}
-    where :math:`i_x^{t,(\cdot)}` represents intermediate feature vectors.
-
-    2. Second level:
-    ..  math::
-        \begin{align}
-            m^{0\rightarrow 0}_{y\rightarrow x} &= \left((A_{\uparrow,
-            0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right)
-            i_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
-            m^{1\rightarrow 1}_{y\rightarrow x} &= \left((A_{\uparrow,
-            1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right)
-            i_y^{t,(1)} \Theta^t_{1\rightarrow 1}\\
-            m^{2\rightarrow 2}_{y\rightarrow x} &= \left((A_{
-            \downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow
-            2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}\\
-            m^{0\rightarrow 1}_{y\rightarrow x} &= \left((B_{1}^T)_{xy}
-            \cdot \text{att}_{xy}^{0\rightarrow 1}\right) i_y^{t,
-            (0)} \Theta^t_{0\rightarrow 1}\\
-            m^{1\rightarrow 2}_{y\rightarrow x} &= \left((B_{2}^T)_{xy}
-            \cdot \text{att}_{xy}^{1\rightarrow 2}\right) i_y^{t,
-            (1)} \Theta^t_{1\rightarrow 2}\\
-            m^{0\rightarrow 0}_{x} &= \phi_u\left(\sum_{y\in A_{
-            \uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
-            m^{1\rightarrow 1}_{x} &= \phi_u\left(\sum_{y\in A_{
-            \uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)\\
-            m^{2\rightarrow 2}_{x} &= \phi_u\left(\sum_{y\in A_{
-            \downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)\\
-            m^{0\rightarrow 1}_{x} &= \phi_u\left(\sum_{y\in B_{1}^T(
-            x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
-            m^{1\rightarrow 2}_{x} &= \phi_u\left(\sum_{y\in B_{2}^T(
-            x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
-            m_x^{(0)} &= \phi_a\left(m^{0\rightarrow 0}_{x}+m^{
-            1\rightarrow 0}_{x}\right)\\
-            m_x^{(1)} &= \phi_a\left(m^{1\rightarrow 1}_{x} + m^{
-            0\rightarrow 1}_{x}\right)\\
-            m_x^{(2)} &= \phi_a\left(m^{1\rightarrow 2}_{x} + m^{
-            2\rightarrow 2}_{x}\right)\\
-            h_x^{t+1,(0)} &= m_x^{(0)}\\
-            h_x^{t+1,(1)} &= m_x^{(1)}\\
-            h_x^{t+1,(2)} &= m_x^{(2)}
-        \end{align}
-
-    In both message passing levels, :math:`phi_u` and :math:`phi_a`
-    represent common activation functions for within and between
-    neighborhood aggregations, and are passed to the constructor of the
-    class as arguments update_func_attention and update_func_aggregation,
-    respectively.
+    Notes
+    -----
+    This is the architecture proposed for mesh classification. Meshes are
+    assumed to be represesented as combinatorial complexes.
 
     References
     ----------
-    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going
-    Beyond Graph Data.
-        arXiv:2206.00606.
-        https://arxiv.org/pdf/2206.00606v3.pdf
+    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+        (2023) https://arxiv.org/abs/2206.00606.
+
     .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-        Architectures of Topological Deep Learning: A Survey on
-        Topological Neural Networks.
+        Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
         (2023) https://arxiv.org/abs/2304.10031.
 
     Parameters
@@ -308,16 +222,103 @@ class HMCLayer(torch.nn.Module):
         r"""Forward pass.
 
         The forward pass of the Combinatorial Complex Attention Neural
-        Network for Mesh Classification proposed in [HAJIJ23]_, Figure 35(
-        b). The input features are transformed in two steps. In the first
-        step, the intermediate features are computed using incidence and
-        adjacency matrices. In the second step, the output features are
-        computed using incidence, adjacency, and coadjacency matrices. The
-        notation used in the code follows the one used in [PSHM23]_.
+        Network for Mesh Classification proposed in [H23]_, Figure 35(
+        b). The input features are transformed in two message passing
+        levels both of which update the signal features over the cells of
+        the zeroth, first and second skeleton of the combinatorial complex.
+        Following the notations of [PSHM23]_, the steps can be summarized as
+        follows:
+
+        1.First level:
+
+        ..  math::
+            \begin{align}
+                &🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{
+                \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow
+                0}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+                &🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{
+                1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)
+                h_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+                &🟥\quad m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{
+                1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,
+                (1)} \Theta^t_{1\rightarrow 0}\\
+                &🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{
+                2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)
+                h_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+                &🟥\quad m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{
+                xy} \cdot \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,
+                (2)} \Theta^t_{2\rightarrow 1}\\
+                &🟧\quad m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{
+                \uparrow,0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{
+                1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{
+                1}(x)} m^{1\rightarrow 0}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{
+                2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{
+                2}(x)} m^{2\rightarrow 1}_{y\rightarrow x}\right)\\
+                &🟩\quad m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{
+                1\rightarrow 0}_{x}\right)\\
+                &🟩\quad m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{
+                2\rightarrow 1}_{x}\right)\\
+                &🟩\quad m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)\\
+                &🟦\quad i_x^{t,(0)} = m_x^{(0)}\\
+                &🟦\quad i_x^{t,(1)} = m_x^{(1)}\\
+                &🟦\quad i_x^{t,(2)} = m_x^{(2)}
+             \end{align}
+
+        where :math:`i_x^{t,(\cdot)}` represents intermediate feature vectors.
+
+        2. Second level:
+
+        ..  math::
+            \begin{align}
+                &🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{
+                \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right)
+                i_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+                &🟥\quad m^{1\rightarrow 1}_{y\rightarrow x} = \left((A_{
+                \uparrow,1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right)
+                i_y^{t,(1)} \Theta^t_{1\rightarrow 1}\\
+                &🟥\quad m^{2\rightarrow 2}_{y\rightarrow x} = \left((A_{
+                \downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow
+                2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}\\
+                &🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{
+                1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)
+                i_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+                &🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{
+                2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)
+                i_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+                &🟧\quad m^{0\rightarrow 0}_{x} = \phi_u\left(\sum_{y\in A_{
+                \uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{1\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in A_{
+                \uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{2\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in A_{
+                \downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{0\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in B_{
+                1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+                &🟧\quad m^{1\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in B_{
+                2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+                &🟩\quad m_x^{(0)} = \phi_a\left(m^{0\rightarrow 0}_{x}+m^{
+                1\rightarrow 0}_{x}\right)\\
+                &🟩\quad m_x^{(1)} = \phi_a\left(m^{1\rightarrow 1}_{x} + m^{
+                0\rightarrow 1}_{x}\right)\\
+                &🟩\quad m_x^{(2)} = \phi_a\left(m^{1\rightarrow 2}_{x} + m^{
+                2\rightarrow 2}_{x}\right)\\
+                &🟦\quad h_x^{t+1,(0)} = m_x^{(0)}\\
+                &🟦\quad h_x^{t+1,(1)} = m_x^{(1)}\\
+                &🟦\quad h_x^{t+1,(2)} = m_x^{(2)}
+            \end{align}
+
+        In both message passing levels, :math:`\phi_u` and :math:`\phi_a`
+        represent common activation functions within and between neighborhood
+        aggregations. Both are passed to the constructor of the class as
+        arguments update_func_attention and update_func_aggregation,
+        respectively.
 
         References
         ----------
-        .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going
+        .. [H23] Mustafa Hajij et al. Topological Deep Learning: Going
         Beyond Graph Data.
             arXiv:2206.00606.
             https://arxiv.org/pdf/2206.00606v3.pdf

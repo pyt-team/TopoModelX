@@ -1,4 +1,4 @@
-"""Test the Higher Order Attention Block for non-squared neighborhoods (HBNS) layer in the base module."""
+"""Test the Higher Order Attention for non-squared neighborhoods layer."""
 import math
 
 import pytest
@@ -75,7 +75,7 @@ class TestHBNS:
             )
 
     def test_forward_shape(self):
-        """Test the shapes of the outputs of the forward pass of the HBNS layer."""
+        """Test the shapes of the outputs of the forward pass."""
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 3, 4
 
@@ -124,7 +124,7 @@ class TestHBNS:
         assert message_on_target.shape == (self.n_target_cells, self.d_t_out)
 
     def test_attention_without_softmax(self):
-        """Test the calculation of the attention matrices calculation without softmax."""
+        """Test the calculation of the attention matrices without softmax."""
         self.set_constant_weights()
         # Create the message that will be used for the attention.
         target_message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
@@ -145,7 +145,7 @@ class TestHBNS:
             att_matrix_s_to_t.to_dense(),
             att_matrix_t_to_s.to_dense(),
         )
-        # Create the expected attention matrix. The values have been calculated by hand.
+        # Expected attention matrix. The values have been calculated by hand.
         expected_att_matrix_s_to_t = neighborhood_s_to_t.to_dense() * torch.tensor(
             [
                 [33.0 / 82.0, 41.0 / 82.0, 49.0 / 82.0],
@@ -168,7 +168,7 @@ class TestHBNS:
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
     def test_attention_with_softmax(self):
-        """Test the calculation of the attention matrices calculation with softmax."""
+        """Test the calculation of the attention matrices with softmax."""
         self.set_constant_weights()
         self.hbns.softmax = True
         # Create the message that will be used for the attention.
@@ -190,7 +190,7 @@ class TestHBNS:
             att_matrix_s_to_t.to_dense(),
             att_matrix_t_to_s.to_dense(),
         )
-        # Create the expected attention matrix. The values have been calculated by hand.
+        # Expected attention matrix. The values have been calculated by hand.
         expected_att_s_to_t_wo_product = torch.exp(
             torch.tensor(
                 [[33.0, 41.0, 49.0], [37.0, 45.0, 53.0], [41.0, 49.0, 57.0]],
@@ -236,7 +236,7 @@ class TestHBNS:
         assert torch.allclose(att_matrix_t_to_s, expected_att_matrix_t_to_s)
 
     def test_forward_values(self):
-        """Test the values of the outputs of the forward pass of the HBNS layer against a specific precomputed example."""
+        """Test the outputs of the forward pass of the HBNS layer."""
         self.d_s_in, self.d_s_out = 2, 3
         self.d_t_in, self.d_t_out = 2, 3
 

@@ -1,7 +1,4 @@
-"""Higher Order Attention Block for non-squared neighborhood matrices (HBNS).
-
-HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.
-"""
+"""Higher Order Attention Block for non-squared neighborhood matrices."""
 
 
 import torch
@@ -16,22 +13,23 @@ from ..utils.srn import sparse_row_norm
 class HBNS(MessagePassing):
     r"""Higher Order Attention Block for non-squared neighborhood matrices.
 
-    Let :math:`\mathcal{X}` be a combinatorial complex, we denote
-    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the
-    :math:`d`-dimensional :math:`\mathbb{R}`-valued vector space of signals
-    over the :math:`k`-th skeleton of :math:`\mathcal{X}`. Elements of this
-    space are called :math:`k`-cochains of :math:`\mathcal{X}`. If :math:`d
-    = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.
+    Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
+    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`\mathbb{
+    R}`-valued vector space of :math:`d`-dimensional signals over
+    :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}`
+    subject to a certain total order. Elements of this space are called
+    :math:`k`-cochains of :math:`\mathcal{X}`. If :math:`d = 1`, we denote
+    it by :math:`\mathcal{C}^k(\mathcal{X})`.
 
     Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^t(
-    \mathcal{X})` with :math:`s \neq t` be a  non-squared neighborhood
-    matrix from the space of signals  over :math:`s`th-skeleton of
-    :math:`\mathcal{X}` to the :math:`t`-skeleton of :math:`\mathcal{X}`.
-    The higher order attention block induced by :math:`N` is a cochain map
+    \mathcal{X})` with :math:`s \neq t` be a non-squared neighborhood matrix
+    from the :math:`s` th-skeleton of :math:`\mathcal{
+    X}` to its :math:`t` th-skeleton. The higher order
+    attention block induced by :math:`N` is a cochain map
 
     ..  math::
         \begin{align}
-            HBNS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})
+            \text{HBNS}_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})
             \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{t_{in}}})
             \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{t_{out}}})
             \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
@@ -39,15 +37,14 @@ class HBNS(MessagePassing):
 
     where :math:`d^{s_{in}}`, :math:`d^{t_{in}}`, :math:`d^{s_{out}}`,
     and :math:`d^{t_{out}}` are the input and output dimensions of the
-    source and target cochains, respectively, also denoted as
-    source_in_channels, target_in_channels, source_out_channels,
-    and target_out_channels.
+    source and target cochains, also denoted as source_in_channels,
+    target_in_channels, source_out_channels, and target_out_channels.
 
-    The cochain map :math:`HBNS_N` is defined as
+    The cochain map :math:`\text{HBNS}_N` is defined as
 
     ..  math::
         \begin{align}
-            HBNS_N(X_s, X_t) = (Y_s, Y_t),
+            \text{HBNS}_N(X_s, X_t) = (Y_s, Y_t),
         \end{align}
 
     where the source and target output cochain matrices :math:`Y_s` and
@@ -70,8 +67,10 @@ class HBNS(MessagePassing):
 
     ..  math::
         \begin{align}
-            A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
-            A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
+            A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{\#\text{columns}(N)} e_{i,
+            k}}, \\
+            A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{\#\text{columns}(N^T)} f_{i,
+            k}},
         \end{align}
 
     where,
@@ -80,25 +79,28 @@ class HBNS(MessagePassing):
         \begin{align}
             e_{i,j} &= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\
             f_{i,j} &= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{
-            out}}:]||a[:d_{s_{out}}])),\\
+            out}}:]||a[:d_{s_{out}}])).\\
         \end{align}
 
-    where || denotes concatenation, :math:`a` is a learnable column vector
-    of length :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`,
-    we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the
-    first :math:`c` elements and the last elements of :math:`v`  starting
-    from the :math:`(c+1)`-th element, respectively. :math:`S` is the
-    exponential function if softmax is used and the identity function
-    otherwise.
+    Here, || denotes concatenation and :math:`a` denotes the learnable column
+    attention vector of length :math:`d_{s_{out}} + d_{t_{out}}`.
+    Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]`
+    to the projection onto the first :math:`c` elements and the last
+    elements of :math:`v` starting from the :math:`(c+1)`-th element,
+    respectively. :math:`S` is the exponential function if softmax is used
+    and the identity function otherwise.
 
     This HBNS class just contains the sparse implementation of the block.
 
+    Notes
+    -----
+    HBNS layers were introduced in [H23]_, Definition 31 and 33.
+
     References
     ----------
-    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going
-    Beyond Graph Data.
-        arXiv:2206.00606.
-        https://arxiv.org/pdf/2206.00606v3.pdf
+    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+        (2023) https://arxiv.org/abs/2206.00606.
 
     Parameters
     ----------
@@ -215,10 +217,10 @@ class HBNS(MessagePassing):
 
         Returns
         -------
-        _ phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]
+        phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]
             Source output signal features after the activation function
             :math:`\phi`.
-        _ phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]
+        phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]
             Target output signal features after the activation function
             :math:`\phi`.
         """
@@ -241,8 +243,10 @@ class HBNS(MessagePassing):
 
         ..  math::
             \begin{align}
-                A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\
-                A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},
+                A_s(i,j) &= \frac{e_{i,j}}{\sum_{k=1}^{\#\text{columns}(N)}
+                e_{i,k}}, \\
+                A_t(i,j) &= \frac{f_{i,j}}{\sum_{k=1}^{\#\text{columns}(N^T)}
+                f_{i,k}},
             \end{align}
 
         where,
@@ -253,7 +257,6 @@ class HBNS(MessagePassing):
                 f_{i,j} &= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[
                 d_{s_{out}}:]||a[:d_{s_{out}}])).
             \end{align}
-
 
         Parameters
         ----------
@@ -300,7 +303,7 @@ class HBNS(MessagePassing):
                     t_to_s,
                     torch.cat(
                         [
-                            self.att_weight[self.source_out_channels :],
+                            self.att_weight[self.source_out_channels:],
                             self.att_weight[: self.source_out_channels],
                         ]
                     ),
@@ -319,14 +322,14 @@ class HBNS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
     ) -> tuple[torch.Tensor]:
-        r"""Forward pass.
+        r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for non-squared
         matrices (HBNS) is defined as
 
         ..  math::
             \begin{align}
-                HBNS_N(X_s, X_t) = (Y_s, Y_t),
+                \text{HBNS}_N(X_s, X_t) = (Y_s, Y_t),
             \end{align}
 
         where the source and target outputs :math:`Y_s` and :math:`Y_t` are

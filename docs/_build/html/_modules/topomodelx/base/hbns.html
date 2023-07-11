@@ -331,7 +331,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for topomodelx.base.hbns</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices (HBNS).&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices.&quot;&quot;&quot;</span>
 
 
 <span class="kn">import</span> <span class="nn">torch</span>
@@ -344,25 +344,26 @@ document.write(`
 
 
 <div class="viewcode-block" id="HBNS"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS">[docs]</a><span class="k">class</span> <span class="nc">HBNS</span><span class="p">(</span><span class="n">MessagePassing</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices</span>
-<span class="sd">    (HBNS). HBNS layers were introduced in [HAJIJ23]_, Definition 31 and 33.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher Order Attention Block for non-squared neighborhood matrices.</span>
 
-<span class="sd">    Let :math:`\mathcal{X}` be a combinatorial complex, we denote</span>
-<span class="sd">    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` as the</span>
-<span class="sd">    :math:`d`-dimensional :math:`\mathbb{R}`-valued vector space of signals</span>
-<span class="sd">    over the :math:`k`-th skeleton of :math:`\mathcal{X}`. Elements of this</span>
-<span class="sd">    space are called :math:`k`-cochains of :math:`\mathcal{X}`. If :math:`d</span>
-<span class="sd">    = 1`, we denote :math:`\mathcal{C}^k(\mathcal{X})`.</span>
+
+<span class="sd">    Let :math:`\mathcal{X}` be a combinatorial complex, we denote by</span>
+<span class="sd">    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`\mathbb{</span>
+<span class="sd">    R}`-valued vector space of :math:`d`-dimensional signals over</span>
+<span class="sd">    :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}`</span>
+<span class="sd">    subject to a certain total order. Elements of this space are called</span>
+<span class="sd">    :math:`k`-cochains of :math:`\mathcal{X}`. If :math:`d = 1`, we denote</span>
+<span class="sd">    it by :math:`\mathcal{C}^k(\mathcal{X})`.</span>
 
 <span class="sd">    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^t(</span>
-<span class="sd">    \mathcal{X})` with :math:`s \neq t` be a  non-squared neighborhood</span>
-<span class="sd">    matrix from the space of signals  over :math:`s`th-skeleton of</span>
-<span class="sd">    :math:`\mathcal{X}` to the :math:`t`-skeleton of :math:`\mathcal{X}`.</span>
-<span class="sd">    The higher order attention block induced by :math:`N` is a cochain map</span>
+<span class="sd">    \mathcal{X})` with :math:`s \neq t` be a non-squared neighborhood matrix</span>
+<span class="sd">    from the :math:`s` th-skeleton of :math:`\mathcal{</span>
+<span class="sd">    X}` to its :math:`t` th-skeleton. The higher order</span>
+<span class="sd">    attention block induced by :math:`N` is a cochain map</span>
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        \begin{align}</span>
-<span class="sd">            HBNS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})</span>
+<span class="sd">            \text{HBNS}_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})</span>
 <span class="sd">            \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{t_{in}}})</span>
 <span class="sd">            \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{t_{out}}})</span>
 <span class="sd">            \times \mathcal{C}^t(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),</span>
@@ -370,15 +371,14 @@ document.write(`
 
 <span class="sd">    where :math:`d^{s_{in}}`, :math:`d^{t_{in}}`, :math:`d^{s_{out}}`,</span>
 <span class="sd">    and :math:`d^{t_{out}}` are the input and output dimensions of the</span>
-<span class="sd">    source and target cochains, respectively, also denoted as</span>
-<span class="sd">    source_in_channels, target_in_channels, source_out_channels,</span>
-<span class="sd">    and target_out_channels.</span>
+<span class="sd">    source and target cochains, also denoted as source_in_channels,</span>
+<span class="sd">    target_in_channels, source_out_channels, and target_out_channels.</span>
 
-<span class="sd">    The cochain map :math:`HBNS_N` is defined as</span>
+<span class="sd">    The cochain map :math:`\text{HBNS}_N` is defined as</span>
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        \begin{align}</span>
-<span class="sd">            HBNS_N(X_s, X_t) = (Y_s, Y_t),</span>
+<span class="sd">            \text{HBNS}_N(X_s, X_t) = (Y_s, Y_t),</span>
 <span class="sd">        \end{align}</span>
 
 <span class="sd">    where the source and target output cochain matrices :math:`Y_s` and</span>
@@ -401,8 +401,10 @@ document.write(`
 
 <span class="sd">    ..  math::</span>
 <span class="sd">        \begin{align}</span>
-<span class="sd">            A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\</span>
-<span class="sd">            A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},</span>
+<span class="sd">            A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{\#\text{columns}(N)} e_{i,</span>
+<span class="sd">            k}}, \\</span>
+<span class="sd">            A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{\#\text{columns}(N^T)} f_{i,</span>
+<span class="sd">            k}},</span>
 <span class="sd">        \end{align}</span>
 
 <span class="sd">    where,</span>
@@ -411,25 +413,28 @@ document.write(`
 <span class="sd">        \begin{align}</span>
 <span class="sd">            e_{i,j} &amp;= S(\text{LeakyReLU}([(X_s)_jW_s||(X_t)_iW_t]a)),\\</span>
 <span class="sd">            f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[d_{s_{</span>
-<span class="sd">            out}}:]||a[:d_{s_{out}}])),\\</span>
+<span class="sd">            out}}:]||a[:d_{s_{out}}])).\\</span>
 <span class="sd">        \end{align}</span>
 
-<span class="sd">    where || denotes concatenation, :math:`a` is a learnable column vector</span>
-<span class="sd">    of length :math:`d_{s_{out}} + d_{t_{out}}`. Given a vector :math:`v`,</span>
-<span class="sd">    we denote by :math:`v[:c]` and :math:`v[c:]` to the projection onto the</span>
-<span class="sd">    first :math:`c` elements and the last elements of :math:`v`  starting</span>
-<span class="sd">    from the :math:`(c+1)`-th element, respectively. :math:`S` is the</span>
-<span class="sd">    exponential function if softmax is used and the identity function</span>
-<span class="sd">    otherwise.</span>
+<span class="sd">    Here, || denotes concatenation and :math:`a` denotes the learnable column</span>
+<span class="sd">    attention vector of length :math:`d_{s_{out}} + d_{t_{out}}`.</span>
+<span class="sd">    Given a vector :math:`v`, we denote by :math:`v[:c]` and :math:`v[c:]`</span>
+<span class="sd">    to the projection onto the first :math:`c` elements and the last</span>
+<span class="sd">    elements of :math:`v` starting from the :math:`(c+1)`-th element,</span>
+<span class="sd">    respectively. :math:`S` is the exponential function if softmax is used</span>
+<span class="sd">    and the identity function otherwise.</span>
 
 <span class="sd">    This HBNS class just contains the sparse implementation of the block.</span>
 
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    HBNS layers were introduced in [H23]_, Definition 31 and 33.</span>
+
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
-<span class="sd">    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going</span>
-<span class="sd">    Beyond Graph Data.</span>
-<span class="sd">        arXiv:2206.00606.</span>
-<span class="sd">        https://arxiv.org/pdf/2206.00606v3.pdf</span>
+<span class="sd">    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,</span>
+<span class="sd">        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.</span>
+<span class="sd">        (2023) https://arxiv.org/abs/2206.00606.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -500,8 +505,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">reset_parameters</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HBNS.get_device"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.get_device">[docs]</a>    <span class="k">def</span> <span class="nf">get_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the device on which the layer&#39;s learnable parameters are</span>
-<span class="sd">        stored.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get device on which the layer&#39;s learnable parameters are stored.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_s</span><span class="o">.</span><span class="n">device</span></div>
 
 <div class="viewcode-block" id="HBNS.reset_parameters"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.reset_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">reset_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.414</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -530,8 +534,9 @@ document.write(`
 <div class="viewcode-block" id="HBNS.update"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">message_on_source</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">message_on_target</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update signal features on each cell with an activation function,</span>
-<span class="sd">        either sigmoid, ReLU or tanh.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Update signal features on each cell with an activation function.</span>
+
+<span class="sd">        The implemented activation functions are sigmoid, ReLU and tanh.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -546,10 +551,10 @@ document.write(`
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        _ phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]</span>
+<span class="sd">        phi(Y_s) : torch.Tensor, shape=[source_cells, source_out_channels]</span>
 <span class="sd">            Source output signal features after the activation function</span>
 <span class="sd">            :math:`\phi`.</span>
-<span class="sd">        _ phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]</span>
+<span class="sd">        phi(Y_t) : torch.Tensor, shape=[target_cells, target_out_channels]</span>
 <span class="sd">            Target output signal features after the activation function</span>
 <span class="sd">            :math:`\phi`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -572,8 +577,10 @@ document.write(`
 
 <span class="sd">        ..  math::</span>
 <span class="sd">            \begin{align}</span>
-<span class="sd">                A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{columns(N)} e_{i,k}}, \\</span>
-<span class="sd">                A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{columns(N^T)} f_{i,k}},</span>
+<span class="sd">                A_s(i,j) &amp;= \frac{e_{i,j}}{\sum_{k=1}^{\#\text{columns}(N)}</span>
+<span class="sd">                e_{i,k}}, \\</span>
+<span class="sd">                A_t(i,j) &amp;= \frac{f_{i,j}}{\sum_{k=1}^{\#\text{columns}(N^T)}</span>
+<span class="sd">                f_{i,k}},</span>
 <span class="sd">            \end{align}</span>
 
 <span class="sd">        where,</span>
@@ -584,7 +591,6 @@ document.write(`
 <span class="sd">                f_{i,j} &amp;= S(\text{LeakyReLU}([(X_t)_jW_t||(X_s)_iW_s][a[</span>
 <span class="sd">                d_{s_{out}}:]||a[:d_{s_{out}}])).</span>
 <span class="sd">            \end{align}</span>
-
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -631,7 +637,7 @@ document.write(`
                     <span class="n">t_to_s</span><span class="p">,</span>
                     <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
                         <span class="p">[</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span> <span class="p">:],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span><span class="p">:],</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">att_weight</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_out_channels</span><span class="p">],</span>
                         <span class="p">]</span>
                     <span class="p">),</span>
@@ -650,14 +656,14 @@ document.write(`
 <div class="viewcode-block" id="HBNS.forward"><a class="viewcode-back" href="../../../api/base.html#topomodelx.base.hbns.HBNS.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x_source</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">x_target</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">neighborhood</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Forward pass of the Higher Order Attention Block for non-squared</span>
-<span class="sd">        matrices.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute forward pass.</span>
 
-<span class="sd">        The forward pass computes:</span>
+<span class="sd">        The forward pass of the Higher Order Attention Block for non-squared</span>
+<span class="sd">        matrices (HBNS) is defined as</span>
 
 <span class="sd">        ..  math::</span>
 <span class="sd">            \begin{align}</span>
-<span class="sd">                HBNS_N(X_s, X_t) = (Y_s, Y_t),</span>
+<span class="sd">                \text{HBNS}_N(X_s, X_t) = (Y_s, Y_t),</span>
 <span class="sd">            \end{align}</span>
 
 <span class="sd">        where the source and target outputs :math:`Y_s` and :math:`Y_t` are</span>

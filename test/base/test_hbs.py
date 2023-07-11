@@ -1,4 +1,4 @@
-"""Test the Higher Order Attention Block for squared neighborhoods (HBS) layer in the base module."""
+"""Test the Higher Order Attention Block for squared neighborhoods layer."""
 import math
 
 import pytest
@@ -34,7 +34,7 @@ class TestHBS:
         )
 
     def test_forward_shape(self):
-        """Test the shapes of the outputs of the forward pass of the HBS layer."""
+        """Test the shapes of the outputs of the forward pass."""
         self.d_s_out = 3
         self.hbs = HBS(
             source_in_channels=self.d_s_in,
@@ -112,7 +112,7 @@ class TestHBS:
         attention_matrix = self.hbs.attention(
             message, self.neighborhood, self.hbs.att_weight[0]
         ).to_dense()
-        # Create the expected attention matrix. The values have been calculated by hand.
+        # Expected attention matrix. The values have been calculated by hand.
         expected_attention_matrix = self.neighborhood.to_dense() * torch.tensor(
             [
                 [6.0 / 24.0, 10.0 / 24.0, 14.0 / 24.0],
@@ -134,7 +134,7 @@ class TestHBS:
         attention_matrix = self.hbs.attention(
             message, self.neighborhood, self.hbs.att_weight[0]
         ).to_dense()
-        # Create the expected attention matrix. The values have been calculated by hand.
+        # Expected attention matrix. The values have been calculated by hand.
         expected_attention_matrix_wo_softmax_nor_product = torch.tensor(
             [[6.0, 10.0, 14.0], [10.0, 14.0, 18.0], [14.0, 18.0, 22.0]],
             dtype=torch.float,
@@ -159,7 +159,7 @@ class TestHBS:
         assert torch.allclose(attention_matrix, expected_attention_matrix)
 
     def test_forward_values(self):
-        """Test the values of the outputs of the forward pass of the HBS layer against a specific precomputed example."""
+        """Test the forward pass of the HBS layer against an example."""
         self.d_s_out = 3
         self.hbs = HBS(
             source_in_channels=self.d_s_in,

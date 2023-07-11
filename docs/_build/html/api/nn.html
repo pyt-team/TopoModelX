@@ -432,7 +432,7 @@ Geometrical and Topological Representation Learning Workshop at ICLR 2022.
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/simplicial/hsn_layer.html#HSNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>The forward pass was initially proposed in <a class="reference internal" href="#id5" id="id2"><span>[HRGZ22]</span></a>.
-Its equations are given in <a class="reference internal" href="#id11" id="id3"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id12" id="id4"><span>[PSHM23]</span></a>.</p>
+Its equations are given in <a class="reference internal" href="#id11" id="id3"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id20" id="id4"><span>[PSHM23]</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
 &amp;🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
@@ -526,7 +526,7 @@ Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_0_to_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_1_to_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/cell/ccxn_layer.html#CCXNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>The forward pass was initially proposed in <a class="reference internal" href="#id10" id="id7"><span>[HIZ20]</span></a>.
-Its equations are given in <a class="reference internal" href="#id11" id="id8"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id12" id="id9"><span>[PSHM23]</span></a>.</p>
+Its equations are given in <a class="reference internal" href="#id11" id="id8"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id20" id="id9"><span>[PSHM23]</span></a>.</p>
 <p>The forward pass of this layer is composed of two steps.</p>
 <ol class="arabic simple">
 <li><p>The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):</p></li>
@@ -600,6 +600,233 @@ Optional, only required if attention is used between edges and faces.</p></li>
 </section>
 <section id="combinatorial-complex-neural-networks">
 <h2>Combinatorial Complex Neural Networks<a class="headerlink" href="#combinatorial-complex-neural-networks" title="Permalink to this heading">#</a></h2>
+<p>Layers for Combinatorial Complex Neural Networks.</p>
+<span class="target" id="module-topomodelx.nn.combinatorial.hmc_layer"></span><p>Higher-Order Attentional NN Layer for Mesh Classification.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="topomodelx.nn.combinatorial.hmc_layer.HMCLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">topomodelx.nn.combinatorial.hmc_layer.</span></span><span class="sig-name descname"><span class="pre">HMCLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intermediate_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_slope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_attention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func_attention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_func_aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'xavier_uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/combinatorial/hmc_layer.html#HMCLayer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.combinatorial.hmc_layer.HMCLayer" title="Permalink to this definition">#</a></dt>
+<dd><p>Higher-Order Attentional NN Layer for Mesh Classification.</p>
+<p>Implementation of the Message Passing Layer for the Combinatorial Complex
+Attentional Neural Network for Mesh Classification, first introduced in
+<a class="reference internal" href="#id19" id="id13"><span>[H23]</span></a> and graphically illustrated in Figure 35(b) of <a class="reference internal" href="#id19" id="id14"><span>[H23]</span></a>.</p>
+<p>The layer is composed of two message passing steps, both of which
+update the signal features over the cells of the zeroth, first and second
+skeleton of the combinatorial complex. The message passing operation is
+defined by means of combinatorial complex attention push-forward
+operations. See Definitions 32 and 33 in <a class="reference internal" href="#id19" id="id15"><span>[H23]</span></a> for more details.</p>
+<p>The steps are:</p>
+<p>1. 0-dimensional cells (vertices) receive messages from 0-dimensional
+cells (vertices) and from 1-dimensional cells (edges). In the first
+case, adjacency matrices are used. In the second case, the incidence
+matrix from dimension 1 to dimension 0 is used. 1-dimensional cells
+(edges) receive messages from 1-dimensional cells (edges) and from
+2-dimensional cells (faces). In both cases, incidence matrices are
+used. 2-dimensional cells (faces) receive messages only from
+1-dimensional cells (edges). In this case, the incidence matrix
+from dimension 2 to dimension 1 is used.
+2. 0-dimensional cells (vertices) receive messages from 0-dimensional
+cells (vertices) using their adjacency matrix.
+1-dimensional cells (edges) receive messages from 0-dimensional
+cells (vertices) and from 1-dimensional cells (edges) using
+incidence and adjacency matrices, respectively. 2-dimensional cells
+(faces) receive messages from 1-dimensional cells (edges) and from
+2-dimensional cells (faces) using incidence and coadjacency
+matrices, respectively.</p>
+<p class="rubric">Notes</p>
+<p>This is the architecture proposed for mesh classification. Meshes are
+assumed to be represesented as combinatorial complexes.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="h23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>H23<span class="fn-bracket">]</span></span>
+<p>Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2206.00606">https://arxiv.org/abs/2206.00606</a>.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
+<p>Papillon, Sanborn, Hajij, Miolane.
+Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2304.10031">https://arxiv.org/abs/2304.10031</a>.</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> (<em>list of int</em>) – Dimension of input features on vertices (0-cells), edges (
+1-cells) and faces (2-cells). The length of the list
+must be 3.</p></li>
+<li><p><strong>intermediate_channels</strong> (<em>list of int</em>) – Dimension of intermediate features on vertices (0-cells),
+edges (1-cells) and faces (2-cells). The length of the
+list must be 3. The intermediate features are the ones computed
+after the first step of message passing.</p></li>
+<li><p><strong>out_channels</strong> (<em>list of int</em>) – Dimension of output features on vertices (0-cells), edges (
+1-cells) and faces (2-cells). The length of the list must be 3.
+The output features are the ones computed after the second step
+of message passing.</p></li>
+<li><p><strong>negative_slope</strong> (<em>float</em>) – Negative slope of LeakyReLU used to compute the attention
+coefficients.</p></li>
+<li><p><strong>softmax_attention</strong> (<em>bool, optional</em>) – Whether to use softmax attention. If True, the attention
+coefficients are normalized by rows using softmax over all the
+columns that are not zero in the associated neighborhood
+matrix. If False, the normalization is done by dividing by the
+sum of the values of the coefficients in its row whose columns
+are not zero in the associated neighborhood matrix. Default is
+False.</p></li>
+<li><p><strong>update_func_attention</strong> (<em>string, optional</em>) – Activation function used in the attention block. If None,
+no activation function is applied. Default is None.</p></li>
+<li><p><strong>update_func_aggregation</strong> (<em>string, optional</em>) – Function used to aggregate the messages computed in each
+attention block. If None, the messages are aggregated by summing
+them. Default is None.</p></li>
+<li><p><strong>initialization</strong> (<em>{‘xavier_uniform’, ‘xavier_normal’}, optional</em>) – Initialization method for the weights of the attention layers.
+Default is ‘xavier_uniform’.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="topomodelx.nn.combinatorial.hmc_layer.HMCLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coadjacency_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/combinatorial/hmc_layer.html#HMCLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.combinatorial.hmc_layer.HMCLayer.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>Forward pass.</p>
+<p>The forward pass of the Combinatorial Complex Attention Neural
+Network for Mesh Classification proposed in <a class="reference internal" href="#id19" id="id17"><span>[H23]</span></a>, Figure 35(
+b). The input features are transformed in two message passing
+levels both of which update the signal features over the cells of
+the zeroth, first and second skeleton of the combinatorial complex.
+Following the notations of <a class="reference internal" href="#id20" id="id18"><span>[PSHM23]</span></a>, the steps can be summarized as
+follows:</p>
+<p>1.First level:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    &amp;🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{
+    \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow
+    0}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+    &amp;🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{
+    1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)
+    h_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+    &amp;🟥\quad m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{
+    1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,
+    (1)} \Theta^t_{1\rightarrow 0}\\
+    &amp;🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{
+    2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)
+    h_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+    &amp;🟥\quad m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{
+    xy} \cdot \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,
+    (2)} \Theta^t_{2\rightarrow 1}\\
+    &amp;🟧\quad m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{
+    \uparrow,0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{
+    1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{
+    1}(x)} m^{1\rightarrow 0}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{
+    2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{
+    2}(x)} m^{2\rightarrow 1}_{y\rightarrow x}\right)\\
+    &amp;🟩\quad m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{
+    1\rightarrow 0}_{x}\right)\\
+    &amp;🟩\quad m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{
+    2\rightarrow 1}_{x}\right)\\
+    &amp;🟩\quad m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)\\
+    &amp;🟦\quad i_x^{t,(0)} = m_x^{(0)}\\
+    &amp;🟦\quad i_x^{t,(1)} = m_x^{(1)}\\
+    &amp;🟦\quad i_x^{t,(2)} = m_x^{(2)}
+ \end{align}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(i_x^{t,(\cdot)}\)</span> represents intermediate feature vectors.</p>
+<ol class="arabic simple" start="2">
+<li><p>Second level:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+    &amp;🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{
+    \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right)
+    i_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\
+    &amp;🟥\quad m^{1\rightarrow 1}_{y\rightarrow x} = \left((A_{
+    \uparrow,1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right)
+    i_y^{t,(1)} \Theta^t_{1\rightarrow 1}\\
+    &amp;🟥\quad m^{2\rightarrow 2}_{y\rightarrow x} = \left((A_{
+    \downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow
+    2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}\\
+    &amp;🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{
+    1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)
+    i_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\
+    &amp;🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{
+    2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)
+    i_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\
+    &amp;🟧\quad m^{0\rightarrow 0}_{x} = \phi_u\left(\sum_{y\in A_{
+    \uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{1\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in A_{
+    \uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{2\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in A_{
+    \downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{0\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in B_{
+    1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\
+    &amp;🟧\quad m^{1\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in B_{
+    2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\
+    &amp;🟩\quad m_x^{(0)} = \phi_a\left(m^{0\rightarrow 0}_{x}+m^{
+    1\rightarrow 0}_{x}\right)\\
+    &amp;🟩\quad m_x^{(1)} = \phi_a\left(m^{1\rightarrow 1}_{x} + m^{
+    0\rightarrow 1}_{x}\right)\\
+    &amp;🟩\quad m_x^{(2)} = \phi_a\left(m^{1\rightarrow 2}_{x} + m^{
+    2\rightarrow 2}_{x}\right)\\
+    &amp;🟦\quad h_x^{t+1,(0)} = m_x^{(0)}\\
+    &amp;🟦\quad h_x^{t+1,(1)} = m_x^{(1)}\\
+    &amp;🟦\quad h_x^{t+1,(2)} = m_x^{(2)}
+\end{align}\end{split}\]</div>
+<p>In both message passing levels, <span class="math notranslate nohighlight">\(\phi_u\)</span> and <span class="math notranslate nohighlight">\(\phi_a\)</span>
+represent common activation functions within and between neighborhood
+aggregations. Both are passed to the constructor of the class as
+arguments update_func_attention and update_func_aggregation,
+respectively.</p>
+<p class="rubric">References</p>
+<div role="list" class="citation-list">
+<div class="citation" id="id19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>H23<span class="fn-bracket">]</span></span>
+<p>Mustafa Hajij et al. Topological Deep Learning: Going</p>
+</div>
+</div>
+<dl class="simple">
+<dt>Beyond Graph Data.</dt><dd><p>arXiv:2206.00606.
+https://arxiv.org/pdf/2206.00606v3.pdf</p>
+</dd>
+</dl>
+<div role="list" class="citation-list">
+<div class="citation" id="id20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
+<p>Papillon, Sanborn, Hajij, Miolane.
+Architectures of Topological Deep Learning: A Survey on
+Topological Neural Networks.
+(2023) <a class="reference external" href="https://arxiv.org/abs/2304.10031">https://arxiv.org/abs/2304.10031</a>.</p>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_0</strong> (<em>torch.Tensor, shape=[n_0_cells, in_channels[0]]</em>) – Input features on the 0-cells (vertices) of the combinatorial
+complex.</p></li>
+<li><p><strong>x_1</strong> (<em>torch.Tensor, shape=[n_1_cells, in_channels[1]]</em>) – Input features on the 1-cells (edges) of the combinatorial complex.</p></li>
+<li><p><strong>x_2</strong> (<em>torch.Tensor, shape=[n_2_cells, in_channels[2]]</em>)</p></li>
+<li><p><strong>Input features on the 2-cells (faces) of the combinatorial complex.</strong></p></li>
+<li><p><strong>adjacency_0</strong> (<em>torch.sparse</em>) – shape=[n_0_cells, n_0_cells]
+Neighborhood matrix mapping 0-cells to 0-cells (A_0_up).</p></li>
+<li><p><strong>adjacency_1</strong> (<em>torch.sparse</em>) – shape=[n_1_cells, n_1_cells]
+Neighborhood matrix mapping nodes to nodes (A_1_up).</p></li>
+<li><p><strong>coadjacency_2</strong> (<em>torch.sparse</em>) – shape=[n_2_cells, n_2_cells]
+Neighborhood matrix mapping nodes to nodes (A_2_down).</p></li>
+<li><p><strong>incidence_1</strong> (<em>torch.sparse</em>) – shape=[n_0_cells, n_1_cells]
+Neighborhood matrix mapping 1-cells to 0-cells (B_1).</p></li>
+<li><p><strong>incidence_2</strong> (<em>torch.sparse</em>)</p></li>
+<li><p><strong>shape=[n_1_cells, n_2_cells]</strong></p></li>
+<li><p><strong>Neighborhood matrix mapping 2-cells to 1-cells (B_2).</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>_</strong> (<em>torch.Tensor, shape=[1, num_classes]</em>) – Output prediction on the entire cell complex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -673,7 +900,13 @@ Optional, only required if attention is used between edges and faces.</p></li>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combinatorial-complex-neural-networks">Combinatorial Complex Neural Networks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combinatorial-complex-neural-networks">Combinatorial Complex Neural Networks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.combinatorial.hmc_layer.HMCLayer"><code class="docutils literal notranslate"><span class="pre">HMCLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#topomodelx.nn.combinatorial.hmc_layer.HMCLayer.forward"><code class="docutils literal notranslate"><span class="pre">HMCLayer.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

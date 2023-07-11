@@ -22,6 +22,9 @@ Cell Complex Neural Networks
 
 Combinatorial Complex Neural Networks
 =====================================
-.. automodule:: topomodelx.nn.complex.hmc_layer
+
+Layers for Combinatorial Complex Neural Networks.
+
+.. automodule:: topomodelx.nn.combinatorial.hmc_layer
    :members:
 

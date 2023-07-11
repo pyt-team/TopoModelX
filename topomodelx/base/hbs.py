@@ -1,7 +1,4 @@
-"""Higher Order Attention Block for squared neighborhood matrices (HBS).
-
-HBS layers were introduced in [HAJIJ23]_, Definitions 31 and 32.
-"""
+"""Higher Order Attention Block for squared neighborhood matrices."""
 
 import torch
 import torch.nn.functional as F
@@ -16,35 +13,36 @@ class HBS(MessagePassing):
     r"""Higher Order Attention Block layer for squared neighborhoods (HBS).
 
     Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
-    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`d`-dimensional
-    :math:`\mathbb{R}`-valued vector space of signals over :math:`\Sigma^k`,
-    the :math:`k`-th skeleton of :math:`\mathcal{X}` subject to a certain total
-    order. Elements of this space are called :math:`k`-cochains of
-    :math:`\mathcal{X}`. If :math:`d = 1`, we denote :math:`\mathcal{C}^k(
-    \mathcal{X})`.
+    :math:`\mathcal{C}^k(\mathcal{X}, \mathbb{R}^d)` the :math:`\mathbb{
+    R}`-valued vector space of :math:`d`-dimensional signals over
+    :math:`\Sigma^k`, the :math:`k`-th skeleton of :math:`\mathcal{X}`
+    subject to a certain total order. Elements of this space are called
+    :math:`k`-cochains of :math:`\mathcal{X}`. If :math:`d = 1`, we denote
+    it by :math:`\mathcal{C}^k(\mathcal{X})`.
 
-    Let :math:`N: \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(
+    Let :math:`N\colon \mathcal{C}^s(\mathcal{X}) \rightarrow \mathcal{C}^s(
     \mathcal{X})` be a cochain map endomorphism of the space of signals over
-    :math:`\Sigma^s` of \mathcal{X}. The matrix representation of :math:`N`
-    has shape :math:`n_{cells} \times n_{cells}`, where :math:`n_{cells}`
-    denotes the cardinality of :math:`\Sigma^s`.
+    :math:`\Sigma^s` of :math:`\mathcal{X}`. The matrix representation of
+    :math:`N` has shape :math:`n_{cells} \times n_{cells}`, where :math:`n_{
+    cells}` denotes the cardinality of :math:`\Sigma^s`.
 
     The higher order attention block induced by :math:`N` is the cochain map
 
     ..  math::
         \begin{align}
-            HBS_N: \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{in}}})
-            \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{out}}}),
+            \text{HBS}_N\colon \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{
+            in}}}) \rightarrow \mathcal{C}^s(\mathcal{X},\mathbb{R}^{d^{s_{
+            out}}}),
         \end{align}
 
     where :math:`d^{s_{in}}` and :math:`d^{s_{out}}` are the input and
-    output dimensions of the HBS block, respectively, also denoted as
+    output dimensions of the HBS block, also denoted as
     source_in_channels and source_out_channels, respectively.
 
-    :math:`HBS_N` is defined by
+    :math:`\text{HBS}_N` is defined by
 
     ..  math::
-        \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p )
+        \phi(\sum_{p=1}^{\text{m_hop}}(N^p \odot A_p) X W_p )
 
     where :math:`X` is the cochain matrix representation of shape [n_cells,
     source_in_channels] under the canonical basis of :math:`\mathcal{C}^s(
@@ -59,7 +57,7 @@ class HBS(MessagePassing):
     attention matrix :math:`A_p` are computed as
 
     ..  math::
-        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{columns(N)} e_{i,k}^p}
+        A_p(i,j) = \frac{e_{i,j}^p}{\sum_{k=1}^{\#\text{columns}(N)} e_{i,k}^p}
 
     where
 
@@ -67,18 +65,21 @@ class HBS(MessagePassing):
         e_{i,j}^p = S(\text{LeakyReLU}([X_iW_p||X_jW_p]a_p))
 
     and where || denotes concatenation, :math:`a_p` is a learnable column
-    vector of length :math:`2*source_out_channels`, and :math:`S` is the
+    vector of length :math:`2\cdot` source_out_channels, and :math:`S` is the
     exponential function if softmax is used and the identity function
     otherwise.
 
     This HBS class just contains the sparse implementation of the block.
 
+    Notes
+    -----
+    HBS layers were introduced in [H23]_, Definitions 31 and 32.
+
     References
     ----------
-    .. [HAJIJ23] Mustafa Hajij et al. Topological Deep Learning: Going
-    Beyond Graph Data.
-        arXiv:2206.00606.
-        https://arxiv.org/pdf/2206.00606v3.pdf
+    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
+        (2023) https://arxiv.org/abs/2206.00606.
 
     Parameters
     ----------
@@ -206,19 +207,18 @@ class HBS(MessagePassing):
         ----------
         message : torch.Tensor, shape=[n_messages, source_out_channels]
             Message tensor. This is the result of the matrix multiplication
-            of the cochain matrix :math:`X`
-            with the learnable weights matrix :math:`W_p`.
-        A_p : torch.sparse, shape [n_cells, n_cells]
-            Neighborhood matrix to the power p. Indicates which cells how
-            many paths of lenght p exist from
-            one cell to another.
-        a_p : torch.Tensor, shape [2*source_out_channels, 1]
+            of the cochain matrix :math:`X` with the learnable weights
+            matrix :math:`W_p`.
+        A_p : torch.sparse, shape=[n_cells, n_cells]
+            Neighborhood matrix to the power p. Indicates how many paths of
+            lenght p exist from cell :math:`i` to cell :math:`j`.
+        a_p : torch.Tensor, shape=[2*source_out_channels, 1]
             Learnable attention weight vector.
 
         Returns
         -------
-        att_p : torch.sparse, shape=[n_messages, n_messages]. Represents the
-        attention matrix :math:`A_p`.
+        att_p : torch.sparse, shape=[n_messages, n_messages].
+            Represents the attention matrix :math:`A_p`.
         """
         n_messages = message.shape[0]
         source_index_i, source_index_j = A_p._indices()
@@ -239,13 +239,14 @@ class HBS(MessagePassing):
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
     ) -> torch.Tensor:
-        r"""Forward pass.
+        r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for squared
         neighborhood matrices is defined as:
 
         ..  math::
-            HBS_N(X) = \phi(\sum_{p=1}^{\text{m\_hop}}(N^p \odot A_p) X W_p ).
+            \text{HBS}_N(X) = \phi(\sum_{p=1}^{\text{m_hop}}(N^p \odot A_p) X
+            W_p ).
 
         Parameters
         ----------

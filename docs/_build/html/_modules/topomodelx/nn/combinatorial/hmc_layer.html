@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>topomodelx.nn.combinatorial.hmc_layer &#8212; TopoModelX_UBTeam  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/topomodelx/nn/combinatorial/hmc_layer';</script>
+    <link rel="canonical" href="pyt-team.github.io/_modules/topomodelx/nn/combinatorial/hmc_layer.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">TopoModelX_UBTeam  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../api/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../contributing/index.html">
+                        Contributing
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../tutorials/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../challenge/index.html">
+                        ICML 2023 Topological Deep Learning Challenge
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">topomodelx.nn.combinatorial.hmc_layer</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for topomodelx.nn.combinatorial.hmc_layer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Higher-Order Attentional NN Layer for Mesh Classification.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">toponetx</span> <span class="k">as</span> <span class="nn">tnx</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">topomodelx.base.aggregation</span> <span class="kn">import</span> <span class="n">Aggregation</span>
+<span class="kn">from</span> <span class="nn">topomodelx.base.hbns</span> <span class="kn">import</span> <span class="n">HBNS</span>
+<span class="kn">from</span> <span class="nn">topomodelx.base.hbs</span> <span class="kn">import</span> <span class="n">HBS</span>
+
+
+<div class="viewcode-block" id="HMCLayer"><a class="viewcode-back" href="../../../../api/nn.html#topomodelx.nn.combinatorial.hmc_layer.HMCLayer">[docs]</a><span class="k">class</span> <span class="nc">HMCLayer</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Higher-Order Attentional NN Layer for Mesh Classification.</span>
+
+<span class="sd">    Implementation of the Message Passing Layer for the Combinatorial Complex</span>
+<span class="sd">    Attentional Neural Network for Mesh Classification, first introduced in</span>
+<span class="sd">    [H23]_ and graphically illustrated in Figure 35(b) of [H23]_.</span>
+
+<span class="sd">    The layer is composed of two message passing steps, both of which</span>
+<span class="sd">    update the signal features over the cells of the zeroth, first and second</span>
+<span class="sd">    skeleton of the combinatorial complex. The message passing operation is</span>
+<span class="sd">    defined by means of combinatorial complex attention push-forward</span>
+<span class="sd">    operations. See Definitions 32 and 33 in [H23]_ for more details.</span>
+
+<span class="sd">    The steps are:</span>
+
+<span class="sd">    1. 0-dimensional cells (vertices) receive messages from 0-dimensional</span>
+<span class="sd">    cells (vertices) and from 1-dimensional cells (edges). In the first</span>
+<span class="sd">    case, adjacency matrices are used. In the second case, the incidence</span>
+<span class="sd">    matrix from dimension 1 to dimension 0 is used. 1-dimensional cells</span>
+<span class="sd">    (edges) receive messages from 1-dimensional cells (edges) and from</span>
+<span class="sd">    2-dimensional cells (faces). In both cases, incidence matrices are</span>
+<span class="sd">    used. 2-dimensional cells (faces) receive messages only from</span>
+<span class="sd">    1-dimensional cells (edges). In this case, the incidence matrix</span>
+<span class="sd">    from dimension 2 to dimension 1 is used.</span>
+<span class="sd">    2. 0-dimensional cells (vertices) receive messages from 0-dimensional</span>
+<span class="sd">    cells (vertices) using their adjacency matrix.</span>
+<span class="sd">    1-dimensional cells (edges) receive messages from 0-dimensional</span>
+<span class="sd">    cells (vertices) and from 1-dimensional cells (edges) using</span>
+<span class="sd">    incidence and adjacency matrices, respectively. 2-dimensional cells</span>
+<span class="sd">    (faces) receive messages from 1-dimensional cells (edges) and from</span>
+<span class="sd">    2-dimensional cells (faces) using incidence and coadjacency</span>
+<span class="sd">    matrices, respectively.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is the architecture proposed for mesh classification. Meshes are</span>
+<span class="sd">    assumed to be represesented as combinatorial complexes.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,</span>
+<span class="sd">        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.</span>
+<span class="sd">        (2023) https://arxiv.org/abs/2206.00606.</span>
+
+<span class="sd">    .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.</span>
+<span class="sd">        Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.</span>
+<span class="sd">        (2023) https://arxiv.org/abs/2304.10031.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    in_channels : list of int</span>
+<span class="sd">        Dimension of input features on vertices (0-cells), edges (</span>
+<span class="sd">        1-cells) and faces (2-cells). The length of the list</span>
+<span class="sd">        must be 3.</span>
+<span class="sd">    intermediate_channels : list of int</span>
+<span class="sd">        Dimension of intermediate features on vertices (0-cells),</span>
+<span class="sd">        edges (1-cells) and faces (2-cells). The length of the</span>
+<span class="sd">        list must be 3. The intermediate features are the ones computed</span>
+<span class="sd">        after the first step of message passing.</span>
+<span class="sd">    out_channels : list of int</span>
+<span class="sd">        Dimension of output features on vertices (0-cells), edges (</span>
+<span class="sd">        1-cells) and faces (2-cells). The length of the list must be 3.</span>
+<span class="sd">        The output features are the ones computed after the second step</span>
+<span class="sd">        of message passing.</span>
+<span class="sd">    negative_slope : float</span>
+<span class="sd">        Negative slope of LeakyReLU used to compute the attention</span>
+<span class="sd">        coefficients.</span>
+<span class="sd">    softmax_attention : bool, optional</span>
+<span class="sd">        Whether to use softmax attention. If True, the attention</span>
+<span class="sd">        coefficients are normalized by rows using softmax over all the</span>
+<span class="sd">        columns that are not zero in the associated neighborhood</span>
+<span class="sd">        matrix. If False, the normalization is done by dividing by the</span>
+<span class="sd">        sum of the values of the coefficients in its row whose columns</span>
+<span class="sd">        are not zero in the associated neighborhood matrix. Default is</span>
+<span class="sd">        False.</span>
+<span class="sd">    update_func_attention : string, optional</span>
+<span class="sd">        Activation function used in the attention block. If None,</span>
+<span class="sd">        no activation function is applied. Default is None.</span>
+<span class="sd">    update_func_aggregation : string, optional</span>
+<span class="sd">        Function used to aggregate the messages computed in each</span>
+<span class="sd">        attention block. If None, the messages are aggregated by summing</span>
+<span class="sd">        them. Default is None.</span>
+<span class="sd">    initialization : {&#39;xavier_uniform&#39;, &#39;xavier_normal&#39;}, optional</span>
+<span class="sd">        Initialization method for the weights of the attention layers.</span>
+<span class="sd">        Default is &#39;xavier_uniform&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">intermediate_channels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">out_channels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">negative_slope</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">softmax_attention</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">update_func_attention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">update_func_aggregation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">initialization</span><span class="o">=</span><span class="s2">&quot;xavier_uniform&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">HMCLayer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">in_channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">intermediate_channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_channels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="p">)</span>
+
+        <span class="n">in_channels_0</span><span class="p">,</span> <span class="n">in_channels_1</span><span class="p">,</span> <span class="n">in_channels_2</span> <span class="o">=</span> <span class="n">in_channels</span>
+        <span class="p">(</span>
+            <span class="n">intermediate_channels_0</span><span class="p">,</span>
+            <span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">intermediate_channels_2</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">intermediate_channels</span>
+        <span class="n">out_channels_0</span><span class="p">,</span> <span class="n">out_channels_1</span><span class="p">,</span> <span class="n">out_channels_2</span> <span class="o">=</span> <span class="n">out_channels</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbs_0_level1</span> <span class="o">=</span> <span class="n">HBS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">in_channels_0</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">intermediate_channels_0</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbns_0_1_level1</span> <span class="o">=</span> <span class="n">HBNS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">in_channels_1</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">target_in_channels</span><span class="o">=</span><span class="n">in_channels_0</span><span class="p">,</span>
+            <span class="n">target_out_channels</span><span class="o">=</span><span class="n">intermediate_channels_0</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbns_1_2_level1</span> <span class="o">=</span> <span class="n">HBNS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">in_channels_2</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">intermediate_channels_2</span><span class="p">,</span>
+            <span class="n">target_in_channels</span><span class="o">=</span><span class="n">in_channels_1</span><span class="p">,</span>
+            <span class="n">target_out_channels</span><span class="o">=</span><span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbs_0_level2</span> <span class="o">=</span> <span class="n">HBS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_0</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">out_channels_0</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbns_0_1_level2</span> <span class="o">=</span> <span class="n">HBNS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">out_channels_1</span><span class="p">,</span>
+            <span class="n">target_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_0</span><span class="p">,</span>
+            <span class="n">target_out_channels</span><span class="o">=</span><span class="n">out_channels_0</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbs_1_level2</span> <span class="o">=</span> <span class="n">HBS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">out_channels_1</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbns_1_2_level2</span> <span class="o">=</span> <span class="n">HBNS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_2</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">out_channels_2</span><span class="p">,</span>
+            <span class="n">target_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_1</span><span class="p">,</span>
+            <span class="n">target_out_channels</span><span class="o">=</span><span class="n">out_channels_1</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbs_2_level2</span> <span class="o">=</span> <span class="n">HBS</span><span class="p">(</span>
+            <span class="n">source_in_channels</span><span class="o">=</span><span class="n">intermediate_channels_2</span><span class="p">,</span>
+            <span class="n">source_out_channels</span><span class="o">=</span><span class="n">out_channels_2</span><span class="p">,</span>
+            <span class="n">negative_slope</span><span class="o">=</span><span class="n">negative_slope</span><span class="p">,</span>
+            <span class="n">softmax</span><span class="o">=</span><span class="n">softmax_attention</span><span class="p">,</span>
+            <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_attention</span><span class="p">,</span>
+            <span class="n">initialization</span><span class="o">=</span><span class="n">initialization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span> <span class="o">=</span> <span class="n">Aggregation</span><span class="p">(</span><span class="n">aggr_func</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span> <span class="n">update_func</span><span class="o">=</span><span class="n">update_func_aggregation</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HMCLayer.forward"><a class="viewcode-back" href="../../../../api/nn.html#topomodelx.nn.combinatorial.hmc_layer.HMCLayer.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_0</span><span class="p">,</span>
+        <span class="n">x_1</span><span class="p">,</span>
+        <span class="n">x_2</span><span class="p">,</span>
+        <span class="n">adjacency_0</span><span class="p">,</span>
+        <span class="n">adjacency_1</span><span class="p">,</span>
+        <span class="n">coadjacency_2</span><span class="p">,</span>
+        <span class="n">incidence_1</span><span class="p">,</span>
+        <span class="n">incidence_2</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Forward pass.</span>
+
+<span class="sd">        The forward pass of the Combinatorial Complex Attention Neural</span>
+<span class="sd">        Network for Mesh Classification proposed in [H23]_, Figure 35(</span>
+<span class="sd">        b). The input features are transformed in two message passing</span>
+<span class="sd">        levels both of which update the signal features over the cells of</span>
+<span class="sd">        the zeroth, first and second skeleton of the combinatorial complex.</span>
+<span class="sd">        Following the notations of [PSHM23]_, the steps can be summarized as</span>
+<span class="sd">        follows:</span>
+
+<span class="sd">        1.First level:</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                &amp;🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{</span>
+<span class="sd">                \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow</span>
+<span class="sd">                0}\right) h_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\</span>
+<span class="sd">                &amp;🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{</span>
+<span class="sd">                1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)</span>
+<span class="sd">                h_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\</span>
+<span class="sd">                &amp;🟥\quad m^{1\rightarrow 0}_{y\rightarrow x} = \left((B_{</span>
+<span class="sd">                1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 0}\right) h_y^{t,</span>
+<span class="sd">                (1)} \Theta^t_{1\rightarrow 0}\\</span>
+<span class="sd">                &amp;🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{</span>
+<span class="sd">                2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)</span>
+<span class="sd">                h_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\</span>
+<span class="sd">                &amp;🟥\quad m^{2\rightarrow 1}_{y\rightarrow x} = \left((B_{2})_{</span>
+<span class="sd">                xy} \cdot \text{att}_{xy}^{2\rightarrow 1}\right) h_y^{t,</span>
+<span class="sd">                (2)} \Theta^t_{2\rightarrow 1}\\</span>
+<span class="sd">                &amp;🟧\quad m^{0\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in A_{</span>
+<span class="sd">                \uparrow,0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{0\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{1\rightarrow 0}_{x}=\phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                1}(x)} m^{1\rightarrow 0}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{1\rightarrow 2}_{x}=\phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{2\rightarrow 1}_{x}=\phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                2}(x)} m^{2\rightarrow 1}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(0)}=\phi_a\left(m^{0\rightarrow 0}_{x}+m^{</span>
+<span class="sd">                1\rightarrow 0}_{x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(1)}=\phi_a\left(m^{0\rightarrow 1}_{x}+m^{</span>
+<span class="sd">                2\rightarrow 1}_{x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(2)}=\phi_a\left(m^{1\rightarrow 2}_{x}\right)\\</span>
+<span class="sd">                &amp;🟦\quad i_x^{t,(0)} = m_x^{(0)}\\</span>
+<span class="sd">                &amp;🟦\quad i_x^{t,(1)} = m_x^{(1)}\\</span>
+<span class="sd">                &amp;🟦\quad i_x^{t,(2)} = m_x^{(2)}</span>
+<span class="sd">             \end{align}</span>
+
+<span class="sd">        where :math:`i_x^{t,(\cdot)}` represents intermediate feature vectors.</span>
+
+<span class="sd">        2. Second level:</span>
+
+<span class="sd">        ..  math::</span>
+<span class="sd">            \begin{align}</span>
+<span class="sd">                &amp;🟥\quad m^{0\rightarrow 0}_{y\rightarrow x} = \left((A_{</span>
+<span class="sd">                \uparrow,0})_{xy} \cdot \text{att}_{xy}^{0\rightarrow 0}\right)</span>
+<span class="sd">                i_y^{t,(0)} \Theta^t_{0\rightarrow 0}\\</span>
+<span class="sd">                &amp;🟥\quad m^{1\rightarrow 1}_{y\rightarrow x} = \left((A_{</span>
+<span class="sd">                \uparrow,1})_{xy} \cdot \text{att}_{xy}^{1\rightarrow 1}\right)</span>
+<span class="sd">                i_y^{t,(1)} \Theta^t_{1\rightarrow 1}\\</span>
+<span class="sd">                &amp;🟥\quad m^{2\rightarrow 2}_{y\rightarrow x} = \left((A_{</span>
+<span class="sd">                \downarrow, 2})_{xy} \cdot \text{att}_{xy}^{2\rightarrow</span>
+<span class="sd">                2}\right) i_y^{t,(2)} \Theta^t_{2\rightarrow 2}\\</span>
+<span class="sd">                &amp;🟥\quad m^{0\rightarrow 1}_{y\rightarrow x} = \left((B_{</span>
+<span class="sd">                1}^T)_{xy} \cdot \text{att}_{xy}^{0\rightarrow 1}\right)</span>
+<span class="sd">                i_y^{t,(0)} \Theta^t_{0\rightarrow 1}\\</span>
+<span class="sd">                &amp;🟥\quad m^{1\rightarrow 2}_{y\rightarrow x} = \left((B_{</span>
+<span class="sd">                2}^T)_{xy} \cdot \text{att}_{xy}^{1\rightarrow 2}\right)</span>
+<span class="sd">                i_y^{t,(1)} \Theta^t_{1\rightarrow 2}\\</span>
+<span class="sd">                &amp;🟧\quad m^{0\rightarrow 0}_{x} = \phi_u\left(\sum_{y\in A_{</span>
+<span class="sd">                \uparrow, 0}(x)} m^{0\rightarrow 0}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{1\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in A_{</span>
+<span class="sd">                \uparrow, 1}(x)} m^{1\rightarrow 1}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{2\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in A_{</span>
+<span class="sd">                \downarrow, 2}(x)} m^{2\rightarrow 2}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{0\rightarrow 1}_{x} = \phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                1}^T(x)} m^{0\rightarrow 1}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟧\quad m^{1\rightarrow 2}_{x} = \phi_u\left(\sum_{y\in B_{</span>
+<span class="sd">                2}^T(x)} m^{1\rightarrow 2}_{y\rightarrow x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(0)} = \phi_a\left(m^{0\rightarrow 0}_{x}+m^{</span>
+<span class="sd">                1\rightarrow 0}_{x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(1)} = \phi_a\left(m^{1\rightarrow 1}_{x} + m^{</span>
+<span class="sd">                0\rightarrow 1}_{x}\right)\\</span>
+<span class="sd">                &amp;🟩\quad m_x^{(2)} = \phi_a\left(m^{1\rightarrow 2}_{x} + m^{</span>
+<span class="sd">                2\rightarrow 2}_{x}\right)\\</span>
+<span class="sd">                &amp;🟦\quad h_x^{t+1,(0)} = m_x^{(0)}\\</span>
+<span class="sd">                &amp;🟦\quad h_x^{t+1,(1)} = m_x^{(1)}\\</span>
+<span class="sd">                &amp;🟦\quad h_x^{t+1,(2)} = m_x^{(2)}</span>
+<span class="sd">            \end{align}</span>
+
+<span class="sd">        In both message passing levels, :math:`\phi_u` and :math:`\phi_a`</span>
+<span class="sd">        represent common activation functions within and between neighborhood</span>
+<span class="sd">        aggregations. Both are passed to the constructor of the class as</span>
+<span class="sd">        arguments update_func_attention and update_func_aggregation,</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [H23] Mustafa Hajij et al. Topological Deep Learning: Going</span>
+<span class="sd">        Beyond Graph Data.</span>
+<span class="sd">            arXiv:2206.00606.</span>
+<span class="sd">            https://arxiv.org/pdf/2206.00606v3.pdf</span>
+
+<span class="sd">        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.</span>
+<span class="sd">            Architectures of Topological Deep Learning: A Survey on</span>
+<span class="sd">            Topological Neural Networks.</span>
+<span class="sd">            (2023) https://arxiv.org/abs/2304.10031.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_0 : torch.Tensor, shape=[n_0_cells, in_channels[0]]</span>
+<span class="sd">            Input features on the 0-cells (vertices) of the combinatorial</span>
+<span class="sd">            complex.</span>
+<span class="sd">        x_1 : torch.Tensor, shape=[n_1_cells, in_channels[1]]</span>
+<span class="sd">            Input features on the 1-cells (edges) of the combinatorial complex.</span>
+<span class="sd">        x_2 : torch.Tensor, shape=[n_2_cells, in_channels[2]]</span>
+<span class="sd">        Input features on the 2-cells (faces) of the combinatorial complex.</span>
+<span class="sd">        adjacency_0 : torch.sparse</span>
+<span class="sd">            shape=[n_0_cells, n_0_cells]</span>
+<span class="sd">            Neighborhood matrix mapping 0-cells to 0-cells (A_0_up).</span>
+<span class="sd">        adjacency_1 : torch.sparse</span>
+<span class="sd">            shape=[n_1_cells, n_1_cells]</span>
+<span class="sd">            Neighborhood matrix mapping nodes to nodes (A_1_up).</span>
+<span class="sd">        coadjacency_2 : torch.sparse</span>
+<span class="sd">            shape=[n_2_cells, n_2_cells]</span>
+<span class="sd">            Neighborhood matrix mapping nodes to nodes (A_2_down).</span>
+<span class="sd">        incidence_1 : torch.sparse</span>
+<span class="sd">            shape=[n_0_cells, n_1_cells]</span>
+<span class="sd">            Neighborhood matrix mapping 1-cells to 0-cells (B_1).</span>
+<span class="sd">        incidence_2 : torch.sparse</span>
+<span class="sd">        shape=[n_1_cells, n_2_cells]</span>
+<span class="sd">        Neighborhood matrix mapping 2-cells to 1-cells (B_2).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        _ : torch.Tensor, shape=[1, num_classes]</span>
+<span class="sd">            Output prediction on the entire cell complex.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Computing messages from Higher Order Attention Blocks Level 1</span>
+        <span class="n">x_0_to_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbs_0_level1</span><span class="p">(</span><span class="n">x_0</span><span class="p">,</span> <span class="n">adjacency_0</span><span class="p">)</span>
+        <span class="n">x_0_to_1</span><span class="p">,</span> <span class="n">x_1_to_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbns_0_1_level1</span><span class="p">(</span><span class="n">x_1</span><span class="p">,</span> <span class="n">x_0</span><span class="p">,</span> <span class="n">incidence_1</span><span class="p">)</span>
+        <span class="n">x_1_to_2</span><span class="p">,</span> <span class="n">x_2_to_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbns_1_2_level1</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="n">x_1</span><span class="p">,</span> <span class="n">incidence_2</span><span class="p">)</span>
+
+        <span class="n">x_0_level1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_0_to_0</span><span class="p">,</span> <span class="n">x_1_to_0</span><span class="p">])</span>
+        <span class="n">x_1_level1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_0_to_1</span><span class="p">,</span> <span class="n">x_2_to_1</span><span class="p">])</span>
+        <span class="n">x_2_level1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_1_to_2</span><span class="p">])</span>
+
+        <span class="c1"># Computing messages from Higher Order Attention Blocks Level 2</span>
+        <span class="n">x_0_to_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbs_0_level2</span><span class="p">(</span><span class="n">x_0_level1</span><span class="p">,</span> <span class="n">adjacency_0</span><span class="p">)</span>
+        <span class="n">x_1_to_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbs_1_level2</span><span class="p">(</span><span class="n">x_1_level1</span><span class="p">,</span> <span class="n">adjacency_1</span><span class="p">)</span>
+        <span class="n">x_2_to_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbs_2_level2</span><span class="p">(</span><span class="n">x_2_level1</span><span class="p">,</span> <span class="n">coadjacency_2</span><span class="p">)</span>
+
+        <span class="n">x_0_to_1</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbns_0_1_level2</span><span class="p">(</span><span class="n">x_1_level1</span><span class="p">,</span> <span class="n">x_0_level1</span><span class="p">,</span> <span class="n">incidence_1</span><span class="p">)</span>
+        <span class="n">x_1_to_2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbns_1_2_level2</span><span class="p">(</span><span class="n">x_2_level1</span><span class="p">,</span> <span class="n">x_1_level1</span><span class="p">,</span> <span class="n">incidence_2</span><span class="p">)</span>
+
+        <span class="n">x_0_level2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_0_to_0</span><span class="p">])</span>
+        <span class="n">x_1_level2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_0_to_1</span><span class="p">,</span> <span class="n">x_1_to_1</span><span class="p">])</span>
+        <span class="n">x_2_level2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggr</span><span class="p">([</span><span class="n">x_1_to_2</span><span class="p">,</span> <span class="n">x_2_to_2</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">x_0_level2</span><span class="p">,</span> <span class="n">x_1_level2</span><span class="p">,</span> <span class="n">x_2_level2</span></div></div>
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022-2023, PyT-Team, Inc..
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
