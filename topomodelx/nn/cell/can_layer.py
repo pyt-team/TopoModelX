@@ -86,6 +86,8 @@ class LiftLayer(MessagePassing):
     ----------
     in_channels_0: int
         Number of input channels of the node signal.
+    heads: int
+        Number of attention heads.
     signal_lift_activation: Callable
         Activation function applied to the lifted signal.
     signal_lift_dropout: float
@@ -173,20 +175,20 @@ class MultiHeadLiftLayer(nn.Module):
     ----------
     in_channels_0: int
         Number of input channels.
-    K: int
+    heads: int, optional
         Number of attention heads.
-    signal_lift_activation: Callable
+    signal_lift_activation: Callable, optional
         Activation function to apply to the output edge signal.
-    signal_lift_dropout: float
+    signal_lift_dropout: float, optional
         Dropout rate to apply to the output edge signal.
-    signal_lift_readout: str
+    signal_lift_readout: str, optional
         Readout method to apply to the output edge signal.
     """
 
     def __init__(
         self,
         in_channels_0: int,
-        heads: int = 3,
+        heads: int = 1,
         signal_lift_activation: Callable = torch.relu,
         signal_lift_dropout: float = 0.0,
         signal_lift_readout: str = "cat",
@@ -282,7 +284,7 @@ class PoolLayer(MessagePassing):
         Number of input channels of the input signal.
     signal_pool_activation: Callable
         Activation function applied to the pooled signal.
-    readout: bool
+    readout: bool, optional
         Whether to apply a readout operation to the pooled signal.
 
     References
@@ -298,7 +300,7 @@ class PoolLayer(MessagePassing):
         k_pool: float,
         in_channels_0: int,
         signal_pool_activation: Callable,
-        readout: True,
+        readout: bool = True,
     ):
         super(PoolLayer, self).__init__()
 
@@ -390,9 +392,11 @@ class MultiHeadCellAttention(MessagePassing):
         Whether to concatenate the output of each attention head.
     att_activation : Callable
         Activation function to use for the attention weights.
-    aggr_func : string
+    add_self_loops : bool, optional
+        Whether to add self-loops to the adjacency matrix.
+    aggr_func : string, optional
         Aggregation function to use. Options are "sum", "mean", "max".
-    initialization : string
+    initialization : string, optional
         Initialization method for the weights of the layer.
 
     Notes
@@ -579,12 +583,14 @@ class MultiHeadCellAttention_v2(MessagePassing):
         Whether to concatenate the output of each attention head.
     att_activation : Callable
         Activation function to use for the attention weights.
-    add_self_loops : bool
+    add_self_loops : bool, optional
         Whether to add self-loops to the adjacency matrix.
-    aggr_func : string
+    aggr_func : string, optional
         Aggregation function to use. Options are "sum", "mean", "max".
-    initialization : string
+    initialization : string, optional
         Initialization method for the weights of the layer.
+    share_weights : bool, optional
+        Whether to share the weights between the attention heads.
 
     Notes
     -----
