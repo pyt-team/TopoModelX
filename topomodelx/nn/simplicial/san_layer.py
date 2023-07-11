@@ -163,6 +163,22 @@ class SANLayer(torch.nn.Module):
     def forward(self, x, Lup, Ldown, P):
         r"""Forward pass of the SAN Layer.
 
+        .. math::
+            \mathcal N = \{\mathcal N_1, \mathcal N_2,...,\mathcal N_{2p+1}\}
+                = \{A_{\uparrow, r}, A_{\downarrow, r}, A_{\uparrow, r}^2, A_{\downarrow, r}^2,...,A_{\uparrow, r}^p, A_{\downarrow, r}^p, Q_r\},
+
+        .. math::
+            \begin{align*}
+            &🟥\quad m_{(y \rightarrow x),k}^{(r)}
+                = \alpha_k(h_x^t,h_y^t) = a_k(h_x^{t}, h_y^{t}) \cdot \psi_k^t(h_x^{t})\quad \forall \mathcal N_k \in \mathcal{N}\\
+            &🟧\quad m_{x,k}^{(r)}
+                = \bigoplus_{y \in \mathcal{N}_k(x)}  m^{(r)}_{(y \rightarrow x),k}\\
+            &🟩\quad m_{x}^{(r)}
+                = \bigotimes_{\mathcal{N}_k\in\mathcal N}m_{x,k}^{(r)}\\
+            &🟦\quad h_x^{t+1,(r)}
+                = \phi^{t}(h_x^t, m_{x}^{(r)})
+            \end{align*}
+
         Parameters
         ----------
         x : torch.Tensor
