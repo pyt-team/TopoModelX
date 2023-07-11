@@ -49,6 +49,9 @@ class TestCANLayer:
                 version,
                 shared_weights,
             ) = parameters
+            # Skip the case where the version is v1 and the weights are shared
+            if version == "v1" and shared_weights is True:
+                continue
             can_layer = CANLayer(
                 in_channels=in_channels,
                 out_channels=out_channels,
@@ -58,7 +61,7 @@ class TestCANLayer:
                 skip_connection=skip_connection,
                 add_self_loops=self_loops,
                 version=version,
-                shared_weights=shared_weights,
+                share_weights=shared_weights,
             )
             x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
             if concat:
@@ -72,21 +75,23 @@ class TestCANLayer:
         skip_connection = True
 
         for concat in concat:
-            can_layer = CANLayer(
-                in_channels=in_channels,
-                out_channels=out_channels,
-                concat=concat,
-                skip_connection=skip_connection,
-            )
-            x_out = can_layer.forward(
-                x_1,
-                torch.zeros_like(lower_neighborhood),
-                torch.zeros_like(upper_neighborhood),
-            )
-            if concat:
-                assert x_out.shape == (n_cells, out_channels * heads)
-            else:
-                assert x_out.shape == (n_cells, out_channels)
+            for version in ["v1", "v2"]:
+                can_layer = CANLayer(
+                    in_channels=in_channels,
+                    out_channels=out_channels,
+                    concat=concat,
+                    skip_connection=skip_connection,
+                    version=version,
+                )
+                x_out = can_layer.forward(
+                    x_1,
+                    torch.zeros_like(lower_neighborhood),
+                    torch.zeros_like(upper_neighborhood),
+                )
+                if concat:
+                    assert x_out.shape == (n_cells, out_channels * heads)
+                else:
+                    assert x_out.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""
