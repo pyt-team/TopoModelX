@@ -73,7 +73,9 @@ class SCCNLayer(torch.nn.Module):
         # aggregation functions
         self.aggregations = torch.nn.ModuleDict(
             {
-                f"rank_{rank}": Aggregation(aggr_func=aggr_func, update_func=update_func)
+                f"rank_{rank}": Aggregation(
+                    aggr_func=aggr_func, update_func=update_func
+                )
                 for rank in range(max_rank + 1)
             }
         )
