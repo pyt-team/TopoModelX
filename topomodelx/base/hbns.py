@@ -303,7 +303,7 @@ class HBNS(MessagePassing):
                     t_to_s,
                     torch.cat(
                         [
-                            self.att_weight[self.source_out_channels:],
+                            self.att_weight[self.source_out_channels :],
                             self.att_weight[: self.source_out_channels],
                         ]
                     ),
