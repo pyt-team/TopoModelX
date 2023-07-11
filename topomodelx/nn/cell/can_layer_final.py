@@ -13,6 +13,72 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_add, scatter_sum
 
 
+def softmax(src, index, num_cells):
+    r"""Compute the softmax of the attention coefficients.
+
+    Notes
+    -----
+    There should be of a default implementation of softmax in the utils file.
+    Subtracting the maximum element in it from all elements to avoid overflow and underflow.
+
+    Parameters
+    ----------
+    src : torch.Tensor
+        Attention coefficients. Shape: [n_k_cells, heads]
+    index : torch.Tensor
+        Indices of the target nodes. Shape: [n_k_cells]
+    num_cells : int
+        Number of cells in the batch.
+
+    Returns
+    -------
+    _ : torch.Tensor
+        Softmax of the attention coefficients. Shape: [n_k_cells, heads]
+    """
+    src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
+    src -= src_max  # (|n_k_cells|, H)
+    src_exp = torch.exp(src)  # (|n_k_cells|, H)
+    src_sum = scatter_sum(src_exp, index, dim=0, dim_size=num_cells)[
+        index
+    ]  # (|n_k_cells|, H)
+    return src_exp / (src_sum + 1e-16)  # (|n_k_cells|, H)
+
+
+def add_self_loops(neighborhood):
+    """Add self-loops to the neighborhood matrix.
+
+    Notes
+    -----
+    Add to utils file.
+
+    Parameters
+    ----------
+    neighborhood : torch.sparse_coo_tensor
+        Neighborhood matrix. Shape: [n_k_cells, n_k_cells]
+
+    Returns
+    -------
+    _ : torch.sparse_coo_tensor
+        Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
+    """
+    N = neighborhood.shape[0]
+    cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
+    # create loop index
+    loop_index = torch.arange(0, N, dtype=torch.long, device=neighborhood.device)
+    loop_index = loop_index.unsqueeze(0).repeat(2, 1)
+    # add loop index to neighborhood
+    cell_index = torch.cat([cell_index, loop_index], dim=1)
+    cell_weight = torch.cat(
+        [cell_weight, torch.ones(N, dtype=torch.float, device=neighborhood.device)]
+    )
+
+    return torch.sparse_coo_tensor(
+        indices=cell_index,
+        values=cell_weight,
+        size=(N, N),
+    ).coalesce()
+
+
 class LiftLayer(MessagePassing):
     """Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
 
@@ -331,9 +397,7 @@ class MultiHeadCellAttention(MessagePassing):
 
     Notes
     -----
-    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty.
-    [] Add in utils add_self_loops function
-    [] Add in utils softmax function
+    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty and forward returns zeros Tensor.
 
     References
     ----------
@@ -368,9 +432,7 @@ class MultiHeadCellAttention(MessagePassing):
         self.heads = heads
         self.concat = concat
         self.dropout = dropout
-
-        if not add_self_loops:
-            self.add_self_loops = None
+        self.add_self_loops = add_self_loops
 
         self.lin = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
         self.att_weight_src = Parameter(torch.Tensor(1, heads, out_channels))
@@ -445,72 +507,12 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = self.att_activation(alpha)
 
         # Normalize the attention coefficients
-        alpha = self.softmax(alpha, self.target_index_i, x_source.shape[0])
+        alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
         return alpha  # (|n_k_cells|, H)
-
-    def softmax(self, src, index, num_cells):
-        """Compute the softmax of the attention coefficients.
-
-        Notes
-        -----
-        There should be of a default implementation of softmax in the utils file.
-        Subtracting the maximum element in it from all elements to avoid overflow and underflow.
-
-        Parameters
-        ----------
-        src : torch.Tensor
-            Attention coefficients. Shape: [n_k_cells, heads]
-        index : torch.Tensor
-            Indices of the target nodes. Shape: [n_k_cells]
-        num_cells : int
-            Number of cells in the batch.
-
-        Returns
-        -------
-        _ : torch.Tensor
-            Softmax of the attention coefficients. Shape: [n_k_cells, heads]
-        """
-        src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
-        src -= src_max  # (|n_k_cells|, H)
-        src_exp = torch.exp(src)  # (|n_k_cells|, H)
-        src_sum = scatter_sum(src_exp, index, dim=0, dim_size=num_cells)[
-            index
-        ]  # (|n_k_cells|, H)
-        return src_exp / (src_sum + 1e-16)  # (|n_k_cells|, H)
-
-    def add_self_loops(self, neighborhood):
-        """Add self-loops to the neighborhood matrix.
-
-        Parameters
-        ----------
-        neighborhood : torch.sparse_coo_tensor
-            Neighborhood matrix. Shape: [n_k_cells, n_k_cells]
-
-        Returns
-        -------
-        _ : torch.sparse_coo_tensor
-            Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
-        """
-        N = neighborhood.shape[0]
-        cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
-        # create loop index
-        loop_index = torch.arange(0, N, dtype=torch.long, device=neighborhood.device)
-        loop_index = loop_index.unsqueeze(0).repeat(2, 1)
-        # add loop index to neighborhood
-        cell_index = torch.cat([cell_index, loop_index], dim=1)
-        cell_weight = torch.cat(
-            [cell_weight, torch.ones(N, dtype=torch.float, device=neighborhood.device)]
-        )
-
-        return torch.sparse_coo_tensor(
-            indices=cell_index,
-            values=cell_weight,
-            size=(N, N),
-        ).coalesce()
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -539,8 +541,8 @@ class MultiHeadCellAttention(MessagePassing):
             )  # (n_k_cells, C)
 
         # Add self-loops to the neighborhood matrix if necessary
-        if self.add_self_loops is not None:
-            neighborhood = self.add_self_loops(neighborhood)
+        if self.add_self_loops:
+            neighborhood = add_self_loops(neighborhood)
 
         # returns the indices of the non-zero values in the neighborhood matrix
         (
@@ -622,9 +624,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         self.heads = heads
         self.concat = concat
         self.dropout = dropout
-
-        if not add_self_loops:
-            self.add_self_loops = None
+        self.add_self_loops = None
 
         if share_weights:
             self.lin_src = self.lin_dst = torch.nn.Linear(
@@ -710,72 +710,12 @@ class MultiHeadCellAttention_v2(MessagePassing):
         )  # (|n_k_cells|, H)
 
         # Normalize the attention coefficients
-        alpha = self.softmax(alpha, self.target_index_i, x_source.shape[0])
+        alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
         alpha = F.dropout(alpha, p=self.dropout, training=self.training)
 
         return alpha  # (|n_k_cells|, H)
-
-    def softmax(self, src, index, num_cells):
-        """Compute the softmax of the attention coefficients.
-
-        Notes
-        -----
-        There should be of a default implementation of softmax in the utils file.
-        Subtracting the maximum element in it from all elements to avoid overflow and underflow.
-
-        Parameters
-        ----------
-        src : torch.Tensor
-            Attention coefficients. Shape: [n_k_cells, heads]
-        index : torch.Tensor
-            Indices of the target nodes. Shape: [n_k_cells]
-        num_cells : int
-            Number of cells in the batch.
-
-        Returns
-        -------
-        _ : torch.Tensor
-            Softmax of the attention coefficients. Shape: [n_k_cells, heads]
-        """
-        src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
-        src -= src_max  # (|n_k_cells|, H)
-        src_exp = torch.exp(src)  # (|n_k_cells|, H)
-        src_sum = scatter_sum(src_exp, index, dim=0, dim_size=num_cells)[
-            index
-        ]  # (|n_k_cells|, H)
-        return src_exp / (src_sum + 1e-16)  # (|n_k_cells|, H)
-
-    def add_self_loops(self, neighborhood):
-        """Add self-loops to the neighborhood matrix.
-
-        Parameters
-        ----------
-        neighborhood : torch.sparse_coo_tensor
-            Neighborhood matrix. Shape: [n_k_cells, n_k_cells]
-
-        Returns
-        -------
-        _ : torch.sparse_coo_tensor
-            Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
-        """
-        N = neighborhood.shape[0]
-        cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
-        # create loop index
-        loop_index = torch.arange(0, N, dtype=torch.long, device=neighborhood.device)
-        loop_index = loop_index.unsqueeze(0).repeat(2, 1)
-        # add loop index to neighborhood
-        cell_index = torch.cat([cell_index, loop_index], dim=1)
-        cell_weight = torch.cat(
-            [cell_weight, torch.ones(N, dtype=torch.float, device=neighborhood.device)]
-        )
-
-        return torch.sparse_coo_tensor(
-            indices=cell_index,
-            values=cell_weight,
-            size=(N, N),
-        ).coalesce()
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -804,10 +744,8 @@ class MultiHeadCellAttention_v2(MessagePassing):
             )  # (n_k_cells, C)
 
         # Add self-loops to the neighborhood matrix if necessary
-        if self.add_self_loops is not None:
-            # TODO: check if the self-loops are already added
-            # TODO: should we remove the self-loops from the neighborhood matrix after the message passing?
-            neighborhood = self.add_self_loops(neighborhood)
+        if self.add_self_loops:
+            neighborhood = add_self_loops(neighborhood)
 
         # Get the source and target indices of the neighborhood
         (
