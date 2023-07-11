@@ -14,18 +14,16 @@ class HMCLayer(torch.nn.Module):
     r"""Higher-Order Attentional NN Layer for Mesh Classification.
 
     Implementation of the Message Passing Layer for the Combinatorial Complex
-    Attentional Neural Network for Mesh Classification, first introduced in
+    Attentional Neural Network for Mesh Classification, introduced in
     [H23]_ and graphically illustrated in Figure 35(b) of [H23]_.
 
-    The layer is composed of two message passing steps, both of which
-    update the signal features over the cells of the zeroth, first and second
-    skeleton of the combinatorial complex. The message passing operation is
-    defined by means of combinatorial complex attention push-forward
-    operations. See Definitions 32 and 33 in [H23]_ for more details.
+    The layer is composed of two stacked levels of attentional message passing
+    steps, which in both cases, update the signal features over the cells of the
+    zeroth, first and second skeleton of the combinatorial complex.
 
-    The steps are:
+    The attentional message passing steps performed in each level are:
 
-    1. 0-dimensional cells (vertices) receive messages from 0-dimensional
+    Level 1. 0-dimensional cells (vertices) receive messages from 0-dimensional
     cells (vertices) and from 1-dimensional cells (edges). In the first
     case, adjacency matrices are used. In the second case, the incidence
     matrix from dimension 1 to dimension 0 is used. 1-dimensional cells
@@ -34,7 +32,8 @@ class HMCLayer(torch.nn.Module):
     used. 2-dimensional cells (faces) receive messages only from
     1-dimensional cells (edges). In this case, the incidence matrix
     from dimension 2 to dimension 1 is used.
-    2. 0-dimensional cells (vertices) receive messages from 0-dimensional
+
+    Level 2. 0-dimensional cells (vertices) receive messages from 0-dimensional
     cells (vertices) using their adjacency matrix.
     1-dimensional cells (edges) receive messages from 0-dimensional
     cells (vertices) and from 1-dimensional cells (edges) using
@@ -46,7 +45,7 @@ class HMCLayer(torch.nn.Module):
     Notes
     -----
     This is the architecture proposed for mesh classification. Meshes are
-    assumed to be represesented as combinatorial complexes.
+    assumed to be represented as combinatorial complexes.
 
     References
     ----------
@@ -223,11 +222,13 @@ class HMCLayer(torch.nn.Module):
 
         The forward pass of the Combinatorial Complex Attention Neural
         Network for Mesh Classification proposed in [H23]_, Figure 35(
-        b). The input features are transformed in two message passing
-        levels both of which update the signal features over the cells of
-        the zeroth, first and second skeleton of the combinatorial complex.
-        Following the notations of [PSHM23]_, the steps can be summarized as
-        follows:
+        b). The input features are transformed in two consecutive stacked
+        levels of attentional message passing steps, which update the
+        signal features over the cells of the zeroth, first and second
+        skeletons of the combinatorial complex.
+
+        Following the notations of [PSHM23]_, the steps for each level can be
+        summarized as follows:
 
         1.First level:
 

@@ -432,7 +432,7 @@ Geometrical and Topological Representation Learning Workshop at ICLR 2022.
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/simplicial/hsn_layer.html#HSNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.simplicial.hsn_layer.HSNLayer.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>The forward pass was initially proposed in <a class="reference internal" href="#id5" id="id2"><span>[HRGZ22]</span></a>.
-Its equations are given in <a class="reference internal" href="#id11" id="id3"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id20" id="id4"><span>[PSHM23]</span></a>.</p>
+Its equations are given in <a class="reference internal" href="#id11" id="id3"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id19" id="id4"><span>[PSHM23]</span></a>.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
 &amp;🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
@@ -526,7 +526,7 @@ Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_0_to_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighborhood_1_to_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/cell/ccxn_layer.html#CCXNLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.cell.ccxn_layer.CCXNLayer.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>The forward pass was initially proposed in <a class="reference internal" href="#id10" id="id7"><span>[HIZ20]</span></a>.
-Its equations are given in <a class="reference internal" href="#id11" id="id8"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id20" id="id9"><span>[PSHM23]</span></a>.</p>
+Its equations are given in <a class="reference internal" href="#id11" id="id8"><span>[TNN23]</span></a> and graphically illustrated in <a class="reference internal" href="#id19" id="id9"><span>[PSHM23]</span></a>.</p>
 <p>The forward pass of this layer is composed of two steps.</p>
 <ol class="arabic simple">
 <li><p>The convolution from nodes to nodes is given by an adjacency message passing scheme (AMPS):</p></li>
@@ -608,14 +608,12 @@ Optional, only required if attention is used between edges and faces.</p></li>
 <dd><p>Higher-Order Attentional NN Layer for Mesh Classification.</p>
 <p>Implementation of the Message Passing Layer for the Combinatorial Complex
 Attentional Neural Network for Mesh Classification, first introduced in
-<a class="reference internal" href="#id19" id="id13"><span>[H23]</span></a> and graphically illustrated in Figure 35(b) of <a class="reference internal" href="#id19" id="id14"><span>[H23]</span></a>.</p>
-<p>The layer is composed of two message passing steps, both of which
-update the signal features over the cells of the zeroth, first and second
-skeleton of the combinatorial complex. The message passing operation is
-defined by means of combinatorial complex attention push-forward
-operations. See Definitions 32 and 33 in <a class="reference internal" href="#id19" id="id15"><span>[H23]</span></a> for more details.</p>
-<p>The steps are:</p>
-<p>1. 0-dimensional cells (vertices) receive messages from 0-dimensional
+<a class="reference internal" href="#id18" id="id13"><span>[H23]</span></a> and graphically illustrated in Figure 35(b) of <a class="reference internal" href="#id18" id="id14"><span>[H23]</span></a>.</p>
+<p>The layer is composed of two stacked levels of attentional message passing
+steps, which in both cases, update the signal features over the cells of the
+zeroth, first and second skeleton of the combinatorial complex.</p>
+<p>The attentional message passing steps performed in each level are:</p>
+<p>Level 1. 0-dimensional cells (vertices) receive messages from 0-dimensional
 cells (vertices) and from 1-dimensional cells (edges). In the first
 case, adjacency matrices are used. In the second case, the incidence
 matrix from dimension 1 to dimension 0 is used. 1-dimensional cells
@@ -623,8 +621,8 @@ matrix from dimension 1 to dimension 0 is used. 1-dimensional cells
 2-dimensional cells (faces). In both cases, incidence matrices are
 used. 2-dimensional cells (faces) receive messages only from
 1-dimensional cells (edges). In this case, the incidence matrix
-from dimension 2 to dimension 1 is used.
-2. 0-dimensional cells (vertices) receive messages from 0-dimensional
+from dimension 2 to dimension 1 is used.</p>
+<p>Level 2. 0-dimensional cells (vertices) receive messages from 0-dimensional
 cells (vertices) using their adjacency matrix.
 1-dimensional cells (edges) receive messages from 0-dimensional
 cells (vertices) and from 1-dimensional cells (edges) using
@@ -634,7 +632,7 @@ incidence and adjacency matrices, respectively. 2-dimensional cells
 matrices, respectively.</p>
 <p class="rubric">Notes</p>
 <p>This is the architecture proposed for mesh classification. Meshes are
-assumed to be represesented as combinatorial complexes.</p>
+assumed to be represented as combinatorial complexes.</p>
 <p class="rubric">References</p>
 <div role="list" class="citation-list">
 <div class="citation" id="h23" role="doc-biblioentry">
@@ -643,7 +641,7 @@ assumed to be represesented as combinatorial complexes.</p>
 Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
 (2023) <a class="reference external" href="https://arxiv.org/abs/2206.00606">https://arxiv.org/abs/2206.00606</a>.</p>
 </div>
-<div class="citation" id="id16" role="doc-biblioentry">
+<div class="citation" id="id15" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
 <p>Papillon, Sanborn, Hajij, Miolane.
 Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
@@ -688,12 +686,13 @@ Default is ‘xavier_uniform’.</p></li>
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacency_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coadjacency_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incidence_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topomodelx/nn/combinatorial/hmc_layer.html#HMCLayer.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topomodelx.nn.combinatorial.hmc_layer.HMCLayer.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass.</p>
 <p>The forward pass of the Combinatorial Complex Attention Neural
-Network for Mesh Classification proposed in <a class="reference internal" href="#id19" id="id17"><span>[H23]</span></a>, Figure 35(
-b). The input features are transformed in two message passing
-levels both of which update the signal features over the cells of
-the zeroth, first and second skeleton of the combinatorial complex.
-Following the notations of <a class="reference internal" href="#id20" id="id18"><span>[PSHM23]</span></a>, the steps can be summarized as
-follows:</p>
+Network for Mesh Classification proposed in <a class="reference internal" href="#id18" id="id16"><span>[H23]</span></a>, Figure 35(
+b). The input features are transformed in two consecutive stacked
+levels of message passing steps, both of which update the signal
+features over the cells of the zeroth, first and second skeleton of the
+combinatorial complex.</p>
+<p>Following the notations of <a class="reference internal" href="#id19" id="id17"><span>[PSHM23]</span></a>, the steps for each level can be
+summarized as follows:</p>
 <p>1.First level:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align}
@@ -779,7 +778,7 @@ arguments update_func_attention and update_func_aggregation,
 respectively.</p>
 <p class="rubric">References</p>
 <div role="list" class="citation-list">
-<div class="citation" id="id19" role="doc-biblioentry">
+<div class="citation" id="id18" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>H23<span class="fn-bracket">]</span></span>
 <p>Mustafa Hajij et al. Topological Deep Learning: Going</p>
 </div>
@@ -790,7 +789,7 @@ https://arxiv.org/pdf/2206.00606v3.pdf</p>
 </dd>
 </dl>
 <div role="list" class="citation-list">
-<div class="citation" id="id20" role="doc-biblioentry">
+<div class="citation" id="id19" role="doc-biblioentry">
 <span class="label"><span class="fn-bracket">[</span>PSHM23<span class="fn-bracket">]</span></span>
 <p>Papillon, Sanborn, Hajij, Miolane.
 Architectures of Topological Deep Learning: A Survey on
