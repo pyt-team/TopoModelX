@@ -20,9 +20,9 @@ class TestSCCNLayer:
 
         incidences = {
             "rank_1": 2 * torch.randint(0, 2, (n_rank_0_cells, n_rank_1_cells)).float()
-            - 1, 
+            - 1,
             "rank_2": 2 * torch.randint(0, 2, (n_rank_1_cells, n_rank_2_cells)).float()
-            - 1, 
+            - 1,
             "rank_3": 2 * torch.randint(0, 2, (n_rank_2_cells, n_rank_3_cells)).float()
             - 1,
         }
@@ -73,6 +73,6 @@ class TestSCCNLayer:
                     # Raise AssertionError if parameters have not changed after the reset
                     raise AssertionError("Parameters have not changed after the reset")
 
-                except AssertionError as ae:
+                except AssertionError:
                     # This is expected if parameters have changed
                     pass
