@@ -9,7 +9,13 @@ from topomodelx.base.conv import Conv
 
 class SCCNLayer(torch.nn.Module):
     """
-    TODO: more documentation.
+    Implementation of the SCCN layer proposed in [YSB22]_.
+
+    References
+    ----------
+    .. [YSB22] Yang, Sala, Bogdan.
+        Efficient Representation Learning for Higher-Order Data with Simplicial Complexes.
+        https://proceedings.mlr.press/v198/yang22a.html
 
     Parameters
     ----------
@@ -94,10 +100,19 @@ class SCCNLayer(torch.nn.Module):
 
         The forward pass was initially proposed in [YSB22]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The incidence and adjacency matrices passed into this layer can be normalized
+        as described in [YSB22]_ or unnormalized.
 
         .. math::
             \begin{align*}
-            TODO
+            &🟥 \quad m_{{y \rightarrow x}}^{(r \rightarrow r)} = (H_{r})_{xy} \cdot h^{t,(r)}_y \cdot \Theta^{t,(r\to r)} \\
+            &🟥 \quad m_{{y \rightarrow x}}^{(r-1 \rightarrow r)} = (B_{r}^T)_{xy} \cdot h^{t,(r-1)}_y \cdot \Theta^{t,(r-1\to r)} \\
+            &🟥 \quad m_{{y \rightarrow x}}^{(r+1 \rightarrow r)} = (B_{r+1})_{xy} \cdot h^{t,(r+1)}_y \cdot \Theta^{t,(r+1\to r)} \\
+            &🟧 \quad m_{x}^{(r \rightarrow r)}  = \sum_{y \in \mathcal{L}_\downarrow(x)\bigcup \mathcal{L}_\uparrow(x)} m_{y \rightarrow x}^{(r \rightarrow r)} \\
+            &🟧 \quad m_{x}^{(r-1 \rightarrow r)}  = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(r-1 \rightarrow r)} \\
+            &🟧 \quad m_{x}^{(r+1 \rightarrow r)}  = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r+1 \rightarrow r)} \\
+            &🟩 \quad m_x^{(r)}  = m_x^{(r \rightarrow r)} + m_x^{(r-1 \rightarrow r)} + m_x^{(r+1 \rightarrow r)} \\
+            &🟦 \quad h_x^{t+1,(r)}  = \sigma(m_x^{(r)})
             \end{align*}
 
         References
@@ -119,7 +134,7 @@ class SCCNLayer(torch.nn.Module):
             Input features on the cells of the simplicial complex.
         incidences : Dict[int, torch.sparse],
                 length=max_rank,
-                shape=[n_rank_r_cells, n_rank_r_minus_1_cells]
+                shape=[n_rank_r_minus_1_cells, n_rank_r_cells]
             Incidence matrices :math:`B_r` mapping r-cells to (r-1)-cells.
         adjacencies : Dict[int, torch.sparse],
                 length=max_rank,
