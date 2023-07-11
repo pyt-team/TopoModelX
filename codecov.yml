@@ -3,5 +3,5 @@ coverage:
   range: 50..100
   round: down
   precision: 2
-ignore:
-  - "test/"
+# ignore:
+#   - "test/"

@@ -161,11 +161,9 @@ class AllSetBlock(nn.Module):
 
     def reset_parameters(self):
         """Reset learnable parameters."""
+        self.encoder.reset_parameters()
+        self.decoder.reset_parameters()
         self.conv.reset_parameters()
-        if not (self.encoder.__class__.__name__ != "Identity"):
-            self.encoder.reset_parameters()
-        if not (self.decoder.__class__.__name__ != "Identity"):
-            self.decoder.reset_parameters()
 
     def forward(self, x, incidence):
         """
