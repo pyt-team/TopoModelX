@@ -221,7 +221,7 @@ class HBS(MessagePassing):
             Represents the attention matrix :math:`A_p`.
         """
         n_messages = message.shape[0]
-        source_index_i, source_index_j = A_p._indices()
+        source_index_i, source_index_j = A_p.coalesce().indices()
         s_to_s = torch.cat([message[source_index_i], message[source_index_j]], dim=1)
         e_p = torch.sparse_coo_tensor(
             indices=torch.tensor([source_index_i.tolist(), source_index_j.tolist()]),
