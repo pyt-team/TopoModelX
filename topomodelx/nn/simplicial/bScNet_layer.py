@@ -12,7 +12,6 @@ from scipy.spatial import Delaunay
 import scipy.sparse as sp
 
 
-
 class BlockNet(torch.nn.Module):
     def __init__(self, data, num_features, num_classes, boundary_matrics, dimension=8):
         super(BlockNet, self).__init__()
@@ -24,34 +23,35 @@ class BlockNet(torch.nn.Module):
         self.linear_1 = torch.nn.Linear(dimension + 32, 32, bias=True)
         self.softmax = Softmax(dim=1)
         boundary_matrix_size = self.boundary_matrics[0].size(0)
-        self.weights_sim = nn.Parameter(torch.FloatTensor(
-            int(boundary_matrix_size*2), dimension))
-        self.embeddings_sim = nn.Parameter(torch.FloatTensor(
-            data.x.size(1), int(boundary_matrix_size*2)))
-        self.weights_off_diagonal = nn.Parameter(torch.FloatTensor(
-            int(boundary_matrix_size), int(boundary_matrix_size)))
+        self.weights_sim = nn.Parameter(
+            torch.FloatTensor(int(boundary_matrix_size * 2), dimension)
+        )
+        self.embeddings_sim = nn.Parameter(
+            torch.FloatTensor(data.x.size(1), int(boundary_matrix_size * 2))
+        )
+        self.weights_off_diagonal = nn.Parameter(
+            torch.FloatTensor(int(boundary_matrix_size), int(boundary_matrix_size))
+        )
         self.weights_L_0 = nn.Parameter(
-            torch.FloatTensor(int(boundary_matrix_size), 32))
+            torch.FloatTensor(int(boundary_matrix_size), 32)
+        )
         self.weights_L_1 = nn.Parameter(
-            torch.FloatTensor(int(boundary_matrix_size), 32))
+            torch.FloatTensor(int(boundary_matrix_size), 32)
+        )
         # reset parameters
+        nn.init.kaiming_uniform_(self.weights_sim, mode="fan_out", a=math.sqrt(5))
+        nn.init.kaiming_uniform_(self.embeddings_sim, mode="fan_out", a=math.sqrt(5))
         nn.init.kaiming_uniform_(
-            self.weights_sim, mode='fan_out', a=math.sqrt(5))
-        nn.init.kaiming_uniform_(
-            self.embeddings_sim, mode='fan_out', a=math.sqrt(5))
-        nn.init.kaiming_uniform_(
-            self.weights_off_diagonal, mode='fan_out', a=math.sqrt(5))
-        nn.init.kaiming_uniform_(
-            self.weights_L_0, mode='fan_out', a=math.sqrt(5))
-        nn.init.kaiming_uniform_(
-            self.weights_L_1, mode='fan_out', a=math.sqrt(5))
+            self.weights_off_diagonal, mode="fan_out", a=math.sqrt(5)
+        )
+        nn.init.kaiming_uniform_(self.weights_L_0, mode="fan_out", a=math.sqrt(5))
+        nn.init.kaiming_uniform_(self.weights_L_1, mode="fan_out", a=math.sqrt(5))
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""
         self.conv1.reset_parameters()
         self.conv2.reset_parameters()
-        
-        
+
     def g_encode(self, data):
         x, edge_index = data.x, data.edge_index
         x = F.dropout(x, p=0.5, training=self.training)
@@ -61,26 +61,45 @@ class BlockNet(torch.nn.Module):
         return x
 
     def s_encode(self, data, g_emb, type="train"):
-        if type == 'train':
-            edges_pos = data.total_edges[:data.train_pos]
+        if type == "train":
+            edges_pos = data.total_edges[: data.train_pos]
             index = np.random.randint(0, data.train_neg, data.train_pos)
-            edges_neg = data.total_edges[data.train_pos:
-                                         data.train_pos + data.train_neg][index]
+            edges_neg = data.total_edges[
+                data.train_pos : data.train_pos + data.train_neg
+            ][index]
             total_edges = np.concatenate((edges_pos, edges_neg))
             edges_y = torch.cat(
-                (data.total_edges_y[:data.train_pos], data.total_edges_y[data.train_pos:data.train_pos + data.train_neg][index]))
+                (
+                    data.total_edges_y[: data.train_pos],
+                    data.total_edges_y[
+                        data.train_pos : data.train_pos + data.train_neg
+                    ][index],
+                )
+            )
 
-        elif type == 'val':
-            total_edges = data.total_edges[data.train_pos +
-                                           data.train_neg:data.train_pos+data.train_neg+data.val_pos+data.val_neg]
-            edges_y = data.total_edges_y[data.train_pos +
-                                         data.train_neg:data.train_pos+data.train_neg+data.val_pos+data.val_neg]
-
-        elif type == 'test':
+        elif type == "val":
             total_edges = data.total_edges[
-                data.train_pos + data.train_neg + data.val_pos + data.val_neg:]
+                data.train_pos
+                + data.train_neg : data.train_pos
+                + data.train_neg
+                + data.val_pos
+                + data.val_neg
+            ]
             edges_y = data.total_edges_y[
-                data.train_pos + data.train_neg + data.val_pos + data.val_neg:]
+                data.train_pos
+                + data.train_neg : data.train_pos
+                + data.train_neg
+                + data.val_pos
+                + data.val_neg
+            ]
+
+        elif type == "test":
+            total_edges = data.total_edges[
+                data.train_pos + data.train_neg + data.val_pos + data.val_neg :
+            ]
+            edges_y = data.total_edges_y[
+                data.train_pos + data.train_neg + data.val_pos + data.val_neg :
+            ]
 
         L0, L1 = self.boundary_matrics
         zeros_off_diagonal = False
@@ -95,13 +114,18 @@ class BlockNet(torch.nn.Module):
         else:
             L0_r = torch.matrix_power(L0, 2)
             L1_r = torch.matrix_power(L1, 2)
-            relation_embedded = torch.einsum('xd, dy -> xy', torch.matmul(
-                L0_r, self.weights_L_0), torch.matmul(L1_r, self.weights_L_1).transpose(0, 1))
+            relation_embedded = torch.einsum(
+                "xd, dy -> xy",
+                torch.matmul(L0_r, self.weights_L_0),
+                torch.matmul(L1_r, self.weights_L_1).transpose(0, 1),
+            )
             relation_embedded_ = torch.matmul(
-                self.weights_off_diagonal, relation_embedded)
+                self.weights_off_diagonal, relation_embedded
+            )
             upper_block = torch.cat([L0_r, relation_embedded_], dim=1)
             lower_block = torch.cat(
-                [torch.transpose(relation_embedded_, 0, 1), L1_r], dim=1)
+                [torch.transpose(relation_embedded_, 0, 1), L1_r], dim=1
+            )
             sim_block = torch.cat([upper_block, lower_block], dim=0)
             sim_block = F.softmax(F.relu(sim_block), dim=1)
 
@@ -125,11 +149,12 @@ class BlockNet(torch.nn.Module):
         g_emb_in = g_emb[total_edges[:, 0]]
         g_emb_out = g_emb[total_edges[:, 1]]
         g_sqdist = (g_emb_in - g_emb_out).pow(2)
-        sqdist = self.leakyrelu(self.linear_1(
-            torch.cat((alpha * g_sqdist, beta * d_sim), dim=1)))
+        sqdist = self.leakyrelu(
+            self.linear_1(torch.cat((alpha * g_sqdist, beta * d_sim), dim=1))
+        )
         sqdist = torch.abs(self.linear(sqdist)).reshape(-1)
         sqdist = torch.clamp(sqdist, min=0, max=40)
-        prob = 1. / (torch.exp((sqdist - 2.0) / 1.0) + 1.0)
+        prob = 1.0 / (torch.exp((sqdist - 2.0) / 1.0) + 1.0)
         return prob, edges_y.float()
 
 
@@ -187,16 +212,38 @@ def compute_bunch_matrices(B1, B2):
 def testData(data, name, num_features, num_classes):
     val_prop = 0.05
     test_prop = 0.1
-    train_edges, train_edges_false, val_edges, val_edges_false, test_edges, test_edges_false = get_edges_split(
-        data, val_prop=val_prop, test_prop=test_prop)
+    (
+        train_edges,
+        train_edges_false,
+        val_edges,
+        val_edges_false,
+        test_edges,
+        test_edges_false,
+    ) = get_edges_split(data, val_prop=val_prop, test_prop=test_prop)
     total_edges = np.concatenate(
-        (train_edges, train_edges_false, val_edges, val_edges_false, test_edges, test_edges_false))
+        (
+            train_edges,
+            train_edges_false,
+            val_edges,
+            val_edges_false,
+            test_edges,
+            test_edges_false,
+        )
+    )
     data.train_pos, data.train_neg = len(train_edges), len(train_edges_false)
     data.val_pos, data.val_neg = len(val_edges), len(val_edges_false)
     data.test_pos, data.test_neg = len(test_edges), len(test_edges_false)
     data.total_edges = total_edges
-    data.total_edges_y = torch.cat((torch.ones(len(train_edges)), torch.zeros(len(train_edges_false)), torch.ones(len(
-        val_edges)), torch.zeros(len(val_edges_false)), torch.ones(len(test_edges)), torch.zeros(len(test_edges_false)))).long()
+    data.total_edges_y = torch.cat(
+        (
+            torch.ones(len(train_edges)),
+            torch.zeros(len(train_edges_false)),
+            torch.ones(len(val_edges)),
+            torch.zeros(len(val_edges_false)),
+            torch.ones(len(test_edges)),
+            torch.zeros(len(test_edges_false)),
+        )
+    ).long()
 
     # delete val_pos and train_pos
     edge_list = np.array(data.edge_index).T.tolist()
@@ -215,20 +262,22 @@ def testData(data, name, num_features, num_classes):
 
     # edge index sampling
     random_edge_num = 500
-    indices = np.random.choice((data.edge_index).size(
-        1), (random_edge_num,), replace=False)
+    indices = np.random.choice(
+        (data.edge_index).size(1), (random_edge_num,), replace=False
+    )
     indices = np.sort(indices)
     sample_data_edge_index = data.edge_index[:, indices]
 
     boundary_matrix0_, boundary_matrix1_ = compute_hodge_matrix(
-        data, sample_data_edge_index)
+        data, sample_data_edge_index
+    )
     boundary_matrices_option = False
 
     # if boundary_matrices_option:
     #     # convert hodge matrix to tensor format
     boundary_matrix0 = torch.tensor(boundary_matrix0_, dtype=torch.float32)
     boundary_matrix1 = torch.tensor(boundary_matrix1_, dtype=torch.float32)
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data.total_edges_y.to(device)
     #     model, data = BlockNet(data, num_features, num_classes,
     #                            boundary_matrics=[boundary_matrix0.to(device), boundary_matrix1.to(device)]).to(device), data.to(device)
@@ -242,26 +291,51 @@ def testData(data, name, num_features, num_classes):
     #     data.total_edges_y.to(device)
     #     model, data = BlockNet(data, num_features, num_classes,
     #                            boundary_matrics=[L0u.to(device), L1f.to(device)]).to(device), data.to(device)
-    boundary_matrics = [boundary_matrix0.to(device), boundary_matrix1.to(device)].to(device)
+    boundary_matrics = [boundary_matrix0.to(device), boundary_matrix1.to(device)].to(
+        device
+    )
     return data, num_features, num_classes, boundary_matrics
 
+
 def call(data, name, num_features, num_classes):
-    if name in ['PPI']:
+    if name in ["PPI"]:
         val_prop = 0.2
         test_prop = 0.2
     else:
         val_prop = 0.05
         test_prop = 0.1
-    train_edges, train_edges_false, val_edges, val_edges_false, test_edges, test_edges_false = get_edges_split(
-        data, val_prop=val_prop, test_prop=test_prop)
+    (
+        train_edges,
+        train_edges_false,
+        val_edges,
+        val_edges_false,
+        test_edges,
+        test_edges_false,
+    ) = get_edges_split(data, val_prop=val_prop, test_prop=test_prop)
     total_edges = np.concatenate(
-        (train_edges, train_edges_false, val_edges, val_edges_false, test_edges, test_edges_false))
+        (
+            train_edges,
+            train_edges_false,
+            val_edges,
+            val_edges_false,
+            test_edges,
+            test_edges_false,
+        )
+    )
     data.train_pos, data.train_neg = len(train_edges), len(train_edges_false)
     data.val_pos, data.val_neg = len(val_edges), len(val_edges_false)
     data.test_pos, data.test_neg = len(test_edges), len(test_edges_false)
     data.total_edges = total_edges
-    data.total_edges_y = torch.cat((torch.ones(len(train_edges)), torch.zeros(len(train_edges_false)), torch.ones(len(
-        val_edges)), torch.zeros(len(val_edges_false)), torch.ones(len(test_edges)), torch.zeros(len(test_edges_false)))).long()
+    data.total_edges_y = torch.cat(
+        (
+            torch.ones(len(train_edges)),
+            torch.zeros(len(train_edges_false)),
+            torch.ones(len(val_edges)),
+            torch.zeros(len(val_edges_false)),
+            torch.ones(len(test_edges)),
+            torch.zeros(len(test_edges_false)),
+        )
+    ).long()
 
     # delete val_pos and test_pos
     edge_list = np.array(data.edge_index).T.tolist()
@@ -280,33 +354,43 @@ def call(data, name, num_features, num_classes):
 
     # edge index sampling
     random_edge_num = 2500
-    indices = np.random.choice((data.edge_index).size(
-        1), (random_edge_num,), replace=False)
+    indices = np.random.choice(
+        (data.edge_index).size(1), (random_edge_num,), replace=False
+    )
     indices = np.sort(indices)
     sample_data_edge_index = data.edge_index[:, indices]
 
     boundary_matrix0_, boundary_matrix1_ = compute_hodge_matrix(
-        data, sample_data_edge_index)
+        data, sample_data_edge_index
+    )
     boundary_matrices_option = False
 
     if boundary_matrices_option:
         # convert hodge matrix to tensor format
         boundary_matrix0 = torch.tensor(boundary_matrix0_, dtype=torch.float32)
         boundary_matrix1 = torch.tensor(boundary_matrix1_, dtype=torch.float32)
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         data.total_edges_y.to(device)
-        model, data = BlockNet(data, num_features, num_classes,
-                               boundary_matrics=[boundary_matrix0.to(device), boundary_matrix1.to(device)]).to(device), data.to(device)
+        model, data = BlockNet(
+            data,
+            num_features,
+            num_classes,
+            boundary_matrics=[boundary_matrix0.to(device), boundary_matrix1.to(device)],
+        ).to(device), data.to(device)
 
     else:
         L0u, L1f = compute_bunch_matrices(boundary_matrix0_, boundary_matrix1_)
         # convert hodge matrix to tensor format
         L0u = torch.tensor(L0u, dtype=torch.float32)
         L1f = torch.tensor(L1f, dtype=torch.float32)
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         data.total_edges_y.to(device)
-        model, data = BlockNet(data, num_features, num_classes,
-                               boundary_matrics=[L0u.to(device), L1f.to(device)]).to(device), data.to(device)
+        model, data = BlockNet(
+            data,
+            num_features,
+            num_classes,
+            boundary_matrics=[L0u.to(device), L1f.to(device)],
+        ).to(device), data.to(device)
 
     return model, data
 
@@ -315,8 +399,10 @@ def get_edges_split(data, val_prop=0.2, test_prop=0.2):
     g = nx.Graph()
     g.add_nodes_from([i for i in range(len(data.y))])
     _edge_index_ = np.array((data.edge_index))
-    edge_index_ = [(_edge_index_[0, i], _edge_index_[1, i]) for i in
-                   range(np.shape(_edge_index_)[1])]
+    edge_index_ = [
+        (_edge_index_[0, i], _edge_index_[1, i])
+        for i in range(np.shape(_edge_index_)[1])
+    ]
     g.add_edges_from(edge_index_)
     adj = nx.adjacency_matrix(g)
 
@@ -328,34 +414,47 @@ def get_adj_split(adj, val_prop=0.05, test_prop=0.1):
     pos_edges = np.array(list(zip(x, y)))
     np.random.shuffle(pos_edges)
     # get tn edges
-    x, y = sp.triu(sp.csr_matrix(1. - adj.toarray())).nonzero()
+    x, y = sp.triu(sp.csr_matrix(1.0 - adj.toarray())).nonzero()
     neg_edges = np.array(list(zip(x, y)))
     np.random.shuffle(neg_edges)
 
     m_pos = len(pos_edges)
     n_val = int(m_pos * val_prop)
     n_test = int(m_pos * test_prop)
-    val_edges, test_edges, train_edges = pos_edges[:n_val], pos_edges[n_val:n_test +
-                                                                      n_val], pos_edges[n_test + n_val:]
-    val_edges_false, test_edges_false = neg_edges[:
-                                                  n_val], neg_edges[n_val:n_test + n_val]
-    train_edges_false = np.concatenate(
-        [neg_edges, val_edges, test_edges], axis=0)
-    return train_edges, train_edges_false, val_edges, val_edges_false, test_edges, test_edges_false
+    val_edges, test_edges, train_edges = (
+        pos_edges[:n_val],
+        pos_edges[n_val : n_test + n_val],
+        pos_edges[n_test + n_val :],
+    )
+    val_edges_false, test_edges_false = (
+        neg_edges[:n_val],
+        neg_edges[n_val : n_test + n_val],
+    )
+    train_edges_false = np.concatenate([neg_edges, val_edges, test_edges], axis=0)
+    return (
+        train_edges,
+        train_edges_false,
+        val_edges,
+        val_edges_false,
+        test_edges,
+        test_edges_false,
+    )
 
 
 def compute_hodge_matrix(data, sample_data_edge_index):
     g = nx.Graph()
     g.add_nodes_from([i for i in range(len(data.y))])
     edge_index_ = np.array((sample_data_edge_index))
-    edge_index = [(edge_index_[0, i], edge_index_[1, i]) for i in
-                  range(np.shape(edge_index_)[1])]
+    edge_index = [
+        (edge_index_[0, i], edge_index_[1, i]) for i in range(np.shape(edge_index_)[1])
+    ]
     g.add_edges_from(edge_index)
 
     edge_to_idx = {edge: i for i, edge in enumerate(g.edges)}
 
-    B1, B2 = incidence_matrices(g, sorted(g.nodes), sorted(
-        g.edges), get_faces(g), edge_to_idx)
+    B1, B2 = incidence_matrices(
+        g, sorted(g.nodes), sorted(g.edges), get_faces(g), edge_to_idx
+    )
 
     return B1, B2
 
@@ -367,7 +466,7 @@ def get_faces(G):
     edges = list(G.edges)
     faces = []
     for i in range(len(edges)):
-        for j in range(i+1, len(edges)):
+        for j in range(i + 1, len(edges)):
             e1 = edges[i]
             e2 = edges[j]
             if e1[0] == e2[0]:
@@ -403,8 +502,9 @@ def incidence_matrices(G, V, E, faces, edge_to_idx):
     B1[i][j]: -1 if node is is tail of edge j, 1 if node is head of edge j, else 0 (tail -> head) (smaller -> larger)
     B2[i][j]: 1 if edge i appears sorted in face j, -1 if edge i appears reversed in face j, else 0; given faces with sorted node order
     """
-    B1 = np.array(nx.incidence_matrix(
-        G, nodelist=V, edgelist=E, oriented=True).todense())
+    B1 = np.array(
+        nx.incidence_matrix(G, nodelist=V, edgelist=E, oriented=True).todense()
+    )
     B2 = np.zeros([len(E), len(faces)])
 
     for f_idx, face in enumerate(faces):  # face is sorted
@@ -420,14 +520,16 @@ def compute_hodge_basis_matrices(data):
     g = nx.Graph()
     g.add_nodes_from([i for i in range(len(data.y))])
     edge_index_ = np.array((data.edge_index))
-    edge_index = [(edge_index_[0, i], edge_index_[1, i]) for i in
-                  range(np.shape(edge_index_)[1])]
+    edge_index = [
+        (edge_index_[0, i], edge_index_[1, i]) for i in range(np.shape(edge_index_)[1])
+    ]
     g.add_edges_from(edge_index)
 
     edge_to_idx = {edge: i for i, edge in enumerate(g.edges)}
 
-    B1, B2 = incidence_matrices(g, sorted(g.nodes), sorted(
-        g.edges), get_faces(g), edge_to_idx)
+    B1, B2 = incidence_matrices(
+        g, sorted(g.nodes), sorted(g.edges), get_faces(g), edge_to_idx
+    )
 
     return B1, B2
 
