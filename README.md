@@ -43,8 +43,9 @@ Then:
 2. Install tmx in editable mode:
 
    ```bash
-   pip install -e .[all]
+   pip install -e '.[all]'
    ```
+   **Note:** Requires pip >= 21.3. Refer: [PEP 660](https://peps.python.org/pep-0660/). 
 
 3. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
