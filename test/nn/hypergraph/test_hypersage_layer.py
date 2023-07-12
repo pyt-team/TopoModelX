@@ -4,6 +4,7 @@ import torch
 
 from topomodelx.nn.hypergraph.hypersage_layer import HyperSAGELayer
 
+
 class TestHyperSAGELayer:
     """Test the HyperSAGE layer."""
 
