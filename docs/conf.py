@@ -2,10 +2,9 @@
 
 import topomodelx
 
-project = "TopoModelX_UBTeam"
+project = "TopoModelX"
 copyright = "2022-2023, PyT-Team, Inc."
 author = "PyT-Team Authors"
-language = "en"
 
 extensions = [
     "nbsphinx",
@@ -47,6 +46,8 @@ templates_path = ["_templates"]
 source_suffix = [".rst"]
 
 master_doc = "index"
+
+language = None
 
 nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base=None) %}
