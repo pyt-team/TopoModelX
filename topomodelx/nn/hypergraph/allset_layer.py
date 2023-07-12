@@ -65,8 +65,21 @@ class AllSetLayer(nn.Module):
         )
 
     def forward(self, x, incidence_1):
-        """
+        r"""
         Forward computation.
+
+        .. math::
+                Vertex to edge:
+                    🟧 $\\quad m_{\\rightarrow z}^{(\\rightarrow 1)}
+                        = AGG_{y \\in \\mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)})$
+                    🟦 $\\quad h_z^{t+1,(1)}
+                        = \\sigma(m_{\\rightarrow z}^{(\\rightarrow 1)})$
+
+                Edge to vertex:
+                    🟧 $\\quad m_{\\rightarrow x}^{(\\rightarrow 0)}
+                        = AGG_{z \\in \\mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)})$
+                    🟦 $\\quad h_x^{t+1,(0)}
+                        = \\sigma(m_{\\rightarrow x}^{(\\rightarrow 0)})$
 
         Parameters
         ----------
