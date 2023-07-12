@@ -81,6 +81,23 @@ class TestAllSetLayer:
         assert allset_layer.vertex2edge.encoder.weight.requires_grad
         assert allset_layer.edge2vertex.encoder.weight.requires_grad
 
+    def reset_parameters_allsetblock(self):
+        """Test the reset_parameters method of the AllSet layer."""
+        in_channels = 10
+        hidden_channels = 64
+        mlp_num_layers = 2
+        dropout = 0.0
+        allset_block = AllSetBlock(
+            in_channels=in_channels,
+            hidden_channels=hidden_channels,
+            mlp_num_layers=mlp_num_layers,
+            dropout=dropout,
+        )
+        allset_block.reset_parameters()
+        assert allset_block.encoder.weight.requires_grad
+        assert allset_block.decoder.weight.requires_grad
+        assert allset_block.conv.weight.requires_grad
+
     def test_initialisation_mlp_num_layers_negative(self):
         """Test the initialisation of the AllSet layer with invalid input."""
         with pytest.raises(ValueError):

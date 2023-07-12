@@ -64,6 +64,11 @@ class AllSetLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
+    def reset_parameters(self):
+        """Reset learnable parameters."""
+        self.vertex2edge.reset_parameters()
+        self.edge2vertex.reset_parameters()
+
     def forward(self, x, incidence_1):
         r"""
         Forward computation.
