@@ -95,7 +95,21 @@ class AllSetTransformerLayer(nn.Module):
         self.edge2vertex.reset_parameters()
 
     def forward(self, x, incidence_1):
-        """Forward computation.
+        r"""Forward computation.
+
+        .. math::
+            "Following the \"awesome-tnns\" [github repo.](https://github.com/awesome-tnns/awesome-tnns/blob/main/Hypergraphs.md)
+            Vertex to edge:
+                🟧 $\\quad m_{\\rightarrow z}^{(\\rightarrow 1)}
+                    = AGG_{y \\in \\mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)}) \\quad \\text{with attention}$
+                🟦 $\\quad h_z^{t+1,(1)}
+                    = \\text{LN}(m_{\\rightarrow z}^{(\\rightarrow 1)} + \\text{MLP}(m_{\\rightarrow z}^{(\\rightarrow 1)} ))$
+
+            Edge to vertex:
+                🟧 $\\quad m_{\\rightarrow x}^{(\\rightarrow 0)}
+                    = AGG_{z \\in \\mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)}) \\quad \\text{with attention}$
+                🟦 $\\quad h_x^{t+1,(0)}
+                    = \\text{LN}(m_{\\rightarrow x}^{(\\rightarrow 0)} + \\text{MLP}(m_{\\rightarrow x}^{(\\rightarrow 0)} ))$
 
         Parameters
         ----------
