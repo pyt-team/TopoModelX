@@ -75,25 +75,14 @@ class TestAllSetLayer:
                 mlp_num_layers=mlp_num_layers,
             )
 
-    def reset_parameters(self, allset_layer):
+    def reset_parameters(self):
         """Test the reset_parameters method of the AllSet layer."""
-        for module in allset_layer.modules():
-            if hasattr(module, "reset_parameters"):
-                module.reset_parameters()
-
-    def reset_parameters_allsetblock(self):
-        """Test the reset_parameters method of the AllSet layer."""
-        in_channels = 10
-        hidden_channels = 64
-        mlp_num_layers = 2
-        dropout = 0.0
-        allset_block = AllSetBlock(
-            in_channels=in_channels,
-            hidden_channels=hidden_channels,
-            mlp_num_layers=mlp_num_layers,
-            dropout=dropout,
+        allset_layer = AllSetLayer(
+            in_channels=10,
+            hidden_channels=64,
+            mlp_num_layers=2,
         )
-        for module in allset_block.modules():
+        for module in allset_layer.modules():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
 
@@ -134,3 +123,11 @@ class TestAllSetLayer:
                                     bias=bias,
                                 )
                                 assert mlp is not None
+
+
+# if main module
+if __name__ == "__main__":
+    # run tests
+    tester = TestAllSetLayer()
+    tester.reset_parameters()
+    tester.reset_parameters_allsetblock()
