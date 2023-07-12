@@ -158,7 +158,7 @@ class HBS(torch.nn.Module):
             Gain for the weight initialization. Default is 1.414.
         """
 
-        def reset_specific_hop_parameters(weight, att_weight):
+        def reset_p_hop_parameters(weight, att_weight):
             if self.initialization == "xavier_uniform":
                 torch.nn.init.xavier_uniform_(weight, gain=gain)
                 torch.nn.init.xavier_uniform_(att_weight.view(-1, 1), gain=gain)
@@ -173,7 +173,7 @@ class HBS(torch.nn.Module):
                 )
 
         for w, a in zip(self.weight, self.att_weight):
-            reset_specific_hop_parameters(w, a)
+            reset_p_hop_parameters(w, a)
 
     def update(self, message: torch.Tensor) -> torch.Tensor:
         r"""Update signal features on each cell with an activation function.
