@@ -255,12 +255,3 @@ class MLP(nn.Sequential):
         layers.append(nn.Dropout(dropout, **params))
 
         super().__init__(*layers)
-
-    def reset_parameters(self):
-        """Reset learnable parameters."""
-        gain = nn.init.calculate_gain("relu")
-        for module in self.modules():
-            if isinstance(module, nn.Linear):
-                nn.init.xavier_normal_(module.weight, gain=gain)
-                if module.bias is not None:
-                    nn.init.zeros_(module.bias)
