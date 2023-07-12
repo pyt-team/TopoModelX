@@ -10,7 +10,7 @@ from topomodelx.base.message_passing import MessagePassing
 from ..utils.srn import sparse_row_norm
 
 
-class HBNS(MessagePassing):
+class HBNS(torch.nn.Module):
     r"""Higher Order Attention Block for non-squared neighborhood matrices.
 
     Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
@@ -137,10 +137,10 @@ class HBNS(MessagePassing):
         update_func: str = None,
         initialization: str = "xavier_uniform",
     ) -> None:
-        super().__init__(
-            att=True,
-            initialization=initialization,
-        )
+
+        super().__init__()
+
+        self.initialization = initialization
 
         self.source_in_channels, self.source_out_channels = (
             source_in_channels,

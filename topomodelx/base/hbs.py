@@ -9,7 +9,7 @@ from topomodelx.base.message_passing import MessagePassing
 from ..utils.srn import sparse_row_norm
 
 
-class HBS(MessagePassing):
+class HBS(torch.nn.Module):
     r"""Higher Order Attention Block layer for squared neighborhoods (HBS).
 
     Let :math:`\mathcal{X}` be a combinatorial complex, we denote by
@@ -115,10 +115,9 @@ class HBS(MessagePassing):
         initialization: str = "xavier_uniform",
     ) -> None:
 
-        super().__init__(
-            att=True,
-            initialization=initialization,
-        )
+        super().__init__()
+
+        self.initialization = initialization
 
         self.source_in_channels = source_in_channels
         self.source_out_channels = source_out_channels
