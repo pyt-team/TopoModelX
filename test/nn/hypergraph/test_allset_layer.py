@@ -78,11 +78,8 @@ class TestAllSetLayer:
     def reset_parameters(self, allset_layer):
         """Test the reset_parameters method of the AllSet layer."""
         allset_layer.reset_parameters()
-        if not (allset_layer.vertex2edge.encoder.__class__.__name__ != "Identity"):
-            assert allset_layer.vertex2edge.encoder.weight.requires_grad
-
-        if not (allset_layer.edge2vertex.encoder.__class__.__name__ != "Identity"):
-            assert allset_layer.edge2vertex.encoder.weight.requires_grad
+        assert allset_layer.vertex2edge.encoder.weight.requires_grad
+        assert allset_layer.edge2vertex.encoder.weight.requires_grad
 
     def test_initialisation_mlp_num_layers_negative(self):
         """Test the initialisation of the AllSet layer with invalid input."""
