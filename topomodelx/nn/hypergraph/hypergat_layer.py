@@ -110,25 +110,31 @@ class HyperGATLayer(MessagePassing):
         """Forward."""
         intra_aggregation = incidence @ (x_source @ self.weight1)
 
-        neighborhood = incidence  # .coalesce()
-        self.target_index_i, self.source_index_j = neighborhood.indices()
+        self.target_index_i, self.source_index_j = incidence.indices()
 
-        attention_values = self.attention(intra_aggregation)
-        neighborhood = torch.sparse_coo_tensor(
-            indices=neighborhood.indices(),
-            values=neighborhood.values() * attention_values,
-            size=neighborhood.shape,
+        attention_values = self.attention(intra_aggregation).squeeze()
+        print(incidence.values().shape, attention_values.shape)
+        incidence_with_attention = torch.sparse_coo_tensor(
+            indices=incidence.indices(),
+            values=incidence.values() * attention_values,
+            size=incidence.shape,
         )
-        intra_aggregation_with_attention = neighborhood.t() @ (x_source @ self.weight1)
-        hedge_representation = self.update(intra_aggregation_with_attention)
-
-        inter_aggregation = incidence.t() @ (hedge_representation @ self.weight2)
-
-        attention_values = self.attention(inter_aggregation, intra_aggregation)
-        neighborhood = torch.sparse_coo_tensor(
-            indices=neighborhood.indices(),
-            values=attention_values * neighborhood.values(),
-            size=neighborhood.shape,
+        intra_aggregation_with_attention = incidence_with_attention.t() @ (
+            x_source @ self.weight1
         )
-        intra_aggregation_with_attention = neighborhood.t() @ (x_source @ self.weight2)
+        messages_on_edges = self.update(intra_aggregation_with_attention)
+
+        inter_aggregation = incidence.t() @ (messages_on_edges @ self.weight2)
+
+        attention_values = self.attention(
+            inter_aggregation, intra_aggregation
+        ).squeeze()
+        incidence_with_attention = torch.sparse_coo_tensor(
+            indices=incidence.indices(),
+            values=attention_values * incidence.values(),
+            size=incidence.shape,
+        )
+        intra_aggregation_with_attention = incidence_with_attention.t() @ (
+            messages_on_edges @ self.weight2
+        )
         return self.update(intra_aggregation_with_attention)
