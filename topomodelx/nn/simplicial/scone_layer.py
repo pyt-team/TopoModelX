@@ -106,5 +106,4 @@ class SCoNeLayer(torch.nn.Module):
         x_0_level2 = self.conv_level2(x_0, lap_up)
         x_0_level3 = self.conv_level3(x_0, iden)
         x_0 = self.aggr_edges([x_0_level3, x_0_level1, x_0_level2])
-        x_0 = torch.sinh(x_0)
         return x_0
