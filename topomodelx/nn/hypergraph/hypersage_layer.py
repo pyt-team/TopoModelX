@@ -49,9 +49,9 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    aggr_func_1: Aggregation
+    aggr_func_intra: Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
-    aggr_func_2: Aggregation
+    aggr_func_inter: Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
     update_func : string
         Update method to apply to message. Default is "relu".
@@ -65,8 +65,8 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
-        aggr_func_1: Aggregation = GeneralizedMean(power=2, update_func=None),
-        aggr_func_2: Aggregation = GeneralizedMean(power=2, update_func=None),
+        aggr_func_intra: Aggregation = GeneralizedMean(power=2, update_func=None),
+        aggr_func_inter: Aggregation = GeneralizedMean(power=2, update_func=None),
         update_func: str = "relu",
         initialization: str = "uniform",
         device: str = "cpu",
@@ -75,8 +75,8 @@ class HyperSAGELayer(MessagePassing):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.aggr_func_1 = aggr_func_1
-        self.aggr_func_2 = aggr_func_2
+        self.aggr_func_intra = aggr_func_intra
+        self.aggr_func_inter = aggr_func_inter
         self.update_func = update_func
         self.initialization = initialization
         self.device = device
@@ -146,9 +146,9 @@ class HyperSAGELayer(MessagePassing):
             Assumes that all target cells have the same rank s.
         """
         if mode == "intra":
-            return self.aggr_func_1(x_messages)
+            return self.aggr_func_intra(x_messages)
         if mode == "inter":
-            return self.aggr_func_2(x_messages)
+            return self.aggr_func_inter(x_messages)
         else:
             raise ValueError(
                 "Aggregation mode not recognized.\nShould be either intra or inter."
