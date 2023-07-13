@@ -3,10 +3,10 @@ import pytest
 import torch
 
 from topomodelx.nn.hypergraph.HMPNN_layer import (
-    DefaultHyperedgeToNodeMessagingFunc,
     HMPNNLayer,
-    HyperedgeToNodeMessanger,
-    NodeToHyperedgeMessanger,
+    _DefaultHyperedgeToNodeMessagingFunc,
+    _HyperedgeToNodeMessanger,
+    _NodeToHyperedgeMessanger,
 )
 
 torch.manual_seed(41)
@@ -36,7 +36,7 @@ class TestHMPNNLayer:
     def test_node_to_hyperedge_messanger(self, incidence_1):
         """Test NodeToHyperedgeMessanger."""
         in_features = 2
-        messanger = NodeToHyperedgeMessanger(torch.nn.functional.sigmoid)
+        messanger = _NodeToHyperedgeMessanger(torch.nn.functional.sigmoid)
         x_0 = torch.randn(100, in_features)
         node_messages_aggregated, node_messages = messanger(x_0, incidence_1)
         assert node_messages_aggregated.shape == (incidence_1.size(1), in_features)
@@ -45,8 +45,8 @@ class TestHMPNNLayer:
     def test_hyperedge_to_node_messanger(self, incidence_1):
         """Test HyperedgeToNodeMessanger."""
         in_features = 2
-        messanger = HyperedgeToNodeMessanger(
-            DefaultHyperedgeToNodeMessagingFunc(in_features)
+        messanger = _HyperedgeToNodeMessanger(
+            _DefaultHyperedgeToNodeMessagingFunc(in_features)
         )
         x_1 = torch.randn(20, in_features)
         node_messages = torch.randn(100, in_features)
