@@ -24,6 +24,8 @@ class HyperSAGELayer(MessagePassing):
         Power for the generalized mean in the aggregation. Default is 2.
     update_func : string
         Update method to apply to message. Default is "relu".
+    initialization : string
+        Initialization method. Default is "uniform".
     device : string
         Device name to train layer on. Default is "cpu".
     """
@@ -34,6 +36,7 @@ class HyperSAGELayer(MessagePassing):
         out_channels: int,
         p: int = 2,
         update_func: str = "relu",
+        initialization: str = "uniform",
         device: str = "cpu",
     ) -> None:
         super().__init__()
@@ -42,6 +45,7 @@ class HyperSAGELayer(MessagePassing):
         self.out_channels = out_channels
         self.p = p
         self.update_func = update_func
+        self.initialization = initialization
         self.device = device
 
         self.weight = torch.nn.Parameter(
@@ -49,10 +53,23 @@ class HyperSAGELayer(MessagePassing):
         )
         self.reset_parameters()
 
-    def reset_parameters(self):
-        r"""Reset parameters."""
-        stdv = 1.0 / math.sqrt(self.out_channels)
-        self.weight.uniform_(-stdv, stdv)
+    def update(
+        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
+    ) -> torch.Tensor:
+        r"""Update embeddings on each node (step 4).
+
+        Parameters
+        ----------
+        x_message_on_target : torch.Tensor, shape=[n_target_nodes, out_channels]
+            Output features on target nodes.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
+            Updated output features on target nodes.
+        """
+        if self.update_func == "relu":
+            return torch.nn.functional.relu(x_message_on_target)
 
     def forward(self, x: torch.Tensor, incidence: torch.sparse):
         r"""Forward pass.
@@ -107,4 +124,4 @@ class HyperSAGELayer(MessagePassing):
         message = torch.pow(
             inter_edge_aggregation_scale * inter_edge_aggregation, 1.0 / self.p
         )
-        return torch.nn.functional.relu(message / message.norm(p=2) @ self.weight)
+        return self.update(message / message.norm(p=2) @ self.weight)
