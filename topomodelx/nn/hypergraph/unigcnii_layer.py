@@ -5,8 +5,6 @@ import torch
 class UniGCNIILayer(torch.nn.Module):
     r"""Implementation of the UniGCNII layer.
 
-    The later should always be used with self loops on all nodes (should this be tested?).
-
     Parameters
     ----------
     in_channels : int
@@ -15,6 +13,12 @@ class UniGCNIILayer(torch.nn.Module):
         The alpha parameter determining the importance of the self-loop (\theta_2).
     beta : float
         The beta parameter determining the importance of the learned matrix (\theta_1).
+
+    References
+    ----------
+    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021. https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(self, in_channels, alpha, beta):
@@ -61,12 +65,14 @@ class UniGCNIILayer(torch.nn.Module):
             Input features of the nodes of the hypergraph.
         incidence_1 : torch.Tensor, shape = [num_nodes, num_edges]
             Incidence matrix of the hypergraph.
-        x_skip : torch.Tensor, shape = [num_nodes, in_channels]
+            It is expected that the incidence matrix contains self-loops for all nodes.
+        x_skip : torch.Tensor, shape = [num_nodes, in_channels], optional
             Original node features of the hypergraph used for the skip connections.
+            If not provided, the input to the layer is used as a skip connection.
 
         Returns
         -------
-        _ : torch.Tensor, shape = [num_nodes, in_channels]
+        x_0 : torch.Tensor, shape = [num_nodes, in_channels]
             Output features of the nodes of the hypergraph.
 
         """
@@ -77,7 +83,7 @@ class UniGCNIILayer(torch.nn.Module):
         m_0_1 = torch.sparse.mm(incidence_1_transpose, x_0)
 
         # Compute node and edge degrees for normalization.
-        node_degree = torch.sum(incidence_1, dim=1)
+        node_degree = torch.sum(incidence_1.to_dense(), dim=1)
 
         # check if the node degrees are positive
         assert torch.all(
@@ -89,7 +95,7 @@ class UniGCNIILayer(torch.nn.Module):
         assert torch.all(
             edge_degree > 0
         ), "Edge degrees should be positive (every edge needs at least one node it is connecting)."
-        edge_degree = edge_degree / torch.sum(incidence_1, dim=0)
+        edge_degree = edge_degree / torch.sum(incidence_1.to_dense(), dim=0)
 
         # Second message normalized with node and edge degrees (using broadcasting)
         m_1_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * torch.sparse.mm(
