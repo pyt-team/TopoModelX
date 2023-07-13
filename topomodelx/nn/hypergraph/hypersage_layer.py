@@ -66,6 +66,26 @@ class HyperSAGELayer(MessagePassing):
                 "Should be either uniform or xavier_uniform."
             )
 
+    def update(
+        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
+    ) -> torch.Tensor:
+        r"""Update embeddings on each node (step 4).
+
+        Parameters
+        ----------
+        x_message_on_target : torch.Tensor, shape=[n_target_nodes, out_channels]
+            Output features on target nodes.
+
+        Returns
+        -------
+        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
+            Updated output features on target nodes.
+        """
+        if self.update_func == "sigmoid":
+            return torch.nn.functional.sigmoid(x_message_on_target)
+        if self.update_func == "relu":
+            return torch.nn.functional.relu(x_message_on_target)
+
     def forward(self, x: torch.Tensor, incidence: torch.sparse):
         r"""Forward pass.
 
