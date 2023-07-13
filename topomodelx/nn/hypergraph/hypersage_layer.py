@@ -127,8 +127,7 @@ class HyperSAGELayer(MessagePassing):
         This function aggregates these messages into a single output
         feature per target cell.
 
-        🟧 This function corresponds to the within-neighborhood aggregation
-        defined in [H23]_ and [PSHM23]_.
+        🟧 This function corresponds to either intra- or inter-aggregation.
 
         Parameters
         ----------
