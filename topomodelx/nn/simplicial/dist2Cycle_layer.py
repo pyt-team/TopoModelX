@@ -1,6 +1,5 @@
 """High Skip Network Layer."""
 import torch
-
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 import torch.nn as nn

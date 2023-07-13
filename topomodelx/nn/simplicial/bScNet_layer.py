@@ -140,7 +140,7 @@ class BlockNet(torch.nn.Module):
 
         d_sim = (s_emb_sim_in - s_emb_sim_out).pow(2)
 
-        # linear to gather edge features
+        # linear to gather edge features and
         # embedding from GCN
         g_emb = g_emb.renorm_(2, 0, 1)
         alpha = 1.0

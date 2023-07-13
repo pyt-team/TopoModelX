@@ -1,12 +1,10 @@
 """Test the Bscn layer."""
-
 import torch
-
 from topomodelx.nn.simplicial.bScNet_layer import BlockNet
-
-# from topomodelx.nn.simplicial.bScNet_layer import testData
 import torch_geometric
 import torch_geometric.transforms as T
+
+# from topomodelx.nn.simplicial.bScNet_layer import testData
 
 
 class TestBSCLayer:
