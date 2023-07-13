@@ -51,7 +51,7 @@ class Conv(MessagePassing):
         if self.att:
             self.att_weight = Parameter(
                 torch.Tensor(
-                    2 * self.in_channels,
+                    self.in_channels + self.out_channels,
                 )
             )
 
