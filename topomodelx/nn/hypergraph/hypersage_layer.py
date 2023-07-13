@@ -55,35 +55,16 @@ class HyperSAGELayer(MessagePassing):
     def reset_parameters(self):
         r"""Reset parameters."""
         if self.initialization == "uniform":
-            stdv = 1.0 / math.sqrt(math.sqrt(self.out_features))
+            assert self.out_channels > 0, "out_features should be greater than 0"
+            stdv = 1.0 / math.sqrt(self.out_channels)
             self.weight.uniform_(-stdv, stdv)
         if self.initialization == "xavier_uniform":
             super().reset_parameters()
         else:
             raise RuntimeError(
                 "Initialization method not recognized. "
-                "Should be either xavier_uniform or xavier_normal."
+                "Should be either uniform or xavier_uniform."
             )
-
-    def update(
-        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
-    ) -> torch.Tensor:
-        r"""Update embeddings on each node (step 4).
-
-        Parameters
-        ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_nodes, out_channels]
-            Output features on target nodes.
-
-        Returns
-        -------
-        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
-            Updated output features on target nodes.
-        """
-        if self.update_func == "sigmoid":
-            return torch.sigmoid(x_message_on_target)
-        if self.update_func == "relu":
-            return torch.nn.functional.relu(x_message_on_target)
 
     def forward(self, x: torch.Tensor, incidence: torch.sparse):
         r"""Forward pass.
