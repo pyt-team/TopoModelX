@@ -13,15 +13,15 @@ class GeneralizedMean(Aggregation):
 
     Parameters
     ----------
-    p : int.
+    power : int.
         Power for the generalized mean. Default is 2.
     """
 
-    def __init__(self, p=2, **kwargs):
+    def __init__(self, power: int = 2, **kwargs):
         super().__init__(aggr_func="generalized_mean", **kwargs)
-        self.p = p
+        self.power = power
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         """Forward pass.
 
         Parameters
@@ -29,8 +29,8 @@ class GeneralizedMean(Aggregation):
         x : torch.Tensor
         """
         n = x.size()[-2]
-        x = torch.sum(torch.pow(x, self.p), axis=-2) / n
-        x = torch.pow(x, 1 / self.p)
+        x = torch.sum(torch.pow(x, self.power), axis=-2) / n
+        x = torch.pow(x, 1 / self.power)
 
         return x
 
@@ -49,9 +49,9 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    aggr_func_1: Callable
+    aggr_func_1: Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
-    aggr_func_2: Callable
+    aggr_func_2: Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
     update_func : string
         Update method to apply to message. Default is "relu".
@@ -65,8 +65,8 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
-        aggr_func_1=GeneralizedMean(p=2, update_func=None),
-        aggr_func_2=GeneralizedMean(p=2, update_func=None),
+        aggr_func_1: Aggregation = GeneralizedMean(p=2, update_func=None),
+        aggr_func_2: Aggregation = GeneralizedMean(p=2, update_func=None),
         update_func: str = "relu",
         initialization: str = "uniform",
         device: str = "cpu",
@@ -120,7 +120,7 @@ class HyperSAGELayer(MessagePassing):
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
 
-    def aggregate(self, x_messages, mode="intra"):
+    def aggregate(self, x_messages: torch.Tensor, mode: str = "intra"):
         """Aggregate messages on each target cell.
 
         A target cell receives messages from several source cells.
