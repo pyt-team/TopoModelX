@@ -1,9 +1,38 @@
 """HyperSAGE layer."""
 import math
+from typing import Optional, Tuple, Union
 
 import torch
 
+from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.message_passing import MessagePassing
+
+
+class GeneralizedMean(Aggregation):
+    """Generalized mean aggregation layer.
+
+    Parameters
+    ----------
+    p : int.
+        Power for the generalized mean. Default is 2.
+    """
+
+    def __init__(self, p=2, **kwargs):
+        super().__init__(aggr_func="generalized_mean", **kwargs)
+        self.p = p
+
+    def forward(self, x):
+        """Forward pass.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+        """
+        n = x.size()[-2]
+        x = torch.sum(torch.pow(x, self.p), axis=-2) / n
+        x = torch.pow(x, 1 / self.p)
+
+        return x
 
 
 class HyperSAGELayer(MessagePassing):
@@ -20,8 +49,10 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    p : int.
-        Power for the generalized mean in the aggregation. Default is 2.
+    aggr_func_1: Callable
+        Aggregation function. Default is GeneralizedMean(p=2).
+    aggr_func_2: Callable
+        Aggregation function. Default is GeneralizedMean(p=2).
     update_func : string
         Update method to apply to message. Default is "relu".
     initialization : string
@@ -34,7 +65,8 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
-        p: int = 2,
+        aggr_func_1=GeneralizedMean(p=2, update_func=None),
+        aggr_func_2=GeneralizedMean(p=2, update_func=None),
         update_func: str = "relu",
         initialization: str = "uniform",
         device: str = "cpu",
@@ -43,7 +75,8 @@ class HyperSAGELayer(MessagePassing):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.p = p
+        self.aggr_func_1 = aggr_func_1
+        self.aggr_func_2 = aggr_func_2
         self.update_func = update_func
         self.initialization = initialization
         self.device = device
@@ -62,7 +95,7 @@ class HyperSAGELayer(MessagePassing):
         elif self.initialization == "xavier_uniform":
             super().reset_parameters()
         else:
-            raise RuntimeError(
+            raise ValueError(
                 "Initialization method not recognized. "
                 "Should be either uniform or xavier_uniform."
             )
@@ -87,6 +120,41 @@ class HyperSAGELayer(MessagePassing):
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
 
+    def aggregate(self, x_messages, mode="intra"):
+        """Aggregate messages on each target cell.
+
+        A target cell receives messages from several source cells.
+        This function aggregates these messages into a single output
+        feature per target cell.
+
+        🟧 This function corresponds to the within-neighborhood aggregation
+        defined in [H23]_ and [PSHM23]_.
+
+        Parameters
+        ----------
+        x_messages : Tensor, shape=[..., n_messages, out_channels]
+            Features associated with each message.
+            One message is sent from a source cell to a target cell.
+        mode : string
+            The mode on which aggregation to compute. If set to "inter", will compute inter-aggregation,
+            if set to "intra", will compute intra-aggregation (see [AGRW20]). Default is "inter".
+
+        Returns
+        -------
+        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+            Output features on target cells.
+            Each target cell aggregates messages from several source cells.
+            Assumes that all target cells have the same rank s.
+        """
+        if mode == "intra":
+            return self.aggr_func_1(x_messages)
+        if mode == "inter":
+            return self.aggr_func_2(x_messages)
+        else:
+            raise ValueError(
+                "Aggregation mode not recognized.\nShould be either intra or inter."
+            )
+
     def forward(self, x: torch.Tensor, incidence: torch.sparse):
         r"""Forward pass.
 
@@ -106,38 +174,32 @@ class HyperSAGELayer(MessagePassing):
             raise ValueError(
                 f"Shape of incidence matrix ({incidence.shape}) does not have the correct number of nodes ({x.shape[0]})."
             )
-        intra_edge_aggregation = incidence.transpose(-2, -1) @ torch.pow(x, self.p)
-        edges_per_node = (
-            lambda v: torch.index_select(
+
+        def nodes_per_edge(e):
+            return torch.index_select(
+                input=incidence, dim=1, index=torch.LongTensor([e])
+            ).nonzero(as_tuple=True)[0]
+
+        def edges_per_node(v):
+            return torch.index_select(
                 input=incidence, dim=0, index=torch.LongTensor([v])
-            )
-            .coalesce()
-            .indices()[1]
+            ).nonzero(as_tuple=True)[0]
+
+        messages_per_edges = [
+            x[nodes_per_edge(e), :] for e in range(incidence.size()[1])
+        ]
+        intra_edge_aggregation = torch.stack(
+            [self.aggregate(message, mode="intra") for message in messages_per_edges]
         )
-        global_nbhd = (
-            lambda v: torch.index_select(
-                input=incidence,
-                dim=1,
-                index=edges_per_node(v),
-            )
-            .coalesce()
-            .values()
-            .size()[0]
+
+        messages_per_nodes = [
+            intra_edge_aggregation[edges_per_node(v), :]
+            for v in range(incidence.size()[0])
+        ]
+        inter_edge_aggregation = torch.stack(
+            [self.aggregate(message, mode="inter") for message in messages_per_nodes]
         )
-        intra_edge_aggregation_scale = (
-            torch.Tensor([1.0 / global_nbhd(v) for v in range(x.shape[0])])
-            .reshape(-1, 1)
-            .to(device=self.device)
+
+        return self.update(
+            inter_edge_aggregation / inter_edge_aggregation.norm(p=2) @ self.weight
         )
-        inter_edge_aggregation = intra_edge_aggregation_scale * (
-            incidence @ intra_edge_aggregation
-        )
-        inter_edge_aggregation_scale = (
-            torch.Tensor([1.0 / edges_per_node(v).shape[0] for v in range(x.shape[0])])
-            .reshape(-1, 1)
-            .to(device=self.device)
-        )
-        message = torch.pow(
-            inter_edge_aggregation_scale * inter_edge_aggregation, 1.0 / self.p
-        )
-        return self.update(message / message.norm(p=2) @ self.weight)
