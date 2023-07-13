@@ -30,7 +30,7 @@ class TestHyperSAGELayer:
         x_0 = torch.randn(4, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
-        )
+        ).to_sparse()
         with pytest.raises(ValueError):
             hypersage_layer.forward(x_0, incidence_1)
 
