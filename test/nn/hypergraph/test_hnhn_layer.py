@@ -19,10 +19,10 @@ class TestHNHNLayer:
         incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
 
         return HNHNLayer(
-            channels_node=channels_node, 
-            channels_edge=channels_edge, 
-            incidence_1=incidence_1)
-    
+                channels_node=channels_node, 
+                channels_edge=channels_edge, 
+                incidence_1=incidence_1)
+
     def test_forward(self, template_layer):
         """Test the forward pass of the HNHN layer."""
         n_nodes, n_edges = template_layer.incidence_1.shape
@@ -59,3 +59,15 @@ class TestHNHNLayer:
         assert(template_layer.incidence_1_transpose.shape ==\
                (template_layer.n_edges, template_layer.n_nodes))
         return
+    
+    def test_reset_parameters(self, template_layer):
+        shape_1_to_0_in = template_layer.conv_1_to_0.weight.shape
+        shape_0_to_1_in = template_layer.conv_0_to_1.weight.shape
+        template_layer.reset_parameters()
+        shape_1_to_0_out = template_layer.conv_1_to_0.weight.shape
+        shape_0_to_1_out = template_layer.conv_0_to_1.weight.shape
+        assert(shape_1_to_0_in==shape_1_to_0_out)
+        assert(shape_0_to_1_in==shape_0_to_1_out)
+
+    def check_bias_type(self, template_layer):
+        assert(template_layer.bias_init in ["xavier_uniform", "xavier_normal"])

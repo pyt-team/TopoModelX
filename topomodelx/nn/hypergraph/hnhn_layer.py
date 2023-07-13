@@ -84,7 +84,6 @@ class HNHNLayer(torch.nn.Module):
             aggr_norm=False,
             update_func=None,
         )
-        assert self.bias_init in ["xavier_uniform", "xavier_normal"]
         if self.use_bias:
             self.bias_1_to_0 = Parameter(torch.Tensor(1, channels_node))
             self.bias_0_to_1 = Parameter(torch.Tensor(1, channels_edge))
@@ -196,10 +195,7 @@ class HNHNLayer(torch.nn.Module):
         x_1 : torch.Tensor, shape=[n_edges, channels_edge]
             Output features on the hyperedges
         """
-        if x_1.shape[-2] != self.incidence_1.shape[-1]:
-            raise ValueError(
-                f"Shape of input face features does not have the correct number of edges {self.incidence_1.shape[-1]}."
-            )
+
         # Move incidence matrices to device
         self.incidence_1 = self.incidence_1.to(x_0.device)
         self.incidence_1_transpose = self.incidence_1_transpose.to(x_0.device)
