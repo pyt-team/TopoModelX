@@ -62,7 +62,7 @@ class HyperGATLayer(MessagePassing):
             torch.nn.init.xavier_normal_(self.att_weight1.view(-1, 1), gain=gain)
             torch.nn.init.xavier_normal_(self.att_weight2.view(-1, 1), gain=gain)
         else:
-            raise RuntimeError(
+            raise ValueError(
                 "Initialization method not recognized. "
                 "Should be either xavier_uniform or xavier_normal."
             )
