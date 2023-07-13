@@ -18,7 +18,10 @@ class TestHyperSAGELayer:
     def test_forward(self, hypersage_layer):
         """Test the forward pass of the HyperSAGE layer."""
         x_2 = torch.randn(3, 10)
-        incidence_2 = torch.tensor([[1, 0], [0, 1], [1, 1]], dtype=torch.float32)
+        incidence_2 = torch.tensor(
+            [[1, 0], [0, 1], [1, 1]], dtype=torch.float32
+        ).to_sparse()
+        print(incidence_2)
         output = hypersage_layer.forward(x_2, incidence_2)
         assert output.shape == (3, 30)
 
@@ -27,7 +30,7 @@ class TestHyperSAGELayer:
         x_0 = torch.randn(4, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
-        ).to_sparse()
+        )
         with pytest.raises(ValueError):
             hypersage_layer.forward(x_0, incidence_1)
 

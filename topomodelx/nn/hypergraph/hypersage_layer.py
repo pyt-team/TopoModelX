@@ -36,7 +36,7 @@ class GeneralizedMean(Aggregation):
 
 
 class HyperSAGELayer(MessagePassing):
-    r"""Implementation of the HyperSAGE layer proposed in [DWLLL20].
+    r"""Implementation of the HyperSAGE layer proposed in [AGRW20].
 
     References
     ----------
@@ -170,36 +170,44 @@ class HyperSAGELayer(MessagePassing):
         x : torch.Tensor
             Output features.
         """
-        if x.shape[-2] != incidence.shape[-2]:
-            raise ValueError(
-                f"Shape of incidence matrix ({incidence.shape}) does not have the correct number of nodes ({x.shape[0]})."
-            )
 
         def nodes_per_edge(e):
-            return torch.index_select(
-                input=incidence, dim=1, index=torch.LongTensor([e])
-            ).nonzero(as_tuple=True)[0]
+            return (
+                torch.index_select(input=incidence, dim=1, index=torch.LongTensor([e]))
+                .coalesce()
+                .indices()[0]
+            )
 
         def edges_per_node(v):
-            return torch.index_select(
-                input=incidence, dim=0, index=torch.LongTensor([v])
-            ).nonzero(as_tuple=True)[0]
+            return (
+                torch.index_select(input=incidence, dim=0, index=torch.LongTensor([v]))
+                .coalesce()
+                .indices()[1]
+            )
 
         messages_per_edges = [
             x[nodes_per_edge(e), :] for e in range(incidence.size()[1])
         ]
+        num_of_messages_per_edges = torch.Tensor(
+            [message.size()[-2] for message in messages_per_edges]
+        ).reshape(-1, 1)
         intra_edge_aggregation = torch.stack(
             [self.aggregate(message, mode="intra") for message in messages_per_edges]
         )
 
+        indices_of_edges_per_nodes = [
+            edges_per_node(v) for v in range(incidence.size()[0])
+        ]
         messages_per_nodes = [
-            intra_edge_aggregation[edges_per_node(v), :]
-            for v in range(incidence.size()[0])
+            num_of_messages_per_edges[indices]
+            / torch.sum(num_of_messages_per_edges[indices])
+            * intra_edge_aggregation[indices, :]
+            for indices in indices_of_edges_per_nodes
         ]
         inter_edge_aggregation = torch.stack(
             [self.aggregate(message, mode="inter") for message in messages_per_nodes]
         )
 
-        return self.update(
-            inter_edge_aggregation / inter_edge_aggregation.norm(p=2) @ self.weight
-        )
+        x_message = x + inter_edge_aggregation
+
+        return self.update(x_message / x_message.norm(p=2) @ self.weight)
