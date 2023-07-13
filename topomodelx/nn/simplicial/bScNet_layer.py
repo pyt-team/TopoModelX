@@ -1,15 +1,18 @@
-import math
-from numpy.linalg import inv, pinv
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch_geometric.transforms as T
-import numpy as np
 from torch.nn import Softmax
 from torch_geometric.nn import GCNConv
-import networkx as nx
+
 from scipy.spatial import Delaunay
 import scipy.sparse as sp
+
+import numpy as np
+import networkx as nx
+
+import math
+from numpy.linalg import inv, pinv
 
 
 class BlockNet(torch.nn.Module):

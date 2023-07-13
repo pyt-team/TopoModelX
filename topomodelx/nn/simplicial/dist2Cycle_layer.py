@@ -1,9 +1,11 @@
 """High Skip Network Layer."""
 import torch
-from topomodelx.base.aggregation import Aggregation
-from topomodelx.base.conv import Conv
+
 import torch.nn as nn
 import torch.nn.functional as F
+
+from topomodelx.base.aggregation import Aggregation
+from topomodelx.base.conv import Conv
 
 
 class Dist2CycleLayer(torch.nn.Module):
