@@ -1,9 +1,9 @@
 """Test the HNHN layer."""
-import torch
 import pytest
+import torch
 
-from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 from topomodelx.base.conv import Conv
+from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 
 
 class TestHNHNLayer:
