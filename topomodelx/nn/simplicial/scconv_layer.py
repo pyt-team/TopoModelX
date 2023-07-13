@@ -133,20 +133,20 @@ class SCConvLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape=[n_nodes, channels]
+        x_0: torch.Tensor, shape=[n_nodes, node_channels]
             Input features on the nodes of the simplicial complex.
-        x_1: torch.Tensor, shape=[n_edges, channels]
+        x_1: torch.Tensor, shape=[n_edges, edge_channels]
             Input features on the edges of the simplicial complex.
-        x_2: torch.Tensor, shape=[n_faces, channels]
+        x_2: torch.Tensor, shape=[n_faces, face_channels]
             Input features on the faces of the simplicial complex.
         incidence_1: torch.Tensor, shape=[n_faces, channels]
-            incidence matrix of rank 1.
+            incidence matrix of rank 1 :math:`B_1`.
         incidence_1_norm: torch.Tensor,
-            normalized incidence matrix of rank 1 .
+            normalized incidence matrix of rank 1 :math:`B^{~}_1`.
         incidence_2: torch.Tensor,
-             incidence matrix of rank 2.
+             incidence matrix of rank 2 :math:`B_2`.
         incidence_2_norm: torch.Tensor,
-            normalized incidence matrix of rank 2.
+            normalized incidence matrix of rank 2 :math:`B^{~}_2`.
         adjacency_up_0_norm: torch.Tensor,
             normalized upper adjacency matrix of rank 0.
         adjacency_up_1_norm: torch.Tensor,
@@ -158,12 +158,15 @@ class SCConvLayer(torch.nn.Module):
 
         Notes:
         -----
-        For normalization of incidence matrix use the helper functions here: https://github.com/pyt-team/TopoModelX/blob/dev/topomodelx/normalization/normalization.py
+        For normalization of incidence matrices you may use the helper functions here: https://github.com/pyt-team/TopoModelX/blob/dev/topomodelx/normalization/normalization.py
 
         """
 
         x0_level_0_0 = self.conv_0_to_0(x_0, adjacency_up_0_norm)
-        x0_level_1_0 = self.conv_0_to_1(x_0, incidence_1)
+
+        # x0_level_1_0 = self.conv_0_to_1(x_0, incidence_1)
+        x0_level_1_0 = self.conv_1_to_0(x_1, incidence_1)
+
         x0_level_0_1 = self.conv_0_to_1(x_0, incidence_1_norm)
 
         adj_norm = adjacency_down_1_norm.add(adjacency_up_1_norm)
@@ -175,14 +178,17 @@ class SCConvLayer(torch.nn.Module):
 
         x_2_level_2_2 = self.conv_2_to_2(x_2, adjacency_down_2_norm)
 
-        x_0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0, x0_level_0_1])
-        x_1_out = self.aggr_on_nodes(
-            [
-                x1_level_1_1,
-                x1_level_1_2,
-            ]
-        )
-        x_2_out = self.aggr_on_nodes([x2_level_2_1, x_2_level_2_2])
+        # x_0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0, x0_level_0_1])
+        # x_1_out = self.sggr_on_edges(
+        #     [
+        #         x1_level_1_1,
+        #         x1_level_1_2,
+        #     ]
+        # )
+        # x_2_out = self.sggr_on_faces([x2_level_2_1, x_2_level_2_2])
 
-        return x_0_out, x_1_out, x_2_out
-        # return x_0, x_1, x_2
+        x0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0])
+        x1_out = self.aggr_on_edges([x0_level_0_1, x1_level_1_1, x2_level_2_1])
+        x2_out = self.aggr_on_faces([x1_level_1_2, x_2_level_2_2])
+
+        return x0_out, x1_out, x2_out
