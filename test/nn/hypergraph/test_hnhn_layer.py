@@ -7,7 +7,7 @@ from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 
 
 class TestHNHNLayer:
-    """Test the HNHN layer."""
+    """Class to support HNHNLayer testing."""
 
     @pytest.fixture
     def template_layer(self):
@@ -74,6 +74,7 @@ class TestHNHNLayer:
         return
 
     def test_reset_parameters(self, template_layer):
+        """Test reset parameters"""
         shape_1_to_0_in = template_layer.conv_1_to_0.weight.shape
         shape_0_to_1_in = template_layer.conv_0_to_1.weight.shape
         template_layer.reset_parameters()
@@ -83,4 +84,5 @@ class TestHNHNLayer:
         assert shape_0_to_1_in == shape_0_to_1_out
 
     def check_bias_type(self, template_layer):
+        """Check bias initialization type"""
         assert template_layer.bias_init in ["xavier_uniform", "xavier_normal"]
