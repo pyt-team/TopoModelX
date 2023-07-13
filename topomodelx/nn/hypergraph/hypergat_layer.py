@@ -87,20 +87,21 @@ class HyperGATLayer(MessagePassing):
         _ : torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
-        x_source_per_message = x_source[self.source_index_j]
-        x_target_per_message = (
-            x_source[self.target_index_i]
-            if x_target is None
-            else x_target[self.target_index_i]
-        )
-
         if mechanism == "node-level":
+            x_source_per_message = x_source[self.target_index_i]
             return torch.nn.functional.softmax(
                 torch.matmul(
                     torch.nn.functional.leaky_relu(x_source_per_message),
                     self.att_weight1,
                 )
             )
+
+        x_source_per_message = x_source[self.source_index_j]
+        x_target_per_message = (
+            x_source[self.target_index_i]
+            if x_target is None
+            else x_target[self.target_index_i]
+        )
 
         x_source_target_per_message = torch.nn.functional.leaky_relu(
             torch.cat([x_source_per_message, x_target_per_message], dim=1)
@@ -142,12 +143,11 @@ class HyperGATLayer(MessagePassing):
         x : torch.Tensor
             Output features.
         """
-        intra_aggregation = incidence @ (x_source @ self.weight1)
+        intra_aggregation = incidence.t() @ (x_source @ self.weight1)
 
         self.target_index_i, self.source_index_j = incidence.indices()
 
         attention_values = self.attention(intra_aggregation).squeeze()
-        print(incidence.values().shape, attention_values.shape)
         incidence_with_attention = torch.sparse_coo_tensor(
             indices=incidence.indices(),
             values=incidence.values() * attention_values,
@@ -158,7 +158,7 @@ class HyperGATLayer(MessagePassing):
         )
         messages_on_edges = self.update(intra_aggregation_with_attention)
 
-        inter_aggregation = incidence.t() @ (messages_on_edges @ self.weight2)
+        inter_aggregation = incidence @ (messages_on_edges @ self.weight2)
 
         attention_values = self.attention(
             inter_aggregation, intra_aggregation
@@ -168,7 +168,7 @@ class HyperGATLayer(MessagePassing):
             values=attention_values * incidence.values(),
             size=incidence.shape,
         )
-        intra_aggregation_with_attention = incidence_with_attention.t() @ (
+        inter_aggregation_with_attention = incidence_with_attention @ (
             messages_on_edges @ self.weight2
         )
-        return self.update(intra_aggregation_with_attention)
+        return self.update(inter_aggregation_with_attention)
