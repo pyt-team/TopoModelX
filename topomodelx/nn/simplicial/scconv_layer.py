@@ -91,7 +91,7 @@ class SCConvLayer(torch.nn.Module):
         adjacency_up_0_norm,
         adjacency_up_1_norm,
         adjacency_down_1_norm,
-        adjacency_down_2_norm,
+        adjacency_down_2_norm
     ):
         r"""Forward pass.
 
@@ -178,14 +178,7 @@ class SCConvLayer(torch.nn.Module):
 
         x_2_level_2_2 = self.conv_2_to_2(x_2, adjacency_down_2_norm)
 
-        # x_0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0, x0_level_0_1])
-        # x_1_out = self.sggr_on_edges(
-        #     [
-        #         x1_level_1_1,
-        #         x1_level_1_2,
-        #     ]
-        # )
-        # x_2_out = self.sggr_on_faces([x2_level_2_1, x_2_level_2_2])
+
 
         x0_out = self.aggr_on_nodes([x0_level_0_0, x0_level_1_0])
         x1_out = self.aggr_on_edges([x0_level_0_1, x1_level_1_1, x2_level_2_1])
