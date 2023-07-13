@@ -39,9 +39,39 @@ class TestHyperGATLayer:
         assert hypergat_layer.att_weight1.requires_grad
         assert hypergat_layer.att_weight2.requires_grad
 
+    def test_reset_parameters_xavier_normal(self, hypergat_layer):
+        """Test the reset_parameters method of the HyperSAGE layer with xavier_normal initialization."""
+        hypergat_layer.initialization = "xavier_normal"
+        hypergat_layer.reset_parameters()
+        assert hypergat_layer.weight1.requires_grad
+        assert hypergat_layer.weight2.requires_grad
+        assert hypergat_layer.att_weight1.requires_grad
+        assert hypergat_layer.att_weight2.requires_grad
+
     def test_update(self, hypergat_layer):
         """Test the update function."""
         inputs = torch.randn(10, 20)
         updated = hypergat_layer.update(inputs)
         assert torch.is_tensor(updated)
         assert updated.shape == (10, 20)
+
+    def test_update_sigmoid(self, hypergat_layer):
+        """Test the update function with update_func = "sigmoid"."""
+        hypergat_layer.update_func = "sigmoid"
+        inputs = torch.randn(10, 20)
+        updated = hypergat_layer.update(inputs)
+        assert torch.is_tensor(updated)
+        assert updated.shape == (10, 20)
+
+    def test_attention(self, hypergat_layer):
+        """Test the attention function."""
+        x = torch.randn(3, 30)
+        incidence = torch.tensor(
+            [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
+        ).to_sparse()
+        (
+            hypergat_layer.target_index_i,
+            hypergat_layer.source_index_j,
+        ) = incidence.indices()
+        output = hypergat_layer.attention(x)
+        assert output.shape == (6, 1)
