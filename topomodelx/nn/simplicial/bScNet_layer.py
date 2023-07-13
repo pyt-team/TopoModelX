@@ -190,6 +190,7 @@ def compute_bunch_matrices(B1, B2):
     Computes normalized A0 and A1 matrices (up and down),
         and returns all matrices needed for Bunch model shift operators
     """
+
     # D matrices
     D2_2 = compute_D2(B2)
     D2_1 = compute_D2(B1)
