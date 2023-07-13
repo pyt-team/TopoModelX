@@ -5,7 +5,7 @@ from topomodelx.base.message_passing import MessagePassing
 
 
 class HyperGATLayer(MessagePassing):
-    """Implementation of the HyperGAT layer proposed in [DWLLL20].
+    r"""Implementation of the HyperGAT layer proposed in [DWLLL20].
 
     References
     ----------
@@ -19,7 +19,10 @@ class HyperGATLayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-
+    update_func : string
+        Update method to apply to message. Default is "relu".
+    initialization : string
+        Initialization method. Default is "xavier_uniform".
     """
 
     def __init__(
@@ -46,7 +49,7 @@ class HyperGATLayer(MessagePassing):
         self.reset_parameters()
 
     def reset_parameters(self, gain=1.414):
-        """Reset parameters."""
+        r"""Reset parameters."""
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight1, gain=gain)
             torch.nn.init.xavier_uniform_(self.weight2, gain=gain)
@@ -65,7 +68,25 @@ class HyperGATLayer(MessagePassing):
             )
 
     def attention(self, x_source, x_target=None, mechanism="node-level"):
-        """Attention."""
+        r"""Compute attention weights for messages, as proposed in [DWLLL20].
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
+            Input features on source cells.
+            Assumes that all source cells have the same rank r.
+        mechanism: string
+            Attention mechanism as proposed in [DWLLL20]. If set to "node-level", will compute node-level attention,
+            if set to "edge-level", will compute edge-level attention (see [DWLLL20]). Default is "node-level".
+
+        Returns
+        -------
+        _ : torch.Tensor, shape = [n_messages, 1]
+            Attention weights: one scalar per message between a source and a target cell.
+        """
         x_source_per_message = x_source[self.source_index_j]
         x_target_per_message = (
             x_source[self.target_index_i]
@@ -89,7 +110,7 @@ class HyperGATLayer(MessagePassing):
         )
 
     def update(self, x_message_on_target, x_target=None):
-        """Update embeddings on each cell (step 4).
+        r"""Update embeddings on each cell (step 4).
 
         Parameters
         ----------
@@ -107,7 +128,20 @@ class HyperGATLayer(MessagePassing):
             return torch.nn.functional.relu(x_message_on_target)
 
     def forward(self, x_source, incidence):
-        """Forward."""
+        r"""Forward pass.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input features.
+        incidence : torch.sparse
+            Incidence matrix between nodes and hyperedges.
+
+        Returns
+        -------
+        x : torch.Tensor
+            Output features.
+        """
         intra_aggregation = incidence @ (x_source @ self.weight1)
 
         self.target_index_i, self.source_index_j = incidence.indices()
