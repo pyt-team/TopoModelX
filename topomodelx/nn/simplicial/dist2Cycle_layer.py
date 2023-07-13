@@ -1,6 +1,5 @@
-"""High Skip Network Layer."""
+"""Dist2Cycle Network Layer."""
 import torch
-
 import torch.nn as nn
 import torch.nn.functional as F
 

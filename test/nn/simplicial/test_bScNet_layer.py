@@ -1,6 +1,5 @@
-"""Test the Bscn layer."""
+"""Test the BSC Layer."""
 import torch
-
 import torch_geometric
 import torch_geometric.transforms as T
 

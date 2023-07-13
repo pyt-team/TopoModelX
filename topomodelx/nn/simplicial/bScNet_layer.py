@@ -1,18 +1,17 @@
+"""Bsc Network Layer."""
+import math
+
+import networkx as nx
+import numpy as np
+import scipy.sparse as sp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch_geometric.transforms as T
+from numpy.linalg import inv, pinv
+from scipy.spatial import Delaunay
 from torch.nn import Softmax
 from torch_geometric.nn import GCNConv
-
-from scipy.spatial import Delaunay
-import scipy.sparse as sp
-
-import numpy as np
-import networkx as nx
-
-import math
-from numpy.linalg import inv, pinv
 
 
 class BlockNet(torch.nn.Module):
