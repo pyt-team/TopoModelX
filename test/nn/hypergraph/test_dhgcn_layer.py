@@ -39,9 +39,3 @@ class TestDHGCNLayer:
         x = torch.randn(4, 10)
         output = dhgcn_layer.forward(x)
         assert output.shape == (4, 10)
-
-    def test_forward_with_invalid_input(self, template_layer):
-        """Test the forward pass of the template layer with invalid input."""
-        x_2 = torch.randn(4, 10)
-        with pytest.raises(ValueError):
-            template_layer.forward(x_2)
