@@ -24,8 +24,6 @@ class HyperSAGELayer(MessagePassing):
         Power for the generalized mean in the aggregation. Default is 2.
     update_func : string
         Update method to apply to message. Default is "relu".
-    initialization : string
-        Initialization method. Default is "uniform".
     device : string
         Device name to train layer on. Default is "cpu".
     """
@@ -36,7 +34,6 @@ class HyperSAGELayer(MessagePassing):
         out_channels: int,
         p: int = 2,
         update_func: str = "relu",
-        initialization: str = "uniform",
         device: str = "cpu",
     ) -> None:
         super().__init__()
@@ -54,37 +51,8 @@ class HyperSAGELayer(MessagePassing):
 
     def reset_parameters(self):
         r"""Reset parameters."""
-        if self.initialization == "uniform":
-            assert self.out_channels > 0, "out_features should be greater than 0"
-            stdv = 1.0 / math.sqrt(self.out_channels)
-            self.weight.uniform_(-stdv, stdv)
-        if self.initialization == "xavier_uniform":
-            super().reset_parameters()
-        else:
-            raise RuntimeError(
-                "Initialization method not recognized. "
-                "Should be either uniform or xavier_uniform."
-            )
-
-    def update(
-        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
-    ) -> torch.Tensor:
-        r"""Update embeddings on each node (step 4).
-
-        Parameters
-        ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_nodes, out_channels]
-            Output features on target nodes.
-
-        Returns
-        -------
-        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
-            Updated output features on target nodes.
-        """
-        if self.update_func == "sigmoid":
-            return torch.nn.functional.sigmoid(x_message_on_target)
-        if self.update_func == "relu":
-            return torch.nn.functional.relu(x_message_on_target)
+        stdv = 1.0 / math.sqrt(self.out_channels)
+        self.weight.uniform_(-stdv, stdv)
 
     def forward(self, x: torch.Tensor, incidence: torch.sparse):
         r"""Forward pass.
@@ -139,4 +107,4 @@ class HyperSAGELayer(MessagePassing):
         message = torch.pow(
             inter_edge_aggregation_scale * inter_edge_aggregation, 1.0 / self.p
         )
-        return self.update(message / message.norm(p=2) @ self.weight)
+        return torch.nn.functional.relu(message / message.norm(p=2) @ self.weight)

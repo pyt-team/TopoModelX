@@ -37,10 +37,3 @@ class TestHyperSAGELayer:
         """Test the reset_parameters method of the HyperSAGE layer."""
         hypersage_layer.reset_parameters()
         assert hypersage_layer.weight.requires_grad
-
-    def test_update(self, hypersage_layer):
-        """Test the update function."""
-        inputs = torch.randn(10, 20)
-        updated = hypersage_layer.update(inputs)
-        assert torch.is_tensor(updated)
-        assert updated.shape == (10, 20)
