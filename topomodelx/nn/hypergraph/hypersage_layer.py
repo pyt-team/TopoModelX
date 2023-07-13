@@ -53,6 +53,20 @@ class HyperSAGELayer(MessagePassing):
         )
         self.reset_parameters()
 
+    def reset_parameters(self):
+        r"""Reset parameters."""
+        if self.initialization == "uniform":
+            assert self.out_channels > 0, "out_features should be greater than 0"
+            stdv = 1.0 / math.sqrt(self.out_channels)
+            self.weight.data.uniform_(-stdv, stdv)
+        elif self.initialization == "xavier_uniform":
+            super().reset_parameters()
+        else:
+            raise RuntimeError(
+                "Initialization method not recognized. "
+                "Should be either uniform or xavier_uniform."
+            )
+
     def update(
         self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
     ) -> torch.Tensor:
@@ -68,6 +82,8 @@ class HyperSAGELayer(MessagePassing):
         _ : torch.Tensor, shape=[n_target_nodes, out_channels]
             Updated output features on target nodes.
         """
+        if self.update_func == "sigmoid":
+            return torch.nn.functional.sigmoid(x_message_on_target)
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
 
