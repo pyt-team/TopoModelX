@@ -3,104 +3,74 @@ import torch
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
+import torch.nn as nn
+import torch.nn.functional as F
 
 
 class Dist2CycleLayer(torch.nn.Module):
-    """Layer of a High Skip Network (HSN).
-
-    Implementation of the HSN layer proposed in [HRGZ22]_.
-
-    Notes
-    -----
-    This is the architecture proposed for node classification on simplicial complices.
-
-    References
-    ----------
-    .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-        High Skip Networks: A Higher Order Generalization of Skip Connections.
-        Geometrical and Topological Representation Learning Workshop at ICLR 2022.
-        https://openreview.net/pdf?id=Sc8glB-k6e9
-
-    Parameters
-    ----------
-    channels : int
-        Dimension of features on each simplicial cell.
-    initialization : string
-        Initialization method.
-    """
+    """Layer of a High Skip Network (Dist2Cycle)."""
 
     def __init__(
         self,
-        channels,
+        channels,  # in_feats
+        # in_feats=8,
+        # out_feats=1,
     ):
         super().__init__()
         self.channels = channels
+        # feature learning
+        self.fc_neigh = nn.Linear(channels, 1, bias=True)
+        self.aggr_on_edges = Aggregation(
+            aggr_func="sum", update_func="relu"
+        )  # need to support for other update functions like leaky relu which is main for dist2Cycle
 
-        self.conv_level1_0_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func="sigmoid",
-        )
-        self.conv_level1_0_to_1 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func="sigmoid",
-        )
+        # self.conv_level1_0_to_0 = Conv(
+        #     in_channels=channels,
+        #     out_channels=channels,
+        #     update_func="sigmoid",
+        # )
+        # self.conv_level1_0_to_1 = Conv(
+        #     in_channels=channels,
+        #     out_channels=channels,
+        #     update_func="sigmoid",
+        # )
 
-        self.conv_level2_0_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
-        )
-        self.conv_level2_1_to_0 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
-        )
-
-        self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func="sigmoid")
+        # self.conv_level2_0_to_0 = Conv(
+        #     in_channels=channels,
+        #     out_channels=channels,
+        #     update_func=None,
+        # )
+        # self.conv_level2_1_to_0 = Conv(
+        #     in_channels=channels,
+        #     out_channels=channels,
+        #     update_func=None,
+        # )
 
     def reset_parameters(self):
         r"""Reset learnable parameters."""
-        self.conv_level1_0_to_0.reset_parameters()
-        self.conv_level1_0_to_1.reset_parameters()
-        self.conv_level2_0_to_0.reset_parameters()
-        self.conv_level2_1_to_0.reset_parameters()
 
-    def forward(self, x_0, incidence_1, adjacency_0):
+        fc_nonlin = "relu"
+        fc_alpha = 0.0  # self.fc_activation.negative_slope
+        fc_gain = nn.init.calculate_gain(fc_nonlin)
+        self.fc_neigh.reset_parameters()
+
+        nn.init.kaiming_uniform_(
+            self.fc_neigh.weight, a=fc_alpha, nonlinearity=fc_nonlin
+        )
+
+    # self.conv_level1_0_to_0.reset_parameters()
+    # self.conv_level1_0_to_1.reset_parameters()
+    # self.conv_level2_0_to_0.reset_parameters()
+    # self.conv_level2_1_to_0.reset_parameters()
+
+    def forward(self, x_e, Linv, adjacency):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [HRGZ22]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
-
-        .. math::
-            \begin{align*}
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 0)} = \sigma ((A_{\uparrow,0})_{xy} \cdot h^{t,(0)}_y \cdot \Theta^{t,(0)1})\\
-            &🟥 \quad m_{z \rightarrow x}^{(0 \rightarrow 0)}  = (A_{\uparrow,0})_{xy} \cdot m_{y \rightarrow z}^{(0 \rightarrow 0)} \cdot \Theta^{t,(0)2}\\
-            &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 1)}  = \sigma((B_1^T)_{zy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)})\\
-            &🟥 \quad m_{z \rightarrow x)}^{(1 \rightarrow 0)}  = (B_1)_{xz} \cdot m_{z \rightarrow x}^{(0 \rightarrow 1)} \cdot \Theta^{t, (1 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(0 \rightarrow 0)}  = \sum_{z \in \mathcal{L}_\uparrow(x)} m_{z \rightarrow x}^{(0 \rightarrow 0)}\\
-            &🟧 \quad m_{x}^{(1 \rightarrow 0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}\\
-            &🟩 \quad m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}\\
-            &🟦 \quad h_x^{t+1,(0)}  = I(m_x^{(0)})
-            \end{align*}
-
-        References
-        ----------
-        .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-            High Skip Networks: A Higher Order Generalization of Skip Connections.
-            Geometrical and Topological Representation Learning Workshop at ICLR 2022.
-            https://openreview.net/pdf?id=Sc8glB-k6e9
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------
         x: torch.Tensor, shape=[n_nodes, channels]
-            Input features on the nodes of the simplicial complex.
+            Input features on the edges of the simplicial complex.
         incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
             Incidence matrix :math:`B_1` mapping edges to nodes.
         adjacency_0 : torch.sparse, shape=[n_nodes, n_nodes]
@@ -111,13 +81,33 @@ class Dist2CycleLayer(torch.nn.Module):
         _ : torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
-        incidence_1_transpose = incidence_1.transpose(1, 0)
+        # incidence_1_transpose = incidence_1.transpose(1, 0)
 
-        x_0_level1 = self.conv_level1_0_to_0(x_0, adjacency_0)
-        x_1_level1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
+        # x_0_level1 = self.conv_level1_0_to_0(x_0, adjacency_0)
+        # x_1_level1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
 
-        x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
-        x_1_level2 = self.conv_level2_1_to_0(x_1_level1, incidence_1)
+        # x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
+        # x_1_level2 = self.conv_level2_1_to_0(x_1_level1, incidence_1)
+        # print("adjacency")
+        # print(adjacency.to_dense().shape)
+        # print("Linv")
+        # print(Linv.to_dense().shape)
 
-        x_0 = self.aggr_on_nodes([x_0_level2, x_1_level2])
-        return x_0
+        # x_e = (adjacency.to_dense()*Linv.to_dense()).to_sparse()
+        x_e = adjacency * Linv
+        # print("x_e")
+        # print(x_e.to_dense().shape)
+        # print("Test")
+        # u, s, v = torch.svd(x_t.to_dense())
+        # print(u.shape)
+        # print(s.shape)
+        # print(v.shape)
+        # x_t2 = u[:, :2].double().to_sparse()
+        # x_t2 = torch.zeros_like(x_e).to_sparse()
+        # x_e = self.aggr_on_edges([x_e, x_e])
+        # x_t2=torch
+        x_e = self.aggr_on_edges([x_e])
+        rst = self.fc_neigh(x_e)
+        # print("rst")
+        # print(rst.shape)
+        return rst
