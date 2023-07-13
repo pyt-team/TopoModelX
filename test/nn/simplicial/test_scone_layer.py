@@ -2,6 +2,7 @@
 
 import torch
 
+from topomodelx.base.conv import Conv
 from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 
@@ -28,13 +29,27 @@ class TestSCoNeLayer:
         channels = 5
 
         scone = SCoNeLayer(channels)
-        scone.reset_parameters()
 
+        initial_params = []
         for module in scone.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+            if isinstance(module, Conv):
+                initial_params.append(list(module.parameters()))
+                with torch.no_grad():
+                    for param in module.parameters():
+                        param.add_(1.0)
+
+        scone.reset_parameters()
+        reset_params = []
+        for module in scone.modules():
+            if isinstance(module, Conv):
+                reset_params.append(list(module.parameters()))
+
+        count = 0
+        for module, reset_param, initial_param in zip(
+            scone.modules(), reset_params, initial_params
+        ):
+            if isinstance(module, Conv):
+                torch.testing.assert_close(initial_param, reset_param)
+                count += 1
+
+        assert count > 0  # Ensuring if-statements were not just failed
