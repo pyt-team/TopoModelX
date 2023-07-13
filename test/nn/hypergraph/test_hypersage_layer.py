@@ -34,14 +34,40 @@ class TestHyperSAGELayer:
         with pytest.raises(RuntimeError):
             hypersage_layer.forward(x_0, incidence_1)
 
-    def test_reset_parameters(self, hypersage_layer):
-        """Test the reset_parameters method of the HyperSAGE layer."""
+    def test_reset_parameters_uniform(self, hypersage_layer):
+        """Test the reset_parameters method of the HyperSAGE layer with "uniform" initialization."""
         hypersage_layer.reset_parameters()
         assert hypersage_layer.weight.requires_grad
 
-    def test_update(self, hypersage_layer):
-        """Test the update function."""
+    def test_reset_parameters_xavier_normal(self, hypersage_layer):
+        """Test the reset_parameters method of the HyperSAGE layer with "xavier_uniform" initialization."""
+        hypersage_layer.initialization = "xavier_uniform"
+        hypersage_layer.reset_parameters()
+        assert hypersage_layer.weight.requires_grad
+
+    def test_reset_parameters_invalid_initialization(self, hypersage_layer):
+        """Test the reset_parameters method of the HyperSAGE layer with invalid initialization."""
+        hypersage_layer.initialization = "invalid"
+        with pytest.raises(ValueError):
+            hypersage_layer.reset_parameters()
+
+    def test_update_relu(self, hypersage_layer):
+        """Test the update function with update_func = "relu"."""
         inputs = torch.randn(10, 20)
         updated = hypersage_layer.update(inputs)
         assert torch.is_tensor(updated)
         assert updated.shape == (10, 20)
+
+    def test_update_sigmoid(self, hypersage_layer):
+        """Test the update function with update_func = "sigmoid"."""
+        hypersage_layer.update_func = "sigmoid"
+        inputs = torch.randn(10, 20)
+        updated = hypersage_layer.update(inputs)
+        assert torch.is_tensor(updated)
+        assert updated.shape == (10, 20)
+
+    def test_aggregation_invald(self, hypersage_layer):
+        """Test the aggregation function with invalid mode."""
+        x_messages = torch.zeros(3, 10)
+        with pytest.raises(ValueError):
+            hypersage_layer.aggregate(x_messages, mode="invalid")
