@@ -18,7 +18,9 @@ class TestHyperGATLayer:
     def test_forward(self, template_layer):
         """Test the forward pass of the template layer."""
         x_2 = torch.randn(3, 10)
-        incidence_2 = torch.tensor([[1, 0, 1], [0, 1, 1]], dtype=torch.float32)
+        incidence_2 = torch.tensor(
+            [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
+        ).to_sparse()
         output = template_layer.forward(x_2, incidence_2)
         assert output.shape == (3, 30)
 
