@@ -1,15 +1,12 @@
 """Test the BSC Layer."""
+import networkx as nx
+import numpy as np
+import pytest
+import scipy.sparse as sp
 import torch
 import torch_geometric
 import torch_geometric.transforms as T
-import networkx as nx
-import scipy.sparse as sp
-
-import  numpy as np
 from numpy.linalg import inv, pinv
-
-import pytest
-
 
 from topomodelx.nn.simplicial.bScNet_layer import BlockNet
 
@@ -71,7 +68,6 @@ class TestBSCLayer:
         #         torch.testing.assert_allclose(
         #             module.bias, torch.zeros_like(module.bias)
         #         )
-
 
         # for module in hsn.modules():
         #     if isinstance(module, torch.nn.Conv2d):
@@ -152,7 +148,7 @@ def testData(cdata, name, num_features, num_classes):
     #     # convert hodge matrix to tensor format
     boundary_matrix0 = torch.tensor(boundary_matrix0_, dtype=torch.float32)
     boundary_matrix1 = torch.tensor(boundary_matrix1_, dtype=torch.float32)
-    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cdata.total_edges_y
     #     model, data = BlockNet(data, num_features, num_classes,
     #                            boundary_matrics=[boundary_matrix0.to(device), boundary_matrix1.to(device)]).to(device), data.to(device)
@@ -167,7 +163,7 @@ def testData(cdata, name, num_features, num_classes):
     #     model, data = BlockNet(data, num_features, num_classes,
     #                            boundary_matrics=[L0u.to(device), L1f.to(device)]).to(device), data.to(device)
     boundary_matrics = [boundary_matrix0, boundary_matrix1]
-    
+
     return cdata, num_features, num_classes, boundary_matrics
 
 
@@ -199,15 +195,14 @@ def get_adj_split(adj, val_prop=0.05, test_prop=0.1):
     n_test = int(m_pos * test_prop)
     val_edges, test_edges, train_edges = (
         pos_edges[:n_val],
-        pos_edges[n_val: n_test + n_val],
-        pos_edges[n_test + n_val:],
+        pos_edges[n_val : n_test + n_val],
+        pos_edges[n_test + n_val :],
     )
     val_edges_false, test_edges_false = (
         neg_edges[:n_val],
-        neg_edges[n_val: n_test + n_val],
+        neg_edges[n_val : n_test + n_val],
     )
-    train_edges_false = np.concatenate(
-        [neg_edges, val_edges, test_edges], axis=0)
+    train_edges_false = np.concatenate([neg_edges, val_edges, test_edges], axis=0)
     return (
         train_edges,
         train_edges_false,
