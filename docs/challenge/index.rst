@@ -2,9 +2,9 @@ ICML 2023 Topological Deep Learning Challenge
 =================================================
 Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the second annual `Topology and Geometry (TAG) in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML.
 
-Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.
+Organizers, reviewers, and contributors: Mathilde Papillon, Mustafa Hajij, Nina Miolane, Florian Frantzen, Ghada Alzamzmi, Theodore Papamarkou, Michael Schaub, Michael Scholkemper, Josef Hoppe, Karthikeyan Natesan Ramamurthy, Johan Mathe, Audun Myers, Helen Jenne, Tim Doster, Tegan Emerson, Henry Kvinge, Bastian Rieck, Sophia Sanborn, Jan Meissner, Paul Rosen, Tolga Birdal, Vincent Grande, Aldo Guzmán-Sáenz, Tamal Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters
 
-**IMPORTANT: Recent (June 7) changes have been made to dataset availability for domains with faces. Please see the updated Pre-Processing submission requirements below.**:
+**The 2023 edition of the challenge is now over. Thank you to all participants for stellar contirbutions to fostering reproducible and open-source research in topological deep learning. Winners will be announced on this page on Friday July 27 at 3:30 pm HST.**
 
 Description of the Challenge
 ----------------------------
