@@ -1,6 +1,5 @@
 """HyperSAGE layer."""
 import math
-from typing import Optional, Tuple, Union
 
 import torch
 
@@ -40,8 +39,9 @@ class HyperSAGELayer(MessagePassing):
 
     References
     ----------
-    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring. HyperSAGE:
-        Generalizing inductive representation learning on hypergraphs. arXiv preprint arXiv:2010.04558. 2020
+    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
+        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
+        arXiv preprint arXiv:2010.04558. 2020
 
     Parameters
     ----------
@@ -135,8 +135,10 @@ class HyperSAGELayer(MessagePassing):
             Features associated with each message.
             One message is sent from a source cell to a target cell.
         mode : string
-            The mode on which aggregation to compute. If set to "inter", will compute inter-aggregation,
-            if set to "intra", will compute intra-aggregation (see [AGRW20]). Default is "inter".
+            The mode on which aggregation to compute.
+            If set to "inter", will compute inter-aggregation,
+            if set to "intra", will compute intra-aggregation (see [AGRW20]).
+            Default is "inter".
 
         Returns
         -------
