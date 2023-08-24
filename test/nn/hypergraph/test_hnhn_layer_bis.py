@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
+from topomodelx.nn.hypergraph.hnhn_layer_bis import HNHNLayer
 
 torch.manual_seed(41)
 
