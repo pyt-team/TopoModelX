@@ -1,5 +1,5 @@
 """Test the convolutional layers in the base module."""
-
+import pytest
 import torch
 
 from topomodelx.base.conv import Conv
@@ -28,6 +28,15 @@ class TestConv:
             att=True,
         )
 
+        self.conv_without_weight = Conv(
+            in_channels=self.in_channels,
+            out_channels=self.in_channels,
+            aggr_norm=True,
+            update_func="relu",
+            initialization="xavier_normal",
+            with_linear_transform=False,
+        )
+
         self.n_source_cells = 10
         self.n_target_cells = 3
         self.neighborhood = (
@@ -47,6 +56,30 @@ class TestConv:
         updated = self.conv.update(inputs)
         assert torch.is_tensor(updated)
         assert updated.shape == (10, self.out_channels)
+
+    def test_weight(self):
+        """Test learnable weights."""
+        inputs = torch.randn(10, self.in_channels)
+        updated = self.conv_without_weight.update(inputs)
+        assert torch.is_tensor(updated)
+        assert updated.shape == (10, self.in_channels)
+
+    def test_validation(self):
+        """Test validation of a learnable weight."""
+        with pytest.raises(Exception) as exc_info:
+            Conv(
+                in_channels=self.in_channels,
+                out_channels=self.in_channels + 1,
+                aggr_norm=True,
+                update_func="relu",
+                initialization="xavier_normal",
+                with_linear_transform=False,
+            )
+        assert exc_info.type is ValueError
+        assert (
+            str(exc_info.value)
+            == "With `linear_trainsform=False`, in_channels has to be equal to out_channels"
+        )
 
     def test_forward(self):
         """Test the forward pass of the message passing convolution layer."""
