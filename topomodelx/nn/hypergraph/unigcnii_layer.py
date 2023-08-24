@@ -36,7 +36,9 @@ class UniGCNIILayer(torch.nn.Module):
     def forward(self, x_0, incidence_1, x_skip=None):
         r"""Forward pass of the UniGCNII layer.
 
-        The forward pass consists of two messages and a skip connection with a learned update function.
+        The forward pass consists of:
+        - two messages, and
+        - a skip connection with a learned update function.
 
         1. Every hyper-edge sums up the features of its constituent edges:
         .. math::
