@@ -69,13 +69,14 @@ class DHGCNLayer(torch.nn.Module):
         Returns
         -------
         hyperedge_index : torch.Tensor, shape=[n_nodes, 2]
-            Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
-            The order of dimensions of the matrix is defined by the value of the flow parameter.
+            Indices of the on-zero values in the feature matrix of hypergraph
+            convolutional network.
+            The order of dimensions of the matrix is defined by the value of the flow
+            parameter.
         """
         assert flow in ["source_to_target", "target_to_source"]
         device = x.device
         permutation = torch.randperm(x.size(0), device=device)
-        # print(permutation)
         centroid_indices = permutation[:k]
         element_indices_by_cluster = [centroid_indices[i : i + 1] for i in range(k)]
         for new_index in permutation[k:]:
@@ -176,11 +177,12 @@ class DHGCNLayer(torch.nn.Module):
             torch.ones(n_nodes, device=device),
             size=(n_nodes, self.k_centroids),
         )  # [n_nodes, n_hyperedges = k_centroids]
-        # print(local_hyperedges.shape, global_hyperedges.shape)
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 
     def forward(self, x_0):
-        r"""Forward computation. Dynamic topology module of the DHST Block is implemented here.
+        r"""Forward computation.
+
+        Dynamic topology module of the DHST Block is implemented here.
 
         Parameters
         ----------
