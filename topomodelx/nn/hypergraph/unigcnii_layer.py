@@ -16,7 +16,7 @@ class UniGCNIILayer(torch.nn.Module):
 
     References
     ----------
-    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
         In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
         2021. https://arxiv.org/pdf/2105.00956.pdf
     """
@@ -36,7 +36,9 @@ class UniGCNIILayer(torch.nn.Module):
     def forward(self, x_0, incidence_1, x_skip=None):
         r"""Forward pass of the UniGCNII layer.
 
-        The forward pass consists of two messages and a skip connection with a learned update function.
+        The forward pass consists of:
+        - two messages, and
+        - a skip connection with a learned update function.
 
         1. Every hyper-edge sums up the features of its constituent edges:
         .. math::

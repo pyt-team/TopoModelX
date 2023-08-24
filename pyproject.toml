@@ -82,12 +82,17 @@ include = [
 [tool.pytest.ini_options]
 addopts = "--capture=no"
 
+[tool.black]
+line-length = 88
+
 [tool.isort]
+line_length = 88
 multi_line_output = 3
 include_trailing_comma = true
 skip = [".gitignore", "__init__.py"]
 
 [tool.flake8]
+max-line-length = 88
 application_import_names = "topomodelx"
 docstring-convention = "numpy"
 exclude = [
@@ -96,7 +101,6 @@ exclude = [
 ]
 
 import_order_style = "smarkets"
-max-line-length = 88
 extend-ignore = ["E501", "F401", "E203"]
 per-file-ignores = [
     "*/__init__.py: D104, F401",
