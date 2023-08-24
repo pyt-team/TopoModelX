@@ -1,4 +1,4 @@
-"""Test the SCA layer."""
+"""Test the SCACMPS layer."""
 
 import torch
 
@@ -6,10 +6,10 @@ from topomodelx.base.conv import Conv
 from topomodelx.nn.simplicial.sca_cmps_layer import SCACMPSLayer
 
 
-class TestSCALayer:
-    """Test the HSN layer."""
+class TestSCACMPSLayer:
+    """Test the SCACMPS layer."""
 
-    def test_cmps_forward(self):
+    def test_sca_cmps_forward(self):
         """Test the forward pass of the SCA layer using CMPS."""
         channels_list = [3, 5, 6, 8]
         n_chains_list = [10, 20, 15, 5]
@@ -28,11 +28,11 @@ class TestSCALayer:
             x = torch.randn(n, chan)
             x_list.append(x)
 
-        sca = SCACMPSLayer(
+        sca_cmps = SCACMPSLayer(
             channels_list=channels_list,
             complex_dim=len(n_chains_list),
         )
-        output = sca.forward(x_list, down_lap_list, incidence_t_list)
+        output = sca_cmps.forward(x_list, down_lap_list, incidence_t_list)
 
         for x, n, chan in zip(output, n_chains_list, channels_list):
             assert x.shape == (n, chan)

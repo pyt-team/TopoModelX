@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.HNHN_layer import HNHNLayer
+from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 
 torch.manual_seed(41)
 
@@ -36,9 +36,9 @@ class TestHNHNLayer:
     def test_forward(self, incidence_1):
         """Test the forward pass of the HNHN layer."""
         in_features = 2
-        HNHN_layer = HNHNLayer(in_features, incidence_1)
+        hnhn_layer = HNHNLayer(in_features, incidence_1)
         x_0 = torch.randn(100, in_features)
 
-        x_0, x_1 = HNHN_layer(x_0)
+        x_0, x_1 = hnhn_layer(x_0)
         assert x_0.shape == (100, in_features)
         assert x_1.shape == (20, in_features)

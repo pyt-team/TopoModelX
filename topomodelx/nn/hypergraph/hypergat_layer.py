@@ -93,7 +93,8 @@ class HyperGATLayer(MessagePassing):
                 torch.matmul(
                     torch.nn.functional.leaky_relu(x_source_per_message),
                     self.att_weight1,
-                )
+                ),
+                dim=1,
             )
 
         x_source_per_message = x_source[self.source_index_j]
@@ -107,7 +108,7 @@ class HyperGATLayer(MessagePassing):
             torch.cat([x_source_per_message, x_target_per_message], dim=1)
         )
         return torch.nn.functional.softmax(
-            torch.matmul(x_source_target_per_message, self.att_weight2)
+            torch.matmul(x_source_target_per_message, self.att_weight2), dim=1
         )
 
     def update(self, x_message_on_target, x_target=None):
