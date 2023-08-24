@@ -28,6 +28,8 @@ def _exec_tutorial(path):
 paths = sorted(glob.glob("tutorials/*.ipynb"))
 paths.extend(sorted(glob.glob("tutorials/hypergraph/*.ipynb")))
 paths.extend(sorted(glob.glob("tutorials/simplicial/*.ipynb")))
+paths.extend(sorted(glob.glob("tutorials/cell/*.ipynb")))
+paths.extend(sorted(glob.glob("tutorials/combinatorial/*.ipynb")))
 
 
 @pytest.mark.parametrize("path", paths)

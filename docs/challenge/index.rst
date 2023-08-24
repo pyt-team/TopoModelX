@@ -2,9 +2,38 @@ ICML 2023 Topological Deep Learning Challenge
 =================================================
 Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the second annual `Topology and Geometry (TAG) in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML.
 
-Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.
+Organizers, reviewers, and contributors: Mathilde Papillon, Mustafa Hajij, Nina Miolane, Florian Frantzen, Ghada Alzamzmi, Theodore Papamarkou, Michael Schaub, Michael Scholkemper, Josef Hoppe, Karthikeyan Natesan Ramamurthy, Johan Mathe, Audun Myers, Helen Jenne, Tim Doster, Tegan Emerson, Henry Kvinge, Bastian Rieck, Sophia Sanborn, Jan Meissner, Paul Rosen, Tolga Birdal, Vincent Grande, Aldo Guzmán-Sáenz, Tamal Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters
 
-**IMPORTANT: Recent (June 7) changes have been made to dataset availability for domains with faces. Please see the updated Pre-Processing submission requirements below.**:
+The 2023 edition of the challenge is now over. Thank you to all participants for stellar contirbutions to fostering reproducible and open-source research in topological deep learning.
+
+**Winners** (announced `here <https://www.youtube.com/watch?v=QLWIZq_kkHY&feature=youtu.be&ab_channel=MathildePapillon>`_)
+
+*Hypergraph* : 
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing AllSetTransformer (Chien et al, 2022)
+2. Sadrodin Barikbin; for implementing Hypergraph Message Passing Neural Network (HMPNN) (Heydari et al, 2022)
+
+*Simplicial* :
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing Simplicial Attention Network (SAN) (Giusti et al, 2022)
+2. Odin Hoff Gardaa; for implementing Simplicial Complex Net (SCoNe) (Roddenberry et al, 2021)
+
+*Cellular* :
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing Cell Attention Network (CAN) (Giusti et al, 2022)
+2. Dmitrii Gavrilev, Gleb Bazhenov, Suraj Singh; for implementing CW Network (CWN) (Bodnar et al, 2021)
+
+*Combinatorial* :
+
+1. Rubén Ballester, Manuel Lecha, Sergio Escalera; or implementing Higher Order Attention Network (HOAN) (Hajij et al, 2022)
+2. Aiden Brent; for implementing Higher Order Attention Network (HOAN) (Hajij et al, 2022)
+
+*Honorable Mentions* :
+
+1. Jens Agerberg, Georg Bökman, Pavlo Melnyk; for implementing Simplicial Complex Convolutional Networks (SCCN) (Yang et al, 2023)
+2. Aiden Brent; for implementing Simplicial Complex Autoencoder (SCA) (Hajij et al, 2023)
+3. Alessandro Salatiello; for implementing Hypergraph Network with Hyperedge Neurons (HNHN) (Dong et al, 2020)
+4. Alexander Nikitin; for implementing UniGCN (Huang et al, 2021)
 
 Description of the Challenge
 ----------------------------
