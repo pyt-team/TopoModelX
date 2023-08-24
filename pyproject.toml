@@ -82,7 +82,11 @@ include = [
 [tool.pytest.ini_options]
 addopts = "--capture=no"
 
+[tool.black]
+line-length = 88
+
 [tool.isort]
+line_length = 88
 multi_line_output = 3
 include_trailing_comma = true
 skip = [".gitignore", "__init__.py"]
