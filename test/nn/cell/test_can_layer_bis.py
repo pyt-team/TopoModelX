@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.cell.can_layer import CANLayer
+from topomodelx.nn.cell.can_layer_bis import CANLayer
 
 
 class TestCANLayer:
