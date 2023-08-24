@@ -41,6 +41,8 @@ class Aggregation(torch.nn.Module):
             return torch.sigmoid(inputs)
         if self.update_func == "relu":
             return torch.nn.functional.relu(inputs)
+        if self.update_func == "tanh":
+            return torch.tanh(inputs)
 
     def forward(self, x):
         """Forward pass.
