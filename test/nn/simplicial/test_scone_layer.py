@@ -1,55 +1,45 @@
-"""Test the SCoNe Layer."""
+"""Test the SCoNe layer."""
 
 import torch
 
-from topomodelx.base.conv import Conv
 from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 
 class TestSCoNeLayer:
-    """Test the SCoNe Layer."""
+    """Test the SCoNe layer."""
 
     def test_forward(self):
-        """Test the forward pass of the HSN layer."""
-        channels = 5
+        """Test the forward pass of the SCoNe layer."""
+        in_channels = 8
+        out_channels = 16
+        n_nodes = 10
         n_edges = 20
-        up_lap1 = torch.randint(0, 2, (n_edges, n_edges)).float()
-        down_lap1 = torch.randint(0, 2, (n_edges, n_edges)).float()
-        iden = torch.eye(n_edges)
+        n_triangles = 30
 
-        x_1 = torch.randn(n_edges, channels)
+        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
+        incidence_2 = torch.randint(0, 2, (n_edges, n_triangles)).float()
 
-        scone = SCoNeLayer(channels)
-        output = scone.forward(x_1, up_lap1, down_lap1, iden)
+        x_0 = torch.randn(n_edges, in_channels)
 
-        assert output.shape == (n_edges, channels)
+        scone = SCoNeLayer(in_channels, out_channels)
+        output = scone.forward(x_0, incidence_1, incidence_2)
+
+        assert output.shape == (n_edges, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
-        channels = 5
+        in_channels = 8
+        out_channels = 16
 
-        scone = SCoNeLayer(channels)
-
-        initial_params = []
-        for module in scone.modules():
-            if isinstance(module, Conv):
-                initial_params.append(list(module.parameters()))
-                with torch.no_grad():
-                    for param in module.parameters():
-                        param.add_(1.0)
-
+        scone = SCoNeLayer(in_channels, out_channels)
         scone.reset_parameters()
-        reset_params = []
-        for module in scone.modules():
-            if isinstance(module, Conv):
-                reset_params.append(list(module.parameters()))
 
-        count = 0
-        for module, reset_param, initial_param in zip(
-            scone.modules(), reset_params, initial_params
-        ):
-            if isinstance(module, Conv):
-                torch.testing.assert_close(initial_param, reset_param)
-                count += 1
+        assert scone.weight_0.shape == (in_channels, out_channels)
+        assert scone.weight_1.shape == (in_channels, out_channels)
+        assert scone.weight_2.shape == (in_channels, out_channels)
 
-        assert count > 0  # Ensuring if-statements were not just failed
+        scone.reset_parameters(gain=0)
+
+        torch.testing.assert_close(scone.weight_0, torch.zeros_like(scone.weight_0))
+        torch.testing.assert_close(scone.weight_1, torch.zeros_like(scone.weight_1))
+        torch.testing.assert_close(scone.weight_2, torch.zeros_like(scone.weight_2))

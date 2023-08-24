@@ -1,85 +1,84 @@
-"""Simplical Complex Network Layer."""
+"""Simplicial Complex Net Layer."""
 import torch
 
 from topomodelx.base.aggregation import Aggregation
-from topomodelx.base.conv import Conv
 
 
 class SCoNeLayer(torch.nn.Module):
-    r"""Layer of a Simplical Complex Network (SCoNe).
-
-    Implementation of this layer proposed in [RGS21]_.
+    """
+    Implementation of the SCoNe layer proposed in [RGS21]_.
 
     Notes
     -----
-    This is the architecture proposed for trajectory prediction in [RGS21]_ repurposed for edge classification.
+    This is the architecture proposed for trajectory prediction on simplicial complexes.
+
+    For the trajectory prediction architecture proposed in [RGS21]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     References
     ----------
-    .. [RGS21] Roddenberry, Glaze, Segarra.
-        Principled Simplical Neural Networks for Trajectory Prediction.
-        https://arxiv.org/pdf/2102.10058.pdf
+        .. [RGS21] Roddenberry, Mitchell, Glaze.
+                Principled Simplicial Neural Networks for Trajectory Prediction.
+                Proceedings of the 38th International Conference on Machine Learning.
+                https://proceedings.mlr.press/v139/roddenberry21a.html
 
     Parameters
     ----------
-    channels : int
-        Dimension of features on each simplicial cell.
-    initialization : string
-        Initialization method.
+    in_channels : int
+        Input dimension of features on each edge.
+    out_channels : int
+        Output dimension of features on each edge.
+    update_func : string
+        Update function to use when updating edge features.
     """
 
-    def __init__(self, channels):
+    def __init__(
+        self, in_channels: int, out_channels: int, update_func: str = "tanh"
+    ) -> None:
         super().__init__()
-        self.channels = channels
-
-        self.conv_level1 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.weight_0 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
         )
-
-        self.conv_level2 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func=None,
+        self.weight_1 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
         )
-
-        self.conv_level3 = Conv(
-            in_channels=channels,
-            out_channels=channels,
-            update_func="sigmoid",
+        self.weight_2 = torch.nn.parameter.Parameter(
+            torch.Tensor(self.in_channels, self.out_channels)
         )
+        self.aggr_on_edges = Aggregation("sum", update_func)
 
-        self.aggr_edges = Aggregation(aggr_func="sum", update_func="sigmoid")
+    def reset_parameters(self, gain: float = 1.0):
+        torch.nn.init.xavier_uniform_(self.weight_0, gain=gain)
+        torch.nn.init.xavier_uniform_(self.weight_1, gain=gain)
+        torch.nn.init.xavier_uniform_(self.weight_2, gain=gain)
 
-    def reset_parameters(self):
-        r"""Reset learnable parameters."""
-        self.conv_level1.reset_parameters()
-        self.conv_level2.reset_parameters()
-        self.conv_level3.reset_parameters()
-
-    def forward(self, x_0, lap_up, lap_down, iden):
+    def forward(
+        self, x: torch.Tensor, incidence_1: torch.Tensor, incidence_2: torch.Tensor
+    ) -> torch.Tensor:
         r"""Forward pass.
 
-        The forward pass was initially proposes in [RGS21]_.
+        The forward pass was initially proposed in [RGS21]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
 
         .. math::
             \begin{align*}
-            🟥 $\quad m_{{y \rightarrow z \rightarrow x}}^{(1 \rightarrow 2 \rightarrow 1)} = \sigma ((L_{\uparrow,1})_{xy} \cdot h^{t,(1)}_y \cdot \Theta^{t,(1)1})$
-            🟥 $\quad m_{y \rightarrow z \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}  = (L_{\downarrow,1})_{xy} \cdot h^{t, (1)}_y \cdot \Theta^{t,(1)2}$
-            🟥 $\quad m_{{x \rightarrow x}}^{(1 \rightarrow 1)}  = h_x^{t,(1)} \cdot \Theta^{t,(1)3}$
-            🟧 $\quad m^{(1 \rightarrow 2 \rightarrow 1)} = \sum_{y \in \mathcal{L}_\uparrow(x)} m_{{y \rightarrow x}}^{(1 \rightarrow 2 \rightarrow 1)}$
-            🟧 $\quad m^{(1 \rightarrow 0 \rightarrow 1)}  = \sum_{y \in \mathcal{L}_\downarrow(x)} m_{y \rightarrow z \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}$
-            🟩 $\quad m_x^{(1)}  = m_x^{(1 \rightarrow 2 \rightarrow 1)} + m_x^{(1 \rightarrow 0 \rightarrow 1)} + m_{x \rightarrow x}^{1 \rightarrow 1}$
-            🟦 $\quad h_x^{t+1,(1)}  = \sigma(m_x^{(1)})$
+            &🟥 \quad m^{(1 \rightarrow 0 \rightarrow 1)}_{y \rightarrow \{z\} \rightarrow x}  = (L_{\downarrow,1})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟥 \quad m_{x \rightarrow x}^{(1 \rightarrow 1)}  = h_x^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 1)}\\
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}  = (L_{\uparrow,1})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{(1 \rightarrow 0 \rightarrow 1)} = \sum_{y \in \mathcal{L}_\downarrow(x)} m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{(1 \rightarrow 2 \rightarrow 1)}  = \sum_{y \in \mathcal{L}_\uparrow(x)} m_{y \rightarrow \{z\} \rightarrow x}^{(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟩 \quad m_x^{(1)}  = m_{x}^{(1 \rightarrow 0 \rightarrow 1)} + m_{x \rightarrow x}^{(1 \rightarrow 1)} + m_{x}^{(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟦 \quad h_x^{t,(1)} = \sigma(m_x^{(1)})
             \end{align*}
+
 
         References
         ----------
-        .. [RGS21] Roddenberry, Glaze, Segarra.
-            Principled Simplical Neural Networks for Trajectory Prediction.
-            https://arxiv.org/pdf/2102.10058.pdf
+        .. [RGS21] Roddenberry, Mitchell, Glaze.
+            Principled Simplicial Neural Networks for Trajectory Prediction.
+            Proceedings of the 38th International Conference on Machine Learning.
+            https://proceedings.mlr.press/v139/roddenberry21a.html
         .. [TNN23] Equations of Topological Neural Networks.
             https://github.com/awesome-tnns/awesome-tnns/
         .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
@@ -88,22 +87,20 @@ class SCoNeLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape=[n_edges, channels]
-            Input features on the edges of the simplical complex.
-        lap_up: torch.sparse, shape=[n_edges, n_edges]
-            Laplacian matrix (up) :math: 'L_{\uparrow,1}' mapping edges to faces then back.
-        lap_down: torch.sparse, shape=[n_edges, n_edges]
-            Laplacian matrix (down) :math: 'L_{\downarrow, 1}' mapping edges to nodes then back.
-        iden: torch.sparse, shape=[n_edges, n_edges]
-            Identity matrix simply keeping values the same to be acted on by learnable parameters
+        x: torch.Tensor, shape=[n_edges, in_channels]
+            Input features on the edges of the simplicial complex.
+        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
+            Incidence matrix :math:`B_1` mapping edges to nodes.
+        incidence_2 : torch.sparse, shape=[n_edges, n_triangles]
+            Incidence matrix :math:`B_2` mapping triangles to edges.
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_edges, channels]
-            Output features on the edges of the simplical complex.
+        _ : torch.Tensor, shape=[n_edges, out_channels]
+            Output features on the edges of the simplicial complex.
         """
-        x_0_level1 = self.conv_level1(x_0, lap_down)
-        x_0_level2 = self.conv_level2(x_0, lap_up)
-        x_0_level3 = self.conv_level3(x_0, iden)
-        x_0 = self.aggr_edges([x_0_level3, x_0_level1, x_0_level2])
-        return x_0
+        z1 = incidence_2 @ incidence_2.T @ x @ self.weight_2
+        z2 = x @ self.weight_1
+        z3 = incidence_1.T @ incidence_1 @ x @ self.weight_0
+        out = self.aggr_on_edges([z1, z2, z3])
+        return out
