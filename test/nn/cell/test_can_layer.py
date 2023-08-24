@@ -1,4 +1,4 @@
-"""Unit tests for the CANLayer class, the PoolLayer class and the Attentional Lift class."""
+"""Unit tests for CANLayers, PoolLayer and Attentional Lift classes."""
 
 import itertools
 

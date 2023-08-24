@@ -1,10 +1,5 @@
 """Implementation of UniSAGE layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
 import torch
-from torch import nn
-from torch.nn.parameter import Parameter
-
-from topomodelx.base.aggregation import Aggregation
-from topomodelx.base.conv import Conv
 
 
 class UniSAGELayer(torch.nn.Module):
@@ -52,8 +47,8 @@ class UniSAGELayer(torch.nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.bn = nn.BatchNorm1d(out_channels) if use_bn else None
-        self.linear = nn.Linear(in_channels, out_channels)
+        self.bn = torch.nn.BatchNorm1d(out_channels) if use_bn else None
+        self.linear = torch.nn.Linear(in_channels, out_channels)
         self.v_aggr = v_aggr
         self.e_aggr = e_aggr
 

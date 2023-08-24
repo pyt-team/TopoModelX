@@ -77,8 +77,8 @@ class TestConv:
             )
         assert exc_info.type is ValueError
         assert (
-            str(exc_info.value)
-            == "With `linear_trainsform=False`, in_channels has to be equal to out_channels"
+            str(exc_info.value) == "With `linear_trainsform=False`, "
+            "in_channels has to be equal to out_channels"
         )
 
     def test_forward(self):

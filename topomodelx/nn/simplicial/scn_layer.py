@@ -1,6 +1,4 @@
 """Simplicial Complex Convolutional Network Layer [Yang et al. LoG 2022]."""
-from typing import Dict
-
 import torch
 
 from topomodelx.base.aggregation import Aggregation

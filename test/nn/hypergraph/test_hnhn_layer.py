@@ -2,7 +2,6 @@
 import pytest
 import torch
 
-from topomodelx.base.conv import Conv
 from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 
 

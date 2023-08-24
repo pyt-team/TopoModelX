@@ -1,9 +1,7 @@
 """Simplicial Attention Network (SAN) Layer."""
 import torch
-from torch.nn import functional as F
 from torch.nn.parameter import Parameter
 
-from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
