@@ -7,9 +7,16 @@ from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
-class SCCNLayer(torch.nn.Module):
+class SCNLayer(torch.nn.Module):
     """
-    Implementation of the SCCN layer proposed in [YSB22]_.
+    Implementation of the SCN layer proposed in [YSB22]_.
+
+    This implementation applies to simplicial complexes of any rank.
+
+    See Also
+    --------
+    topomodelx.nn.simplicial.scn2_layer.SCN2Layer : SCN layer
+        SCN layer proposed in [YSB22]_ for simplicial complexes of rank 2.
 
     References
     ----------

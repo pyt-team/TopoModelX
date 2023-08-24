@@ -1,16 +1,16 @@
-"""Test the SCCN layer."""
+"""Test the SCN layer."""
 
 import torch
 
 import topomodelx
-from topomodelx.nn.simplicial.sccn_layer import SCCNLayer
+from topomodelx.nn.simplicial.scn_layer import SCNLayer
 
 
-class TestSCCNLayer:
-    """Test the SCCN layer."""
+class TestSCNLayer:
+    """Test the SCN layer."""
 
     def test_forward(self):
-        """Test the forward pass of the SCCN layer."""
+        """Test the forward pass of the SCN layer."""
         channels = 5
         max_rank = 3
         n_rank_0_cells = 11
@@ -44,8 +44,8 @@ class TestSCCNLayer:
             "rank_3": torch.randn(n_rank_3_cells, channels),
         }
 
-        sccn = SCCNLayer(channels, max_rank)
-        output = sccn.forward(features, incidences, adjacencies)
+        scn = SCNLayer(channels, max_rank)
+        output = scn.forward(features, incidences, adjacencies)
 
         assert len(output) == max_rank + 1
         assert output["rank_0"].shape == (n_rank_0_cells, channels)
@@ -58,10 +58,10 @@ class TestSCCNLayer:
         channels = 5
         max_rank = 3
 
-        sccn = SCCNLayer(channels, max_rank)
-        sccn.reset_parameters()
+        scn = SCNLayer(channels, max_rank)
+        scn.reset_parameters()
 
-        for module in sccn.modules():
+        for module in scn.modules():
             if isinstance(module, topomodelx.base.conv.Conv):
                 try:
                     torch.testing.assert_allclose(
