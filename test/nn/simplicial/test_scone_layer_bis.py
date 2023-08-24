@@ -3,7 +3,7 @@
 import torch
 
 from topomodelx.base.conv import Conv
-from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
+from topomodelx.nn.simplicial.scone_layer_bis import SCoNeLayer
 
 
 class TestSCoNeLayer:
