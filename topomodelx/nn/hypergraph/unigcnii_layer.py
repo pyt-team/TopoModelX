@@ -16,7 +16,7 @@ class UniGCNIILayer(torch.nn.Module):
 
     References
     ----------
-    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
         In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
         2021. https://arxiv.org/pdf/2105.00956.pdf
     """
