@@ -2,14 +2,17 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.allsettransformer_layer import MLP, AllSetTransformerLayer
+from topomodelx.nn.hypergraph.allset_transformer_layer import (
+    MLP,
+    AllSetTransformerLayer,
+)
 
 
 class TestAllSetTransformerLayer:
     """Test the AllSetTransformer layer."""
 
     @pytest.fixture
-    def allsettransformer_layer(self):
+    def allset_transformer_layer(self):
         """Return a allsettransformer layer."""
         in_dim = 10
         hid_dim = 64
@@ -27,48 +30,48 @@ class TestAllSetTransformerLayer:
         )
         return layer
 
-    def test_forward(self, allsettransformer_layer):
+    def test_forward(self, allset_transformer_layer):
         """Test the forward pass of the allsettransformer layer."""
         x_0 = torch.randn(3, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
-        output = allsettransformer_layer.forward(x_0, incidence_1)
+        output = allset_transformer_layer.forward(x_0, incidence_1)
         assert output.shape == (3, 64)
 
-    def test_forward_with_invalid_input(self, allsettransformer_layer):
+    def test_forward_with_invalid_input(self, allset_transformer_layer):
         """Test the forward pass of the allsettransformer layer with invalid input."""
         x_0 = torch.randn(4, 10)
         incidence_1 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
         with pytest.raises(ValueError):
-            allsettransformer_layer.forward(x_0, incidence_1)
+            allset_transformer_layer.forward(x_0, incidence_1)
 
-    def test_reset_parameters(self, allsettransformer_layer):
+    def test_reset_parameters(self, allset_transformer_layer):
         """Test the reset_parameters method."""
         in_dim = 10
         hid_dim = 64
         heads = 4
 
-        allsettransformer_layer.reset_parameters()
-        assert allsettransformer_layer.vertex2edge.mlp[0].weight.requires_grad
-        assert allsettransformer_layer.edge2vertex.mlp[0].weight.requires_grad
+        allset_transformer_layer.reset_parameters()
+        assert allset_transformer_layer.vertex2edge.mlp[0].weight.requires_grad
+        assert allset_transformer_layer.edge2vertex.mlp[0].weight.requires_grad
 
         # Test with attention weights & xavier_uniform
-        allsettransformer_layer.vertex2edge.multihead_att.initialization = (
+        allset_transformer_layer.vertex2edge.multihead_att.initialization = (
             "xavier_uniform"
         )
-        allsettransformer_layer.edge2vertex.multihead_att.initialization = (
+        allset_transformer_layer.edge2vertex.multihead_att.initialization = (
             "xavier_uniform"
         )
-        allsettransformer_layer.reset_parameters()
-        assert allsettransformer_layer.vertex2edge.multihead_att.K_weight.shape == (
+        allset_transformer_layer.reset_parameters()
+        assert allset_transformer_layer.vertex2edge.multihead_att.K_weight.shape == (
             heads,
             in_dim,
             hid_dim // heads,
         )
-        assert allsettransformer_layer.edge2vertex.multihead_att.K_weight.shape == (
+        assert allset_transformer_layer.edge2vertex.multihead_att.K_weight.shape == (
             heads,
             hid_dim,
             hid_dim // heads,
