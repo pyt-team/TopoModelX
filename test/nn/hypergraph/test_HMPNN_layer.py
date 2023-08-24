@@ -2,7 +2,7 @@
 import pytest
 import torch
 
-from topomodelx.nn.hypergraph.HMPNN_layer import (
+from topomodelx.nn.hypergraph.hmpnn_layer import (
     HMPNNLayer,
     _DefaultHyperedgeToNodeMessagingFunc,
     _HyperedgeToNodeMessanger,
