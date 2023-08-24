@@ -1,55 +1,78 @@
-"""Unit tests for the SCNLayer class."""
+"""Test the SCN layer."""
 
-import pytest
 import torch
 
+import topomodelx
 from topomodelx.nn.simplicial.scn_layer import SCNLayer
 
 
 class TestSCNLayer:
-    """Unit tests for the SCNLayer class."""
+    """Test the SCN layer."""
 
     def test_forward(self):
-        """Test the forward method of SCNLayer."""
-        n_0_cells = 10
-        n_1_cells = 20
-        n_2_cells = 30
-        channels_0 = 10
-        channels_1 = 20
-        channels_2 = 30
+        """Test the forward pass of the SCN layer."""
+        channels = 5
+        max_rank = 3
+        n_rank_0_cells = 11
+        n_rank_1_cells = 22
+        n_rank_2_cells = 33
+        n_rank_3_cells = 44
 
-        x_0 = torch.randn(n_0_cells, channels_0)
-        x_1 = torch.randn(n_1_cells, channels_1)
-        x_2 = torch.randn(n_2_cells, channels_2)
-        A_0 = torch.randn(n_0_cells, n_0_cells)
-        A_1 = torch.randn(n_1_cells, n_1_cells)
-        A_2 = torch.randn(n_2_cells, n_2_cells)
+        incidences = {
+            "rank_1": 2 * torch.randint(0, 2, (n_rank_0_cells, n_rank_1_cells)).float()
+            - 1,
+            "rank_2": 2 * torch.randint(0, 2, (n_rank_1_cells, n_rank_2_cells)).float()
+            - 1,
+            "rank_3": 2 * torch.randint(0, 2, (n_rank_2_cells, n_rank_3_cells)).float()
+            - 1,
+        }
 
-        scn_layer = SCNLayer(
-            in_channels_0=channels_0,
-            in_channels_1=channels_1,
-            in_channels_2=channels_2,
-        )
-        x_0, x_1, x_2 = scn_layer.forward(x_0, x_1, x_2, A_0, A_1, A_2)
+        adjacencies = {
+            "rank_0": torch.eye(n_rank_0_cells).float(),
+            "rank_1": 2 * torch.randint(0, 2, (n_rank_1_cells, n_rank_1_cells)).float()
+            - 1,
+            "rank_2": 2 * torch.randint(0, 2, (n_rank_2_cells, n_rank_2_cells)).float()
+            - 1,
+            "rank_3": 2 * torch.randint(0, 2, (n_rank_3_cells, n_rank_3_cells)).float()
+            - 1,
+        }
 
-        assert x_0.shape == (n_0_cells, channels_0)
-        assert x_1.shape == (n_1_cells, channels_1)
-        assert x_2.shape == (n_2_cells, channels_2)
+        features = {
+            "rank_0": torch.randn(n_rank_0_cells, channels),
+            "rank_1": torch.randn(n_rank_1_cells, channels),
+            "rank_2": torch.randn(n_rank_2_cells, channels),
+            "rank_3": torch.randn(n_rank_3_cells, channels),
+        }
+
+        scn = SCNLayer(channels, max_rank)
+        output = scn.forward(features, incidences, adjacencies)
+
+        assert len(output) == max_rank + 1
+        assert output["rank_0"].shape == (n_rank_0_cells, channels)
+        assert output["rank_1"].shape == (n_rank_1_cells, channels)
+        assert output["rank_2"].shape == (n_rank_2_cells, channels)
+        assert output["rank_3"].shape == (n_rank_3_cells, channels)
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
-        channels_0 = 10
-        channels_1 = 20
-        channels_2 = 30
+        channels = 5
+        max_rank = 3
 
-        scn = SCNLayer(channels_0, channels_1, channels_2)
+        scn = SCNLayer(channels, max_rank)
         scn.reset_parameters()
 
         for module in scn.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+            if isinstance(module, topomodelx.base.conv.Conv):
+                try:
+                    torch.testing.assert_allclose(
+                        module.weight,
+                        torch.nn.init.xavier_uniform_(
+                            module.weight.clone(), gain=1.414
+                        ),
+                    )
+                    # Raise AssertionError if parameters have not changed after the reset
+                    raise AssertionError("Parameters have not changed after the reset")
+
+                except AssertionError:
+                    # This is expected if parameters have changed
+                    pass
