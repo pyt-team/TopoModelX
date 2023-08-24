@@ -97,10 +97,10 @@ class HNHNLayer(torch.nn.Module):
             self.normalize_incidence_matrices()
 
     def compute_normalization_matrices(self):
-        r"""Compute the normalization matrices for the incidence matrices"""
+        """Compute the normalization matrices for the incidence matrices."""
         B1 = self.incidence_1.to_dense()
-        edge_cardinality = (B1.sum(0)) ** self.alpha  # 78 edges [Nj]
-        node_cardinality = (B1.sum(1)) ** self.beta  # 34 nodes [Ni]
+        edge_cardinality = (B1.sum(0)) ** self.alpha
+        node_cardinality = (B1.sum(1)) ** self.beta
 
         # Compute D0_left_alpha_inverse
         self.D0_left_alpha_inverse = torch.zeros(self.n_nodes, self.n_nodes)
@@ -124,7 +124,7 @@ class HNHNLayer(torch.nn.Module):
         return
 
     def normalize_incidence_matrices(self):
-        r"""Normalize the incidence matrices"""
+        """Normalize the incidence matrices."""
         self.incidence_1 = (
             self.D0_left_alpha_inverse
             @ self.incidence_1.to_dense()
@@ -138,7 +138,7 @@ class HNHNLayer(torch.nn.Module):
         return
 
     def init_biases(self):
-        r"""Initialize the bias"""
+        """Initialize the bias."""
         for bias in [self.bias_0_to_1, self.bias_1_to_0]:
             if self.bias_init == "xavier_uniform":
                 torch.nn.init.xavier_uniform_(bias, gain=self.bias_gain)
@@ -146,7 +146,7 @@ class HNHNLayer(torch.nn.Module):
                 torch.nn.init.xavier_normal_(bias, gain=self.bias_gain)
 
     def reset_parameters(self):
-        r"""Reset learnable parameters."""
+        """Reset learnable parameters."""
         self.conv_1_to_0.reset_parameters()
         self.conv_0_to_1.reset_parameters()
         if self.use_bias:
@@ -178,7 +178,7 @@ class HNHNLayer(torch.nn.Module):
         &🟦 $\quad h_x^{t+1,(1)} = m_x^{(1)}$
         \end{align*}
 
-         References
+        References
         ----------
         .. [DSB20] Dong, Sawin, Bengio.
             HNHN: Hypergraph networks with hyperedge neurons.
@@ -204,7 +204,6 @@ class HNHNLayer(torch.nn.Module):
         x_1 : torch.Tensor, shape=[n_edges, channels_edge]
             Output features on the hyperedges
         """
-
         # Move incidence matrices to device
         self.incidence_1 = self.incidence_1.to(x_0.device)
         self.incidence_1_transpose = self.incidence_1_transpose.to(x_0.device)

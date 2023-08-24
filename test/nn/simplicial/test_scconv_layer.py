@@ -55,7 +55,6 @@ class TestSCConvLayer:
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
-
         node_channels = 6
         edge_channels = 10
         face_channels = 7

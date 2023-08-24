@@ -9,6 +9,7 @@ class SCConvLayer(torch.nn.Module):
     """Layer of a Simplicial 2-complex convolutional neural network (SCConv).
 
     Implementation of the SCConv layer proposed in [Bunch20]_.
+
     References
     ----------
     .. [Bunch20] Bunch, Eric, Qian You, Glenn Fung, and Vikas Singh.
@@ -118,7 +119,7 @@ class SCConvLayer(torch.nn.Module):
         &🟦 $\quad h^{t+1, (2)}_x  = \sigma(m_x^{(2)})
         \end{align*}
 
-         References
+        References
         ----------
         .. [Bunch20] Bunch, Eric, Qian You, Glenn Fung, and Vikas Singh.
             Simplicial 2-complex convolutional neural nets.
@@ -129,7 +130,6 @@ class SCConvLayer(torch.nn.Module):
         .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
             Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
             (2023) https://arxiv.org/abs/2304.10031.
-
 
         Parameters
         ----------
@@ -156,15 +156,13 @@ class SCConvLayer(torch.nn.Module):
         adjacency_down_2_norm: torch.Tensor,
             normalized down adjacency matrix of rank 2.
 
-        Notes:
+        Notes
         -----
         For normalization of incidence matrices you may use the helper functions here: https://github.com/pyt-team/TopoModelX/blob/dev/topomodelx/normalization/normalization.py
 
         """
-
         x0_level_0_0 = self.conv_0_to_0(x_0, adjacency_up_0_norm)
 
-        # x0_level_1_0 = self.conv_0_to_1(x_0, incidence_1)
         x0_level_1_0 = self.conv_1_to_0(x_1, incidence_1)
 
         x0_level_0_1 = self.conv_0_to_1(x_0, incidence_1_norm)

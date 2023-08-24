@@ -38,7 +38,7 @@ class TestHNHNLayer:
         return
 
     def test_compute_normalization_matrices(self, template_layer):
-        """Test the computation of the normalization matrices"""
+        """Test the computation of the normalization matrices."""
         template_layer.compute_normalization_matrices()
 
         assert template_layer.D0_left_alpha_inverse.shape == (
@@ -60,7 +60,7 @@ class TestHNHNLayer:
         return
 
     def test_normalize_incidence_matrices(self, template_layer):
-        """Test the normalization of the incidence matrices"""
+        """Test the normalization of the incidence matrices."""
         template_layer.normalize_incidence_matrices()
 
         assert template_layer.incidence_1.shape == (
@@ -74,7 +74,7 @@ class TestHNHNLayer:
         return
 
     def test_reset_parameters(self, template_layer):
-        """Test reset parameters"""
+        """Test reset parameters."""
         shape_1_to_0_in = template_layer.conv_1_to_0.weight.shape
         shape_0_to_1_in = template_layer.conv_0_to_1.weight.shape
         template_layer.reset_parameters()
@@ -84,5 +84,5 @@ class TestHNHNLayer:
         assert shape_0_to_1_in == shape_0_to_1_out
 
     def check_bias_type(self, template_layer):
-        """Check bias initialization type"""
+        """Check bias initialization type."""
         assert template_layer.bias_init in ["xavier_uniform", "xavier_normal"]
