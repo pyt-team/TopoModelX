@@ -2,43 +2,87 @@
 import pytest
 import torch
 
+from topomodelx.base.conv import Conv
 from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
-
-torch.manual_seed(41)
 
 
 class TestHNHNLayer:
-    """Test the HNHN layer."""
+    """Class to support HNHNLayer testing."""
 
     @pytest.fixture
-    def incidence_1(self):
-        """Provide a random incidence matrix of 100 nodes and 20 hyperedges."""
-        in_features = 2
-        incidence_1 = torch.randint(0, in_features, (100, 20))
-        return incidence_1.to_sparse_coo()
+    def template_layer(self):
+        """Initialize and return an HNHN layer."""
+        channels_node = 5
+        channels_edge = 8
+        n_nodes = 10
+        n_edges = 20
+        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
 
-    def test_constructor(self, incidence_1):
-        """Test the layer constructor in which the weight matrices are computed."""
-        in_features = 2
-        layer = HNHNLayer(in_features, incidence_1)
-        assert layer.weighted_node_to_hyperedge_incidence.shape == (20, 100)
-        assert torch.allclose(
-            layer.weighted_node_to_hyperedge_incidence.sum(dim=1).to_dense(),
-            torch.tensor(1.0),
+        return HNHNLayer(
+            channels_node=channels_node,
+            channels_edge=channels_edge,
+            incidence_1=incidence_1,
         )
 
-        assert layer.weighted_hyperedge_to_node_incidence.shape == (100, 20)
-        assert torch.allclose(
-            layer.weighted_hyperedge_to_node_incidence.sum(dim=1).to_dense(),
-            torch.tensor(1.0),
-        )
-
-    def test_forward(self, incidence_1):
+    def test_forward(self, template_layer):
         """Test the forward pass of the HNHN layer."""
-        in_features = 2
-        hnhn_layer = HNHNLayer(in_features, incidence_1)
-        x_0 = torch.randn(100, in_features)
+        n_nodes, n_edges = template_layer.incidence_1.shape
+        channels_node = template_layer.channels_node
+        channels_edge = template_layer.channels_edge
+        x_0 = torch.randn(n_nodes, channels_node)
+        x_1 = torch.randn(n_edges, channels_edge)
+        x_0_out, x_1_out = template_layer.forward(x_0, x_1)
 
-        x_0, x_1 = hnhn_layer(x_0)
-        assert x_0.shape == (100, in_features)
-        assert x_1.shape == (20, in_features)
+        assert x_0_out.shape == x_0.shape
+        assert x_1_out.shape == x_1.shape
+        return
+
+    def test_compute_normalization_matrices(self, template_layer):
+        """Test the computation of the normalization matrices"""
+        template_layer.compute_normalization_matrices()
+
+        assert template_layer.D0_left_alpha_inverse.shape == (
+            template_layer.n_nodes,
+            template_layer.n_nodes,
+        )
+        assert template_layer.D1_left_beta_inverse.shape == (
+            template_layer.n_edges,
+            template_layer.n_edges,
+        )
+        assert template_layer.D1_right_alpha.shape == (
+            template_layer.n_edges,
+            template_layer.n_edges,
+        )
+        assert template_layer.D0_right_beta.shape == (
+            template_layer.n_nodes,
+            template_layer.n_nodes,
+        )
+        return
+
+    def test_normalize_incidence_matrices(self, template_layer):
+        """Test the normalization of the incidence matrices"""
+        template_layer.normalize_incidence_matrices()
+
+        assert template_layer.incidence_1.shape == (
+            template_layer.n_nodes,
+            template_layer.n_edges,
+        )
+        assert template_layer.incidence_1_transpose.shape == (
+            template_layer.n_edges,
+            template_layer.n_nodes,
+        )
+        return
+
+    def test_reset_parameters(self, template_layer):
+        """Test reset parameters"""
+        shape_1_to_0_in = template_layer.conv_1_to_0.weight.shape
+        shape_0_to_1_in = template_layer.conv_0_to_1.weight.shape
+        template_layer.reset_parameters()
+        shape_1_to_0_out = template_layer.conv_1_to_0.weight.shape
+        shape_0_to_1_out = template_layer.conv_0_to_1.weight.shape
+        assert shape_1_to_0_in == shape_1_to_0_out
+        assert shape_0_to_1_in == shape_0_to_1_out
+
+    def check_bias_type(self, template_layer):
+        """Check bias initialization type"""
+        assert template_layer.bias_init in ["xavier_uniform", "xavier_normal"]
