@@ -2,8 +2,38 @@ ICML 2023 Topological Deep Learning Challenge
 =================================================
 Welcome to the ICML 2023 Topological Deep Learning Challenge, hosted by the second annual `Topology and Geometry (TAG) in Machine Learning Workshop <https://www.tagds.com/events/conference-workshops/tag-ml23>`_ at ICML.
 
-Lead organizers: Mathilde Papillon, Dr. Tegan Emerson, Dr. Henry Kvinge, Dr. Tim Doster, Dr. Bastian Rieck, Dr. Sophia Sanborn and Dr. Nina Miolane.
+Organizers, reviewers, and contributors: Mathilde Papillon, Mustafa Hajij, Nina Miolane, Florian Frantzen, Ghada Alzamzmi, Theodore Papamarkou, Michael Schaub, Michael Scholkemper, Josef Hoppe, Karthikeyan Natesan Ramamurthy, Johan Mathe, Audun Myers, Helen Jenne, Tim Doster, Tegan Emerson, Henry Kvinge, Bastian Rieck, Sophia Sanborn, Jan Meissner, Paul Rosen, Tolga Birdal, Vincent Grande, Aldo Guzmán-Sáenz, Tamal Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters
 
+The 2023 edition of the challenge is now over. Thank you to all participants for stellar contirbutions to fostering reproducible and open-source research in topological deep learning.
+
+**Winners** (announced `here <https://www.youtube.com/watch?v=QLWIZq_kkHY&feature=youtu.be&ab_channel=MathildePapillon>`_)
+
+*Hypergraph* : 
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing AllSetTransformer (Chien et al, 2022)
+2. Sadrodin Barikbin; for implementing Hypergraph Message Passing Neural Network (HMPNN) (Heydari et al, 2022)
+
+*Simplicial* :
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing Simplicial Attention Network (SAN) (Giusti et al, 2022)
+2. Odin Hoff Gardaa; for implementing Simplicial Complex Net (SCoNe) (Roddenberry et al, 2021)
+
+*Cellular* :
+
+1. Luca Scofano, Claudio Battiloro, Guillermo Bernardez, Simone Fiorellino, Indro Spinelli, Simone Scardapane, Lev Telyatninkov, Olga Zaghen; for implementing Cell Attention Network (CAN) (Giusti et al, 2022)
+2. Dmitrii Gavrilev, Gleb Bazhenov, Suraj Singh; for implementing CW Network (CWN) (Bodnar et al, 2021)
+
+*Combinatorial* :
+
+1. Rubén Ballester, Manuel Lecha, Sergio Escalera; or implementing Higher Order Attention Network (HOAN) (Hajij et al, 2022)
+2. Aiden Brent; for implementing Higher Order Attention Network (HOAN) (Hajij et al, 2022)
+
+*Honorable Mentions* :
+
+1. Jens Agerberg, Georg Bökman, Pavlo Melnyk; for implementing Simplicial Complex Convolutional Networks (SCCN) (Yang et al, 2023)
+2. Aiden Brent; for implementing Simplicial Complex Autoencoder (SCA) (Hajij et al, 2023)
+3. Alessandro Salatiello; for implementing Hypergraph Network with Hyperedge Neurons (HNHN) (Dong et al, 2020)
+4. Alexander Nikitin; for implementing UniGCN (Huang et al, 2021)
 
 Description of the Challenge
 ----------------------------
@@ -73,7 +103,9 @@ The submission consists of a Pull Request to TopoModelX that contains three new 
 
   1. Pre-processing
         - imports necessary packages as well as ``{Name of model}Layer`` class
-        - loads a benchmark dataset `using PyTorch Geometric <https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html>`_ and assigns labels.
+        - loads a dataset (**NEW**)
+            - for models requiring features on faces or rank-2 neighborhood matrices: using TopoNetX, load either `shrec16 <https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/mesh.py#L64>`_ (suitable for complex-level classification, see example in tutorials/hypergraph/template_layer.ipynb) or `Karate Club <https://github.com/pyt-team/TopoNetX/blob/0090625d547af9536d9c30001ecfa1f19517921a/toponetx/datasets/graph.py#LL29C5-L29C16>`_ (suitable for node-level classification, see example in tutorials/simplicial/hsn_train.ipynb).
+            - for models only requiring features on nodes/edges and rank-0/1 neighborhood matrices: use either TopoNetX (see above) or `Torch Geometric <https://pytorch-geometric.readthedocs.io/en/latest/modules/datasets.html>`_ to load a benchmark graph dataset.
         - lifts the dataset from the graph domain to the topological domain of choice (hypergraph, simplicial complex, cell complex, combinatorial complex) using TopoNetX.
 
   2. Creating the neural network

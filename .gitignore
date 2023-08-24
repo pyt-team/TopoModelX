@@ -6,6 +6,7 @@
 .coverage.*
 coverage.xml
 .vscode
+.history
 .idea
 .venv
 *.out
@@ -14,7 +15,10 @@ coverage.xml
 **/__pycache__/**
 __pycache__/
 docs/build/
-
+venv_topo/
 TopoNetX/
 topomodelx/nn/cell/attcxn_layer.py
 topomodelx/base/debug.ipynb
+tutorials/hypergraph/citeseer6cls3703.pt.1
+tutorials/hypergraph/cora
+tags
