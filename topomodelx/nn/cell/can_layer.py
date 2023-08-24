@@ -19,7 +19,8 @@ def softmax(src, index, num_cells):
     Notes
     -----
     There should be of a default implementation of softmax in the utils file.
-    Subtracting the maximum element in it from all elements to avoid overflow and underflow.
+    Subtracting the maximum element in it from all elements to avoid overflow
+    and underflow.
 
     Parameters
     ----------
@@ -80,7 +81,10 @@ def add_self_loops(neighborhood):
 
 
 class LiftLayer(MessagePassing):
-    """Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+    """Attentional Lift Layer.
+
+    This is adapted from the official implementation of
+    the CeLL Attention Network (CAN) [CAN22]_.
 
     Parameters
     ----------

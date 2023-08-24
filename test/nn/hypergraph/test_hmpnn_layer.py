@@ -5,8 +5,8 @@ import torch
 from topomodelx.nn.hypergraph.hmpnn_layer import (
     HMPNNLayer,
     _DefaultHyperedgeToNodeMessagingFunc,
-    _HyperedgeToNodeMessanger,
-    _NodeToHyperedgeMessanger,
+    _HyperedgeToNodeMessenger,
+    _NodeToHyperedgeMessenger,
 )
 
 torch.manual_seed(41)
@@ -33,22 +33,22 @@ class TestHMPNNLayer:
         assert x_0.shape == (100, in_features)
         assert x_1.shape == (20, in_features)
 
-    def test_node_to_hyperedge_messanger(self, incidence_1):
-        """Test NodeToHyperedgeMessanger."""
+    def test_node_to_hyperedge_messenger(self, incidence_1):
+        """Test NodeToHyperedgeMessenger."""
         in_features = 2
-        messanger = _NodeToHyperedgeMessanger(torch.nn.functional.sigmoid)
+        messenger = _NodeToHyperedgeMessenger(torch.nn.functional.sigmoid)
         x_0 = torch.randn(100, in_features)
-        node_messages_aggregated, node_messages = messanger(x_0, incidence_1)
+        node_messages_aggregated, node_messages = messenger(x_0, incidence_1)
         assert node_messages_aggregated.shape == (incidence_1.size(1), in_features)
         assert node_messages.shape == (incidence_1.size(0), in_features)
 
-    def test_hyperedge_to_node_messanger(self, incidence_1):
-        """Test HyperedgeToNodeMessanger."""
+    def test_hyperedge_to_node_messenger(self, incidence_1):
+        """Test HyperedgeToNodeMessenger."""
         in_features = 2
-        messanger = _HyperedgeToNodeMessanger(
+        messenger = _HyperedgeToNodeMessenger(
             _DefaultHyperedgeToNodeMessagingFunc(in_features)
         )
         x_1 = torch.randn(20, in_features)
         node_messages = torch.randn(100, in_features)
-        hyperedge_messages_aggregated = messanger(x_1, incidence_1, node_messages)
+        hyperedge_messages_aggregated = messenger(x_1, incidence_1, node_messages)
         assert hyperedge_messages_aggregated.shape == (incidence_1.size(0), in_features)

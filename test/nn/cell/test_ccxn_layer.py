@@ -1,6 +1,5 @@
 """Unit tests for the CCXNLayer class."""
 
-import pytest
 import torch
 
 from topomodelx.nn.cell.ccxn_layer import CCXNLayer

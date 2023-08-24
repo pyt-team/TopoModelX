@@ -1,8 +1,5 @@
 """Implementation of UniGIN layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
 import torch
-from torch.nn.parameter import Parameter
-
-from topomodelx.base.conv import Conv
 
 
 class UniGINLayer(torch.nn.Module):

@@ -19,7 +19,7 @@ class _AdjacencyDropoutMixin:
         ).coalesce()
 
 
-class _NodeToHyperedgeMessanger(MessagePassing, _AdjacencyDropoutMixin):
+class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
     def __init__(self, messaging_func, adjacency_dropout=0.7, aggr_func="sum"):
         super().__init__(aggr_func)
         self.messaging_func = messaging_func
@@ -39,7 +39,7 @@ class _NodeToHyperedgeMessanger(MessagePassing, _AdjacencyDropoutMixin):
         return x_message_aggregated, x_message
 
 
-class _HyperedgeToNodeMessanger(MessagePassing, _AdjacencyDropoutMixin):
+class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
     def __init__(
         self,
         messaging_func,
@@ -140,14 +140,14 @@ class HMPNNLayer(nn.Module):
             node_to_hyperedge_messaging_func = nn.Sequential(
                 nn.Linear(in_features, in_features), nn.Sigmoid()
             )
-        self.node_to_hyperedge_messanger = _NodeToHyperedgeMessanger(
+        self.node_to_hyperedge_messenger = _NodeToHyperedgeMessenger(
             node_to_hyperedge_messaging_func, adjacency_dropout, aggr_func
         )
         if hyperedge_to_node_messaging_func is None:
             hyperedge_to_node_messaging_func = _DefaultHyperedgeToNodeMessagingFunc(
                 in_features
             )
-        self.hyperedge_to_node_messanger = _HyperedgeToNodeMessanger(
+        self.hyperedge_to_node_messenger = _HyperedgeToNodeMessenger(
             hyperedge_to_node_messaging_func, adjacency_dropout, aggr_func
         )
         self.node_batchnorm = nn.BatchNorm1d(in_features)
@@ -189,10 +189,10 @@ class HMPNNLayer(nn.Module):
         x_1 : torch.Tensor, shape=[n_edges, hyperedge_in_features]
             Output features of the hyperedges.
         """
-        node_messages_aggregated, node_messages = self.node_to_hyperedge_messanger(
+        node_messages_aggregated, node_messages = self.node_to_hyperedge_messenger(
             x_0, incidence_1
         )
-        hyperedge_messages_aggregated = self.hyperedge_to_node_messanger(
+        hyperedge_messages_aggregated = self.hyperedge_to_node_messenger(
             x_1, incidence_1, node_messages
         )
 

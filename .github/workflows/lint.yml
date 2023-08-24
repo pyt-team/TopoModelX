@@ -25,11 +25,12 @@ jobs:
           cache: "pip"
           cache-dependency-path: "pyproject.toml"
 
-      - name: install dependencies [pip]
+      - name: Install main package [pip]
         run:  |
-          pip install black==22.6.0 isort==5.10.1
+          pip install -e .[dev]
       - name : linting [black, isort, flake8]
         run: |
           black . --check
           isort --profile black --check .
+          flake8 .
 

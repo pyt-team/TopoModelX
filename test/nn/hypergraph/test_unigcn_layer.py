@@ -2,7 +2,6 @@
 import pytest
 import torch
 
-from topomodelx.base.message_passing import MessagePassing
 from topomodelx.nn.hypergraph.unigcn_layer import UniGCNLayer
 
 

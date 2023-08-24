@@ -1,6 +1,5 @@
 """Unit tests for the CWNLayer class."""
 
-import pytest
 import torch
 
 from topomodelx.nn.cell.cwn_layer import (
