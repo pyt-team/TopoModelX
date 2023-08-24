@@ -1,9 +1,7 @@
 """Implementation of UniGCN layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
 import torch
 from torch import nn
-from torch.nn.parameter import Parameter
 
-from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
