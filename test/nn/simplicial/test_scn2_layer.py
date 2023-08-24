@@ -1,16 +1,15 @@
-"""Unit tests for the SCNLayer class."""
+"""Unit tests for the SCN2Layer class."""
 
-import pytest
 import torch
 
-from topomodelx.nn.simplicial.scn_layer import SCNLayer
+from topomodelx.nn.simplicial.scn2_layer import SCN2Layer
 
 
-class TestSCNLayer:
-    """Unit tests for the SCNLayer class."""
+class TestSCN2Layer:
+    """Unit tests for the SCN2Layer class."""
 
     def test_forward(self):
-        """Test the forward method of SCNLayer."""
+        """Test the forward method of SCN2Layer."""
         n_0_cells = 10
         n_1_cells = 20
         n_2_cells = 30
@@ -25,7 +24,7 @@ class TestSCNLayer:
         A_1 = torch.randn(n_1_cells, n_1_cells)
         A_2 = torch.randn(n_2_cells, n_2_cells)
 
-        scn_layer = SCNLayer(
+        scn_layer = SCN2Layer(
             in_channels_0=channels_0,
             in_channels_1=channels_1,
             in_channels_2=channels_2,
@@ -42,7 +41,7 @@ class TestSCNLayer:
         channels_1 = 20
         channels_2 = 30
 
-        scn = SCNLayer(channels_0, channels_1, channels_2)
+        scn = SCN2Layer(channels_0, channels_1, channels_2)
         scn.reset_parameters()
 
         for module in scn.modules():

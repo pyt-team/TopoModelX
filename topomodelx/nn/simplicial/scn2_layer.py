@@ -4,10 +4,16 @@ import torch
 from topomodelx.base.conv import Conv
 
 
-class SCNLayer(torch.nn.Module):
+class SCN2Layer(torch.nn.Module):
     """Layer of a Simplex Convolutional Network (SCN).
 
-    Implementation of the HSN layer proposed in [Yang22c]_.
+    Implementation of the SCN layer proposed in [Yang22c]_ for a simplicial complex of
+    rank 2, that is for 0-cells (nodes), 1-cells (edges) and 2-cells (faces) only.
+
+    See Also
+    --------
+    topomodelx.nn.simplicial.scn_layer.SCNLayer : SCN layer
+        SCN layer proposed in [Yang22c]_ for simplicial complexes of any rank.
 
     Notes
     -----
