@@ -20,16 +20,18 @@ class TestSCN2Layer:
         x_0 = torch.randn(n_0_cells, channels_0)
         x_1 = torch.randn(n_1_cells, channels_1)
         x_2 = torch.randn(n_2_cells, channels_2)
-        A_0 = torch.randn(n_0_cells, n_0_cells)
-        A_1 = torch.randn(n_1_cells, n_1_cells)
-        A_2 = torch.randn(n_2_cells, n_2_cells)
+        laplacian_0 = torch.randn(n_0_cells, n_0_cells)
+        laplacian_1 = torch.randn(n_1_cells, n_1_cells)
+        laplacian_2 = torch.randn(n_2_cells, n_2_cells)
 
         scn_layer = SCN2Layer(
             in_channels_0=channels_0,
             in_channels_1=channels_1,
             in_channels_2=channels_2,
         )
-        x_0, x_1, x_2 = scn_layer.forward(x_0, x_1, x_2, A_0, A_1, A_2)
+        x_0, x_1, x_2 = scn_layer.forward(
+            x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2
+        )
 
         assert x_0.shape == (n_0_cells, channels_0)
         assert x_1.shape == (n_1_cells, channels_1)
