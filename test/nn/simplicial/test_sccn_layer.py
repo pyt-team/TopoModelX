@@ -44,8 +44,8 @@ class TestSCCNLayer:
             "rank_3": torch.randn(n_rank_3_cells, channels),
         }
 
-        scn = SCCNLayer(channels, max_rank)
-        output = scn.forward(features, incidences, adjacencies)
+        sccn = SCCNLayer(channels, max_rank)
+        output = sccn.forward(features, incidences, adjacencies)
 
         assert len(output) == max_rank + 1
         assert output["rank_0"].shape == (n_rank_0_cells, channels)
@@ -58,10 +58,10 @@ class TestSCCNLayer:
         channels = 5
         max_rank = 3
 
-        scn = SCCNLayer(channels, max_rank)
-        scn.reset_parameters()
+        sccn = SCCNLayer(channels, max_rank)
+        sccn.reset_parameters()
 
-        for module in scn.modules():
+        for module in sccn.modules():
             if isinstance(module, topomodelx.base.conv.Conv):
                 try:
                     torch.testing.assert_allclose(
