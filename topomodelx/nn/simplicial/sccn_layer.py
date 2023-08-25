@@ -1,26 +1,35 @@
-"""Simplicial Complex Convolutional Network Layer [Yang et al. LoG 2022]."""
+"""Simplicial Complex Convolutional Network (SCCN) Layer [Yang et al. LoG 2022]."""
 import torch
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.conv import Conv
 
 
-class SCNLayer(torch.nn.Module):
-    """
-    Implementation of the SCN layer proposed in [YSB22]_.
+class SCCNLayer(torch.nn.Module):
+    """Simplicial Complex Convolutional Network (SCCN) layer by [YSB22]_.
 
     This implementation applies to simplicial complexes of any rank.
 
+    This layer corresponds to the leftmost tensor diagram labeled Yang22c in
+    Figure 11 of [PSHM23]_.
+
     See Also
     --------
-    topomodelx.nn.simplicial.scn2_layer.SCN2Layer : SCN layer
+    topomodelx.nn.simplicial.scn2_layer.SCN2Layer : SCN2 layer
         SCN layer proposed in [YSB22]_ for simplicial complexes of rank 2.
+        The difference between SCCN and SCN is that:
+        - SCN passes messages between cells of the same rank,
+        - SCCN passes messages between cells of the same ranks, one rank above
+        and one rank below.
 
     References
     ----------
-    .. [YSB22] Yang, Sala, Bogdan.
-        Efficient Representation Learning for Higher-Order Data with Simplicial Complexes.
-        https://proceedings.mlr.press/v198/yang22a.html
+    .. [YSB22] Ruochen Yang, Frederic Sala, and Paul Bogdan.
+        Efficient Representation Learning for Higher-Order Data with
+        Simplicial Complexes. In Bastian Rieck and Razvan Pascanu, editors,
+        Proceedings of the First Learning on Graphs Conference, volume 198
+        of Proceedings of Machine Learning Research, pages 13:1–13:21. PMLR,
+        09–12 Dec 2022a. https://proceedings.mlr.press/v198/yang22a.html.
 
     Parameters
     ----------
@@ -105,30 +114,44 @@ class SCNLayer(torch.nn.Module):
 
         The forward pass was initially proposed in [YSB22]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+
         The incidence and adjacency matrices passed into this layer can be normalized
         as described in [YSB22]_ or unnormalized.
 
         .. math::
             \begin{align*}
-            &🟥 \quad m_{{y \rightarrow x}}^{(r \rightarrow r)} = (H_{r})_{xy} \cdot h^{t,(r)}_y \cdot \Theta^{t,(r\to r)} \\
-            &🟥 \quad m_{{y \rightarrow x}}^{(r-1 \rightarrow r)} = (B_{r}^T)_{xy} \cdot h^{t,(r-1)}_y \cdot \Theta^{t,(r-1\to r)} \\
-            &🟥 \quad m_{{y \rightarrow x}}^{(r+1 \rightarrow r)} = (B_{r+1})_{xy} \cdot h^{t,(r+1)}_y \cdot \Theta^{t,(r+1\to r)} \\
-            &🟧 \quad m_{x}^{(r \rightarrow r)}  = \sum_{y \in \mathcal{L}_\downarrow(x)\bigcup \mathcal{L}_\uparrow(x)} m_{y \rightarrow x}^{(r \rightarrow r)} \\
-            &🟧 \quad m_{x}^{(r-1 \rightarrow r)}  = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(r-1 \rightarrow r)} \\
-            &🟧 \quad m_{x}^{(r+1 \rightarrow r)}  = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r+1 \rightarrow r)} \\
-            &🟩 \quad m_x^{(r)}  = m_x^{(r \rightarrow r)} + m_x^{(r-1 \rightarrow r)} + m_x^{(r+1 \rightarrow r)} \\
-            &🟦 \quad h_x^{t+1,(r)}  = \sigma(m_x^{(r)})
+            &🟥 \quad m_{{y \rightarrow x}}^{(r \rightarrow r)}
+            = (H_{r})_{xy} \cdot h^{t,(r)}_y \cdot \Theta^{t,(r\to r)} \\
+            &🟥 \quad m_{{y \rightarrow x}}^{(r-1 \rightarrow r)}
+            = (B_{r}^T)_{xy} \cdot h^{t,(r-1)}_y \cdot \Theta^{t,(r-1\to r)} \\
+            &🟥 \quad m_{{y \rightarrow x}}^{(r+1 \rightarrow r)}
+            = (B_{r+1})_{xy} \cdot h^{t,(r+1)}_y \cdot \Theta^{t,(r+1\to r)} \\
+            &🟧 \quad m_{x}^{(r \rightarrow r)}
+            = \sum_{y \in \mathcal{L}_\downarrow(x)\bigcup \mathcal{L}_\uparrow(x)}
+                m_{y \rightarrow x}^{(r \rightarrow r)} \\
+            &🟧 \quad m_{x}^{(r-1 \rightarrow r)}
+            = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(r-1 \rightarrow r)} \\
+            &🟧 \quad m_{x}^{(r+1 \rightarrow r)}
+            = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(r+1 \rightarrow r)} \\
+            &🟩 \quad m_x^{(r)}
+            = m_x^{(r \rightarrow r)}
+                + m_x^{(r-1 \rightarrow r)}
+                    + m_x^{(r+1 \rightarrow r)} \\
+            &🟦 \quad h_x^{t+1,(r)}
+             = \sigma(m_x^{(r)})
             \end{align*}
 
         References
         ----------
         .. [YSB22] Yang, Sala, Bogdan.
-            Efficient Representation Learning for Higher-Order Data with Simplicial Complexes.
+            Efficient Representation Learning for Higher-Order Data with
+            Simplicial Complexes.
             https://proceedings.mlr.press/v198/yang22a.html
         .. [TNN23] Equations of Topological Neural Networks.
             https://github.com/awesome-tnns/awesome-tnns/
         .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+            Architectures of Topological Deep Learning: A Survey on Topological
+            Neural Networks.
             (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters

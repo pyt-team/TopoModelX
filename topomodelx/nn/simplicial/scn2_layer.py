@@ -1,4 +1,4 @@
-"""Implementation of Simplicial Convolutional Network Layer from Yang2022c."""
+"""Simplex Convolutional Network (SCN) Layer [Yang et al. LoG 2022]."""
 import torch
 
 from topomodelx.base.conv import Conv
@@ -7,13 +7,20 @@ from topomodelx.base.conv import Conv
 class SCN2Layer(torch.nn.Module):
     """Layer of a Simplex Convolutional Network (SCN).
 
-    Implementation of the SCN layer proposed in [Yang22c]_ for a simplicial complex of
+    Implementation of the SCN layer proposed in [YSB22]_ for a simplicial complex of
     rank 2, that is for 0-cells (nodes), 1-cells (edges) and 2-cells (faces) only.
+
+    This layer corresponds to the rightmost tensor diagram labeled Yang22c in
+    Figure 11 of [PSHM23]_.
 
     See Also
     --------
-    topomodelx.nn.simplicial.scn_layer.SCNLayer : SCN layer
-        SCN layer proposed in [Yang22c]_ for simplicial complexes of any rank.
+    topomodelx.nn.simplicial.sccn_layer.SCCNLayer : SCCN layer
+        Simplicial Complex Convolutional Network (SCCN) layer proposed in [YSB22]_.
+        The difference between SCCN and SCN is that:
+        - SCN passes messages between cells of the same rank,
+        - SCCN passes messages between cells of the same ranks, one rank above
+        and one rank below.
 
     Notes
     -----
@@ -21,11 +28,12 @@ class SCN2Layer(torch.nn.Module):
 
     References
     ----------
-    .. [Yang22c] Ruochen Yang, Frederic Sala, and Paul Bogdan. Efficient
-    representation learning for higher-order data with simplicial complexes.
-    In Bastian Rieck and Razvan Pascanu, editors, Proceedings of the First
-    Learning on Graphs Conference, volume 198 of Proceedings of Machine Learning
-    Research, pages 13:1–13:21. PMLR, 09–12 Dec 2022a.
+    .. [YSB22] Ruochen Yang, Frederic Sala, and Paul Bogdan.
+        Efficient Representation Learning for Higher-Order Data with
+        Simplicial Complexes. In Bastian Rieck and Razvan Pascanu, editors,
+        Proceedings of the First Learning on Graphs Conference, volume 198
+        of Proceedings of Machine Learning Research, pages 13:1–13:21. PMLR,
+        09–12 Dec 2022a. https://proceedings.mlr.press/v198/yang22a.html.
 
     Parameters
     ----------
@@ -49,7 +57,7 @@ class SCN2Layer(torch.nn.Module):
         self.conv_1_to_1.reset_parameters()
         self.conv_2_to_2.reset_parameters()
 
-    def forward(self, x_0, x_1, x_2, A_0, A_1, A_2):
+    def forward(self, x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2):
         r"""Forward pass.
 
         Parameters
@@ -60,22 +68,22 @@ class SCN2Layer(torch.nn.Module):
             Input features on the edges of the simplicial complex.
         x_2 : torch.Tensor, shape=[n_faces, face_features]
             Input features on the faces of the simplicial complex.
-        A_0 : torch.sparse, shape=[n_nodes, n_nodes]
-            Normalized Hodge Laplacian matrix = L_upper + L_lower
-        A_1 : torch.sparse, shape=[n_edges, n_edges]
-            Normalized Hodge Laplacian matrix
-        A_2 : torch.sparse, shape=[n_faces, n_faces]
-            Normalized Hodge Laplacian matrix
+        laplacian_0 : torch.sparse, shape=[n_nodes, n_nodes]
+            Normalized Hodge Laplacian matrix = L_upper + L_lower.
+        laplacian_1 : torch.sparse, shape=[n_edges, n_edges]
+            Normalized Hodge Laplacian matrix.
+        laplacian_2 : torch.sparse, shape=[n_faces, n_faces]
+            Normalized Hodge Laplacian matrix.
 
         Returns
         -------
         _ : torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
-        x_0 = self.conv_0_to_0(x_0, A_0)
+        x_0 = self.conv_0_to_0(x_0, laplacian_0)
         x_0 = torch.nn.functional.relu(x_0)
-        x_1 = self.conv_1_to_1(x_1, A_1)
+        x_1 = self.conv_1_to_1(x_1, laplacian_1)
         x_1 = torch.nn.functional.relu(x_1)
-        x_2 = self.conv_2_to_2(x_2, A_2)
+        x_2 = self.conv_2_to_2(x_2, laplacian_2)
         x_2 = torch.nn.functional.relu(x_2)
         return x_0, x_1, x_2
