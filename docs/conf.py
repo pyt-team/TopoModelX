@@ -47,7 +47,7 @@ source_suffix = [".rst"]
 
 master_doc = "index"
 
-language = None
+language = "en"
 
 nbsphinx_prolog = r"""
 {% set docname = env.doc2path(env.docname, base=None) %}
