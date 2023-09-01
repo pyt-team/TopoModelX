@@ -34,8 +34,8 @@ class SCACMPSLayer(torch.nn.Module):
         self,
         channels_list,
         complex_dim,
-        att=False,
-    ):
+        att: bool = False,
+    ) -> None:
         super().__init__()
         self.att = att
         self.dim = complex_dim
@@ -67,7 +67,7 @@ class SCACMPSLayer(torch.nn.Module):
             update_func="relu",
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset parameters of each layer."""
         for layer in self.lap_layers:
             if isinstance(layer, Conv):

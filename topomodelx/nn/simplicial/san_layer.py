@@ -25,8 +25,8 @@ class SANConv(Conv):
         in_channels,
         out_channels,
         p_filters,
-        initialization="xavier_uniform",
-    ):
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super(Conv, self).__init__(
             att=True,
             initialization=initialization,
@@ -134,8 +134,8 @@ class SANLayer(torch.nn.Module):
         self,
         in_channels,
         out_channels,
-        num_filters_J=2,
-    ):
+        num_filters_J: int = 2,
+    ) -> None:
         super().__init__()
 
         self.in_channels = in_channels
@@ -152,7 +152,7 @@ class SANLayer(torch.nn.Module):
         # Harmonic convolution
         self.conv_har = Conv(in_channels, out_channels)
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_down.reset_parameters()
         self.conv_up.reset_parameters()

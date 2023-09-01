@@ -16,7 +16,7 @@ class GeneralizedMean(Aggregation):
         Power for the generalized mean. Default is 2.
     """
 
-    def __init__(self, power: int = 2, **kwargs):
+    def __init__(self, power: int = 2, **kwargs) -> None:
         super().__init__(aggr_func="generalized_mean", **kwargs)
         self.power = power
 

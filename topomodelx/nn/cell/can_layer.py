@@ -13,7 +13,7 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_add, scatter_sum
 
 
-def softmax(src, index, num_cells):
+def softmax(src, index, num_cells: int):
     r"""Compute the softmax of the attention coefficients.
 
     Notes
@@ -111,7 +111,7 @@ class LiftLayer(MessagePassing):
         heads: int,
         signal_lift_activation: Callable,
         signal_lift_dropout: float,
-    ):
+    ) -> None:
         super(LiftLayer, self).__init__()
 
         self.in_channels_0 = in_channels_0
@@ -119,7 +119,7 @@ class LiftLayer(MessagePassing):
         self.signal_lift_activation = signal_lift_activation
         self.signal_lift_dropout = signal_lift_dropout
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         gain = nn.init.calculate_gain("relu")
         nn.init.xavier_uniform_(self.att.data, gain=gain)
@@ -196,9 +196,7 @@ class MultiHeadLiftLayer(nn.Module):
         signal_lift_activation: Callable = torch.relu,
         signal_lift_dropout: float = 0.0,
         signal_lift_readout: str = "cat",
-        *args,
-        **kwargs,
-    ):
+    ) -> None:
         super(MultiHeadLiftLayer, self).__init__()
 
         assert heads > 0, ValueError("Number of heads must be > 0")
@@ -222,7 +220,7 @@ class MultiHeadLiftLayer(nn.Module):
         )
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         self.lifts.reset_parameters()
 
@@ -305,7 +303,7 @@ class PoolLayer(MessagePassing):
         in_channels_0: int,
         signal_pool_activation: Callable,
         readout: bool = True,
-    ):
+    ) -> None:
         super(PoolLayer, self).__init__()
 
         self.k_pool = k_pool
@@ -318,7 +316,7 @@ class PoolLayer(MessagePassing):
         # Initialize the attention parameter using Xavier initialization
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
@@ -427,7 +425,7 @@ class MultiHeadCellAttention(MessagePassing):
         add_self_loops: bool = False,
         aggr_func: str = "sum",
         initialization: str = "xavier_uniform",
-    ):
+    ) -> None:
         super().__init__(
             att=True,
             initialization=initialization,
@@ -448,7 +446,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset the layer parameters."""
         torch.nn.init.xavier_uniform_(self.att_weight_src)
         torch.nn.init.xavier_uniform_(self.att_weight_dst)
@@ -621,7 +619,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         aggr_func: str = "sum",
         initialization: str = "xavier_uniform",
         share_weights: bool = False,
-    ):
+    ) -> None:
         super().__init__(
             att=True,
             initialization=initialization,
@@ -652,7 +650,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset the layer parameters."""
         torch.nn.init.xavier_uniform_(self.att_weight)
         self.lin_src.reset_parameters()
@@ -831,12 +829,12 @@ class CANLayer(torch.nn.Module):
         skip_connection: bool = True,
         att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
         add_self_loops: bool = False,
-        aggr_func="sum",
+        aggr_func: str = "sum",
         update_func: str = "relu",
         version: str = "v1",
         share_weights: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__()
 
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
@@ -908,7 +906,7 @@ class CANLayer(torch.nn.Module):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
         self.lower_att.reset_parameters()
         self.upper_att.reset_parameters()

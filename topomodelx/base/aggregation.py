@@ -1,4 +1,5 @@
 """Aggregation module."""
+from typing import Literal
 
 import torch
 
@@ -17,9 +18,9 @@ class Aggregation(torch.nn.Module):
 
     def __init__(
         self,
-        aggr_func="sum",
-        update_func="sigmoid",
-    ):
+        aggr_func: Literal["mean", "sum"] = "sum",
+        update_func: Literal["relu", "sigmoid", "tanh"] | None = "sigmoid",
+    ) -> None:
         super().__init__()
         self.aggr_func = aggr_func
         self.update_func = update_func

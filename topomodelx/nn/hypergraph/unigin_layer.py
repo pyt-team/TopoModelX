@@ -31,9 +31,9 @@ class UniGINLayer(torch.nn.Module):
         self,
         nn,
         in_channels,
-        eps=0.0,
-        train_eps=False,
-    ):
+        eps: float = 0.0,
+        train_eps: bool = False,
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.initial_eps = eps

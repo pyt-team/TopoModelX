@@ -24,7 +24,7 @@ class TemplateLayer(torch.nn.Module):
         in_channels,
         intermediate_channels,
         out_channels,
-    ):
+    ) -> None:
         super().__init__()
 
         self.conv_level1_1_to_0 = Conv(
@@ -40,7 +40,7 @@ class TemplateLayer(torch.nn.Module):
             update_func="sigmoid",
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_level1_1_to_0.reset_parameters()
         self.conv_level2_0_to_1.reset_parameters()

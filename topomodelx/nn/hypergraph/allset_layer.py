@@ -16,28 +16,28 @@ class AllSetLayer(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    dropout : float, optional
-        Dropout probability. Default is 0.2.
-    mlp_num_layers : int, optional
-        Number of layers in the MLP. Default is 2.
+    dropout : float, default=0.2
+        Dropout probability.
+    mlp_num_layers : int, default=2
+        Number of layers in the MLP.
     mlp_activation : callable or None, optional
-        Activation function in the MLP. Default is None.
+        Activation function in the MLP.
     mlp_dropout : float, optional
-        Dropout probability in the MLP. Default is 0.0.
+        Dropout probability in the MLP.
     mlp_norm : str or None, optional
-        Type of layer normalization in the MLP. Default is None.
+        Type of layer normalization in the MLP.
     """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        dropout=0.2,
-        mlp_num_layers=2,
+        dropout: float = 0.2,
+        mlp_num_layers: int = 2,
         mlp_activation=nn.ReLU,
-        mlp_dropout=0.0,
+        mlp_dropout: float = 0.0,
         mlp_norm=None,
-    ):
+    ) -> None:
         super().__init__()
 
         if mlp_num_layers <= 0:
@@ -64,7 +64,7 @@ class AllSetLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset learnable parameters."""
         self.vertex2edge.reset_parameters()
         self.edge2vertex.reset_parameters()
@@ -123,28 +123,28 @@ class AllSetBlock(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    dropout : float, optional
-        Dropout probability. Default is 0.2.
-    mlp_num_layers : int, optional
-        Number of layers in the MLP. Default is 2.
+    dropout : float, default=0.2
+        Dropout probability.
+    mlp_num_layers : int, default=2
+        Number of layers in the MLP.
     mlp_activation : callable or None, optional
-        Activation function in the MLP. Default is None.
+        Activation function in the MLP.
     mlp_dropout : float, optional
-        Dropout probability in the MLP. Default is 0.0.
+        Dropout probability in the MLP.
     mlp_norm : callable or None, optional
-        Type of layer normalization in the MLP. Default is None.
+        Type of layer normalization in the MLP.
     """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        dropout,
-        mlp_num_layers=2,
+        dropout: float = 0.2,
+        mlp_num_layers: int = 2,
         mlp_activation=nn.ReLU,
-        mlp_dropout=0.0,
+        mlp_dropout: float = 0.0,
         mlp_norm=None,
-    ):
+    ) -> None:
         super(AllSetBlock, self).__init__()
 
         self.dropout = dropout
@@ -177,7 +177,7 @@ class AllSetBlock(nn.Module):
             att=False,
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset learnable parameters."""
         self.encoder.reset_parameters()
         self.decoder.reset_parameters()
@@ -219,15 +219,15 @@ class MLP(nn.Sequential):
     hidden_channels : list of int
         List of dimensions of the hidden features.
     norm_layer : callable or None, optional
-        Type of layer normalization. Default is None.
+        Type of layer normalization.
     activation_layer : callable or None, optional
-        Type of activation function. Default is None.
-    dropout : float, optional
-        Dropout probability. Default is 0.0.
-    inplace : bool, optional
-        Whether to do the operation in-place. Default is False.
-    bias : bool, optional
-        Whether to add bias. Default is True.
+        Type of activation function.
+    dropout : float, default=0.0
+        Dropout probability.
+    inplace : bool, default=False
+        Whether to do the operation in-place.
+    bias : bool, default=False
+        Whether to add bias.
     """
 
     def __init__(
@@ -236,10 +236,10 @@ class MLP(nn.Sequential):
         hidden_channels,
         norm_layer=None,
         activation_layer=None,
-        dropout=0.0,
-        inplace=None,
-        bias=False,
-    ):
+        dropout: float = 0.0,
+        inplace: bool | None = None,
+        bias: bool = False,
+    ) -> None:
         params = {} if inplace is None else {"inplace": inplace}
         layers = []
         in_dim = in_channels

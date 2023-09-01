@@ -33,11 +33,13 @@ class CCXNLayer(torch.nn.Module):
         Dimension of input features on edges (1-cells).
     in_channels_2 : int
         Dimension of input features on faces (2-cells).
-    att : bool
+    att : bool, default=False
         Whether to use attention.
     """
 
-    def __init__(self, in_channels_0, in_channels_1, in_channels_2, att=False):
+    def __init__(
+        self, in_channels_0, in_channels_1, in_channels_2, att: bool = False
+    ) -> None:
         super().__init__()
         self.conv_0_to_0 = Conv(
             in_channels=in_channels_0, out_channels=in_channels_0, att=att

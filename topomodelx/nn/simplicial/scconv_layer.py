@@ -19,7 +19,7 @@ class SCConvLayer(torch.nn.Module):
 
     """
 
-    def __init__(self, node_channels, edge_channels, face_channels):
+    def __init__(self, node_channels, edge_channels, face_channels) -> None:
         super().__init__()
 
         self.node_channels = node_channels
@@ -70,7 +70,7 @@ class SCConvLayer(torch.nn.Module):
         self.aggr_on_edges = Aggregation(aggr_func="sum", update_func="sigmoid")
         self.aggr_on_faces = Aggregation(aggr_func="sum", update_func="sigmoid")
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset parameters."""
         self.conv_0_to_0.reset_parameters()
         self.conv_0_to_1.reset_parameters()

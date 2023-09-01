@@ -11,7 +11,7 @@ class Dist2CycleLayer(torch.nn.Module):
     def __init__(
         self,
         channels,
-    ):
+    ) -> None:
         super().__init__()
         self.channels = channels
         # feature learning
@@ -20,7 +20,7 @@ class Dist2CycleLayer(torch.nn.Module):
         # need to support for other update functions like leaky relu
         # which is main for dist2Cycle
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         fc_nonlin = "relu"
         fc_alpha = 0.0

@@ -8,7 +8,7 @@ from topomodelx.utils.scatter import scatter
 
 
 class _AdjacencyDropoutMixin:
-    def apply_dropout(self, neighborhood, dropout_rate):
+    def apply_dropout(self, neighborhood, dropout_rate: float):
         neighborhood = neighborhood.coalesce()
         return torch.sparse_coo_tensor(
             neighborhood.indices(),
@@ -20,7 +20,9 @@ class _AdjacencyDropoutMixin:
 
 
 class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
-    def __init__(self, messaging_func, adjacency_dropout=0.7, aggr_func="sum"):
+    def __init__(
+        self, messaging_func, adjacency_dropout: float = 0.7, aggr_func: str = "sum"
+    ) -> None:
         super().__init__(aggr_func)
         self.messaging_func = messaging_func
         self.adjacency_dropout = adjacency_dropout
@@ -43,9 +45,9 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
     def __init__(
         self,
         messaging_func,
-        adjacency_dropout=0.7,
-        aggr_func="sum",
-    ):
+        adjacency_dropout: float = 0.7,
+        aggr_func: str = "sum",
+    ) -> None:
         super().__init__(aggr_func)
         self.messaging_func = messaging_func
         self.adjacency_dropout = adjacency_dropout
@@ -129,11 +131,11 @@ class HMPNNLayer(nn.Module):
         in_features,
         node_to_hyperedge_messaging_func=None,
         hyperedge_to_node_messaging_func=None,
-        adjacency_dropout=0.7,
-        aggr_func="sum",
-        updating_dropout=0.5,
+        adjacency_dropout: float = 0.7,
+        aggr_func: str = "sum",
+        updating_dropout: float = 0.5,
         updating_func=None,
-    ):
+    ) -> None:
         super().__init__()
 
         if node_to_hyperedge_messaging_func is None:

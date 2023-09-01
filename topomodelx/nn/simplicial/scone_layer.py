@@ -48,7 +48,7 @@ class SCoNeLayer(torch.nn.Module):
         )
         self.aggr_on_edges = Aggregation("sum", update_func)
 
-    def reset_parameters(self, gain: float = 1.0):
+    def reset_parameters(self, gain: float = 1.0) -> None:
         """Reset learnable parameters."""
         torch.nn.init.xavier_uniform_(self.weight_0, gain=gain)
         torch.nn.init.xavier_uniform_(self.weight_1, gain=gain)
