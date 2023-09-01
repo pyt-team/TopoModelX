@@ -28,7 +28,7 @@ class SCoNeLayer(torch.nn.Module):
         Initialization method.
     """
 
-    def __init__(self, channels):
+    def __init__(self, channels) -> None:
         super().__init__()
         self.channels = channels
 
@@ -52,7 +52,7 @@ class SCoNeLayer(torch.nn.Module):
 
         self.aggr_edges = Aggregation(aggr_func="sum", update_func="sigmoid")
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_level1.reset_parameters()
         self.conv_level2.reset_parameters()

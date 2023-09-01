@@ -25,7 +25,7 @@ class MessagePassing(torch.nn.Module):
     ----------
     aggr_func : string
         Aggregation function to use.
-    att : bool
+    att : bool, default=False
         Whether to use attention.
     initialization : string
         Initialization method for the weights of the layer.
@@ -43,10 +43,10 @@ class MessagePassing(torch.nn.Module):
 
     def __init__(
         self,
-        aggr_func="sum",
-        att=False,
-        initialization="xavier_uniform",
-    ):
+        aggr_func: str = "sum",
+        att: bool = False,
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super().__init__()
         self.aggr_func = aggr_func
         self.att = att
@@ -54,7 +54,7 @@ class MessagePassing(torch.nn.Module):
         assert initialization in ["xavier_uniform", "xavier_normal"]
         assert aggr_func in ["sum", "mean", "add"]
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414):
         r"""Reset learnable parameters.
 
         Notes

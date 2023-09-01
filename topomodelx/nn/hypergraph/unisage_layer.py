@@ -40,10 +40,10 @@ class UniSAGELayer(torch.nn.Module):
         self,
         in_channels,
         out_channels,
-        e_aggr="sum",
-        v_aggr="mean",
-        use_bn=False,
-    ):
+        e_aggr: str = "sum",
+        v_aggr: str = "mean",
+        use_bn: bool = False,
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -55,7 +55,7 @@ class UniSAGELayer(torch.nn.Module):
         self._validate_aggr(v_aggr)
         self._validate_aggr(e_aggr)
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.linear.reset_parameters()
         if self.bn is not None:

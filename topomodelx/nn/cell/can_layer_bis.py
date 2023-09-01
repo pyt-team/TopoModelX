@@ -63,11 +63,11 @@ class CANLayer(torch.nn.Module):
     def __init__(
         self,
         channels,
-        activation="sigmoid",
-        att=True,
-        eps=1e-5,
-        initialization="xavier_uniform",
-    ):
+        activation: str = "sigmoid",
+        att: bool = True,
+        eps: float = 1e-5,
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super().__init__()
         # Do I need upper and lower convolution layers? Since I think they will have different parameters
         self.conv_down = Conv(
@@ -96,7 +96,7 @@ class CANLayer(torch.nn.Module):
             self.att_weight = Parameter(torch.Tensor(channels, 1))
         self.reset_parameters()
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414):
         """Reset learnable parameters.
 
         Parameters

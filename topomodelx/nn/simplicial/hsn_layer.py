@@ -32,7 +32,7 @@ class HSNLayer(torch.nn.Module):
     def __init__(
         self,
         channels,
-    ):
+    ) -> None:
         super().__init__()
         self.channels = channels
 
@@ -60,7 +60,7 @@ class HSNLayer(torch.nn.Module):
 
         self.aggr_on_nodes = Aggregation(aggr_func="sum", update_func="sigmoid")
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_level1_0_to_0.reset_parameters()
         self.conv_level1_0_to_1.reset_parameters()

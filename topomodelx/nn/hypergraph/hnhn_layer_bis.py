@@ -32,9 +32,9 @@ class HNHNLayer(torch.nn.Module):
         in_features,
         incidence_1,
         activation_func=F.relu,
-        normalization_param_alpha=0.0,
-        normalization_param_beta=0.0,
-    ):
+        normalization_param_alpha: float = 0.0,
+        normalization_param_beta: float = 0.0,
+    ) -> None:
         super().__init__()
 
         incidence_1 = incidence_1.to(torch.float)

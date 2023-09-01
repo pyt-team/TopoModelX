@@ -22,34 +22,32 @@ class AllSetTransformerLayer(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
-    num_heads : int, optional
-        Number of attention heads. Default is 4.
+    heads : int, default=4
+        Number of attention heads.
     dropout : float, optional
-        Dropout probability. Default is 0.2.
-    mlp_num_layers : int, optional
-        Number of layers in the MLP. Default is 2.
+        Dropout probability.
+    mlp_num_layers : int, default=1
+        Number of layers in the MLP.
     mlp_activation : callable or None, optional
-        Activation function in the MLP. Default is None.
+        Activation function in the MLP.
     mlp_dropout : float, optional
-        Dropout probability in the MLP. Default is 0.0.
+        Dropout probability in the MLP.
     mlp_norm : str or None, optional
-        Type of layer normalization in the MLP. Default is None.
+        Type of layer normalization in the MLP.
     """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        heads=4,
-        number_queries=1,
-        dropout=0.0,
-        mlp_num_layers=1,
+        heads: int = 4,
+        number_queries: int = 1,
+        dropout: float = 0.0,
+        mlp_num_layers: int = 1,
         mlp_activation=nn.ReLU,
-        mlp_dropout=0.0,
+        mlp_dropout: float = 0.0,
         mlp_norm=None,
-    ):
+    ) -> None:
         super().__init__()
 
         if heads <= 0:
@@ -89,7 +87,7 @@ class AllSetTransformerLayer(nn.Module):
             mlp_norm=mlp_norm,
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset parameters."""
         self.vertex2edge.reset_parameters()
         self.edge2vertex.reset_parameters()
@@ -149,35 +147,35 @@ class AllSetTransformerBlock(nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    heads : int, optional
-        Number of attention heads. Default is 4.
-    number_queries : int, optional
-        Number of queries. Default is 1.
+    heads : int, default=4
+        Number of attention heads.
+    number_queries : int, default=1
+        Number of queries.
     dropout : float, optional
-        Dropout probability. Default is 0.0.
-    mlp_num_layers : int, optional
-        Number of layers in the MLP. Default is 1.
+        Dropout probability.
+    mlp_num_layers : int, default=1
+        Number of layers in the MLP.
     mlp_activation : callable or None, optional
-        Activation function in the MLP. Default is None.
+        Activation function in the MLP.
     mlp_dropout : float, optional
-        Dropout probability in the MLP. Default is 0.0.
+        Dropout probability in the MLP.
     mlp_norm : str or None, optional
-        Type of layer normalization in the MLP. Default is None.
+        Type of layer normalization in the MLP.
     """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        heads=4,
-        number_queries=1,
-        dropout=0.0,
-        mlp_num_layers=1,
+        heads: int = 4,
+        number_queries: int = 1,
+        dropout: float = 0.0,
+        mlp_num_layers: int = 1,
         mlp_activation=None,
-        mlp_dropout=0.0,
+        mlp_dropout: float = 0.0,
         mlp_norm=None,
-        initialization="xavier_uniform",
-    ):
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super().__init__()
 
         self.in_channels = in_channels
@@ -208,7 +206,7 @@ class AllSetTransformerBlock(nn.Module):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.multihead_att.reset_parameters()
         for layer in self.mlp.children():
@@ -267,28 +265,28 @@ class MultiHeadAttention(MessagePassing):
         Dimension of input features.
     hidden_channels : int
         Dimension of hidden features.
-    aggr_norm : bool, optional
-        Whether to normalize the aggregated message by the neighborhood size. Default is False.
+    aggr_norm : bool, default=False
+        Whether to normalize the aggregated message by the neighborhood size.
     update_func : str or None, optional
-        Update method to apply to message. Default is None.
-    heads : int, optional
-        Number of attention heads. Default is 4.
-    number_queries : int, optional
-        Number of queries. Default is 1.
-    initialization : str, optional
-        Initialization method. Default is "xavier_uniform".
+        Update method to apply to message.
+    heads : int, default=4
+        Number of attention heads.
+    number_queries : int, default=1
+        Number of queries.
+    initialization : str, default="xavier_uniform"
+        Initialization method.
     """
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        aggr_norm=False,
+        aggr_norm: bool = False,
         update_func=None,
-        heads=4,
-        number_queries=1,
-        initialization="xavier_uniform",
-    ):
+        heads: int = 4,
+        number_queries: int = 1,
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super().__init__(
             att=True,
             initialization=initialization,
@@ -313,7 +311,7 @@ class MultiHeadAttention(MessagePassing):
             torch.randn(self.heads, self.in_channels, self.hidden_channels)
         )
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414):
         r"""Reset learnable parameters."""
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.K_weight, gain=gain)
@@ -409,15 +407,15 @@ class MLP(nn.Sequential):
     hidden_channels : list of int
         List of dimensions of the hidden features.
     norm_layer : callable or None, optional
-        Type of layer normalization. Default is None.
+        Type of layer normalization
     activation_layer : callable or None, optional
-        Type of activation function. Default is None.
+        Type of activation function.
     dropout : float, optional
-        Dropout probability. Default is 0.0.
-    inplace : bool, optional
-        Whether to do the operation in-place. Default is False.
-    bias : bool, optional
-        Whether to add bias. Default is True.
+        Dropout probability.
+    inplace : bool, default=False
+        Whether to do the operation in-place.
+    bias : bool, default=False
+        Whether to add bias.
     """
 
     def __init__(
@@ -426,10 +424,10 @@ class MLP(nn.Sequential):
         hidden_channels,
         norm_layer=None,
         activation_layer=torch.nn.ReLU,
-        dropout=0.0,
-        inplace=None,
-        bias=False,
-    ):
+        dropout: float = 0.0,
+        inplace: bool | None = None,
+        bias: bool = False,
+    ) -> None:
         params = {} if inplace is None else {"inplace": inplace}
         layers = []
         in_dim = in_channels
