@@ -64,7 +64,7 @@ test = [
 ]
 
 dev = ["TopoModelX[test, lint]"]
-all = ["TopoModelX[dev]"]
+all = ["TopoModelX[dev, doc]"]
 
 [project.urls]
 homepage="https://github.com/pyt-team/TopoModelX"
