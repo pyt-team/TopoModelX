@@ -1,4 +1,6 @@
 """Simplicial Complex Net Layer."""
+from typing import Literal
+
 import torch
 
 from topomodelx.base.aggregation import Aggregation
@@ -27,12 +29,15 @@ class SCoNeLayer(torch.nn.Module):
         Input dimension of features on each edge.
     out_channels : int
         Output dimension of features on each edge.
-    update_func : string
+    update_func : Literal['relu', 'sigmoid', 'tanh']
         Update function to use when updating edge features.
     """
 
     def __init__(
-        self, in_channels: int, out_channels: int, update_func: str = "tanh"
+        self,
+        in_channels: int,
+        out_channels: int,
+        update_func: Literal["relu", "sigmoid", "tanh"] = "tanh",
     ) -> None:
         super().__init__()
         self.in_channels = in_channels

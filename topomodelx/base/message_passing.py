@@ -1,5 +1,5 @@
 """Message passing module."""
-
+from typing import Literal
 
 import torch
 
@@ -23,11 +23,11 @@ class MessagePassing(torch.nn.Module):
 
     Parameters
     ----------
-    aggr_func : string
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
         Aggregation function to use.
     att : bool, default=False
         Whether to use attention.
-    initialization : string
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method for the weights of the layer.
 
     References
@@ -43,9 +43,10 @@ class MessagePassing(torch.nn.Module):
 
     def __init__(
         self,
-        aggr_func: str = "sum",
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
         att: bool = False,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization_gain: float = 1.414,
     ) -> None:
         super().__init__()
         self.aggr_func = aggr_func
@@ -113,7 +114,7 @@ class MessagePassing(torch.nn.Module):
     def attention(self, x_source, x_target=None):
         """Compute attention weights for messages.
 
-        This provides a default attention function to the message passing scheme.
+        This provides a default attention function to the message-passing scheme.
 
         Alternatively, users can subclass MessagePassing and overwrite
         the attention method in order to replace it with their own attention mechanism.

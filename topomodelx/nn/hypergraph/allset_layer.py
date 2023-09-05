@@ -135,6 +135,9 @@ class AllSetBlock(nn.Module):
         Type of layer normalization in the MLP.
     """
 
+    encoder: nn.Module
+    decoder: nn.Module
+
     def __init__(
         self,
         in_channels,
@@ -241,7 +244,7 @@ class MLP(nn.Sequential):
         bias: bool = False,
     ) -> None:
         params = {} if inplace is None else {"inplace": inplace}
-        layers = []
+        layers: list[nn.Module] = []
         in_dim = in_channels
         for hidden_dim in hidden_channels[:-1]:
             layers.append(nn.Linear(in_dim, hidden_dim, bias=bias))

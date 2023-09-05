@@ -1,4 +1,6 @@
 """Implementation of UniSAGE layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
+from typing import Literal
+
 import torch
 
 
@@ -20,12 +22,10 @@ class UniSAGELayer(torch.nn.Module):
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    e_aggr : string
-        Aggregator function for hyperedges. Defaults to "sum", other options are
-        "sum", "mean", "amax", or "amin".
-    v_aggr : string
-        Aggregator function for nodes. Defaults to " mean", other options are
-        "sum", "mean", "amax", or "amin".
+    e_aggr : Literal["sum", "mean", "amax", "amin"], default="sum"
+        Aggregator function for hyperedges.
+    v_aggr : Literal["sum", "mean", "amax", "amin"], default="mean"
+        Aggregator function for nodes.
     use_bn : boolean
         Whether to use bathnorm after the linear transformation.
     """
@@ -40,8 +40,8 @@ class UniSAGELayer(torch.nn.Module):
         self,
         in_channels,
         out_channels,
-        e_aggr: str = "sum",
-        v_aggr: str = "mean",
+        e_aggr: Literal["sum", "mean", "amax", "amin"] = "sum",
+        v_aggr: Literal["sum", "mean", "amax", "amin"] = "mean",
         use_bn: bool = False,
     ) -> None:
         super().__init__()

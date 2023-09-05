@@ -1,4 +1,6 @@
 """HyperGAT layer."""
+from typing import Literal
+
 import torch
 
 from topomodelx.base.message_passing import MessagePassing
@@ -21,8 +23,8 @@ class HyperGATLayer(MessagePassing):
         Dimension of the output features.
     update_func : string
         Update method to apply to message. Default is "relu".
-    initialization : string
-        Initialization method. Default is "xavier_uniform".
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+        Initialization method.
     """
 
     def __init__(
@@ -30,7 +32,8 @@ class HyperGATLayer(MessagePassing):
         in_channels,
         out_channels,
         update_func: str = "relu",
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization_gain: float = 1.414,
     ) -> None:
         super().__init__(initialization=initialization)
         self.in_channels = in_channels
@@ -67,7 +70,12 @@ class HyperGATLayer(MessagePassing):
                 "Should be either xavier_uniform or xavier_normal."
             )
 
-    def attention(self, x_source, x_target=None, mechanism: str = "node-level"):
+    def attention(
+        self,
+        x_source,
+        x_target=None,
+        mechanism: Literal["node-level", "edge-level"] = "node-level",
+    ):
         r"""Compute attention weights for messages, as proposed in [DWLLL20].
 
         Parameters
@@ -78,7 +86,7 @@ class HyperGATLayer(MessagePassing):
         x_target : torch.Tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        mechanism: string
+        mechanism: Literal["node-level", "edge-level"]
             Attention mechanism as proposed in [DWLLL20]. If set to "node-level", will compute node-level attention,
             if set to "edge-level", will compute edge-level attention (see [DWLLL20]). Default is "node-level".
 

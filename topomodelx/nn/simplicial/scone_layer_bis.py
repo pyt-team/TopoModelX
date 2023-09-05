@@ -24,8 +24,6 @@ class SCoNeLayer(torch.nn.Module):
     ----------
     channels : int
         Dimension of features on each simplicial cell.
-    initialization : string
-        Initialization method.
     """
 
     def __init__(self, channels) -> None:
@@ -61,7 +59,7 @@ class SCoNeLayer(torch.nn.Module):
     def forward(self, x_0, lap_up, lap_down, iden):
         r"""Forward pass.
 
-        The forward pass was initially proposes in [RGS21]_.
+        The forward pass was initially proposed in [RGS21]_.
         Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
 
         .. math::
