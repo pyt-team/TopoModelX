@@ -1,7 +1,7 @@
-
 from topomodelx.nn.cell.can_layer import CANLayer, MultiHeadLiftLayer, PoolLayer
 import torch
 import torch.nn.functional as F
+
 
 class CAN(torch.nn.Module):
     def __init__(

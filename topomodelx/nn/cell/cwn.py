@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
+
 class CWN(torch.nn.Module):
     """Implementation of a specific version of CW Network.
 
