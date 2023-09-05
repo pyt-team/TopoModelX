@@ -47,9 +47,9 @@ class SCCNLayer(torch.nn.Module):
         self,
         channels,
         max_rank,
-        aggr_func="sum",
-        update_func="sigmoid",
-    ):
+        aggr_func: str = "sum",
+        update_func: str = "sigmoid",
+    ) -> None:
         super().__init__()
         self.channels = channels
         self.max_rank = max_rank
@@ -100,7 +100,7 @@ class SCCNLayer(torch.nn.Module):
             }
         )
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         for rank in self.convs_same_rank:
             self.convs_same_rank[rank].reset_parameters()

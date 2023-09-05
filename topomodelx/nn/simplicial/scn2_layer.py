@@ -45,13 +45,13 @@ class SCN2Layer(torch.nn.Module):
         Dimension of input features on faces (2-cells).
     """
 
-    def __init__(self, in_channels_0, in_channels_1, in_channels_2):
+    def __init__(self, in_channels_0, in_channels_1, in_channels_2) -> None:
         super().__init__()
         self.conv_0_to_0 = Conv(in_channels=in_channels_0, out_channels=in_channels_0)
         self.conv_1_to_1 = Conv(in_channels=in_channels_1, out_channels=in_channels_1)
         self.conv_2_to_2 = Conv(in_channels=in_channels_2, out_channels=in_channels_2)
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_0_to_0.reset_parameters()
         self.conv_1_to_1.reset_parameters()

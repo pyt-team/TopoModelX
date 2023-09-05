@@ -25,10 +25,10 @@ class DHGCNLayer(torch.nn.Module):
         in_channels,
         intermediate_channels,
         out_channels,
-        k_neighbours=3,
-        k_centroids=4,
-        device="cpu",
-    ):
+        k_neighbours: int = 3,
+        k_centroids: int = 4,
+        device: str = "cpu",
+    ) -> None:
         super().__init__()
 
         self.in_channels = in_channels
@@ -49,7 +49,7 @@ class DHGCNLayer(torch.nn.Module):
         )
 
     @staticmethod
-    def kmeans_graph(x, k, flow="source_to_target"):
+    def kmeans_graph(x, k, flow: str = "source_to_target"):
         r"""K-means algorithm implementation.
 
         Parameters
@@ -206,7 +206,7 @@ class DHGCNLayer(torch.nn.Module):
         x_0_features = self.conv_dt_level0_1_to_0(x_1, incidence_1_dynamic_topology)
         return x_0_features
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.fc_layer.reset_parameters()
         self.conv_dt_level0_0_to_1.reset_parameters()

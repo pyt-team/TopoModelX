@@ -18,13 +18,12 @@ class Conv(MessagePassing):
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    aggr_norm : bool
+    aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
-    update_func : string
+    update_func : string, optional
         Update method to apply to message.
-    att : bool
+    att : bool, default=False
         Whether to use attention.
-        Optional, default: False.
     initialization : string
         Initialization method.
     with_linear_transform: bool
@@ -36,12 +35,12 @@ class Conv(MessagePassing):
         self,
         in_channels,
         out_channels,
-        aggr_norm=False,
+        aggr_norm: bool = False,
         update_func=None,
-        att=False,
-        initialization="xavier_uniform",
-        with_linear_transform=True,
-    ):
+        att: bool = False,
+        initialization: str = "xavier_uniform",
+        with_linear_transform: bool = True,
+    ) -> None:
         super().__init__(
             att=att,
             initialization=initialization,

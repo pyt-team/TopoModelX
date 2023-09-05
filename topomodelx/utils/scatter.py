@@ -4,12 +4,10 @@ Adaptation of torch_scatter/scatter.py from:
 https://github.com/rusty1s/pytorch_scatter/blob/master/torch_scatter/scatter.py
 """
 
-from typing import Optional
-
 import torch
 
 
-def broadcast(src: torch.Tensor, other: torch.Tensor, dim: int):
+def broadcast(src: torch.Tensor, other: torch.Tensor, dim: int) -> torch.Tensor:
     """Broadcasts `src` to the shape of `other`."""
     if dim < 0:
         dim = other.dim() + dim
@@ -26,8 +24,8 @@ def scatter_sum(
     src: torch.Tensor,
     index: torch.Tensor,
     dim: int = -1,
-    out: Optional[torch.Tensor] = None,
-    dim_size: Optional[int] = None,
+    out: torch.Tensor | None = None,
+    dim_size: int | None = None,
 ) -> torch.Tensor:
     """Add all values from the `src` tensor into `out` at the indices."""
     index = broadcast(index, src, dim)
@@ -49,8 +47,8 @@ def scatter_add(
     src: torch.Tensor,
     index: torch.Tensor,
     dim: int = -1,
-    out: Optional[torch.Tensor] = None,
-    dim_size: Optional[int] = None,
+    out: torch.Tensor | None = None,
+    dim_size: int | None = None,
 ) -> torch.Tensor:
     """Add all values from the `src` tensor into `out` at the indices."""
     return scatter_sum(src, index, dim, out, dim_size)
@@ -60,8 +58,8 @@ def scatter_mean(
     src: torch.Tensor,
     index: torch.Tensor,
     dim: int = -1,
-    out: Optional[torch.Tensor] = None,
-    dim_size: Optional[int] = None,
+    out: torch.Tensor | None = None,
+    dim_size: int | None = None,
 ) -> torch.Tensor:
     """Compute the mean value of all values from the `src` tensor into `out`."""
     out = scatter_sum(src, index, dim, out, dim_size)
@@ -87,7 +85,7 @@ def scatter_mean(
 SCATTER_DICT = {"sum": scatter_sum, "mean": scatter_mean, "add": scatter_sum}
 
 
-def scatter(scatter):
+def scatter(scatter: str):
     """Return the scatter function."""
     if isinstance(scatter, str) and scatter in SCATTER_DICT:
         return SCATTER_DICT[scatter]

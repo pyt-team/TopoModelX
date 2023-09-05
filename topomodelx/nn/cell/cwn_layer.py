@@ -41,31 +41,27 @@ class CWNLayer(nn.Module):
     out_channels : int
         Dimension of output features on r-cells.
 
-    conv_1_to_1 : torch.nn.Module
+    conv_1_to_1 : torch.nn.Module, optional
         A module that convolves the representations of upper-adjacent neighbors of r-cells
         and their corresponding co-boundary (r+1) cells.
-        Optional, default: None.
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultFirstConv for more detail).
 
-    conv_0_to_1 : torch.nn.Module
+    conv_0_to_1 : torch.nn.Module, optional
         A module that convolves the representations of (r-1)-cells on the boundary of r-cells.
-        Optional, default: None.
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultSecondConv for more detail).
 
-    aggregate_fn : torch.nn.Module
+    aggregate_fn : torch.nn.Module, optional
         A module that aggregates the representations of r-cells obtained by convolutional layers.
-        Optional, default: None.
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultAggregate for more detail).
 
-    update_fn : torch.nn.Module
+    update_fn : torch.nn.Module, optional
         A module that updates the aggregated representations of r-cells.
-        Optional, default: None.
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultUpdate for more detail).
@@ -81,7 +77,7 @@ class CWNLayer(nn.Module):
         conv_0_to_1=None,
         aggregate_fn=None,
         update_fn=None,
-    ):
+    ) -> None:
         super().__init__()
         self.conv_1_to_1 = (
             conv_1_to_1
@@ -208,7 +204,7 @@ class _CWNDefaultFirstConv(nn.Module):
     a protocol for the first convolutional step in CWN layer.
     """
 
-    def __init__(self, in_channels_1, in_channels_2, out_channels):
+    def __init__(self, in_channels_1, in_channels_2, out_channels) -> None:
         super().__init__()
         self.conv_1_to_1 = Conv(
             in_channels_1, out_channels, aggr_norm=False, update_func=None
@@ -251,7 +247,7 @@ class _CWNDefaultSecondConv(nn.Module):
     a protocol for the second convolutional step in CWN layer.
     """
 
-    def __init__(self, in_channels_0, in_channels_1, out_channels):
+    def __init__(self, in_channels_0, in_channels_1, out_channels) -> None:
         super().__init__()
         self.conv_0_to_1 = Conv(
             in_channels_0, out_channels, aggr_norm=False, update_func=None
@@ -287,7 +283,7 @@ class _CWNDefaultAggregate(nn.Module):
     a protocol for the aggregation step in CWN layer.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def forward(self, x, y):
@@ -311,7 +307,7 @@ class _CWNDefaultAggregate(nn.Module):
 class _CWNDefaultUpdate(nn.Module):
     r"""Default implementation of an update step in CWNLayer."""
 
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels) -> None:
         super().__init__()
         self.transform = nn.Linear(in_channels, out_channels)
 

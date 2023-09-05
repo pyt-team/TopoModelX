@@ -56,10 +56,10 @@ class SCNNLayer(torch.nn.Module):
         out_channels,
         conv_order_down,
         conv_order_up,
-        aggr_norm=False,
+        aggr_norm: bool = False,
         update_func=None,
-        initialization="xavier_uniform",
-    ):
+        initialization: str = "xavier_uniform",
+    ) -> None:
         super().__init__()
 
         self.in_channels = in_channels
@@ -81,7 +81,7 @@ class SCNNLayer(torch.nn.Module):
 
         self.reset_parameters()
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414) -> None:
         r"""Reset learnable parameters.
 
         Notes

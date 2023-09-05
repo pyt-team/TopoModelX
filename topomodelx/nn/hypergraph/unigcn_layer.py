@@ -29,7 +29,9 @@ class UniGCNLayer(torch.nn.Module):
         Whether to normalize the aggregated message by the neighborhood size.
     """
 
-    def __init__(self, in_channels, out_channels, aggr_norm=False, use_bn=False):
+    def __init__(
+        self, in_channels, out_channels, aggr_norm: bool = False, use_bn: bool = False
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -48,7 +50,7 @@ class UniGCNLayer(torch.nn.Module):
         )
         self.bn = nn.BatchNorm1d(in_channels) if use_bn else None
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_level1_0_to_1.reset_parameters()
         self.conv_level2_1_to_0.reset_parameters()

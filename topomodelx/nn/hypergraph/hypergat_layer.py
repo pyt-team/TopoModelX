@@ -29,8 +29,8 @@ class HyperGATLayer(MessagePassing):
         self,
         in_channels,
         out_channels,
-        update_func="relu",
-        initialization="xavier_uniform",
+        update_func: str = "relu",
+        initialization: str = "xavier_uniform",
     ) -> None:
         super().__init__(initialization=initialization)
         self.in_channels = in_channels
@@ -48,7 +48,7 @@ class HyperGATLayer(MessagePassing):
         self.att_weight2 = torch.nn.Parameter(torch.zeros(size=(2 * out_channels, 1)))
         self.reset_parameters()
 
-    def reset_parameters(self, gain=1.414):
+    def reset_parameters(self, gain: float = 1.414):
         r"""Reset parameters."""
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight1, gain=gain)
@@ -67,7 +67,7 @@ class HyperGATLayer(MessagePassing):
                 "Should be either xavier_uniform or xavier_normal."
             )
 
-    def attention(self, x_source, x_target=None, mechanism="node-level"):
+    def attention(self, x_source, x_target=None, mechanism: str = "node-level"):
         r"""Compute attention weights for messages, as proposed in [DWLLL20].
 
         Parameters

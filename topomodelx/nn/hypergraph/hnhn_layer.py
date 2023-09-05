@@ -57,13 +57,13 @@ class HNHNLayer(torch.nn.Module):
         channels_node,
         channels_edge,
         incidence_1,
-        use_bias=True,
-        use_normalized_incidence=True,
-        alpha=-1.5,
-        beta=-0.5,
-        bias_gain=1.414,
-        bias_init="xavier_uniform",
-    ):
+        use_bias: bool = True,
+        use_normalized_incidence: bool = True,
+        alpha: float = -1.5,
+        beta: float = -0.5,
+        bias_gain: float = 1.414,
+        bias_init: str = "xavier_uniform",
+    ) -> None:
         super().__init__()
         self.use_bias = use_bias
         self.bias_init = bias_init
@@ -96,7 +96,7 @@ class HNHNLayer(torch.nn.Module):
             self.compute_normalization_matrices()
             self.normalize_incidence_matrices()
 
-    def compute_normalization_matrices(self):
+    def compute_normalization_matrices(self) -> None:
         """Compute the normalization matrices for the incidence matrices."""
         B1 = self.incidence_1.to_dense()
         edge_cardinality = (B1.sum(0)) ** self.alpha
@@ -123,7 +123,7 @@ class HNHNLayer(torch.nn.Module):
         self.D0_right_beta = torch.diag(node_cardinality)
         return
 
-    def normalize_incidence_matrices(self):
+    def normalize_incidence_matrices(self) -> None:
         """Normalize the incidence matrices."""
         self.incidence_1 = (
             self.D0_left_alpha_inverse
@@ -137,7 +137,7 @@ class HNHNLayer(torch.nn.Module):
         ).to_sparse()
         return
 
-    def init_biases(self):
+    def init_biases(self) -> None:
         """Initialize the bias."""
         for bias in [self.bias_0_to_1, self.bias_1_to_0]:
             if self.bias_init == "xavier_uniform":
@@ -145,7 +145,7 @@ class HNHNLayer(torch.nn.Module):
             elif self.bias_init == "xavier_normal":
                 torch.nn.init.xavier_normal_(bias, gain=self.bias_gain)
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset learnable parameters."""
         self.conv_1_to_0.reset_parameters()
         self.conv_0_to_1.reset_parameters()

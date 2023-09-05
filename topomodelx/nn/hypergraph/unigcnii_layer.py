@@ -21,7 +21,7 @@ class UniGCNIILayer(torch.nn.Module):
         2021. https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, alpha, beta):
+    def __init__(self, in_channels, alpha: float, beta: float) -> None:
         super().__init__()
 
         self.in_channels = in_channels
@@ -29,7 +29,7 @@ class UniGCNIILayer(torch.nn.Module):
         self.beta = beta
         self.linear = torch.nn.Linear(in_channels, in_channels, bias=False)
 
-    def reset_parameters(self):
+    def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
         self.linear.reset_parameters()
 
