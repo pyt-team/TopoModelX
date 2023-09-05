@@ -9,10 +9,10 @@ class Aggregation(torch.nn.Module):
 
     Parameters
     ----------
-    aggr_func : string
+    aggr_func : Literal["mean", "sum"], default="sum"
         Aggregation method.
         (Inter-neighborhood).
-    update_func : string
+    update_func : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
         Update method to apply to merged message.
     """
 

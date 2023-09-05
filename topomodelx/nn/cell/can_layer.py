@@ -1,6 +1,6 @@
 """Cell Attention Network layer."""
 
-from typing import Callable
+from typing import Callable, Literal
 
 import torch
 from torch import Tensor, nn, topk
@@ -396,9 +396,9 @@ class MultiHeadCellAttention(MessagePassing):
         Activation function to use for the attention weights.
     add_self_loops : bool, optional
         Whether to add self-loops to the adjacency matrix.
-    aggr_func : string, optional
-        Aggregation function to use. Options are "sum", "mean", "max".
-    initialization : string, optional
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
+        Aggregation function to use.
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method for the weights of the layer.
 
     Notes
@@ -423,14 +423,10 @@ class MultiHeadCellAttention(MessagePassing):
         concat: bool,
         att_activation: torch.nn.Module,
         add_self_loops: bool = False,
-        aggr_func: str = "sum",
-        initialization: str = "xavier_uniform",
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
-        super().__init__(
-            att=True,
-            initialization=initialization,
-            aggr_func=aggr_func,
-        )
+        super().__init__(aggr_func=aggr_func, att=True, initialization=initialization)
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -587,9 +583,9 @@ class MultiHeadCellAttention_v2(MessagePassing):
         Activation function to use for the attention weights.
     add_self_loops : bool, optional
         Whether to add self-loops to the adjacency matrix.
-    aggr_func : string, optional
-        Aggregation function to use. Options are "sum", "mean", "max".
-    initialization : string, optional
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
+        Aggregation function to use.
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method for the weights of the layer.
     share_weights : bool, optional
         Whether to share the weights between the attention heads.
@@ -616,14 +612,14 @@ class MultiHeadCellAttention_v2(MessagePassing):
         concat: bool,
         att_activation: torch.nn.Module,
         add_self_loops: bool = False,
-        aggr_func: str = "sum",
-        initialization: str = "xavier_uniform",
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         share_weights: bool = False,
     ) -> None:
         super().__init__(
+            aggr_func=aggr_func,
             att=True,
             initialization=initialization,
-            aggr_func=aggr_func,
         )
 
         self.in_channels = in_channels
@@ -797,27 +793,30 @@ class CANLayer(torch.nn.Module):
         Dimension of input features on n-cells.
     out_channels : int
         Dimension of output
-    heads : int, optional
-        Number of attention heads, by default 1
+    heads : int, default=1
+        Number of attention heads
     dropout : float, optional
-        Dropout probability of the normalized attention coefficients, by default 0.0
-    concat : bool, optional
-        If True, the output of each head is concatenated. Otherwise, the output of each head is averaged, by default True
-    skip_connection : bool, optional
-        If True, skip connection is added, by default True
+        Dropout probability of the normalized attention coefficients.
+    concat : bool, default=True
+        If True, the output of each head is concatenated. Otherwise, the output of each head is averaged.
+    skip_connection : bool, default=True
+        If True, skip connection is added.
     add_self_loops : bool, optional
-        If True, self-loops are added to the neighborhood matrix, by default False
-    att_activation : Callable, optional
-        Activation function applied to the attention coefficients, by default torch.nn.LeakyReLU()
-    aggr_func : str, optional
-        Between-neighborhood aggregation function applied to the messages, by default "sum"
-    update_func : str, optional
-        Update function applied to the messages, by default "relu"
-    version : str, optional
+        If True, self-loops are added to the neighborhood matrix.
+    att_activation : Callable, default=torch.nn.LeakyReLU()
+        Activation function applied to the attention coefficients.
+    aggr_func : Literal["mean", "sum"], default="sum"
+        Between-neighborhood aggregation function applied to the messages.
+    update_func : Literal["relu", "sigmoid", "tanh", None], default="relu"
+        Update function applied to the messages.
+    version : Literal["v1", "v2"], default="v1"
         Version of the layer, by default "v1" which is the same as the original CAN layer. While "v2" has the same attetion mechanism as the GATv2 layer.
-    share_weights : bool, optional
+    share_weights : bool, default=False
         This option is valid only for "v2". If True, the weights of the linear transformation applied to the source and target features are shared, by default False
     """
+
+    lower_att: MultiHeadCellAttention | MultiHeadCellAttention_v2
+    upper_att: MultiHeadCellAttention | MultiHeadCellAttention_v2
 
     def __init__(
         self,
@@ -829,9 +828,9 @@ class CANLayer(torch.nn.Module):
         skip_connection: bool = True,
         att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
         add_self_loops: bool = False,
-        aggr_func: str = "sum",
-        update_func: str = "relu",
-        version: str = "v1",
+        aggr_func: Literal["mean", "sum"] = "sum",
+        update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
+        version: Literal["v1", "v2"] = "v1",
         share_weights: bool = False,
         **kwargs,
     ) -> None:
@@ -841,7 +840,7 @@ class CANLayer(torch.nn.Module):
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
         assert heads > 0, ValueError("Number of heads must be > 0")
         assert dropout >= 0.0 and dropout <= 1.0, ValueError("Dropout must be in [0,1]")
-        assert version in ["v1", "v2"], ValueError("Version must be 'v1' or 'v2'")
+
         # assert that shared weight is True only if version is v2
         assert share_weights is False or version == "v2", ValueError(
             "Shared weights is valid only for v2"

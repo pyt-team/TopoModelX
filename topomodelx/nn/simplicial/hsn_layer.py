@@ -25,8 +25,6 @@ class HSNLayer(torch.nn.Module):
     ----------
     channels : int
         Dimension of features on each simplicial cell.
-    initialization : string
-        Initialization method.
     """
 
     def __init__(

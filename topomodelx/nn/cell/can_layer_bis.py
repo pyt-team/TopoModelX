@@ -1,4 +1,6 @@
 """Cellular Attention Network Layer."""
+from typing import Literal
+
 import torch
 from torch.nn.parameter import Parameter
 
@@ -50,23 +52,24 @@ class CANLayer(torch.nn.Module):
     ----------
     channels : int
         Dimension of input features on edges (1-cells).
-    activation : string
-        Activation function to apply to merged message
+    activation : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
+        Activation function to apply to merged message.
     att : bool
         Whether to use attention.
     eps : float
         Epsilon used in the attention mechanism.
-    initialization : string
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
     """
 
     def __init__(
         self,
         channels,
-        activation: str = "sigmoid",
+        activation: Literal["relu", "sigmoid", "tanh"] | None = "sigmoid",
         att: bool = True,
         eps: float = 1e-5,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization_gain: float = 1.414,
     ) -> None:
         super().__init__()
         # Do I need upper and lower convolution layers? Since I think they will have different parameters

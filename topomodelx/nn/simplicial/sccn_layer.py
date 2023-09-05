@@ -1,4 +1,6 @@
 """Simplicial Complex Convolutional Network (SCCN) Layer [Yang et al. LoG 2022]."""
+from typing import Literal
+
 import torch
 
 from topomodelx.base.aggregation import Aggregation
@@ -37,9 +39,9 @@ class SCCNLayer(torch.nn.Module):
         Dimension of features on each simplicial cell.
     max_rank : int
         Maximum rank of the cells in the simplicial complex.
-    aggr_func : str
+    aggr_func : Literal["mean", "sum"], default="sum"
         The function to be used for aggregation.
-    update_func : str
+    update_func : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
         The activation function.
     """
 
@@ -47,8 +49,8 @@ class SCCNLayer(torch.nn.Module):
         self,
         channels,
         max_rank,
-        aggr_func: str = "sum",
-        update_func: str = "sigmoid",
+        aggr_func: Literal["mean", "sum"] = "sum",
+        update_func: Literal["relu", "sigmoid", "tanh"] | None = "sigmoid",
     ) -> None:
         super().__init__()
         self.channels = channels

@@ -1,4 +1,6 @@
 """HMPNN (Hypergraph Message Passing Neural Network) Layer introduced in Heydari et Livi 2022."""
+from typing import Literal
+
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -21,7 +23,10 @@ class _AdjacencyDropoutMixin:
 
 class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
     def __init__(
-        self, messaging_func, adjacency_dropout: float = 0.7, aggr_func: str = "sum"
+        self,
+        messaging_func,
+        adjacency_dropout: float = 0.7,
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
     ) -> None:
         super().__init__(aggr_func)
         self.messaging_func = messaging_func
@@ -46,7 +51,7 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
         self,
         messaging_func,
         adjacency_dropout: float = 0.7,
-        aggr_func: str = "sum",
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
     ) -> None:
         super().__init__(aggr_func)
         self.messaging_func = messaging_func
@@ -116,8 +121,8 @@ class HMPNNLayer(nn.Module):
         to the paper.
     adjacency_dropout: 0.7
         Adjacency dropout rate.
-    aggr_func: "sum"
-        Message aggregation function. A value among "sum", "mean" and "add".
+    aggr_func: Literal["sum", "mean", "add"], default="sum"
+        Message aggregation function.
     updating_dropout: 0.5
         Regular dropout rate applied to node and hyperedge features.
     updating_func: None
@@ -132,7 +137,7 @@ class HMPNNLayer(nn.Module):
         node_to_hyperedge_messaging_func=None,
         hyperedge_to_node_messaging_func=None,
         adjacency_dropout: float = 0.7,
-        aggr_func: str = "sum",
+        aggr_func: Literal["sum", "mean", "add"] = "sum",
         updating_dropout: float = 0.5,
         updating_func=None,
     ) -> None:

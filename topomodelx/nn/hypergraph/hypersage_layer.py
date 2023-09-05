@@ -1,5 +1,6 @@
 """HyperSAGE layer."""
 import math
+from typing import Literal
 
 import torch
 
@@ -12,12 +13,12 @@ class GeneralizedMean(Aggregation):
 
     Parameters
     ----------
-    power : int.
-        Power for the generalized mean. Default is 2.
+    power : int, default=2
+        Power for the generalized mean.
     """
 
     def __init__(self, power: int = 2, **kwargs) -> None:
-        super().__init__(aggr_func="generalized_mean", **kwargs)
+        super().__init__(**kwargs)
         self.power = power
 
     def forward(self, x: torch.Tensor):
@@ -28,7 +29,7 @@ class GeneralizedMean(Aggregation):
         x : torch.Tensor
         """
         n = x.size()[-2]
-        x = torch.sum(torch.pow(x, self.power), axis=-2) / n
+        x = torch.sum(torch.pow(x, self.power), -2) / n
         x = torch.pow(x, 1 / self.power)
 
         return x
@@ -49,16 +50,16 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    aggr_func_intra: Aggregation
+    aggr_func_intra : Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
-    aggr_func_inter: Aggregation
+    aggr_func_inter : Aggregation
         Aggregation function. Default is GeneralizedMean(p=2).
-    update_func : string
-        Update method to apply to message. Default is "relu".
-    initialization : string
-        Initialization method. Default is "uniform".
-    device : string
-        Device name to train layer on. Default is "cpu".
+    update_func : Literal["relu", "sigmoid"], default="relu"
+        Update method to apply to message.
+    initialization : Literal["uniform", "xavier_uniform", "xavier_normal"], default="uniform"
+        Initialization method.
+    device : str, default="cpu"
+        Device name to train layer on.
     """
 
     def __init__(
@@ -67,8 +68,10 @@ class HyperSAGELayer(MessagePassing):
         out_channels: int,
         aggr_func_intra: Aggregation = GeneralizedMean(power=2, update_func=None),
         aggr_func_inter: Aggregation = GeneralizedMean(power=2, update_func=None),
-        update_func: str = "relu",
-        initialization: str = "uniform",
+        update_func: Literal["relu", "sigmoid"] = "relu",
+        initialization: Literal[
+            "uniform", "xavier_uniform", "xavier_normal"
+        ] = "uniform",
         device: str = "cpu",
     ) -> None:
         super().__init__()
@@ -101,7 +104,7 @@ class HyperSAGELayer(MessagePassing):
             )
 
     def update(
-        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor = None
+        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor | None = None
     ) -> torch.Tensor:
         r"""Update embeddings on each node (step 4).
 
@@ -119,6 +122,7 @@ class HyperSAGELayer(MessagePassing):
             return torch.nn.functional.sigmoid(x_message_on_target)
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
+        raise RuntimeError("Update function not recognized.")
 
     def aggregate(self, x_messages: torch.Tensor, mode: str = "intra"):
         """Aggregate messages on each target cell.

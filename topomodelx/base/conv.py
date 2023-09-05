@@ -1,4 +1,5 @@
 """Convolutional layer for message passing."""
+from typing import Literal
 
 import torch
 from torch.nn.parameter import Parameter
@@ -20,11 +21,11 @@ class Conv(MessagePassing):
         Dimension of output features.
     aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
-    update_func : string, optional
+    update_func : Literal["relu", "sigmoid"], optional
         Update method to apply to message.
     att : bool, default=False
         Whether to use attention.
-    initialization : string
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
     with_linear_transform: bool
         Whether to apply a learnable linear transform.
@@ -36,9 +37,10 @@ class Conv(MessagePassing):
         in_channels,
         out_channels,
         aggr_norm: bool = False,
-        update_func=None,
+        update_func: Literal["relu", "sigmoid"] | None = None,
         att: bool = False,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization_gain: float = 1.414,
         with_linear_transform: bool = True,
     ) -> None:
         super().__init__(

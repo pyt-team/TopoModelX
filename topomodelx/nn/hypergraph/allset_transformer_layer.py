@@ -1,4 +1,6 @@
 """AllSetTransformer Layer Module."""
+from typing import Literal
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -273,7 +275,7 @@ class MultiHeadAttention(MessagePassing):
         Number of attention heads.
     number_queries : int, default=1
         Number of queries.
-    initialization : str, default="xavier_uniform"
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
     """
 
@@ -285,7 +287,8 @@ class MultiHeadAttention(MessagePassing):
         update_func=None,
         heads: int = 4,
         number_queries: int = 1,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization_gain: float = 1.414,
     ) -> None:
         super().__init__(
             att=True,
@@ -429,7 +432,7 @@ class MLP(nn.Sequential):
         bias: bool = False,
     ) -> None:
         params = {} if inplace is None else {"inplace": inplace}
-        layers = []
+        layers: list[nn.Module] = []
         in_dim = in_channels
         for hidden_dim in hidden_channels[:-1]:
             layers.append(nn.Linear(in_dim, hidden_dim, bias=bias))

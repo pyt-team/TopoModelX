@@ -1,4 +1,6 @@
 """Simplicial Attention Network (SAN) Layer."""
+from typing import Literal
+
 import torch
 from torch.nn.parameter import Parameter
 
@@ -16,8 +18,8 @@ class SANConv(Conv):
         Number of output channels.
     p_filters : int
         Number of simplicial filters.
-    initialization : str, optional
-        Weight initialization method. Defaults to "xavier_uniform".
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+        Weight initialization method.
     """
 
     def __init__(
@@ -25,7 +27,7 @@ class SANConv(Conv):
         in_channels,
         out_channels,
         p_filters,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
         super(Conv, self).__init__(
             att=True,
