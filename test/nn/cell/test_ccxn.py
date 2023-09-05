@@ -1,13 +1,12 @@
-"""Unit tests for CCXN"""
+"""Unit tests for CCXN."""
 
-from toponetx.classes.cell_complex import CellComplex
-import torch
-import networkx as nx
-import torch.nn.functional as F
-from topomodelx.nn.cell.ccxn_layer import CCXNLayer
-from topomodelx.nn.cell.ccxn import CCXN
-import random
 import itertools
+import random
+
+import torch
+
+from topomodelx.nn.cell.ccxn import CCXN
+from toponetx.classes.cell_complex import CellComplex
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -17,7 +16,6 @@ class TestCCXN:
 
     def test_forward(self):
         """Test the forward method of CCXN."""
-
         faces = 14
         node_creation = 17
         nodes_per_face = 3

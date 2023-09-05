@@ -1,13 +1,11 @@
-"""Unit tests for CWN"""
-
-from toponetx.classes.cell_complex import CellComplex
-import torch
-import networkx as nx
-import torch.nn.functional as F
-from topomodelx.nn.cell.cwn_layer import CWNLayer
-from topomodelx.nn.cell.cwn import CWN
-import random
+"""Unit tests for CWN."""
 import itertools
+import random
+
+import torch
+
+from topomodelx.nn.cell.cwn import CWN
+from toponetx.classes.cell_complex import CellComplex
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -17,7 +15,6 @@ class TestCWN:
 
     def test_forward(self):
         """Test the forward method of CWN."""
-
         faces = 14
         node_creation = 17
         nodes_per_face = 3

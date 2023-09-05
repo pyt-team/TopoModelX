@@ -1,11 +1,7 @@
-"""Unit tests for CAN"""
-
-from toponetx.classes.cell_complex import CellComplex
-from torch_geometric.utils.convert import to_networkx
-import torch
+"""Unit tests for CAN."""
 import networkx as nx
-import torch.nn.functional as F
-from topomodelx.nn.cell.can_layer import CANLayer, PoolLayer, LiftLayer
+import torch
+
 from topomodelx.nn.cell.can import CAN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -16,7 +12,6 @@ class TestCAN:
 
     def test_forward(self):
         """Test the forward method of CAN."""
-
         nodes = 17
         edges = 38
         node_features = 7
@@ -60,7 +55,7 @@ class TestCAN:
         )
 
     def test_forward_without_attn(self):
-        """Test the forward method of CAN.(without attn)"""
+        """Test the forward method of CAN.(without attn)."""
         nodes = 17
         edges = 38
         node_features = 7
