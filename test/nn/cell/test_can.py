@@ -96,8 +96,8 @@ class TestCAN:
             att_lift=False,
         ).to(device)
         for layer in model.children():
-        if hasattr(layer, 'reset_parameters'):
-            layer.reset_parameters()
+            if hasattr(layer, 'reset_parameters'):
+                layer.reset_parameters()
         for module in model.modules():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
