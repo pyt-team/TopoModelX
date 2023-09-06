@@ -1,4 +1,6 @@
 """Template Layer with two conv passing steps."""
+from typing import Literal
+
 import torch
 from torch.nn.parameter import Parameter
 
@@ -48,7 +50,7 @@ class HNHNLayer(torch.nn.Module):
         Scalar controlling the importance of node cardinality.
     bias_gain : float
         Gain for the bias initialization.
-    bias_init : string ["xavier_uniform"|"xavier_normal"]
+    bias_init : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Controls the bias initialization method.
     """
 
@@ -62,7 +64,7 @@ class HNHNLayer(torch.nn.Module):
         alpha: float = -1.5,
         beta: float = -0.5,
         bias_gain: float = 1.414,
-        bias_init: str = "xavier_uniform",
+        bias_init: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
         super().__init__()
         self.use_bias = use_bias
