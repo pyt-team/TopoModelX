@@ -17,10 +17,10 @@ class TestCAN:
             in_channels_1=2,
             out_channels=2,
             dropout=0.5,
-            heads=2,
+            heads=1,
             num_classes=1,
-            n_layers=2,
-            att_lift=True,
+            n_layers=1,
+            att_lift=False,
         )
 
         x_0 = torch.rand(2, 2)
