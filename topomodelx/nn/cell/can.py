@@ -1,9 +1,13 @@
-from topomodelx.nn.cell.can_layer import CANLayer, MultiHeadLiftLayer, PoolLayer
+"""CAN Model."""
 import torch
 import torch.nn.functional as F
 
+from topomodelx.nn.cell.can_layer import CANLayer, MultiHeadLiftLayer, PoolLayer
+
 
 class CAN(torch.nn.Module):
+    """CAN Model."""
+
     def __init__(
         self,
         in_channels_0,
@@ -21,18 +25,19 @@ class CAN(torch.nn.Module):
         """
         CAN (Cell Attention Network) module for graph classification.
 
-        Args:
-            in_channels_0 (int): Number of input channels for the node-level input.
-            in_channels_1 (int): Number of input channels for the edge-level input.
-            out_channels (int): Number of output channels.
-            num_classes (int): Number of output classes.
-            dropout (float, optional): Dropout probability. Default is 0.5.
-            heads (int, optional): Number of attention heads. Default is 3.
-            concat (bool, optional): Whether to concatenate the output channels of attention heads. Default is True.
-            skip_connection (bool, optional): Whether to use skip connections. Default is True.
-            att_activation (torch.nn.Module, optional): Activation function for attention mechanism. Default is torch.nn.LeakyReLU(0.2).
-            n_layers (int, optional): Number of CAN layers. Default is 2.
-            att_lift (bool, optional): Whether to apply a lift the signal from node-level to edge-level input. Default is True.
+        Parameters
+        ----------
+        in_channels_0 (int): Number of input channels for the node-level input.
+        in_channels_1 (int): Number of input channels for the edge-level input.
+        out_channels (int): Number of output channels.
+        num_classes (int): Number of output classes.
+        dropout (float, optional): Dropout probability. Default is 0.5.
+        heads (int, optional): Number of attention heads. Default is 3.
+        concat (bool, optional): Whether to concatenate the output channels of attention heads. Default is True.
+        skip_connection (bool, optional): Whether to use skip connections. Default is True.
+        att_activation (torch.nn.Module, optional): Activation function for the attention mechanism. Default is torch.nn.LeakyReLU(0.2).
+        n_layers (int, optional): Number of CAN layers. Default is 2.
+        att_lift (bool, optional): Whether to apply a lift to the signal from node-level to edge-level input. Default is True.
         """
         super().__init__()
 
@@ -90,6 +95,7 @@ class CAN(torch.nn.Module):
     def forward(
         self, x_0, x_1, neighborhood_0_to_0, lower_neighborhood, upper_neighborhood
     ):
+        """Forward function."""
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)
 
