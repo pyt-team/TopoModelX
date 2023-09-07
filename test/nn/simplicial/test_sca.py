@@ -8,7 +8,7 @@ from toponetx.classes import SimplicialComplex as sc
 from topomodelx.nn.simplicial.sca import AMPSSCA
 
 
-class TestDist2Layer:
+class TestSCA:
     """Unit tests for the SCA model class."""
 
     def test_forward(self):

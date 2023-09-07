@@ -8,7 +8,7 @@ from toponetx.classes import SimplicialComplex as sc
 from topomodelx.nn.simplicial.sccn import SCCN
 
 
-class TestDist2Layer:
+class TestSCCN:
     """Unit tests for the SCCN model class."""
 
     def test_forward(self):
