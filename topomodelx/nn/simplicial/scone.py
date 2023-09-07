@@ -1,4 +1,8 @@
 """Neural network implementation of classification using SCoNe."""
+import random
+from itertools import product
+
+import networkx as nx
 import numpy as np
 import torch
 from scipy.spatial import Delaunay, distance
@@ -46,6 +50,38 @@ def generate_complex(N: int = 100) -> tuple[SimplicialComplex, np.ndarray]:
     sc = SimplicialComplex(simplices)
     coords = points[list(indices_included)]
     return sc, coords
+
+
+def generate_trajectories(
+    sc: SimplicialComplex, coords: np.ndarray, n_max: int = 1000
+) -> list[list[int]]:
+    """Generate trajectories from nodes in the lower left corner to the upper right corner connected through a node in the middle."""
+    # Get indices for start points in the lower left corner, mid points in the center region and end points in the upper right corner.
+    N = len(sc)
+    start_nodes = list(range(0, int(0.2 * N)))
+    mid_nodes = list(range(int(0.4 * N), int(0.5 * N)))
+    end_nodes = list(range(int(0.8 * N), N))
+    all_triplets = list(product(start_nodes, mid_nodes, end_nodes))
+
+    assert (
+        len(all_triplets) >= n_max
+    ), f"Only {len(all_triplets)} valid paths, but {n_max} requested. Try increasing the number of points in the simplicial complex."
+    triplets = random.sample(all_triplets, n_max)
+
+    # Compute pairwise distances and create a matrix representing the underlying graph.
+    distance_matrix = distance.squareform(distance.pdist(coords))
+    graph = sc.adjacency_matrix(0).toarray() * distance_matrix
+    G = nx.from_numpy_array(graph)
+
+    # Find shortest paths
+    trajectories = []
+    for s, m, e in triplets:
+        path_1 = nx.shortest_path(G, s, m, weight="weight")
+        path_2 = nx.shortest_path(G, m, e, weight="weight")
+        trajectory = path_1[:-1] + path_2
+        trajectories.append(trajectory)
+
+    return trajectories
 
 
 class TrajectoriesDataset(Dataset):
