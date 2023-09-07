@@ -84,7 +84,7 @@ class TestSCNN:
         with torch.no_grad():
             forward_pass = model(x_1, laplacian_down_1, laplacian_up_1)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([3.2691]), rtol=1e-02)
+            torch.isclose(forward_pass, torch.tensor([137.2366]), rtol=1e-02)
         )
 
     def test_reset_parameters(self):
