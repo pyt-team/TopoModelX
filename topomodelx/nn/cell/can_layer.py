@@ -3,7 +3,7 @@
 from typing import Callable, Literal
 
 import torch
-from torch import Tensor, nn, topk
+from torch import nn, topk
 from torch.nn import Linear, Parameter
 from torch.nn import functional as F
 from torch.nn import init
@@ -139,7 +139,7 @@ class LiftLayer(MessagePassing):
 
         return edge_signal  # (num_edges, heads)
 
-    def forward(self, x_0, neighborhood_0_to_0) -> Tensor:
+    def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:
         """Forward pass.
 
         Parameters
@@ -321,7 +321,7 @@ class PoolLayer(MessagePassing):
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
-    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
+    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         r"""Forward pass.
 
         .. math::
@@ -912,7 +912,7 @@ class CANLayer(torch.nn.Module):
         if hasattr(self, "lin"):
             self.lin.reset_parameters()
 
-    def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
+    def forward(self, x, lower_neighborhood, upper_neighborhood) -> torch.Tensor:
         r"""Forward pass.
 
         .. math::
