@@ -15,7 +15,7 @@ class TestHNHN:
 
         incidence = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
         incidence = incidence.float().to(device)
-        model = HyperGAT(in_channels=2, out_channels=2, n_layers=1).to(device)
+        model = HyperGAT(in_channels=2, out_channels=2, n_layers=2).to(device)
 
         x_0 = torch.rand(2, 2)
 

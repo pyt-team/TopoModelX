@@ -17,7 +17,7 @@ class TestAllSetTransfomer:
             hidden_channels=2,
             heads=1,
             out_channels=1,
-            n_layers=1,
+            n_layers=2,
             mlp_num_layers=1,
         )
 

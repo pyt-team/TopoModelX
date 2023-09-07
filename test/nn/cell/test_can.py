@@ -19,14 +19,14 @@ class TestCAN:
             dropout=0.5,
             heads=1,
             num_classes=1,
-            n_layers=1,
+            n_layers=2,
             att_lift=False,
         )
 
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)
 
-        adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        adjacency_1 = torch.from_numpy(np.random.rand(2, 4)).to_sparse()
 
         x_0, x_1 = (
             torch.tensor(x_0).float().to(device),
