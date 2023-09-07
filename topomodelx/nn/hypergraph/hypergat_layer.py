@@ -35,7 +35,9 @@ class HyperGATLayer(MessagePassing):
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         initialization_gain: float = 1.414,
     ) -> None:
-        super().__init__(initialization=initialization)
+        super().__init__(
+            initialization=initialization, initialization_gain=initialization_gain
+        )
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.update_func = update_func
@@ -51,19 +53,27 @@ class HyperGATLayer(MessagePassing):
         self.att_weight2 = torch.nn.Parameter(torch.zeros(size=(2 * out_channels, 1)))
         self.reset_parameters()
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         r"""Reset parameters."""
         if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.weight1, gain=gain)
-            torch.nn.init.xavier_uniform_(self.weight2, gain=gain)
-            torch.nn.init.xavier_uniform_(self.att_weight1.view(-1, 1), gain=gain)
-            torch.nn.init.xavier_uniform_(self.att_weight2.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_uniform_(self.weight1, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.weight2, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(
+                self.att_weight1.view(-1, 1), gain=self.initialization_gain
+            )
+            torch.nn.init.xavier_uniform_(
+                self.att_weight2.view(-1, 1), gain=self.initialization_gain
+            )
 
         elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.weight1, gain=gain)
-            torch.nn.init.xavier_normal_(self.weight2, gain=gain)
-            torch.nn.init.xavier_normal_(self.att_weight1.view(-1, 1), gain=gain)
-            torch.nn.init.xavier_normal_(self.att_weight2.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_normal_(self.weight1, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.weight2, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(
+                self.att_weight1.view(-1, 1), gain=self.initialization_gain
+            )
+            torch.nn.init.xavier_normal_(
+                self.att_weight2.view(-1, 1), gain=self.initialization_gain
+            )
         else:
             raise ValueError(
                 "Initialization method not recognized. "
@@ -92,7 +102,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         if mechanism == "node-level":
@@ -129,7 +139,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
