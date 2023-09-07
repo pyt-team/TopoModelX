@@ -46,6 +46,7 @@ class Conv(MessagePassing):
         super().__init__(
             att=att,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
         self.in_channels = in_channels
         self.out_channels = out_channels

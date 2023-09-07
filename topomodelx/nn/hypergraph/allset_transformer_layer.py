@@ -163,6 +163,8 @@ class AllSetTransformerBlock(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+        Initialization method.
     """
 
     def __init__(
@@ -213,7 +215,9 @@ class AllSetTransformerBlock(nn.Module):
         self.multihead_att.reset_parameters()
         self.ln0.reset_parameters()
         self.ln1.reset_parameters()
-        if callable(self.mlp.reset_parameters):
+        if hasattr(self.mlp, "reset_parameters") and callable(
+            self.mlp.reset_parameters
+        ):
             self.mlp.reset_parameters()
 
     def forward(self, x_source, neighborhood):
@@ -276,6 +280,8 @@ class MultiHeadAttention(MessagePassing):
         Number of queries.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
+    initialization_gain : float, default=1.414
+        Gain factor for initialization.
     """
 
     def __init__(
@@ -292,6 +298,7 @@ class MultiHeadAttention(MessagePassing):
         super().__init__(
             att=True,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
 
         self.in_channels = in_channels
@@ -313,17 +320,17 @@ class MultiHeadAttention(MessagePassing):
             torch.randn(self.heads, self.in_channels, self.hidden_channels)
         )
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         r"""Reset learnable parameters."""
         if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.K_weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.Q_weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.V_weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.K_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.Q_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.V_weight, gain=self.initialization_gain)
 
         elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.K_weight, gain=gain)
-            torch.nn.init.xavier_normal_(self.Q_weight, gain=gain)
-            torch.nn.init.xavier_normal_(self.V_weight, gain=gain)
+            torch.nn.init.xavier_normal_(self.K_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.Q_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.V_weight, gain=self.initialization_gain)
 
         else:
             raise RuntimeError(

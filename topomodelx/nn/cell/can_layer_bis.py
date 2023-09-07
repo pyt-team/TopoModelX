@@ -72,24 +72,29 @@ class CANLayer(torch.nn.Module):
         initialization_gain: float = 1.414,
     ) -> None:
         super().__init__()
+        self.initialization_gain = initialization_gain
+
         # Do I need upper and lower convolution layers? Since I think they will have different parameters
         self.conv_down = Conv(
             in_channels=channels,
             out_channels=channels,
             att=att,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
         self.conv_up = Conv(
             in_channels=channels,
             out_channels=channels,
             att=att,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
         self.conv_id = Conv(
             in_channels=channels,
             out_channels=channels,
             att=False,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
         self.aggr = Aggregation(update_func=activation)
         self.eps = eps
@@ -99,7 +104,7 @@ class CANLayer(torch.nn.Module):
             self.att_weight = Parameter(torch.Tensor(channels, 1))
         self.reset_parameters()
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         """Reset learnable parameters.
 
         Parameters
@@ -107,14 +112,18 @@ class CANLayer(torch.nn.Module):
         gain : float
             Gain for the weight initialization.
         """
-        self.conv_down.reset_parameters(gain=gain)
-        self.conv_up.reset_parameters(gain=gain)
-        self.conv_id.reset_parameters(gain=gain)
+        self.conv_down.reset_parameters()
+        self.conv_up.reset_parameters()
+        self.conv_id.reset_parameters()
         if self.att:
             if self.initialization == "xavier_uniform":
-                torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
+                torch.nn.init.xavier_uniform_(
+                    self.att_weight.view(-1, 1), gain=self.initialization_gain
+                )
             elif self.initialization == "xavier_normal":
-                torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
+                torch.nn.init.xavier_normal_(
+                    self.att_weight.view(-1, 1), gain=self.initialization_gain
+                )
             else:
                 raise RuntimeError(
                     "Initialization method not recognized. "

@@ -1,5 +1,4 @@
 """HyperSAGE layer."""
-import math
 from typing import Literal
 
 import torch
@@ -74,34 +73,21 @@ class HyperSAGELayer(MessagePassing):
         ] = "uniform",
         device: str = "cpu",
     ) -> None:
-        super().__init__()
+        super().__init__(
+            initialization=initialization,
+        )
 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.aggr_func_intra = aggr_func_intra
         self.aggr_func_inter = aggr_func_inter
         self.update_func = update_func
-        self.initialization = initialization
         self.device = device
 
         self.weight = torch.nn.Parameter(
             torch.Tensor(self.in_channels, self.out_channels).to(device=self.device)
         )
         self.reset_parameters()
-
-    def reset_parameters(self):
-        r"""Reset parameters."""
-        if self.initialization == "uniform":
-            assert self.out_channels > 0, "out_features should be greater than 0"
-            stdv = 1.0 / math.sqrt(self.out_channels)
-            self.weight.data.uniform_(-stdv, stdv)
-        elif self.initialization == "xavier_uniform":
-            super().reset_parameters()
-        else:
-            raise ValueError(
-                "Initialization method not recognized. "
-                "Should be either uniform or xavier_uniform."
-            )
 
     def update(
         self, x_message_on_target: torch.Tensor, x_target: torch.Tensor | None = None
