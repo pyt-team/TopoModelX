@@ -52,7 +52,5 @@ class Dist2Cycle(torch.nn.Module):
             One-hot labels assigned to nodes.
 
         """
-        for layer in self.layers:
-            x_1 = layer(x_1e, Linv, adjacency)
-        logits = self.linear(x_1)
+        logits = self.linear(x_1e)
         return torch.softmax(logits, dim=-1)
