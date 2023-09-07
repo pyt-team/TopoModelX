@@ -160,14 +160,14 @@ class HyperSAGELayer(MessagePassing):
                 "Aggregation mode not recognized.\nShould be either intra or inter."
             )
 
-    def forward(self, x: torch.Tensor, incidence: torch.sparse):
+    def forward(self, x: torch.Tensor, incidence: torch.Tensor):  # type: ignore[override]
         r"""Forward pass.
 
         Parameters
         ----------
         x : torch.Tensor
             Input features.
-        incidence : torch.sparse
+        incidence : torch.Tensor
             Incidence matrix between node/hyperedges.
 
         Returns

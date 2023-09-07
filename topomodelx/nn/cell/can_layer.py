@@ -115,17 +115,17 @@ class LiftLayer(MessagePassing):
         super(LiftLayer, self).__init__()
 
         self.in_channels_0 = in_channels_0
-        self.att = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
+        self.att_parameter = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
         self.signal_lift_activation = signal_lift_activation
         self.signal_lift_dropout = signal_lift_dropout
 
     def reset_parameters(self) -> None:
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         gain = nn.init.calculate_gain("relu")
-        nn.init.xavier_uniform_(self.att.data, gain=gain)
+        nn.init.xavier_uniform_(self.att_parameter.data, gain=gain)
 
     def message(self, x_source, x_target=None):
-        """Construct message from source 0-cells to target 1-cell."""
+        """Construct a message from source 0-cells to target 1-cell."""
         # Concatenate source and target node feature vectors
         node_features_stacked = torch.cat(
             (x_source, x_target), dim=1
@@ -133,13 +133,13 @@ class LiftLayer(MessagePassing):
 
         # Compute the output edge signal by applying the activation function
         edge_signal = torch.einsum(
-            "ij,jh->ih", node_features_stacked, self.att
+            "ij,jh->ih", node_features_stacked, self.att_parameter
         )  # (num_edges, heads)
         edge_signal = self.signal_lift_activation(edge_signal)  # (num_edges, heads)
 
         return edge_signal  # (num_edges, heads)
 
-    def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:
+    def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:  # type: ignore[override]
         """Forward pass.
 
         Parameters
@@ -321,7 +321,7 @@ class PoolLayer(MessagePassing):
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
-    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]
         r"""Forward pass.
 
         .. math::

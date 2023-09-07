@@ -112,104 +112,6 @@ class AllSetLayer(nn.Module):
         return x
 
 
-class AllSetBlock(nn.Module):
-    """AllSet Block Module.
-
-    A module for AllSet block in a bipartite graph.
-
-    Parameters
-    ----------
-    in_channels : int
-        Dimension of the input features.
-    hidden_channels : int
-        Dimension of the hidden features.
-    dropout : float, default=0.2
-        Dropout probability.
-    mlp_num_layers : int, default=2
-        Number of layers in the MLP.
-    mlp_activation : callable or None, optional
-        Activation function in the MLP.
-    mlp_dropout : float, optional
-        Dropout probability in the MLP.
-    mlp_norm : callable or None, optional
-        Type of layer normalization in the MLP.
-    """
-
-    encoder: nn.Module
-    decoder: nn.Module
-
-    def __init__(
-        self,
-        in_channels,
-        hidden_channels,
-        dropout: float = 0.2,
-        mlp_num_layers: int = 2,
-        mlp_activation=nn.ReLU,
-        mlp_dropout: float = 0.0,
-        mlp_norm=None,
-    ) -> None:
-        super(AllSetBlock, self).__init__()
-
-        self.dropout = dropout
-        if mlp_num_layers > 0:
-            mlp_hidden_channels = [hidden_channels] * mlp_num_layers
-            self.encoder = MLP(
-                in_channels,
-                mlp_hidden_channels,
-                norm_layer=mlp_norm,
-                activation_layer=mlp_activation,
-                dropout=mlp_dropout,
-            )
-            self.decoder = MLP(
-                hidden_channels,
-                mlp_hidden_channels,
-                norm_layer=mlp_norm,
-                activation_layer=mlp_activation,
-                dropout=mlp_dropout,
-            )
-            in_channels = hidden_channels
-        else:
-            self.encoder = nn.Identity()
-            self.decoder = nn.Identity()
-
-        self.conv = Conv(
-            in_channels=in_channels,
-            out_channels=hidden_channels,
-            aggr_norm=True,
-            update_func="relu",
-            att=False,
-        )
-
-    def reset_parameters(self) -> None:
-        """Reset learnable parameters."""
-        self.encoder.reset_parameters()
-        self.decoder.reset_parameters()
-        self.conv.reset_parameters()
-
-    def forward(self, x, incidence):
-        """
-        Forward computation.
-
-        Parameters
-        ----------
-        x : torch.Tensor
-            Input features.
-        incidence : torch.sparse
-            Incidence matrix between node/hyperedges
-
-        Returns
-        -------
-        x : torch.Tensor
-            Output features.
-        """
-        x = F.relu(self.encoder(x))
-        x = F.dropout(x, p=self.dropout, training=self.training)
-        x = self.conv(x, incidence)
-        x = F.relu(self.decoder(x))
-
-        return x
-
-
 class MLP(nn.Sequential):
     """MLP Module.
 
@@ -258,3 +160,103 @@ class MLP(nn.Sequential):
         layers.append(nn.Dropout(dropout, **params))
 
         super().__init__(*layers)
+
+
+class AllSetBlock(nn.Module):
+    """AllSet Block Module.
+
+    A module for AllSet block in a bipartite graph.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
+    dropout : float, default=0.2
+        Dropout probability.
+    mlp_num_layers : int, default=2
+        Number of layers in the MLP.
+    mlp_activation : callable or None, optional
+        Activation function in the MLP.
+    mlp_dropout : float, optional
+        Dropout probability in the MLP.
+    mlp_norm : callable or None, optional
+        Type of layer normalization in the MLP.
+    """
+
+    encoder: MLP | nn.Identity
+    decoder: MLP | nn.Identity
+
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels,
+        dropout: float = 0.2,
+        mlp_num_layers: int = 2,
+        mlp_activation=nn.ReLU,
+        mlp_dropout: float = 0.0,
+        mlp_norm=None,
+    ) -> None:
+        super(AllSetBlock, self).__init__()
+
+        self.dropout = dropout
+        if mlp_num_layers > 0:
+            mlp_hidden_channels = [hidden_channels] * mlp_num_layers
+            self.encoder = MLP(
+                in_channels,
+                mlp_hidden_channels,
+                norm_layer=mlp_norm,
+                activation_layer=mlp_activation,
+                dropout=mlp_dropout,
+            )
+            self.decoder = MLP(
+                hidden_channels,
+                mlp_hidden_channels,
+                norm_layer=mlp_norm,
+                activation_layer=mlp_activation,
+                dropout=mlp_dropout,
+            )
+            in_channels = hidden_channels
+        else:
+            self.encoder = nn.Identity()
+            self.decoder = nn.Identity()
+
+        self.conv = Conv(
+            in_channels=in_channels,
+            out_channels=hidden_channels,
+            aggr_norm=True,
+            update_func="relu",
+            att=False,
+        )
+
+    def reset_parameters(self) -> None:
+        """Reset learnable parameters."""
+        if callable(self.encoder.reset_parameters):
+            self.encoder.reset_parameters()
+        if callable(self.decoder.reset_parameters):
+            self.decoder.reset_parameters()
+        self.conv.reset_parameters()
+
+    def forward(self, x, incidence):
+        """
+        Forward computation.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input features.
+        incidence : torch.sparse
+            Incidence matrix between node/hyperedges
+
+        Returns
+        -------
+        x : torch.Tensor
+            Output features.
+        """
+        x = F.relu(self.encoder(x))
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv(x, incidence)
+        x = F.relu(self.decoder(x))
+
+        return x

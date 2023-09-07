@@ -176,7 +176,7 @@ class AllSetTransformerBlock(nn.Module):
         mlp_activation=None,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
         super().__init__()
 
@@ -211,11 +211,10 @@ class AllSetTransformerBlock(nn.Module):
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.multihead_att.reset_parameters()
-        for layer in self.mlp.children():
-            if hasattr(layer, "reset_parameters"):
-                layer.reset_parameters()
         self.ln0.reset_parameters()
         self.ln1.reset_parameters()
+        if callable(self.mlp.reset_parameters):
+            self.mlp.reset_parameters()
 
     def forward(self, x_source, neighborhood):
         """Forward computation.
