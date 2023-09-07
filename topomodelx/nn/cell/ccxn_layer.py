@@ -113,7 +113,7 @@ class CCXNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[1, num_classes]
+        torch.Tensor, shape=[1, num_classes]
             Output prediction on the entire cell complex.
         """
         x_0 = torch.nn.functional.relu(x_0)

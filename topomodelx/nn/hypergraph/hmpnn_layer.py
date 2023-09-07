@@ -10,6 +10,8 @@ from topomodelx.utils.scatter import scatter
 
 
 class _AdjacencyDropoutMixin:
+    training: bool
+
     def apply_dropout(self, neighborhood, dropout_rate: float):
         neighborhood = neighborhood.coalesce()
         return torch.sparse_coo_tensor(

@@ -97,7 +97,7 @@ class SCoNeLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_edges, channels]
+        torch.Tensor, shape=[n_edges, channels]
             Output features on the edges of the simplical complex.
         """
         x_0_level1 = self.conv_level1(x_0, lap_down)

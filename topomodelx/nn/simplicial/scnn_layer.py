@@ -117,7 +117,7 @@ class SCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -169,7 +169,7 @@ class SCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_edges, channels]
+        torch.Tensor, shape=[n_edges, channels]
           Output features on the edges of the simplical complex.
         """
         num_simplices, _ = x.shape

@@ -35,33 +35,32 @@ class TestMessagePassing:
 
     def test_reset_parameters(self):
         """Test the reset of the parameters."""
-        gain = 1.0
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             self.mp.initialization = "invalid"
-            self.mp.reset_parameters(gain=gain)
+            self.mp.reset_parameters()
 
         # Test xavier_uniform
         self.mp.initialization = "xavier_uniform"
         self.mp.weight = torch.nn.Parameter(torch.Tensor(3, 3))
-        self.mp.reset_parameters(gain=gain)
+        self.mp.reset_parameters()
         assert self.mp.weight.shape == (3, 3)
 
         # Test xavier_normal
         self.mp.initialization = "xavier_normal"
         self.mp.weight = torch.nn.Parameter(torch.Tensor(3, 3))
-        self.mp.reset_parameters(gain=gain)
+        self.mp.reset_parameters()
         assert self.mp.weight.shape == (3, 3)
 
         # Test with attention weights & xavier_uniform
         self.mp_with_att.initialization = "xavier_uniform"
         self.mp_with_att.weight = torch.nn.Parameter(torch.Tensor(3, 3))
-        self.mp_with_att.reset_parameters(gain=gain)
+        self.mp_with_att.reset_parameters()
         assert self.mp_with_att.att_weight.shape == (4,)
 
         # Test with attention weights & xavier_normal
         self.mp_with_att.initialization = "xavier_normal"
         self.mp_with_att.weight = torch.nn.Parameter(torch.Tensor(3, 3))
-        self.mp_with_att.reset_parameters(gain=gain)
+        self.mp_with_att.reset_parameters()
         assert self.mp_with_att.att_weight.shape == (4,)
 
     def test_attention(self):

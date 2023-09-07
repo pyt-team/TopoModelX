@@ -106,7 +106,7 @@ class HSNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_nodes, channels]
+        torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
         incidence_1_transpose = incidence_1.transpose(1, 0)

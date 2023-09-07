@@ -1,4 +1,5 @@
 """Message passing module."""
+import math
 from typing import Literal
 
 import torch
@@ -27,8 +28,10 @@ class MessagePassing(torch.nn.Module):
         Aggregation function to use.
     att : bool, default=False
         Whether to use attention.
-    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+    initialization : Literal["uniform", "xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method for the weights of the layer.
+    initialization_gain : float, default=1.414
+        Gain for the weight initialization.
 
     References
     ----------
@@ -45,45 +48,55 @@ class MessagePassing(torch.nn.Module):
         self,
         aggr_func: Literal["sum", "mean", "add"] = "sum",
         att: bool = False,
-        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        initialization: Literal[
+            "uniform", "xavier_uniform", "xavier_normal"
+        ] = "xavier_uniform",
         initialization_gain: float = 1.414,
     ) -> None:
         super().__init__()
         self.aggr_func = aggr_func
         self.att = att
         self.initialization = initialization
-        assert initialization in ["xavier_uniform", "xavier_normal"]
-        assert aggr_func in ["sum", "mean", "add"]
+        self.initialization_gain = initialization_gain
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         r"""Reset learnable parameters.
 
         Notes
         -----
         This function will be called by subclasses of
         MessagePassing that have trainable weights.
-
-        Parameters
-        ----------
-        gain : float
-            Gain for the weight initialization.
         """
-        if self.initialization == "xavier_uniform":
-            if self.weight is not None:
-                torch.nn.init.xavier_uniform_(self.weight, gain=gain)
-            if self.att:
-                torch.nn.init.xavier_uniform_(self.att_weight.view(-1, 1), gain=gain)
-
-        elif self.initialization == "xavier_normal":
-            if self.weight is not None:
-                torch.nn.init.xavier_normal_(self.weight, gain=gain)
-            if self.att:
-                torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
-        else:
-            raise RuntimeError(
-                "Initialization method not recognized. "
-                "Should be either xavier_uniform or xavier_normal."
-            )
+        match self.initialization:
+            case "uniform":
+                if self.weight is not None:
+                    stdv = 1.0 / math.sqrt(self.weight.size(1))
+                    self.weight.data.uniform_(-stdv, stdv)
+                if self.att:
+                    stdv = 1.0 / math.sqrt(self.att_weight.size(1))
+                    self.att_weight.data.uniform_(-stdv, stdv)
+            case "xavier_uniform":
+                if self.weight is not None:
+                    torch.nn.init.xavier_uniform_(
+                        self.weight, gain=self.initialization_gain
+                    )
+                if self.att:
+                    torch.nn.init.xavier_uniform_(
+                        self.att_weight.view(-1, 1), gain=self.initialization_gain
+                    )
+            case "xavier_normal":
+                if self.weight is not None:
+                    torch.nn.init.xavier_normal_(
+                        self.weight, gain=self.initialization_gain
+                    )
+                if self.att:
+                    torch.nn.init.xavier_normal_(
+                        self.att_weight.view(-1, 1), gain=self.initialization_gain
+                    )
+            case _:
+                raise ValueError(
+                    f"Initialization {self.initialization} not recognized."
+                )
 
     def message(self, x_source, x_target=None):
         """Construct message from source cells to target cells.
@@ -106,7 +119,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_source_cells, in_channels]
+        torch.Tensor, shape=[..., n_source_cells, in_channels]
             Messages on source cells.
         """
         return x_source
@@ -132,7 +145,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_source_per_message = x_source[self.source_index_j]
@@ -168,7 +181,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape=[...,  n_target_cells, out_channels]
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.
@@ -239,7 +252,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

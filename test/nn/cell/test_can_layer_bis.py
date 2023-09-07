@@ -50,17 +50,16 @@ class TestCANLayer:
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer with attention."""
-        gain = 1.0
         with pytest.raises(RuntimeError):
             self.can_layer_with_att.initialization = "invalid"
-            self.can_layer_with_att.reset_parameters(gain=gain)
+            self.can_layer_with_att.reset_parameters()
 
         # Test xavier_uniform on attention
         self.can_layer_with_att.initialization = "xavier_uniform"
         self.can_layer_with_att.att_weight = torch.nn.Parameter(
             torch.Tensor(self.channels, 1)
         )
-        self.can_layer_with_att.reset_parameters(gain=gain)
+        self.can_layer_with_att.reset_parameters()
         assert self.can_layer_with_att.att_weight.shape == (self.channels, 1)
 
         # Test xavier_normal on attention
@@ -68,5 +67,5 @@ class TestCANLayer:
         self.can_layer_with_att.att_weight = torch.nn.Parameter(
             torch.Tensor(self.channels, 1)
         )
-        self.can_layer_with_att.reset_parameters(gain=gain)
+        self.can_layer_with_att.reset_parameters()
         assert self.can_layer_with_att.att_weight.shape == (self.channels, 1)
