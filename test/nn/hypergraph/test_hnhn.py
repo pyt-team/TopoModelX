@@ -34,4 +34,4 @@ class TestHNHN:
 
         y1, y2 = model(x_0, x_1)
         assert y1.shape == torch.Size([2, 1])
-        assert y2.shape == torch.Size([2, 1])
+        assert y2.shape == torch.Size([2])

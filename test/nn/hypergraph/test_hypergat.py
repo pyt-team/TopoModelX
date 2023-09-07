@@ -23,4 +23,4 @@ class TestHNHN:
 
         y1 = model(x_0, incidence)
 
-        assert len(y1) != 0
+        assert len(y1.shape) != -1

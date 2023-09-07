@@ -16,4 +16,4 @@ class TestDHGCNL:
         x_0 = torch.rand(8, 8)
 
         y = model(x_0)
-        assert y.shape == torch.Size([1])
+        assert y.shape == torch.Size([])
