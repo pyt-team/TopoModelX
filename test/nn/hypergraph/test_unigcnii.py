@@ -23,4 +23,4 @@ class TestUniGCNII:
 
         y1 = model(x_0, incidence)
 
-        assert y1.shape == torch.Size([2, 1])
+        assert y1.shape == torch.Size([1])
