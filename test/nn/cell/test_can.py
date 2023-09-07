@@ -19,7 +19,7 @@ class TestCAN:
             dropout=0.5,
             heads=1,
             num_classes=1,
-            n_layers=2,
+            n_layers=1,
             att_lift=False,
         )
 
