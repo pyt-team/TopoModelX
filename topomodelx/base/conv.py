@@ -118,7 +118,7 @@ class Conv(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

@@ -106,7 +106,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_source_cells, in_channels]
+        torch.Tensor, shape=[..., n_source_cells, in_channels]
             Messages on source cells.
         """
         return x_source
@@ -132,7 +132,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_source_per_message = x_source[self.source_index_j]
@@ -168,7 +168,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape=[...,  n_target_cells, out_channels]
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.
@@ -239,7 +239,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

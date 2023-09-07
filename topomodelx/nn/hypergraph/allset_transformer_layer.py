@@ -345,7 +345,7 @@ class MultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
+        torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_K = torch.matmul(x_source, self.K_weight)
@@ -383,7 +383,7 @@ class MultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

@@ -115,7 +115,7 @@ class HyperSAGELayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
+        torch.Tensor, shape=[n_target_nodes, out_channels]
             Updated output features on target nodes.
         """
         if self.update_func == "sigmoid":
@@ -146,7 +146,7 @@ class HyperSAGELayer(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape=[...,  n_target_cells, out_channels]
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.

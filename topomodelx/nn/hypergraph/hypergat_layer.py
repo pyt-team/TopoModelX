@@ -92,7 +92,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         if mechanism == "node-level":
@@ -129,7 +129,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":

@@ -33,7 +33,7 @@ def softmax(src, index, num_cells: int):
 
     Returns
     -------
-    _ : torch.Tensor
+    torch.Tensor
         Softmax of the attention coefficients. Shape: [n_k_cells, heads]
     """
     src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
@@ -59,7 +59,7 @@ def add_self_loops(neighborhood):
 
     Returns
     -------
-    _ : torch.sparse_coo_tensor
+    torch.sparse_coo_tensor
         Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
     """
     N = neighborhood.shape[0]
@@ -151,7 +151,7 @@ class LiftLayer(MessagePassing):
 
         Returns
         -------
-        _: torch.Tensor
+        torch.Tensor
             Edge signal of shape (num_edges, 1)
         """
         # Extract source and target nodes from the graph's edge index
@@ -460,7 +460,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+        torch.Tensor, shape=[n_k_cells, heads, in_channels]
             Messages on source cells.
         """
         # Compute the linear transformation on the source features
@@ -492,7 +492,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor
+        torch.Tensor
             Attention weights. Shape: [n_k_cells, heads]
         """
         # Compute attention coefficients
@@ -528,7 +528,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, channels]
+        torch.Tensor, shape=[n_k_cells, channels]
             Output features on the k-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
@@ -664,7 +664,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+        Tensor, shape=[n_k_cells, heads, in_channels]
             Messages on source cells.
         """
         # Compute the linear transformation on the source features
@@ -733,7 +733,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, channels]
+        torch.Tensor, shape=[n_k_cells, channels]
             Output features on the k-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
@@ -775,7 +775,7 @@ class CANLayer(torch.nn.Module):
     r"""Layer of the Cell Attention Network (CAN) model.
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
-    Additionally a skip connection can be added to the output of the layer.
+    Additionally, a skip connection can be added to the output of the layer.
 
     References
     ----------
@@ -944,7 +944,7 @@ class CANLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, out_channels]
+        torch.Tensor, shape=[n_k_cells, out_channels]
         """
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)

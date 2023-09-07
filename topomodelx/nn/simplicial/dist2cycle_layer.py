@@ -44,7 +44,7 @@ class Dist2CycleLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_nodes, channels]
+        torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
         x_e = adjacency * Linv
