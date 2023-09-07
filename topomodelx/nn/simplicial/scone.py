@@ -1,56 +1,43 @@
 """Neural network implementation of classification using SCoNe."""
 import torch
+from torch import nn
 
 from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
+from toponetx.nn.simplicial.simplicial_complex import SimplicialComplex
 
 
-class SCoNeNN(torch.nn.Module):
-    """Neural network implementation of classification using SCoNe.
+class SCoNe(nn.Module):
+    """Neural network implementation of classification using SCoNe."""
 
-    Parameters
-    ----------
-    channels : int
-        Dimension of features.
-    n_layers : int
-        Amount of message passing layers.
-    """
-
-    def __init__(self, channels, n_layers=2):
+    def __init__(self, sc: SimplicialComplex, hidden_dims: list[int]) -> None:
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                SCoNeLayer(
-                    channels=channels,
-                )
-            )
-        self.linear = torch.nn.Linear(channels, 2)
-        self.layers = layers
+        self.incidence_1 = torch.Tensor(sc.incidence_matrix(1).toarray())
+        self.incidence_2 = torch.Tensor(sc.incidence_matrix(2).toarray())
+        self.adjacency = torch.Tensor(sc.adjacency_matrix(0).toarray())
 
-    def forward(self, x_1, up_lap1, down_lap1, iden):
-        """Forward computation.
+        # Weights for the last layer
+        self.weights = nn.parameter.Parameter(torch.Tensor(hidden_dims[-1], 1))
+        nn.init.xavier_uniform_(self.weights)
 
-        Parameters
-        ----------
-        x_0 : tensor
-            shape = [n_nodes, channels]
-            Node features.
+        self.hidden_dimensions = hidden_dims
+        self.L = len(hidden_dims)
 
-        up_lap1 : tensor
-            shape = [n_edges, n_edges]
-            Upper Laplacian matrix of rank 1.
+        # Stack multiple SCoNe layers with given hidden dimensions
+        self.layers = nn.ModuleList([SCoNeLayer(1, hidden_dims[0])])
+        for i in range(self.L - 1):
+            self.layers.append(SCoNeLayer(hidden_dims[i], hidden_dims[i + 1]))
 
-        down_lap1 : tensor
-            shape = [n_edges, n_edges]
-            Laplacian matrix (down) of rank 1.
-
-        Returns
-        -------
-        _ : tensor
-            shape = [n_nodes, 2]
-            One-hot labels assigned to nodes.
-        """
+        # Initialize parameters
         for layer in self.layers:
-            x_1 = layer(x_1, up_lap1, down_lap1, iden)
-        x_1 = self.linear(x_1)
-        return torch.softmax(x_1, dim=-1)
+            layer.reset_parameters()
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the network."""
+        for layer in self.layers:
+            x = layer(x, self.incidence_1, self.incidence_2)
+        # Last layer going from edges to nodes using the boundary operator
+        x = self.incidence_1 @ x @ self.weights
+        # Take softmax only over neighbors by setting the logits of non-neighbors to approximately -inf
+        x = x + (1e-15 + mask).log()
+        x = nn.functional.log_softmax(x, dim=1)
+        return x

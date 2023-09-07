@@ -13,6 +13,7 @@ class Dist2Cycle(torch.nn.Module):
         Dimension of features
     n_layers : int
         Amount of message passing layers.
+
     """
 
     def __init__(self, channels, n_layers=2):
@@ -49,6 +50,7 @@ class Dist2Cycle(torch.nn.Module):
         _ : tensor
             shape = [n_nodes, 2]
             One-hot labels assigned to nodes.
+
         """
         for layer in self.layers:
             x_1 = layer(x_1e, Linv, adjacency)
