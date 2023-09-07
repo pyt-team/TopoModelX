@@ -27,9 +27,9 @@ class Conv(MessagePassing):
         Whether to use attention.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
-    with_linear_transform: bool
+    with_linear_transform: bool, default=True
         Whether to apply a learnable linear transform.
-        NB: if false in_channels has to be equal to out_channels
+        NB: if `False` in_channels has to be equal to out_channels
     """
 
     def __init__(
@@ -37,7 +37,7 @@ class Conv(MessagePassing):
         in_channels,
         out_channels,
         aggr_norm: bool = False,
-        update_func: Literal["relu", "sigmoid"] | None = None,
+        update_func: Literal["relu", "sigmoid", None] = None,
         att: bool = False,
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         initialization_gain: float = 1.414,
@@ -71,7 +71,7 @@ class Conv(MessagePassing):
 
         self.reset_parameters()
 
-    def update(self, x_message_on_target, x_target=None):
+    def update(self, x_message_on_target) -> torch.Tensor:
         """Update embeddings on each cell (step 4).
 
         Parameters
@@ -81,15 +81,16 @@ class Conv(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
             return torch.sigmoid(x_message_on_target)
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
+        return x_message_on_target
 
-    def forward(self, x_source, neighborhood, x_target=None):
+    def forward(self, x_source, neighborhood, x_target=None) -> torch.Tensor:
         """Forward pass.
 
         This implements message passing:
@@ -142,7 +143,4 @@ class Conv(MessagePassing):
                 "i,ij->ij", 1 / neighborhood_size, x_message_on_target
             )
 
-        if self.update_func is None:
-            return x_message_on_target
-
-        return self.update(x_message_on_target, x_target)
+        return self.update(x_message_on_target)
