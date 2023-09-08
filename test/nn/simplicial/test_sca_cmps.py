@@ -47,7 +47,7 @@ class TestSCA:
         model = SCACMPS(
             channels_list=channels_list,
             complex_dim=complex_dim,
-            num_classes=1,
+            n_classes=1,
             n_layers=3,
             att=False,
         )
@@ -64,7 +64,7 @@ class TestSCA:
         model = SCACMPS(
             [2, 2, 2],
             2,
-            num_classes=1,
+            n_classes=1,
             n_layers=3,
             att=False,
         )

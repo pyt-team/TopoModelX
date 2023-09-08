@@ -11,10 +11,10 @@ class TestSANLayer:
         """Test the forward method of SANLayer."""
         in_channels = 2
         out_channels = 5
-        num_filters_J = [1, 2, 3]
+        n_filters = [1, 2, 3]
 
-        for num_filters_j in num_filters_J:
-            san_layer = SANLayer(in_channels, out_channels, num_filters_J=num_filters_j)
+        for num_filters_j in n_filters:
+            san_layer = SANLayer(in_channels, out_channels, n_filters=num_filters_j)
 
             # Create input tensors
             n_cells = 100
@@ -39,12 +39,12 @@ class TestSANLayer:
         """Test the reset_parameters method of SANLayer."""
         in_channels = 2
         out_channels = 5
-        num_filters_J = 2
+        n_filters = 2
 
         san_layer = SANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
-            num_filters_J=num_filters_J,
+            n_filters=n_filters,
         )
         san_layer.reset_parameters()
 
