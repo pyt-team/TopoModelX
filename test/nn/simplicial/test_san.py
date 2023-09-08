@@ -54,7 +54,7 @@ class TestSAN:
 
         assert torch.any(
             torch.isclose(
-                model(x, Lup, Ldown)[0], torch.tensor([0.7727, 0.2389]), rtol=1e-02
+                model(x, laplacian_up_1, laplacian_down_1)[0], torch.tensor([0.7727, 0.2389]), rtol=1e-02
             )
         )
 
