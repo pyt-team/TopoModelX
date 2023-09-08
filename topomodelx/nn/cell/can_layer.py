@@ -3,7 +3,7 @@
 from typing import Callable, Literal
 
 import torch
-from torch import Tensor, nn, topk
+from torch import nn, topk
 from torch.nn import Linear, Parameter
 from torch.nn import functional as F
 from torch.nn import init
@@ -33,7 +33,7 @@ def softmax(src, index, num_cells: int):
 
     Returns
     -------
-    _ : torch.Tensor
+    torch.Tensor
         Softmax of the attention coefficients. Shape: [n_k_cells, heads]
     """
     src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
@@ -59,7 +59,7 @@ def add_self_loops(neighborhood):
 
     Returns
     -------
-    _ : torch.sparse_coo_tensor
+    torch.sparse_coo_tensor
         Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
     """
     N = neighborhood.shape[0]
@@ -115,17 +115,17 @@ class LiftLayer(MessagePassing):
         super(LiftLayer, self).__init__()
 
         self.in_channels_0 = in_channels_0
-        self.att = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
+        self.att_parameter = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
         self.signal_lift_activation = signal_lift_activation
         self.signal_lift_dropout = signal_lift_dropout
 
     def reset_parameters(self) -> None:
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         gain = nn.init.calculate_gain("relu")
-        nn.init.xavier_uniform_(self.att.data, gain=gain)
+        nn.init.xavier_uniform_(self.att_parameter.data, gain=gain)
 
     def message(self, x_source, x_target=None):
-        """Construct message from source 0-cells to target 1-cell."""
+        """Construct a message from source 0-cells to target 1-cell."""
         # Concatenate source and target node feature vectors
         node_features_stacked = torch.cat(
             (x_source, x_target), dim=1
@@ -133,13 +133,13 @@ class LiftLayer(MessagePassing):
 
         # Compute the output edge signal by applying the activation function
         edge_signal = torch.einsum(
-            "ij,jh->ih", node_features_stacked, self.att
+            "ij,jh->ih", node_features_stacked, self.att_parameter
         )  # (num_edges, heads)
         edge_signal = self.signal_lift_activation(edge_signal)  # (num_edges, heads)
 
         return edge_signal  # (num_edges, heads)
 
-    def forward(self, x_0, neighborhood_0_to_0) -> Tensor:
+    def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:  # type: ignore[override]
         """Forward pass.
 
         Parameters
@@ -151,7 +151,7 @@ class LiftLayer(MessagePassing):
 
         Returns
         -------
-        _: torch.Tensor
+        torch.Tensor
             Edge signal of shape (num_edges, 1)
         """
         # Extract source and target nodes from the graph's edge index
@@ -321,7 +321,7 @@ class PoolLayer(MessagePassing):
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
-    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> Tensor:
+    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]
         r"""Forward pass.
 
         .. math::
@@ -460,7 +460,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+        torch.Tensor, shape=[n_k_cells, heads, in_channels]
             Messages on source cells.
         """
         # Compute the linear transformation on the source features
@@ -492,7 +492,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor
+        torch.Tensor
             Attention weights. Shape: [n_k_cells, heads]
         """
         # Compute attention coefficients
@@ -528,7 +528,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, channels]
+        torch.Tensor, shape=[n_k_cells, channels]
             Output features on the k-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
@@ -664,7 +664,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[n_k_cells, heads, in_channels]
+        Tensor, shape=[n_k_cells, heads, in_channels]
             Messages on source cells.
         """
         # Compute the linear transformation on the source features
@@ -733,7 +733,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, channels]
+        torch.Tensor, shape=[n_k_cells, channels]
             Output features on the k-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
@@ -775,7 +775,7 @@ class CANLayer(torch.nn.Module):
     r"""Layer of the Cell Attention Network (CAN) model.
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
-    Additionally a skip connection can be added to the output of the layer.
+    Additionally, a skip connection can be added to the output of the layer.
 
     References
     ----------
@@ -912,7 +912,7 @@ class CANLayer(torch.nn.Module):
         if hasattr(self, "lin"):
             self.lin.reset_parameters()
 
-    def forward(self, x, lower_neighborhood, upper_neighborhood) -> Tensor:
+    def forward(self, x, lower_neighborhood, upper_neighborhood) -> torch.Tensor:
         r"""Forward pass.
 
         .. math::
@@ -944,7 +944,7 @@ class CANLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_k_cells, out_channels]
+        torch.Tensor, shape=[n_k_cells, out_channels]
         """
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)

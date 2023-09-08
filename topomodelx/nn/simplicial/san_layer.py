@@ -51,7 +51,7 @@ class SANConv(Conv):
         self.reset_parameters()
 
     def forward(self, x_source, neighborhood):
-        """Forward pass.
+        r"""Forward pass.
 
         This implements message passing:
         - from source cells with input features `x_source`,
@@ -59,6 +59,22 @@ class SANConv(Conv):
         - to target cells, which are the same source cells.
 
         In practice, this will update the features on the target cells.
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{u,(1 \rightarrow 2 \rightarrow 1)}  = ((L_{\uparrow,1} \odot \operatorname{att}(h_z^{t,(2)}, h_y^{t,(1)}))^u)\_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,u}\\
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{d,(1 \rightarrow 0 \rightarrow 1)}  = ((L_{\downarrow,1} \odot \operatorname{att}(h_z^{t,(0)}, h_y^{t,(1)}))^d)\_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,d}\\
+            &🟥 \quad m^{p,(1 \rightarrow 1)}\_{y \rightarrow x} = ((1-wH_1)^p)\_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,p}\\
+            &🟧 \quad m_{x}^{u,(1 \rightarrow 2 \rightarrow 1)}  = \sum_{y \in \mathcal{L}\_\uparrow(x)} m_{y \rightarrow \{z\} \rightarrow x}^{u,(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{d,(1 \rightarrow 0 \rightarrow 1)}  = \sum_{y \in \mathcal{L}\downarrow(X)} m_{y \rightarrow \{z\} \rightarrow x}^{d,(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟧 \quad m^{p,(1 \rightarrow 1)}\_{x}  = m^{p,(1 \rightarrow 1)}\_{x \rightarrow x}\\
+            &🟩 \quad m_x^{(1)}  = \sum_{p=1}^P m_x^{p,(1 \rightarrow 1)} + \sum_{u=1}^{U} m_{x}^{u,(1 \rightarrow 2 \rightarrow 1)} + \sum_{d=1}^{D} m_{x}^{d,(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟦 \quad h_x^{t+1, (1)} = \sigma(m_x^{(1)})
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------
@@ -70,7 +86,7 @@ class SANConv(Conv):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

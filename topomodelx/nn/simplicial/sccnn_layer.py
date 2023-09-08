@@ -189,7 +189,7 @@ class SCCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -231,6 +231,21 @@ class SCCNNLayer(torch.nn.Module):
 
     def forward(self, x_all, laplacian_all, incidence_all):
         r"""Forward computation.
+
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow z}^{(0\rightarrow1)}  = B_1^T \cdot h_y^{t,(0)} \cdot \Theta^{t,(0 \rightarrow 1)}\\
+            &🟧 $\quad m_{z}^{(0\rightarrow1)}  = \frac{1}\sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0\rightarrow1)} \qquad \text{where} \sum \text{represents a mean.}\\
+            &🟥 $\quad m_{z \rightarrow x}^{(1 \rightarrow 0)} = B_1\odot att(m_{z \in \mathcal{C}(x)}^{(0\rightarrow1)}, h_x^{t,(0)}) \cdot m_z^{(0\rightarrow1)} \cdot \Theta^{t,(1 \rightarrow 0)}\\
+            &🟧 $\quad m_x^{(1\rightarrow0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1\rightarrow0)} \qquad \text{where} \sum \text{represents a mean.}\\
+            &🟩 \quad m_x^{(0)}  = m_x^{(1\rightarrow0)}\\
+            &🟦 \quad h_x^{t+1, (0)} = \Theta^{t, \text{update}} \cdot (h_x^{t,(0)}||m_x^{(0)})+b^{t, \text{update}}\\
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------
