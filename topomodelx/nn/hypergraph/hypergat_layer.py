@@ -13,7 +13,8 @@ class HyperGATLayer(MessagePassing):
     ----------
     .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
         Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
-        on Empirical Methods in Natural Language Processing (EMNLP), 2020 (https://aclanthology.org/2020.emnlp-main.399.pdf)
+        on Empirical Methods in Natural Language Processing (EMNLP), 2020
+        (https://aclanthology.org/2020.emnlp-main.399.pdf)
 
     Parameters
     ----------

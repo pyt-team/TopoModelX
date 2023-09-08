@@ -1,4 +1,4 @@
-"""CWN class."""
+"""CCXN class."""
 
 import torch
 
@@ -22,6 +22,12 @@ class CCXN(torch.nn.Module):
         Number of CCXN layers.
     att : bool
         Whether to use attention.
+
+    References
+    ----------
+    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
+        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+        https://arxiv.org/pdf/2010.00743.pdf
     """
 
     def __init__(

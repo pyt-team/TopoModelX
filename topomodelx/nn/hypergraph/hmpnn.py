@@ -24,6 +24,13 @@ class HMPNN(torch.nn.Module):
         Adjacency dropout rate.
     regular_dropout_rate: 0.5
         Regular dropout rate applied on features.
+
+    References
+    ----------
+    .. [H22] Heydari S, Livi L.
+        Message passing neural networks for hypergraphs.
+        International Conference on Artificial Neural Networks 2022 Sep 6 (pp. 583-592). Cham: Springer Nature Switzerland.
+        https://arxiv.org/abs/2203.16995
     """
 
     def __init__(

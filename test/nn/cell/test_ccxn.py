@@ -6,7 +6,7 @@ from topomodelx.nn.cell.ccxn import CCXN
 
 
 class TestCCXN:
-    """Test CWN."""
+    """Test CCXN."""
 
     def test_fowared(self):
         """Test forward method."""

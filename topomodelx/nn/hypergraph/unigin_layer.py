@@ -7,12 +7,6 @@ class UniGINLayer(torch.nn.Module):
 
     Implementation of UniGIN layer proposed in [JJ21]_.
 
-    References
-    ----------
-    ..  [JJ21]Jing Huang and Jie Yang. Unignn: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021.
-        https://arxiv.org/pdf/2105.00956.pdf
 
     Parameters
     ----------
@@ -25,6 +19,13 @@ class UniGINLayer(torch.nn.Module):
         Constant in GIN Update equation.
     train_eps : bool
         Whether to make eps a trainable parameter.
+
+    References
+    ----------
+    ..  [JJ21]Jing Huang and Jie Yang. Unignn: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(

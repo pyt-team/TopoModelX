@@ -33,6 +33,13 @@ class CAN(torch.nn.Module):
         Number of CAN layers. Default is 2.
     att_lift: bool, optional
         Whether to apply a lift the signal from node-level to edge-level input. Default is True.
+
+    References
+    ----------
+    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
+        Cell attention networks. (2022)
+        paper: https://arxiv.org/pdf/2209.08179.pdf
+        repository: https://github.com/lrnzgiusti/can
     """
 
     def __init__(

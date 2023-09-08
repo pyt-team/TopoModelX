@@ -23,6 +23,12 @@ class CWN(torch.nn.Module):
         Number of classes.
     n_layers : int
         Number of CWN layers.
+
+    References
+    ----------
+    .. [B21] Bodnar, et al. Weisfeiler and Lehman Go Cellular: CW Networks.
+        Conference on Neural Information Processing Systems 2021.
+        https://arxiv.org/abs/2106.12575
     """
 
     def __init__(

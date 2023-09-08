@@ -14,6 +14,13 @@ class UniGIN(torch.nn.Module):
         Dimension of node features
     n_layer : 2
         Amount of message passing layers.
+
+    References
+    ----------
+    ..  [JJ21] Jing Huang and Jie Yang. Unignn: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(

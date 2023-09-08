@@ -18,6 +18,13 @@ class DHGCN(torch.nn.Module):
         Dimension of node features
     n_layer : 2
         Amount of message passing layers.
+
+    References
+    ----------
+    .. [Y22] Yin N, Feng F, Luo Z, Zhang X, Wang W, Luo X, Chen C, Hua XS.
+        Dynamic hypergraph convolutional network.
+        In2022 IEEE 38th International Conference on Data Engineering (ICDE) 2022 May 9 (pp. 1621-1634). IEEE.
+        https://ieeexplore.ieee.org/abstract/document/9835240
     """
 
     def __init__(self, channels_node, n_layers=2):

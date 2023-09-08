@@ -28,6 +28,12 @@ class AllSet(torch.nn.Module):
         Number of layers in the MLP. Defaults to 2.
     mlp_norm : bool, optional
         Whether to apply input normalization in the MLP. Defaults to False.
+
+    References
+    ----------
+    .. [E21] Eli Chien, Chao Pan, Jianhao Peng, Olgica Milenkovic.
+        You are AllSet: A Multiset Function Framework for Hypergraph Neural Networks. (2021)
+        https://arxiv.org/abs/2106.13264
     """
 
     def __init__(

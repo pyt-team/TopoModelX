@@ -21,6 +21,13 @@ class HNHN(torch.nn.Module):
         Number of classes
     n_layers : int
         Number of HNHN message passing layers.
+
+    References
+    ----------
+    .. [DSB20] Dong, Sawin, Bengio.
+        HNHN: Hypergraph networks with hyperedge neurons.
+        Graph Representation Learning and Beyond Workshop at ICML 2020
+        https://grlplus.github.io/papers/40.pdf
     """
 
     def __init__(

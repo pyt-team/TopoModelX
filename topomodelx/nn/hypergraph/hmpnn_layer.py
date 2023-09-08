@@ -129,6 +129,13 @@ class HMPNNLayer(nn.Module):
         The final function or nn.Module object to be called on node and hyperedge features to retrieve
         their new representation. If not given, a linear layer is applied, received message is added
         and sigmoid is called.
+
+    References
+    ----------
+    .. [H22] Heydari S, Livi L.
+        Message passing neural networks for hypergraphs.
+        International Conference on Artificial Neural Networks 2022 Sep 6 (pp. 583-592). Cham: Springer Nature Switzerland.
+        https://arxiv.org/abs/2203.16995
     """
 
     def __init__(
