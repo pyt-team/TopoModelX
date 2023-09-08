@@ -9,12 +9,6 @@ from topomodelx.base.message_passing import MessagePassing
 class HyperGATLayer(MessagePassing):
     r"""Implementation of the HyperGAT layer proposed in [DWLLL20].
 
-    References
-    ----------
-    .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
-        Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
-        on Empirical Methods in Natural Language Processing (EMNLP), 2020 (https://aclanthology.org/2020.emnlp-main.399.pdf)
-
     Parameters
     ----------
     in_channels : int
@@ -25,6 +19,13 @@ class HyperGATLayer(MessagePassing):
         Update method to apply to message. Default is "relu".
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
+
+    References
+    ----------
+    .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
+        Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
+        on Empirical Methods in Natural Language Processing (EMNLP), 2020
+        (https://aclanthology.org/2020.emnlp-main.399.pdf)
     """
 
     def __init__(

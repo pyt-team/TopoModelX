@@ -10,12 +10,6 @@ class UniGCNLayer(torch.nn.Module):
 
     Implementation of UniGCN layer proposed in [JJ21]_.
 
-    References
-    ----------
-    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021.
-        https://arxiv.org/pdf/2105.00956.pdf
 
     Parameters
     ----------
@@ -27,6 +21,13 @@ class UniGCNLayer(torch.nn.Module):
         Whether to use bathnorm after the linear transformation.
     aggr_norm: boolean
         Whether to normalize the aggregated message by the neighborhood size.
+
+    References
+    ----------
+    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(

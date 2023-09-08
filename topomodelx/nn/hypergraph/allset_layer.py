@@ -97,6 +97,12 @@ class AllSetLayer(nn.Module):
         -------
         x : torch.Tensor
             Output features.
+
+        References
+        ----------
+        .. [E21] Eli Chien, Chao Pan, Jianhao Peng, Olgica Milenkovic.
+            You are AllSet: A Multiset Function Framework for Hypergraph Neural Networks. (2021)
+            https://arxiv.org/abs/2106.13264
         """
         if x.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
