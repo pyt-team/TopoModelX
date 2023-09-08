@@ -146,7 +146,7 @@ class SCoNe(nn.Module):
         nn.init.xavier_uniform_(self.weights)
 
         self.hidden_dimensions = hidden_dims
-        self.L = len(hidden_dims)
+        self.laplacian = len(hidden_dims)
 
         # Stack multiple SCoNe layers with given hidden dimensions
         self.layers = nn.ModuleList([SCoNeLayer(1, hidden_dims[0])])

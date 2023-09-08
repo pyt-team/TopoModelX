@@ -19,12 +19,12 @@ class TestSANLayer:
             # Create input tensors
             n_cells = 100
             x = torch.randn(n_cells, in_channels)
-            Lup = torch.sparse_coo_tensor(
+            laplacian_up = torch.sparse_coo_tensor(
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.5, 0.3, 0.2]),
                 size=(n_cells, n_cells),
             )
-            Ldown = torch.sparse_coo_tensor(
+            laplacian_down = torch.sparse_coo_tensor(
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.3, 0.4, 0.5]),
                 size=(n_cells, n_cells),
@@ -32,7 +32,7 @@ class TestSANLayer:
             P = torch.randn(n_cells, n_cells)
 
             # Perform forward pass
-            output = san_layer(x, Lup, Ldown, P)
+            output = san_layer(x, laplacian_up, laplacian_down, P)
             assert output.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
