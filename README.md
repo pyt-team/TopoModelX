@@ -57,6 +57,7 @@ Then:
       ```bash
       pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
       pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
+      pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
       ```
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
