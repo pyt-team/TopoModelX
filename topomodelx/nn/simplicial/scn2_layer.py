@@ -60,6 +60,20 @@ class SCN2Layer(torch.nn.Module):
     def forward(self, x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2):
         r"""Forward pass.
 
+        .. math::
+            \begin{align*}
+            &🟥 \quad m^{(r \rightarrow r)}\_{y \rightarrow x}  = (2I + H_r)\_{{xy}} \cdot h_{y}^{t,(1)}\cdot \Theta^t\\
+            &🟧 \quad m_x^{(1 \rightarrow 1)}  = \sum_{y \in (\mathcal{L}\_\downarrow+\mathcal{L}\_\uparrow)(x)} m_{y \rightarrow x}^{(1 \rightarrow 1)}\\
+            &🟩 \quad m_x^{(1)}  = m^{(1 \rightarrow 1)}_x\\
+            &🟦 \quad h_x^{t+1,(1)} = \sigma(m_{x}^{(1)})
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+
+
         Parameters
         ----------
         x_0 : torch.Tensor, shape=[n_nodes, node_features]
