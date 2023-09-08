@@ -3,7 +3,7 @@ import itertools
 import random
 
 import torch
-from toponetx.classes import SimplicialComplex as sc
+from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.san import SAN
 
@@ -27,7 +27,7 @@ class TestSAN:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = sc()
+        simplicial_complex = SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
         x_1 = torch.randn(35, 2)

@@ -1,13 +1,12 @@
 """Unit tests for HSN Model."""
 import numpy as np
-import numpy.linalg as npla
 import torch
-from toponetx.classes import SimplicialComplex as sc
+from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.hsn import HSN
 
 
-class TestDist2Layer:
+class TestHSN:
     """Unit tests for the HSN model class."""
 
     def test_forward(self):
@@ -16,18 +15,20 @@ class TestDist2Layer:
         face_set = [[2, 3, 4], [2, 4, 5]]
 
         torch.manual_seed(42)
-        ex2_sc = sc(edge_set + face_set)
-        ld = ex2_sc.down_laplacian_matrix(rank=1).todense()
-        A = ex2_sc.adjacency_matrix(rank=1).todense()
-        L_tilde_pinv = npla.pinv(ld + np.eye(ld.shape[0]))  # test inverse
-        adjacency = torch.from_numpy(A).float().to_sparse()
-        Linv = torch.from_numpy(L_tilde_pinv).float().to_sparse()
-        res = adjacency * Linv
+        simplicial_complex = SimplicialComplex(edge_set + face_set)
+        laplacian_down_1 = simplicial_complex.down_laplacian_matrix(rank=1).todense()
+        adjacency_1 = simplicial_complex.adjacency_matrix(rank=1).todense()
+        laplacian_down_1_inv = np.linalg.pinv(
+            laplacian_down_1 + np.eye(laplacian_down_1.shape[0])
+        )  # test inverse
+        adjacency_1 = torch.from_numpy(adjacency_1).float().to_sparse()
+        laplacian_inv = torch.from_numpy(laplacian_down_1_inv).float().to_sparse()
+        res = adjacency_1 * laplacian_inv
         x_1e = res.to_sparse()
         model = HSN(8, 2)
         assert torch.any(
             torch.isclose(
-                model(x_1e, Linv, adjacency)[0],
+                model(x_1e, laplacian_inv, adjacency_1)[0],
                 torch.tensor([0.4077, 0.5923]),
                 rtol=1e-2,
             )

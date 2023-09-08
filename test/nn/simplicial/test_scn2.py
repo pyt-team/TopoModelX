@@ -3,7 +3,7 @@ import itertools
 import random
 
 import torch
-from toponetx.classes import SimplicialComplex as sc
+from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.scn2 import SCN2
 
@@ -27,13 +27,13 @@ class TestSCN2:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = sc()
+        simplicial_complex = SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
 
-        x_0 = torch.randn(15, 2)
-        x_1 = torch.randn(35, 2)
-        x_2 = torch.randn(14, 2)
+        x_0 = torch.randn(simplicial_complex.shape[0], 2)
+        x_1 = torch.randn(simplicial_complex.shape[1], 2)
+        x_2 = torch.randn(faces, 2)
         laplacian_0 = simplicial_complex.normalized_laplacian_matrix(rank=0)
         laplacian_1 = simplicial_complex.normalized_laplacian_matrix(rank=1)
         laplacian_2 = simplicial_complex.normalized_laplacian_matrix(rank=2)

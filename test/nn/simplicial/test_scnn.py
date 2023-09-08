@@ -4,7 +4,7 @@ import random
 
 import numpy as np
 import torch
-from toponetx.classes import SimplicialComplex as sc
+from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.scnn import SCNN
 
@@ -28,10 +28,10 @@ class TestSCNN:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = sc()
+        simplicial_complex = SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
-        x_1 = torch.randn(35, 2)
+        x_1 = torch.randn(simplicial_complex.shape[1], 2)
         in_channels_1 = x_1.shape[1]
 
         incidence_1 = simplicial_complex.incidence_matrix(rank=1)
