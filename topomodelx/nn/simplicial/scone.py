@@ -150,7 +150,7 @@ class SCoNe(nn.Module):
 
         # Stack multiple SCoNe layers with given hidden dimensions
         self.layers = nn.ModuleList([SCoNeLayer(1, hidden_dims[0])])
-        for i in range(self.L - 1):
+        for i in range(self.laplacian - 1):
             self.layers.append(SCoNeLayer(hidden_dims[i], hidden_dims[i + 1]))
 
         # Initialize parameters

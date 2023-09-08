@@ -5,7 +5,7 @@ import random
 import torch
 from toponetx.classes import SimplicialComplex
 
-from topomodelx.nn.simplicial.sca import AMPSSCA
+from topomodelx.nn.simplicial.sca_cmps import AMPSSCA
 
 
 class TestSCA:
