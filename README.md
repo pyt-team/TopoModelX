@@ -31,6 +31,11 @@ To develop tmx on your machine, here are some tips.
 
 First, we recommend using Python 3.11.3, which is the python version used to run the unit-tests.
 
+For example, create a conda environment:
+   ```bash
+   conda create -n tmx python=3.11.3
+   ```
+
 Then:
 
 1. Clone a copy of tmx from source:
