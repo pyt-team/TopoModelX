@@ -9,7 +9,7 @@ from topomodelx.nn.hypergraph.hnhn import HNHN
 class TestHNHN:
     """Test the HNHN."""
 
-    def test_fowared(self):
+    def test_forward(self):
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

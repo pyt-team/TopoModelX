@@ -9,7 +9,7 @@ from topomodelx.nn.hypergraph.allset_transformer import AllSetTransformer
 class TestAllSetTransfomer:
     """Test AllSet."""
 
-    def test_fowared(self):
+    def test_forward(self):
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = AllSetTransformer(

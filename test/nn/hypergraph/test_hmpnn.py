@@ -9,7 +9,7 @@ from topomodelx.nn.hypergraph.hmpnn import HMPNN
 class TestHMPNN:
     """Test the HMPNN."""
 
-    def test_fowared(self):
+    def test_forward(self):
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = HMPNN(8, (8, 8), 1, 1).to(device)

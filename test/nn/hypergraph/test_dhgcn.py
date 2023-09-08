@@ -8,7 +8,7 @@ from topomodelx.nn.hypergraph.dhgcn import DHGCN
 class TestDHGCNL:
     """Test the DHGCN."""
 
-    def test_fowared(self):
+    def test_forward(self):
         """Test forward method."""
         # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = DHGCN(channels_node=8, n_layers=2)
