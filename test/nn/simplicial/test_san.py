@@ -45,7 +45,7 @@ class TestSAN:
             out_channels=out_channels,
             n_layers=1,
         )
-        Ldown = torch.from_numpy(
+        laplacian_down_1 = torch.from_numpy(
             simplicial_complex.down_laplacian_matrix(rank=1).todense()
         ).to_sparse()
         Lup = torch.from_numpy(
