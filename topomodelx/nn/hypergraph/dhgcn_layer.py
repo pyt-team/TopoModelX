@@ -191,6 +191,20 @@ class DHGCNLayer(torch.nn.Module):
 
         Dynamic topology module of the DHST Block is implemented here.
 
+        .. math::
+            \begin{align*}
+            &🟧 \quad m_{\rightarrow z}^{\rightarrow 1} = \text{AGG}\_{y \in \mathcal{B}(z)}(h_y^{0, t})\\
+            &🟦 \quad h_z^{1, t+1} = \sigma(m_{\rightarrow z}^{\rightarrow 1})\\
+            &🟥 \quad m_{z \rightarrow x}^{1 \rightarrow 0} = M_\mathcal{B}(att(h_z^{1, t+1}), h_z^{1, t+1})\\
+            &🟧 \quad m_{\rightarrow x}^{\rightarrow 0} = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{0\rightarrow 1}\\
+            &🟦 \quad {h_x^{0, t+1}} = \text{MLP}(m_{\rightarrow x}^{\rightarrow 0})
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+
         Parameters
         ----------
         x_0 : torch.Tensor, shape=[n_nodes, node_channels]
