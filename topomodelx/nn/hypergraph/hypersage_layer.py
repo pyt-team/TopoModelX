@@ -38,12 +38,6 @@ class GeneralizedMean(Aggregation):
 class HyperSAGELayer(MessagePassing):
     r"""Implementation of the HyperSAGE layer proposed in [AGRW20].
 
-    References
-    ----------
-    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
-        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
-        arXiv preprint arXiv:2010.04558. 2020
-
     Parameters
     ----------
     in_channels : int
@@ -60,6 +54,12 @@ class HyperSAGELayer(MessagePassing):
         Initialization method.
     device : str, default="cpu"
         Device name to train layer on.
+
+    References
+    ----------
+    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
+        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
+        arXiv preprint arXiv:2010.04558. 2020
     """
 
     def __init__(

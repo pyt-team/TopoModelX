@@ -1,14 +1,12 @@
 """Implementation of UniSAGE layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
+
 from typing import Literal
 
 import torch
 
 
 class UniSAGELayer(torch.nn.Module):
-    """Layer of UniSAGE.
-
-    Implementation of UniSAGE layer proposed in [JJ21]_.
-
+    """Layer of UniSAGE proposed in [JJ21].
 
     Parameters
     ----------

@@ -20,6 +20,12 @@ class UniGCNII(torch.nn.Module):
         Parameter of the UniGCNII layer.
     beta: float, default=0.5
         Parameter of the UniGCNII layer.
+
+    References
+    ----------
+    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021. https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(self, num_classes=2, in_features=1, num_layers=2, alpha=0.5, beta=0.5):
