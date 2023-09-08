@@ -88,7 +88,7 @@ plugins = "numpy.typing.mypy_plugin"
 
 [[tool.mypy.overrides]]
 module = [
-    "torch_cluster.*",
+    "torch_cluster.*","networkx.*","scipy.spatial","toponetx.classes.simplicial_complex"
 ]
 ignore_missing_imports = true
 
