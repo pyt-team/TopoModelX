@@ -60,7 +60,8 @@ test = [
     "pytest",
     "pytest-cov",
     "coverage",
-    "jupyter"
+    "jupyter",
+    "mypy"
 ]
 
 dev = ["TopoModelX[test, lint]"]
@@ -78,6 +79,18 @@ include = [
     "topomodelx",
     "topomodelx.*"
 ]
+
+[tool.mypy]
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+plugins = "numpy.typing.mypy_plugin"
+
+[[tool.mypy.overrides]]
+module = [
+    "torch_cluster.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 addopts = "--capture=no"
