@@ -136,17 +136,17 @@ class SCCNNComplex(torch.nn.Module):
     Parameters
     ----------
     in_channels_all: tuple of int
-        Dimension of input features on (nodes, edges, faces)
+        Dimension of input features on (nodes, edges, faces).
     intermediate_channels_all: tuple of int
-        Dimension of features of intermediate layers on (nodes, edges, faces)
+        Dimension of features of intermediate layers on (nodes, edges, faces).
     out_channels_all: tuple of int
         Dimension of output features on (nodes, edges, faces)
     conv_order: int
-        Order of convolutions, we consider the same order for all convolutions
+        Order of convolutions, we consider the same order for all convolutions.
     sc_order: int
-        SC order
+        Order of simplicial complex.
     n_layers: int
-        Numer of layers
+        Number of layers.
 
     """
 
