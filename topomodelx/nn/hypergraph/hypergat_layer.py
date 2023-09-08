@@ -151,6 +151,21 @@ class HyperGATLayer(MessagePassing):
     def forward(self, x_source, incidence):
         r"""Forward pass.
 
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow z}^{(0 \rightarrow 1) } = (B^T_1\odot att(h_{y \in \mathcal{B}(z)}^{t,(0)}))\_{zy} \cdot h^{t,(0)}y \cdot \Theta^{t,(0)}\\
+            &🟧 \quad m_z^{(1)} = \sigma(\sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)})\\
+            &🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow 0)}  = (B_1 \odot att(h_{z \in \mathcal{C}(x)}^{t,(1)}))\_{xz} \cdot m_{z}^{(1)} \cdot \Theta^{t,(1)}\\
+            &🟧 \quad m_{x}^{(0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1\rightarrow0)}\\
+            &🟩 \quad m_x = m_{x}^{(0)}\\
+            &🟦 \quad h_x^{t+1, (0)} = \sigma(m_x)
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+
         Parameters
         ----------
         x : torch.Tensor
