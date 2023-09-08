@@ -48,7 +48,7 @@ class TestSAN:
         laplacian_down_1 = torch.from_numpy(
             simplicial_complex.down_laplacian_matrix(rank=1).todense()
         ).to_sparse()
-        Lup = torch.from_numpy(
+        laplacian_up_1 = torch.from_numpy(
             simplicial_complex.up_laplacian_matrix(rank=1).todense()
         ).to_sparse()
 
