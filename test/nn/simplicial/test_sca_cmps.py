@@ -5,7 +5,7 @@ import random
 import torch
 from toponetx.classes import SimplicialComplex
 
-from topomodelx.nn.simplicial.sca import AMPSSCA
+from topomodelx.nn.simplicial.sca_cmps import SCACMPS
 
 
 class TestSCA:
@@ -44,10 +44,10 @@ class TestSCA:
         incidence_2t = torch.from_numpy(incidence_2t.todense()).to_sparse()
         channels_list = [x_0.shape[-1], x_1.shape[-1], x_2.shape[-1]]
         complex_dim = 3
-        model = AMPSSCA(
+        model = SCACMPS(
             channels_list=channels_list,
             complex_dim=complex_dim,
-            num_classes=1,
+            n_classes=1,
             n_layers=3,
             att=False,
         )
@@ -61,10 +61,10 @@ class TestSCA:
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of SCA."""
-        model = AMPSSCA(
+        model = SCACMPS(
             [2, 2, 2],
             2,
-            num_classes=1,
+            n_classes=1,
             n_layers=3,
             att=False,
         )

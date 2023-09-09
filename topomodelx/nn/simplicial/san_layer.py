@@ -16,7 +16,7 @@ class SANConv(Conv):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    p_filters : int
+    n_filters : int
         Number of simplicial filters.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Weight initialization method.
@@ -26,7 +26,7 @@ class SANConv(Conv):
         self,
         in_channels,
         out_channels,
-        p_filters,
+        n_filters,
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
         super(Conv, self).__init__(
@@ -35,16 +35,16 @@ class SANConv(Conv):
         )
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.p_filters = p_filters
+        self.n_filters = n_filters
         self.initialization = initialization
 
         self.weight = Parameter(
-            torch.Tensor(self.p_filters, self.in_channels, self.out_channels)
+            torch.Tensor(self.n_filters, self.in_channels, self.out_channels)
         )
 
         self.att_weight = Parameter(
             torch.Tensor(
-                2 * self.out_channels * self.p_filters,
+                2 * self.out_channels * self.n_filters,
             )
         )
 
@@ -92,9 +92,9 @@ class SANConv(Conv):
         """
         x_message = torch.matmul(x_source, self.weight)
         # Reshape required to re-use the attention function of parent Conv class
-        # -> [num_nodes, out_channels * p_filters]
+        # -> [num_nodes, out_channels * n_filters]
         x_message_reshaped = x_message.permute(1, 0, 2).reshape(
-            -1, self.out_channels * self.p_filters
+            -1, self.out_channels * self.n_filters
         )
 
         # SAN always requires attention
@@ -113,7 +113,7 @@ class SANConv(Conv):
         att_laplacian = torch.sparse.softmax(att_laplacian, dim=1).to_dense()
         # We need to compute the power of the attention laplacian according up to order p
         att_laplacian_power = [att_laplacian]
-        for _ in range(1, self.p_filters):
+        for _ in range(1, self.n_filters):
             att_laplacian_power.append(
                 torch.matmul(att_laplacian_power[-1], att_laplacian)
             )
@@ -144,7 +144,7 @@ class SANLayer(torch.nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    num_filters_J : int, optional
+    n_filters : int, optional
         Approximation order. Defaults to 2.
     """
 
@@ -152,31 +152,31 @@ class SANLayer(torch.nn.Module):
         self,
         in_channels,
         out_channels,
-        num_filters_J: int = 2,
+        n_filters: int = 2,
     ) -> None:
         super().__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
-        self.num_filters_J = num_filters_J
+        self.n_filters = n_filters
 
         #  Convolutions
         # Down convolutions, one for each filter order p
-        self.conv_down = SANConv(in_channels, out_channels, num_filters_J)
+        self.conv_down = SANConv(in_channels, out_channels, n_filters)
 
         # Up convolutions, one for each filter order p
-        self.conv_up = SANConv(in_channels, out_channels, num_filters_J)
+        self.conv_up = SANConv(in_channels, out_channels, n_filters)
 
         # Harmonic convolution
-        self.conv_har = Conv(in_channels, out_channels)
+        self.conv_harmonic = Conv(in_channels, out_channels)
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.conv_down.reset_parameters()
         self.conv_up.reset_parameters()
-        self.conv_har.reset_parameters()
+        self.conv_harmonic.reset_parameters()
 
-    def forward(self, x, Lup, Ldown, P):
+    def forward(self, x, laplacian_up, laplacian_down, projection_mat):
         r"""Forward pass of the SAN Layer.
 
         .. math::
@@ -212,11 +212,11 @@ class SANLayer(torch.nn.Module):
             Output tensor of shape (..., n_cells, out_channels).
         """
         # Compute the down and up convolutions
-        z_down = self.conv_down(x, Ldown)
-        z_up = self.conv_up(x, Lup)
+        z_down = self.conv_down(x, laplacian_down)
+        z_up = self.conv_up(x, laplacian_up)
         # For the harmonic convolution, we use the precomputed projection matrix P as the neighborhood
         # with no attention
-        z_har = self.conv_har(x, P)
+        z_har = self.conv_harmonic(x, projection_mat)
 
         # final output
         x = z_down + z_up + z_har

@@ -1,4 +1,3 @@
-from .cell.can_layer_bis import CANLayer as CANLayer_bis
 from .cell.can_layer import (
     LiftLayer,
     MultiHeadLiftLayer,
@@ -18,7 +17,6 @@ from .cell.cwn_layer import (
 
 
 __all__ = [
-    "CANLayer_bis",
     "LiftLayer",
     "MultiHeadLiftLayer",
     "PoolLayer",
