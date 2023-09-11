@@ -13,6 +13,6 @@ The API reference gives an overview of `TopoModelX`, which consists of several m
    :maxdepth: 2
    :caption: Packages & Modules
 
-   base
-   nn
-   utils
+   base/index
+   nn/index
+   utils/index
