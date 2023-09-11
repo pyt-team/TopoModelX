@@ -31,6 +31,11 @@ To develop tmx on your machine, here are some tips.
 
 First, we recommend using Python 3.11.3, which is the python version used to run the unit-tests.
 
+For example, create a conda environment:
+   ```bash
+   conda create -n tmx python=3.11.3
+   ```
+
 Then:
 
 1. Clone a copy of tmx from source:
@@ -52,6 +57,7 @@ Then:
       ```bash
       pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
       pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
+      pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
       ```
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).

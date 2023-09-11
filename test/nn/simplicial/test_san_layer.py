@@ -11,20 +11,20 @@ class TestSANLayer:
         """Test the forward method of SANLayer."""
         in_channels = 2
         out_channels = 5
-        num_filters_J = [1, 2, 3]
+        n_filters = [1, 2, 3]
 
-        for num_filters_j in num_filters_J:
-            san_layer = SANLayer(in_channels, out_channels, num_filters_J=num_filters_j)
+        for num_filters_j in n_filters:
+            san_layer = SANLayer(in_channels, out_channels, n_filters=num_filters_j)
 
             # Create input tensors
             n_cells = 100
             x = torch.randn(n_cells, in_channels)
-            Lup = torch.sparse_coo_tensor(
+            laplacian_up = torch.sparse_coo_tensor(
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.5, 0.3, 0.2]),
                 size=(n_cells, n_cells),
             )
-            Ldown = torch.sparse_coo_tensor(
+            laplacian_down = torch.sparse_coo_tensor(
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.3, 0.4, 0.5]),
                 size=(n_cells, n_cells),
@@ -32,19 +32,19 @@ class TestSANLayer:
             P = torch.randn(n_cells, n_cells)
 
             # Perform forward pass
-            output = san_layer(x, Lup, Ldown, P)
+            output = san_layer(x, laplacian_up, laplacian_down, P)
             assert output.shape == (n_cells, out_channels)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of SANLayer."""
         in_channels = 2
         out_channels = 5
-        num_filters_J = 2
+        n_filters = 2
 
         san_layer = SANLayer(
             in_channels=in_channels,
             out_channels=out_channels,
-            num_filters_J=num_filters_J,
+            n_filters=n_filters,
         )
         san_layer.reset_parameters()
 
