@@ -163,6 +163,8 @@ class AllSetTransformerBlock(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+        Initialization method.
     """
 
     def __init__(
@@ -176,7 +178,7 @@ class AllSetTransformerBlock(nn.Module):
         mlp_activation=None,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
-        initialization: str = "xavier_uniform",
+        initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
     ) -> None:
         super().__init__()
 
@@ -211,11 +213,12 @@ class AllSetTransformerBlock(nn.Module):
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.multihead_att.reset_parameters()
-        for layer in self.mlp.children():
-            if hasattr(layer, "reset_parameters"):
-                layer.reset_parameters()
         self.ln0.reset_parameters()
         self.ln1.reset_parameters()
+        if hasattr(self.mlp, "reset_parameters") and callable(
+            self.mlp.reset_parameters
+        ):
+            self.mlp.reset_parameters()
 
     def forward(self, x_source, neighborhood):
         """Forward computation.
@@ -277,6 +280,8 @@ class MultiHeadAttention(MessagePassing):
         Number of queries.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
+    initialization_gain : float, default=1.414
+        Gain factor for initialization.
     """
 
     def __init__(
@@ -293,6 +298,7 @@ class MultiHeadAttention(MessagePassing):
         super().__init__(
             att=True,
             initialization=initialization,
+            initialization_gain=initialization_gain,
         )
 
         self.in_channels = in_channels
@@ -314,17 +320,17 @@ class MultiHeadAttention(MessagePassing):
             torch.randn(self.heads, self.in_channels, self.hidden_channels)
         )
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         r"""Reset learnable parameters."""
         if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.K_weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.Q_weight, gain=gain)
-            torch.nn.init.xavier_uniform_(self.V_weight, gain=gain)
+            torch.nn.init.xavier_uniform_(self.K_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.Q_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.V_weight, gain=self.initialization_gain)
 
         elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.K_weight, gain=gain)
-            torch.nn.init.xavier_normal_(self.Q_weight, gain=gain)
-            torch.nn.init.xavier_normal_(self.V_weight, gain=gain)
+            torch.nn.init.xavier_normal_(self.K_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.Q_weight, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.V_weight, gain=self.initialization_gain)
 
         else:
             raise RuntimeError(
@@ -345,7 +351,7 @@ class MultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
+        torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_K = torch.matmul(x_source, self.K_weight)
@@ -383,7 +389,7 @@ class MultiHeadAttention(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[..., n_target_cells, out_channels]
+        Tensor, shape=[..., n_target_cells, out_channels]
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

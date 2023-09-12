@@ -18,6 +18,13 @@ class DHGCNLayer(torch.nn.Module):
         Dimension of intermediate features.
     out_channels : int
         Dimension of output features.
+
+    References
+    ----------
+    .. [Y22] Yin N, Feng F, Luo Z, Zhang X, Wang W, Luo X, Chen C, Hua XS.
+        Dynamic hypergraph convolutional network.
+        In2022 IEEE 38th International Conference on Data Engineering (ICDE) 2022 May 9 (pp. 1621-1634). IEEE.
+        https://ieeexplore.ieee.org/abstract/document/9835240
     """
 
     def __init__(
@@ -183,6 +190,20 @@ class DHGCNLayer(torch.nn.Module):
         r"""Forward computation.
 
         Dynamic topology module of the DHST Block is implemented here.
+
+        .. math::
+            \begin{align*}
+            &🟧 \quad m_{\rightarrow z}^{\rightarrow 1} = \text{AGG}\_{y \in \mathcal{B}(z)}(h_y^{0, t})\\
+            &🟦 \quad h_z^{1, t+1} = \sigma(m_{\rightarrow z}^{\rightarrow 1})\\
+            &🟥 \quad m_{z \rightarrow x}^{1 \rightarrow 0} = M_\mathcal{B}(att(h_z^{1, t+1}), h_z^{1, t+1})\\
+            &🟧 \quad m_{\rightarrow x}^{\rightarrow 0} = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{0\rightarrow 1}\\
+            &🟦 \quad {h_x^{0, t+1}} = \text{MLP}(m_{\rightarrow x}^{\rightarrow 0})
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

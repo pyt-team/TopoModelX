@@ -10,6 +10,8 @@ from topomodelx.utils.scatter import scatter
 
 
 class _AdjacencyDropoutMixin:
+    training: bool
+
     def apply_dropout(self, neighborhood, dropout_rate: float):
         neighborhood = neighborhood.coalesce()
         return torch.sparse_coo_tensor(
@@ -99,13 +101,31 @@ class _DefaultUpdatingFunc(nn.Module):
 
 
 class HMPNNLayer(nn.Module):
-    """HMPNN Layer introduced in Heydari et Livi 2022.
+    r"""HMPNN Layer introduced in Heydari et Livi 2022.
 
     The layer is a hypergraph comprised of nodes and hyperedges that makes their new reprsentation using the input
     representation and the messages passed between them. In this layer, the message passed from a node to its
     neighboring hyperedges is only a function of its input representation, but the message from a hyperedge to its
     neighboring nodes is also a function of the messages recieved from them beforehand. This way, a node could have
     a more explicit effect on its upper adjacent neighbors i.e. the nodes that it share a hyperedge with.
+
+    .. math::
+        \begin{align*}
+        &🟥 \quad m_{{y \rightarrow z}}^{(0 \rightarrow 1)} = M_\mathcal{C} (h_y^{t,(0)}, h_z^{t, (1)})\\
+        &🟧 \quad m_{z'}^{(0 \rightarrow 1)} = AGG'{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0\rightarrow1)}\\
+        &🟧 \quad m_{z}^{(0 \rightarrow 1)} = AGG_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)}\\
+        &🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow0)} = M_\mathcal{B}(h_z^{t,(1)}, m_z^{(1)})\\
+        &🟧 \quad m_x^{(1 \rightarrow0)} = AGG_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow0)}\\
+        &🟩 \quad m_x^{(0)} = m_x^{(1 \rightarrow 0)}\\
+        &🟩 \quad m_z^{(1)}  = m_{z'}^{(0 \rightarrow 1)}\\
+        &🟦 \quad h_x^{t+1, (0)} = U^{(0)}(h_x^{t,(0)}, m_x^{(0)})\\
+        &🟦 \quad h_z^{t+1,(1)} = U^{(1)}(h_z^{t,(1)}, m_{z}^{(1)})
+        \end{align*}
+
+    References
+    ----------
+    .. [TNN23] Equations of Topological Neural Networks.
+        https://github.com/awesome-tnns/awesome-tnns/
 
     Parameters
     ----------
@@ -129,6 +149,13 @@ class HMPNNLayer(nn.Module):
         The final function or nn.Module object to be called on node and hyperedge features to retrieve
         their new representation. If not given, a linear layer is applied, received message is added
         and sigmoid is called.
+
+    References
+    ----------
+    .. [H22] Heydari S, Livi L.
+        Message passing neural networks for hypergraphs.
+        International Conference on Artificial Neural Networks 2022 Sep 6 (pp. 583-592). Cham: Springer Nature Switzerland.
+        https://arxiv.org/abs/2203.16995
     """
 
     def __init__(

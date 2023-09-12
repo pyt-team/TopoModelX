@@ -9,12 +9,6 @@ from topomodelx.base.message_passing import MessagePassing
 class HyperGATLayer(MessagePassing):
     r"""Implementation of the HyperGAT layer proposed in [DWLLL20].
 
-    References
-    ----------
-    .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
-        Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
-        on Empirical Methods in Natural Language Processing (EMNLP), 2020 (https://aclanthology.org/2020.emnlp-main.399.pdf)
-
     Parameters
     ----------
     in_channels : int
@@ -25,6 +19,13 @@ class HyperGATLayer(MessagePassing):
         Update method to apply to message. Default is "relu".
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
+
+    References
+    ----------
+    .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
+        Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
+        on Empirical Methods in Natural Language Processing (EMNLP), 2020
+        (https://aclanthology.org/2020.emnlp-main.399.pdf)
     """
 
     def __init__(
@@ -35,7 +36,9 @@ class HyperGATLayer(MessagePassing):
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         initialization_gain: float = 1.414,
     ) -> None:
-        super().__init__(initialization=initialization)
+        super().__init__(
+            initialization=initialization, initialization_gain=initialization_gain
+        )
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.update_func = update_func
@@ -51,19 +54,27 @@ class HyperGATLayer(MessagePassing):
         self.att_weight2 = torch.nn.Parameter(torch.zeros(size=(2 * out_channels, 1)))
         self.reset_parameters()
 
-    def reset_parameters(self, gain: float = 1.414):
+    def reset_parameters(self):
         r"""Reset parameters."""
         if self.initialization == "xavier_uniform":
-            torch.nn.init.xavier_uniform_(self.weight1, gain=gain)
-            torch.nn.init.xavier_uniform_(self.weight2, gain=gain)
-            torch.nn.init.xavier_uniform_(self.att_weight1.view(-1, 1), gain=gain)
-            torch.nn.init.xavier_uniform_(self.att_weight2.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_uniform_(self.weight1, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(self.weight2, gain=self.initialization_gain)
+            torch.nn.init.xavier_uniform_(
+                self.att_weight1.view(-1, 1), gain=self.initialization_gain
+            )
+            torch.nn.init.xavier_uniform_(
+                self.att_weight2.view(-1, 1), gain=self.initialization_gain
+            )
 
         elif self.initialization == "xavier_normal":
-            torch.nn.init.xavier_normal_(self.weight1, gain=gain)
-            torch.nn.init.xavier_normal_(self.weight2, gain=gain)
-            torch.nn.init.xavier_normal_(self.att_weight1.view(-1, 1), gain=gain)
-            torch.nn.init.xavier_normal_(self.att_weight2.view(-1, 1), gain=gain)
+            torch.nn.init.xavier_normal_(self.weight1, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(self.weight2, gain=self.initialization_gain)
+            torch.nn.init.xavier_normal_(
+                self.att_weight1.view(-1, 1), gain=self.initialization_gain
+            )
+            torch.nn.init.xavier_normal_(
+                self.att_weight2.view(-1, 1), gain=self.initialization_gain
+            )
         else:
             raise ValueError(
                 "Initialization method not recognized. "
@@ -92,7 +103,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         if mechanism == "node-level":
@@ -129,7 +140,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -139,6 +150,21 @@ class HyperGATLayer(MessagePassing):
 
     def forward(self, x_source, incidence):
         r"""Forward pass.
+
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow z}^{(0 \rightarrow 1) } = (B^T_1\odot att(h_{y \in \mathcal{B}(z)}^{t,(0)}))\_{zy} \cdot h^{t,(0)}y \cdot \Theta^{t,(0)}\\
+            &🟧 \quad m_z^{(1)} = \sigma(\sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)})\\
+            &🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow 0)}  = (B_1 \odot att(h_{z \in \mathcal{C}(x)}^{t,(1)}))\_{xz} \cdot m_{z}^{(1)} \cdot \Theta^{t,(1)}\\
+            &🟧 \quad m_{x}^{(0)}  = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1\rightarrow0)}\\
+            &🟩 \quad m_x = m_{x}^{(0)}\\
+            &🟦 \quad h_x^{t+1, (0)} = \sigma(m_x)
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

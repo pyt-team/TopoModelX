@@ -33,6 +33,19 @@ class Dist2CycleLayer(torch.nn.Module):
     def forward(self, x_e, Linv, adjacency):
         r"""Forward pass.
 
+        .. math::
+            \begin{align*}
+            &🟥 \quad m^{(1 \rightarrow 1)}\_{y \rightarrow x}  = (A \odot (I + L\downarrow)^+{xy}) \cdot h_{y}^{t,(1)}\cdot \Theta^t\\
+            &🟧 \quad m_x^{(1 \rightarrow 1)}  = \sum_{y \in \mathcal{L}\_\downarrow(x)} m_{y \rightarrow x}^{(1 \rightarrow 1)}\\
+            &🟩 \quad m_x^{(1)}  = m^{(1 \rightarrow 1)}_x\\
+            &🟦 \quad h_x^{t+1,(1)} = \sigma(m_{x}^{(1)})
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+
         Parameters
         ----------
         x: torch.Tensor, shape=[n_nodes, channels]
@@ -44,7 +57,7 @@ class Dist2CycleLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_nodes, channels]
+        torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
         """
         x_e = adjacency * Linv

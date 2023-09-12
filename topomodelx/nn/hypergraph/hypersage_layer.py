@@ -1,5 +1,4 @@
 """HyperSAGE layer."""
-import math
 from typing import Literal
 
 import torch
@@ -38,12 +37,6 @@ class GeneralizedMean(Aggregation):
 class HyperSAGELayer(MessagePassing):
     r"""Implementation of the HyperSAGE layer proposed in [AGRW20].
 
-    References
-    ----------
-    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
-        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
-        arXiv preprint arXiv:2010.04558. 2020
-
     Parameters
     ----------
     in_channels : int
@@ -60,6 +53,12 @@ class HyperSAGELayer(MessagePassing):
         Initialization method.
     device : str, default="cpu"
         Device name to train layer on.
+
+    References
+    ----------
+    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
+        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
+        arXiv preprint arXiv:2010.04558. 2020
     """
 
     def __init__(
@@ -74,34 +73,21 @@ class HyperSAGELayer(MessagePassing):
         ] = "uniform",
         device: str = "cpu",
     ) -> None:
-        super().__init__()
+        super().__init__(
+            initialization=initialization,
+        )
 
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.aggr_func_intra = aggr_func_intra
         self.aggr_func_inter = aggr_func_inter
         self.update_func = update_func
-        self.initialization = initialization
         self.device = device
 
         self.weight = torch.nn.Parameter(
             torch.Tensor(self.in_channels, self.out_channels).to(device=self.device)
         )
         self.reset_parameters()
-
-    def reset_parameters(self):
-        r"""Reset parameters."""
-        if self.initialization == "uniform":
-            assert self.out_channels > 0, "out_features should be greater than 0"
-            stdv = 1.0 / math.sqrt(self.out_channels)
-            self.weight.data.uniform_(-stdv, stdv)
-        elif self.initialization == "xavier_uniform":
-            super().reset_parameters()
-        else:
-            raise ValueError(
-                "Initialization method not recognized. "
-                "Should be either uniform or xavier_uniform."
-            )
 
     def update(
         self, x_message_on_target: torch.Tensor, x_target: torch.Tensor | None = None
@@ -115,7 +101,7 @@ class HyperSAGELayer(MessagePassing):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_nodes, out_channels]
+        torch.Tensor, shape=[n_target_nodes, out_channels]
             Updated output features on target nodes.
         """
         if self.update_func == "sigmoid":
@@ -146,7 +132,7 @@ class HyperSAGELayer(MessagePassing):
 
         Returns
         -------
-        _ : Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape=[...,  n_target_cells, out_channels]
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.
@@ -160,14 +146,29 @@ class HyperSAGELayer(MessagePassing):
                 "Aggregation mode not recognized.\nShould be either intra or inter."
             )
 
-    def forward(self, x: torch.Tensor, incidence: torch.sparse):
+    def forward(self, x: torch.Tensor, incidence: torch.Tensor):  # type: ignore[override]
         r"""Forward pass.
+
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow z}^{(0 \rightarrow 1)} = (B_1)^T_{zy} \cdot w_y \cdot (h_y^{(0)})^p\\
+            &🟥 \quad m_z^{(0 \rightarrow 1)}  = \left(\frac{1}{\vert \mathcal{B}(z)\vert}\sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)}\right)^{\frac{1}{p}}\\
+            &🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow 0)} =  (B_1)_{xz} \cdot w_z  \cdot (m_z^{(0 \rightarrow 1)})^p\\
+            &🟧 \quad m_x^{(1,0)}  = \left(\frac{1}{\vert \mathcal{C}(x) \vert}\sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1 \rightarrow 0)}\right)^{\frac{1}{p}}\\
+            &🟩 \quad m_x^{(0)}  = m_x^{(1 \rightarrow 0)}\\
+            &🟦 \quad h_x^{t+1, (0)} = \sigma \left(\frac{m_x^{(0)} + h_x^{t,(0)}}{\lvert m_x^{(0)} + h_x^{t,(0)}\rvert} \cdot \Theta^t\right)
+            \end{align*}
+
+        References
+        ----------
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------
         x : torch.Tensor
             Input features.
-        incidence : torch.sparse
+        incidence : torch.Tensor
             Incidence matrix between node/hyperedges.
 
         Returns

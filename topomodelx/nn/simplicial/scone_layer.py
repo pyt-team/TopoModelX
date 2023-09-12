@@ -102,7 +102,7 @@ class SCoNeLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_edges, out_channels]
+        torch.Tensor, shape=[n_edges, out_channels]
             Output features on the edges of the simplicial complex.
         """
         z1 = incidence_2 @ incidence_2.T @ x @ self.weight_2

@@ -1,20 +1,12 @@
 """Implementation of UniSAGE layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
+
 from typing import Literal
 
 import torch
 
 
 class UniSAGELayer(torch.nn.Module):
-    """Layer of UniSAGE.
-
-    Implementation of UniSAGE layer proposed in [JJ21]_.
-
-    References
-    ----------
-    ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021.
-        https://arxiv.org/pdf/2105.00956.pdf
+    """Layer of UniSAGE proposed in [JJ21].
 
     Parameters
     ----------
@@ -28,6 +20,13 @@ class UniSAGELayer(torch.nn.Module):
         Aggregator function for nodes.
     use_bn : boolean
         Whether to use bathnorm after the linear transformation.
+
+    References
+    ----------
+    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
+        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
+        2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def _validate_aggr(self, aggr):
@@ -97,9 +96,13 @@ class UniSAGELayer(torch.nn.Module):
             https://arxiv.org/pdf/2105.00956.pdf
         .. [TNN23] Equations of Topological Neural Networks.
             https://github.com/awesome-tnns/awesome-tnns/
+        .. [TDL23]  Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub.
+            Topological Deep Learning: Going Beyond Graph Data.
+            (2023) https://arxiv.org/abs/2206.00606
         .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
             Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
             (2023) https://arxiv.org/abs/2304.10031.
+
 
         Parameters
         ----------

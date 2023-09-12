@@ -117,7 +117,7 @@ class SCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -155,6 +155,26 @@ class SCNNLayer(torch.nn.Module):
     def forward(self, x, laplacian_down, laplacian_up):
         r"""Forward computation.
 
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{p,u,(1 \rightarrow 2 \rightarrow 1)}  = ((L_{\uparrow,1})^u)\_{xy} \cdot h_y^{t,(1)} \cdot (\alpha^{t, p, u} \cdot I)\\
+            &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{p,d,(1 \rightarrow 0 \rightarrow 1)} = ((L_{\downarrow,1})^d)\_{xy} \cdot h_y^{t,(1)} \cdot (\alpha^{t, p, d} \cdot I)\\
+            &🟥 \quad m^{(1 \rightarrow 1)}\_{x \rightarrow x} = \alpha \cdot h_x^{t, (1)}\\
+            &🟧 \quad m_{x}^{p,u,(1 \rightarrow 2 \rightarrow 1)}  = \sum_{y \in \mathcal{L}\_\uparrow(X)}m_{y \rightarrow \{z\} \rightarrow x}^{p,u,(1 \rightarrow 2 \rightarrow 1)}\\
+            &🟧 \quad m_{x}^{p,d,(1 \rightarrow 0 \rightarrow 1)} = \sum_{y \in \mathcal{L}\_\downarrow(X)}m_{y \rightarrow \{z\} \rightarrow x}^{p,d,(1 \rightarrow 0 \rightarrow 1)}\\
+            &🟧 \quad m^{(1 \rightarrow 1)}\_{x} = m^{(1 \rightarrow 1)}\_{x \rightarrow x}\\
+            &🟩 \quad m_x^{(1)}  = m_x^{(1 \rightarrow 1)} + \sum_{p=1}^P( \sum_{u=1}^{U} m_{x}^{p,u,(1 \rightarrow 2 \rightarrow 1)} + \sum_{d=1}^{D} m_{x}^{p,d,(1 \rightarrow 0 \rightarrow 1)})\\
+            &🟦 \quad h_x^{t+1, (1)} = \sigma(m_x^{(1)})
+            \end{align*}
+
+        References
+        ----------
+        .. Maosheng Yang et. al.
+        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)].
+        https://arxiv.org/pdf/2110.02585.pdf
+        .. [TNN23] Equations of Topological Neural Networks.
+            https://github.com/awesome-tnns/awesome-tnns/
+
         Parameters
         ----------
         x: torch.Tensor, shape=[n_simplex,in_channels]
@@ -169,7 +189,7 @@ class SCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        _ : torch.Tensor, shape=[n_edges, channels]
+        torch.Tensor, shape=[n_edges, channels]
           Output features on the edges of the simplical complex.
         """
         num_simplices, _ = x.shape
