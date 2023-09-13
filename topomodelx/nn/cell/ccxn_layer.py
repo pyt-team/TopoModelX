@@ -8,7 +8,7 @@ from topomodelx.base.conv import Conv
 class CCXNLayer(torch.nn.Module):
     """Layer of a Convolutional Cell Complex Network (CCXN).
 
-    Implementation of a simplified version of the CCXN layer proposed in [HIZ20]_.
+    Implementation of a simplified version of the CCXN layer proposed in [1]_.
 
     This layer is composed of two convolutional layers:
     1. A convolutional layer sending messages from nodes to nodes.
@@ -21,8 +21,9 @@ class CCXNLayer(torch.nn.Module):
 
     References
     ----------
-    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+    .. [1] Hajij, Istvan, Zamzmi.
+        Cell complex neural networks.
+        Topological data analysis and beyond workshop at NeurIPS 2020.
         https://arxiv.org/pdf/2010.00743.pdf
 
     Parameters
@@ -51,8 +52,8 @@ class CCXNLayer(torch.nn.Module):
     def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2, x_2=None):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [HIZ20]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         The forward pass of this layer is composed of two steps.
 
@@ -86,14 +87,12 @@ class CCXNLayer(torch.nn.Module):
 
         References
         ----------
-        .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-            Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
-            https://arxiv.org/pdf/2010.00743.pdf
-        .. [TNN23] Equations of Topological Neural Networks.
+        .. [2] Papillon, Sanborn, Hajij, Miolane.
+            Equations of topological neural networks (2023).
             https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
+        .. [3] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of topological deep learning: a survey on topological neural networks (2023).
+            https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------

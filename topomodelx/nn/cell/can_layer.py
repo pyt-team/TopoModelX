@@ -84,7 +84,7 @@ class LiftLayer(MessagePassing):
     """Attentional Lift Layer.
 
     This is adapted from the official implementation of
-    the CeLL Attention Network (CAN) [CAN22]_.
+    the Cell Attention Network (CAN) [1]_.
 
     Parameters
     ----------
@@ -99,10 +99,10 @@ class LiftLayer(MessagePassing):
 
     References
     ----------
-    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-        Cell attention networks. (2022)
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-        repository: https://github.com/lrnzgiusti/can
+    .. [1] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
+        Cell attention networks (2022).
+        Paper: https://arxiv.org/pdf/2209.08179.pdf
+        Repository: https://github.com/lrnzgiusti/can
     """
 
     def __init__(
@@ -166,14 +166,7 @@ class LiftLayer(MessagePassing):
 
 
 class MultiHeadLiftLayer(nn.Module):
-    r"""Multi Head Attentional Lift Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
-
-    References
-    ----------
-    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-        Cell attention networks. (2022)
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-        repository: https://github.com/lrnzgiusti/can
+    r"""Multi Head Attentional Lift Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
 
     Parameters
     ----------
@@ -276,7 +269,7 @@ class MultiHeadLiftLayer(nn.Module):
 
 
 class PoolLayer(MessagePassing):
-    r"""Attentional Pooling Layer adapted from the official implementation of the CeLL Attention Network (CAN) [CAN22]_.
+    r"""Attentional Pooling Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
 
     Parameters
     ----------
@@ -288,13 +281,6 @@ class PoolLayer(MessagePassing):
         Activation function applied to the pooled signal.
     readout: bool, optional
         Whether to apply a readout operation to the pooled signal.
-
-    References
-    ----------
-    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-        Cell attention networks. (2022)
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-        repository: https://github.com/lrnzgiusti/can
     """
 
     def __init__(
@@ -380,7 +366,7 @@ class PoolLayer(MessagePassing):
 
 
 class MultiHeadCellAttention(MessagePassing):
-    """Attentional Message Passing from Cell Attention Network (CAN) [CAN22] following the attention mechanism proposed in GAT [GAT17].
+    """Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GAT [2]_.
 
     Parameters
     ----------
@@ -403,15 +389,13 @@ class MultiHeadCellAttention(MessagePassing):
 
     Notes
     -----
-    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty and forward returns zeros Tensor.
+    If there are no non-zero values in the neighborhood, then the neighborhood is empty and forward returns zeros Tensor.
 
     References
     ----------
-    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-
-    [GAT17] Veličković, Cucurull, Casanova, Romero, Liò and Bengio. “Graph attention networks”. In: arXiv preprint arXiv:1710.10903 (2017).
-        paper: https://arxiv.org/pdf/1710.10903.pdf
+    .. [2] Veličković, Cucurull, Casanova, Romero, Liò and Bengio.
+        Graph attention networks (2017).
+        https://arxiv.org/pdf/1710.10903.pdf
     """
 
     def __init__(
@@ -567,7 +551,7 @@ class MultiHeadCellAttention(MessagePassing):
 
 
 class MultiHeadCellAttention_v2(MessagePassing):
-    """Attentional Message Passing from Cell Attention Network (CAN) [CAN22] following the attention mechanism proposed in GATv2 [GATv2_22].
+    """Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GATv2 [3]_.
 
     Parameters
     ----------
@@ -596,11 +580,9 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
     References
     ----------
-    [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa. “Cell attention networks”. In: arXiv preprint arXiv:2209.08179 (2022).
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-
-    [GATv2_22] Brody, Alon, Yahav. "How Attentive are Graph Attention Networks?" In: arXiv preprint arXiv:2105.14491 (2022).
-        paper: https://arxiv.org/pdf/2105.14491.pdf
+    .. [3] Brody, Alon, Yahav.
+        How attentive are graph attention networks? (2022).
+        https://arxiv.org/pdf/2105.14491.pdf
     """
 
     def __init__(
@@ -776,12 +758,6 @@ class CANLayer(torch.nn.Module):
 
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
     Additionally, a skip connection can be added to the output of the layer.
-
-    References
-    ----------
-    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-        Cell attention networks.
-        (2022) paper: https://arxiv.org/pdf/2209.08179.pdf
 
     Notes
     -----
