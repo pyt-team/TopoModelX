@@ -576,7 +576,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
     Notes
     -----
-    [] If there are no non-zero values in the neighborhood, then the neighborhood is empty.
+    If there are no non-zero values in the neighborhood, then the neighborhood is empty.
 
     References
     ----------

@@ -7,7 +7,7 @@ from topomodelx.base.conv import Conv
 class SCN2Layer(torch.nn.Module):
     """Layer of a Simplex Convolutional Network (SCN).
 
-    Implementation of the SCN layer proposed in [YSB22]_ for a simplicial complex of
+    Implementation of the SCN layer proposed in [1]_ for a simplicial complex of
     rank 2, that is for 0-cells (nodes), 1-cells (edges) and 2-cells (faces) only.
 
     This layer corresponds to the rightmost tensor diagram labeled Yang22c in
@@ -16,7 +16,7 @@ class SCN2Layer(torch.nn.Module):
     See Also
     --------
     topomodelx.nn.simplicial.sccn_layer.SCCNLayer : SCCN layer
-        Simplicial Complex Convolutional Network (SCCN) layer proposed in [YSB22]_.
+        Simplicial Complex Convolutional Network (SCCN) layer proposed in [1]_.
         The difference between SCCN and SCN is that:
         - SCN passes messages between cells of the same rank,
         - SCCN passes messages between cells of the same ranks, one rank above
@@ -28,12 +28,15 @@ class SCN2Layer(torch.nn.Module):
 
     References
     ----------
-    .. [YSB22] Ruochen Yang, Frederic Sala, and Paul Bogdan.
-        Efficient Representation Learning for Higher-Order Data with
-        Simplicial Complexes. In Bastian Rieck and Razvan Pascanu, editors,
-        Proceedings of the First Learning on Graphs Conference, volume 198
-        of Proceedings of Machine Learning Research, pages 13:1–13:21. PMLR,
-        09–12 Dec 2022a. https://proceedings.mlr.press/v198/yang22a.html.
+    .. [1] Yang, Sala and Bogdan.
+        Efficient representation learning for higher-order data with simplicial complexes (2022).
+        https://proceedings.mlr.press/v198/yang22a.html.
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
 
     Parameters
     ----------
@@ -58,7 +61,7 @@ class SCN2Layer(torch.nn.Module):
         self.conv_2_to_2.reset_parameters()
 
     def forward(self, x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2):
-        r"""Forward pass.
+        r"""Forward pass (see [2]_ and [3]_).
 
         .. math::
             \begin{align*}
@@ -67,12 +70,6 @@ class SCN2Layer(torch.nn.Module):
             &🟩 \quad m_x^{(1)}  = m^{(1 \rightarrow 1)}_x\\
             &🟦 \quad h_x^{t+1,(1)} = \sigma(m_{x}^{(1)})
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-
 
         Parameters
         ----------

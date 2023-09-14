@@ -8,20 +8,13 @@ from topomodelx.base.aggregation import Aggregation
 
 class SCoNeLayer(torch.nn.Module):
     """
-    Implementation of the SCoNe layer proposed in [RGS21]_.
+    Implementation of the SCoNe layer proposed in [1]_.
 
     Notes
     -----
     This is the architecture proposed for trajectory prediction on simplicial complexes.
 
-    For the trajectory prediction architecture proposed in [RGS21]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
-
-    References
-    ----------
-        .. [RGS21] Roddenberry, Mitchell, Glaze.
-                Principled Simplicial Neural Networks for Trajectory Prediction.
-                Proceedings of the 38th International Conference on Machine Learning.
-                https://proceedings.mlr.press/v139/roddenberry21a.html
+    For the trajectory prediction architecture proposed in [1]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     Parameters
     ----------
@@ -31,6 +24,19 @@ class SCoNeLayer(torch.nn.Module):
         Output dimension of features on each edge.
     update_func : Literal['relu', 'sigmoid', 'tanh']
         Update function to use when updating edge features.
+
+    References
+    ----------
+    .. [1] Roddenberry, Mitchell, Glaze.
+        Principled simplicial neural networks for trajectory prediction.
+        ICML 2021.
+        https://proceedings.mlr.press/v139/roddenberry21a.html
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -64,8 +70,8 @@ class SCoNeLayer(torch.nn.Module):
     ) -> torch.Tensor:
         r"""Forward pass.
 
-        The forward pass was initially proposed in [RGS21]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         .. math::
             \begin{align*}
@@ -77,19 +83,6 @@ class SCoNeLayer(torch.nn.Module):
             &🟩 \quad m_x^{(1)}  = m_{x}^{(1 \rightarrow 0 \rightarrow 1)} + m_{x \rightarrow x}^{(1 \rightarrow 1)} + m_{x}^{(1 \rightarrow 2 \rightarrow 1)}\\
             &🟦 \quad h_x^{t,(1)} = \sigma(m_x^{(1)})
             \end{align*}
-
-
-        References
-        ----------
-        .. [RGS21] Roddenberry, Mitchell, Glaze.
-            Principled Simplicial Neural Networks for Trajectory Prediction.
-            Proceedings of the 38th International Conference on Machine Learning.
-            https://proceedings.mlr.press/v139/roddenberry21a.html
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------
