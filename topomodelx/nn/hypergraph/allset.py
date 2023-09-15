@@ -8,7 +8,7 @@ from topomodelx.nn.hypergraph.allset_layer import AllSetLayer
 class AllSet(torch.nn.Module):
     """AllSet Neural Network Module.
 
-    A module that combines multiple AllSet layers to form a neural network.
+    A module that combines multiple AllSet layers [1]_ to form a neural network.
 
     Parameters
     ----------
@@ -31,8 +31,9 @@ class AllSet(torch.nn.Module):
 
     References
     ----------
-    .. [E21] Eli Chien, Chao Pan, Jianhao Peng, Olgica Milenkovic.
-        You are AllSet: A Multiset Function Framework for Hypergraph Neural Networks. (2021)
+    .. [1] Chien, Pan, Peng and Milenkovic.
+        You are AllSet: a multiset function framework for hypergraph neural networks.
+        ICLR 2022.
         https://arxiv.org/abs/2106.13264
     """
 

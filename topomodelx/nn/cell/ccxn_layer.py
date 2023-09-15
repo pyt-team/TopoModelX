@@ -19,13 +19,6 @@ class CCXNLayer(torch.nn.Module):
     -----
     This is the architecture proposed for entire complex classification.
 
-    References
-    ----------
-    .. [1] Hajij, Istvan, Zamzmi.
-        Cell complex neural networks.
-        Topological data analysis and beyond workshop at NeurIPS 2020.
-        https://arxiv.org/pdf/2010.00743.pdf
-
     Parameters
     ----------
     in_channels_0 : int
@@ -36,6 +29,13 @@ class CCXNLayer(torch.nn.Module):
         Dimension of input features on faces (2-cells).
     att : bool, default=False
         Whether to use attention.
+
+    References
+    ----------
+    .. [1] Hajij, Istvan, Zamzmi.
+        Cell complex neural networks.
+        Topological data analysis and beyond workshop at NeurIPS 2020.
+        https://arxiv.org/pdf/2010.00743.pdf
     """
 
     def __init__(
