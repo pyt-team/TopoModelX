@@ -6,7 +6,7 @@ import torch
 
 
 class UniSAGELayer(torch.nn.Module):
-    """Layer of UniSAGE proposed in [JJ21].
+    """Layer of UniSAGE proposed in [1]_.
 
     Parameters
     ----------
@@ -23,10 +23,16 @@ class UniSAGELayer(torch.nn.Module):
 
     References
     ----------
-    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021.
+    .. [1] Huang and Yang.
+        UniGNN: a unified framework for graph and hypergraph neural networks.
+        IJCAI 2021.
         https://arxiv.org/pdf/2105.00956.pdf
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031
     """
 
     def _validate_aggr(self, aggr):
@@ -61,48 +67,35 @@ class UniSAGELayer(torch.nn.Module):
             self.bn.reset_parameters()
 
     def forward(self, x_0, incidence_1):
-        r"""[JJ21]_ initially proposed the forward pass.
+        r"""[1]_ initially proposed the forward pass.
 
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         The forward pass of this layer is composed of three steps.
 
-        1. Every hyper-edge sums up the features of its constituent edges:
+        First, every hyper-edge sums up the features of its constituent edges:
+
         ..  math::
             \begin{align*}
             &🟥 \quad m_{y \rightarrow z}^{(0 \rightarrow 1)}  = B_1^T \cdot h_y^{t, (0)}\\
             &🟧 \quad m_z^{(0 \rightarrow 1)}  = \sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)}\\
             \end{align*}
 
-        2. The message to the nodes is the sum of the messages from the incident hyper-edges.
+        Second, the message to the nodes is the sum of the messages from the incident hyper-edges:
+
         .. math::
             \begin{align*}
             &🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow 0)}  = B_1 \cdot m_z^{(0 \rightarrow 1)}\\
             &🟧 \quad m_{x}^{(1\rightarrow0)}  = \operatorname{AGGREGATE}_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{(1\rightarrow0)}\\
             \end{align*}
 
-        3. The node features are then updated using the SAGE update equation:
+        Third, the node features are then updated using the SAGE update equation:
+
         .. math::
             \begin{align*}
             &🟩 \quad m_x^{(0)}  = m_{x}^{(1\rightarrow0)}\\
             &🟦 \quad h_x^{t+1,(0)}  = (h_x^{t,(0)} + m_x^{(0)})
             \end{align*}
-
-        References
-        ----------
-        ..  [JJ21]Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-            In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-            2021.
-            https://arxiv.org/pdf/2105.00956.pdf
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [TDL23]  Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey, Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub.
-            Topological Deep Learning: Going Beyond Graph Data.
-            (2023) https://arxiv.org/abs/2206.00606
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
-
 
         Parameters
         ----------

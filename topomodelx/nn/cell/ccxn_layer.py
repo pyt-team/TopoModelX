@@ -36,6 +36,12 @@ class CCXNLayer(torch.nn.Module):
         Cell complex neural networks.
         Topological data analysis and beyond workshop at NeurIPS 2020.
         https://arxiv.org/pdf/2010.00743.pdf
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -84,15 +90,6 @@ class CCXNLayer(torch.nn.Module):
             &🟦 \quad h_{x}^{t+1,(r)}
                 = U^{t,(r)}(h_{x}^{t,(r)}, m_{x}^{(r)})
             \end{align*}
-
-        References
-        ----------
-        .. [2] Papillon, Sanborn, Hajij, Miolane.
-            Equations of topological neural networks (2023).
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [3] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of topological deep learning: a survey on topological neural networks (2023).
-            https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------
