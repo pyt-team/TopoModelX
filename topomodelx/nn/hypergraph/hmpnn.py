@@ -7,7 +7,7 @@ from topomodelx.nn.hypergraph.hmpnn_layer import HMPNNLayer
 
 
 class HMPNN(torch.nn.Module):
-    """Neural network implementation of HMPNN.
+    """Neural network implementation of HMPNN [1]_.
 
     Parameters
     ----------
@@ -27,9 +27,9 @@ class HMPNN(torch.nn.Module):
 
     References
     ----------
-    .. [H22] Heydari S, Livi L.
+    .. [1] Heydari S, Livi L.
         Message passing neural networks for hypergraphs.
-        International Conference on Artificial Neural Networks 2022 Sep 6 (pp. 583-592). Cham: Springer Nature Switzerland.
+        ICANN 2022.
         https://arxiv.org/abs/2203.16995
     """
 

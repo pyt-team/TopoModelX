@@ -101,7 +101,7 @@ class _DefaultUpdatingFunc(nn.Module):
 
 
 class HMPNNLayer(nn.Module):
-    r"""HMPNN Layer introduced in Heydari et Livi 2022.
+    r"""HMPNN Layer [1]_.
 
     The layer is a hypergraph comprised of nodes and hyperedges that makes their new reprsentation using the input
     representation and the messages passed between them. In this layer, the message passed from a node to its
@@ -121,11 +121,6 @@ class HMPNNLayer(nn.Module):
         &🟦 \quad h_x^{t+1, (0)} = U^{(0)}(h_x^{t,(0)}, m_x^{(0)})\\
         &🟦 \quad h_z^{t+1,(1)} = U^{(1)}(h_z^{t,(1)}, m_{z}^{(1)})
         \end{align*}
-
-    References
-    ----------
-    .. [TNN23] Equations of Topological Neural Networks.
-        https://github.com/awesome-tnns/awesome-tnns/
 
     Parameters
     ----------
@@ -152,9 +147,9 @@ class HMPNNLayer(nn.Module):
 
     References
     ----------
-    .. [H22] Heydari S, Livi L.
+    .. [1] Heydari S, Livi L.
         Message passing neural networks for hypergraphs.
-        International Conference on Artificial Neural Networks 2022 Sep 6 (pp. 583-592). Cham: Springer Nature Switzerland.
+        ICANN 2022.
         https://arxiv.org/abs/2203.16995
     """
 

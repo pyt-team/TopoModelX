@@ -6,7 +6,7 @@ from topomodelx.base.conv import Conv
 
 
 class AllSetLayer(nn.Module):
-    r"""AllSet Layer Module.
+    r"""AllSet Layer Module [1]_.
 
     A module for AllSet layer in a bipartite graph.
 
@@ -26,6 +26,13 @@ class AllSetLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+
+    References
+    ----------
+    .. [1] Chien, Pan, Peng and Milenkovic.
+        You are AllSet: a multiset function framework for hypergraph neural networks.
+        ICLR 2022.
+        https://arxiv.org/abs/2106.13264
     """
 
     def __init__(
@@ -73,18 +80,25 @@ class AllSetLayer(nn.Module):
         r"""
         Forward computation.
 
-        .. math::
-                Vertex to edge:
-                    🟧 $\\quad m_{\\rightarrow z}^{(\\rightarrow 1)}
-                        = AGG_{y \\in \\mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)})$
-                    🟦 $\\quad h_z^{t+1,(1)}
-                        = \\sigma(m_{\\rightarrow z}^{(\\rightarrow 1)})$
+        Vertex to edge:
 
-                Edge to vertex:
-                    🟧 $\\quad m_{\\rightarrow x}^{(\\rightarrow 0)}
-                        = AGG_{z \\in \\mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)})$
-                    🟦 $\\quad h_x^{t+1,(0)}
-                        = \\sigma(m_{\\rightarrow x}^{(\\rightarrow 0)})$
+        .. math::
+            \begin{align*}
+                    &🟧 \quad m_{\rightarrow z}^{(\rightarrow 1)}
+                        = AGG_{y \in \mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)}) \\
+                    &🟦 \quad h_z^{t+1,(1)}
+                        = \sigma(m_{\rightarrow z}^{(\rightarrow 1)})
+            \end{align*}
+
+        Edge to vertex:
+
+        .. math::
+            \begin{align*}
+                    &🟧 \quad m_{\rightarrow x}^{(\rightarrow 0)}
+                        = AGG_{z \in \mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)}) \\
+                    &🟦 \quad h_x^{t+1,(0)}
+                        = \sigma(m_{\rightarrow x}^{(\rightarrow 0)})
+            \end{align*}
 
         Parameters
         ----------
@@ -97,12 +111,6 @@ class AllSetLayer(nn.Module):
         -------
         x : torch.Tensor
             Output features.
-
-        References
-        ----------
-        .. [E21] Eli Chien, Chao Pan, Jianhao Peng, Olgica Milenkovic.
-            You are AllSet: A Multiset Function Framework for Hypergraph Neural Networks. (2021)
-            https://arxiv.org/abs/2106.13264
         """
         if x.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(

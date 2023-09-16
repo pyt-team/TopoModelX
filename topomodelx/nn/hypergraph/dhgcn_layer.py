@@ -6,7 +6,7 @@ from topomodelx.base.conv import Conv
 
 
 class DHGCNLayer(torch.nn.Module):
-    """Dynamic Topology Layer of a Dynamic hypergraph convolutional network (DHGCN).
+    r"""Dynamic Topology Layer of a Dynamic hypergraph convolutional network (DHGCN) [1]_.
 
     Dynamic topology, followed by two-step message passing layer.
 
@@ -21,10 +21,15 @@ class DHGCNLayer(torch.nn.Module):
 
     References
     ----------
-    .. [Y22] Yin N, Feng F, Luo Z, Zhang X, Wang W, Luo X, Chen C, Hua XS.
-        Dynamic hypergraph convolutional network.
-        In2022 IEEE 38th International Conference on Data Engineering (ICDE) 2022 May 9 (pp. 1621-1634). IEEE.
+    .. [1] Yin, Feng, Luo, Zhang, Wang, Luo, Chen and Hua.
+        Dynamic hypergraph convolutional network (2022).
         https://ieeexplore.ieee.org/abstract/document/9835240
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -187,7 +192,7 @@ class DHGCNLayer(torch.nn.Module):
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 
     def forward(self, x_0):
-        r"""Forward computation.
+        r"""Forward computation (see [2]_ and [3]_).
 
         Dynamic topology module of the DHST Block is implemented here.
 
@@ -199,11 +204,6 @@ class DHGCNLayer(torch.nn.Module):
             &🟧 \quad m_{\rightarrow x}^{\rightarrow 0} = \sum_{z \in \mathcal{C}(x)} m_{z \rightarrow x}^{0\rightarrow 1}\\
             &🟦 \quad {h_x^{0, t+1}} = \text{MLP}(m_{\rightarrow x}^{\rightarrow 0})
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

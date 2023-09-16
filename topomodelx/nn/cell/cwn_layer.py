@@ -9,7 +9,7 @@ from topomodelx.base.conv import Conv
 class CWNLayer(nn.Module):
     r"""Layer of a CW Network (CWN).
 
-    Implementation of the CWN layer proposed in [B21]_.
+    Implementation of the CWN layer proposed in [1]_.
 
     This module is composed of the following layers:
     1. A convolutional layer that sends messages from r-cells to r-cells.
@@ -20,12 +20,6 @@ class CWNLayer(nn.Module):
     Notes
     -----
     This is the architecture proposed for entire complex classification.
-
-    References
-    ----------
-    .. [B21] Bodnar, et al. Weisfeiler and Lehman Go Cellular: CW Networks.
-        Conference on Neural Information Processing Systems 2021.
-        https://arxiv.org/abs/2106.12575
 
     Parameters
     ----------
@@ -65,6 +59,13 @@ class CWNLayer(nn.Module):
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultUpdate for more detail).
+
+    References
+    ----------
+    .. [1] Bodnar, et al.
+        Weisfeiler and Lehman go cellular: CW networks.
+        NeurIPS 2021.
+        https://arxiv.org/abs/2106.12575
     """
 
     def __init__(
@@ -109,8 +110,8 @@ class CWNLayer(nn.Module):
     ):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [B21]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         The forward pass of this layer is composed of two convolutional steps
         that are followed by an aggregation step and a final update step.
@@ -151,17 +152,6 @@ class CWNLayer(nn.Module):
             &🟦 \quad h_x^{t+1,(r)} = U\left(h_x^{t,(r)}, m_x^{(r)}\right)
             \end{align*}
 
-        References
-        ----------
-        .. [B21] Bodnar, et al. Weisfeiler and Lehman Go Cellular: CW Networks.
-            Conference on Neural Information Processing Systems 2021.
-            https://arxiv.org/abs/2106.12575
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
-
         Parameters
         ----------
         x_0 : torch.Tensor, shape=[n_{r-1}_cells, in_channels_{r-1}]
@@ -184,6 +174,15 @@ class CWNLayer(nn.Module):
         -------
         torch.Tensor, shape=[n_{r}_cells, out_channels]
             Updated representations of the r-cells.
+
+        References
+        ----------
+        .. [2] Papillon, Sanborn, Hajij, Miolane.
+            Equations of topological neural networks (2023).
+            https://github.com/awesome-tnns/awesome-tnns/
+        .. [3] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of topological deep learning: a survey on topological neural networks (2023).
+            https://arxiv.org/abs/2304.10031.
         """
         x_convolved_1_to_1 = self.conv_1_to_1(
             x_1, x_2, neighborhood_1_to_1, neighborhood_2_to_1

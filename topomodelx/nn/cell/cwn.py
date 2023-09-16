@@ -7,7 +7,7 @@ from topomodelx.nn.cell.cwn_layer import CWNLayer
 
 
 class CWN(torch.nn.Module):
-    """Implementation of a specific version of CW Network.
+    """Implementation of a specific version of CW network [1]_.
 
     Parameters
     ----------
@@ -26,8 +26,9 @@ class CWN(torch.nn.Module):
 
     References
     ----------
-    .. [B21] Bodnar, et al. Weisfeiler and Lehman Go Cellular: CW Networks.
-        Conference on Neural Information Processing Systems 2021.
+    .. [1] Bodnar, et al.
+        Weisfeiler and Lehman go cellular: CW networks.
+        NeurIPS 2021.
         https://arxiv.org/abs/2106.12575
     """
 

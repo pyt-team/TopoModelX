@@ -8,7 +8,7 @@ from topomodelx.base.conv import Conv
 
 
 class SANConv(Conv):
-    r"""Simplicial Attention Network (SAN) Convolution from [LGCB22]_.
+    r"""Simplicial Attention Network (SAN) Convolution from [1]_.
 
     Parameters
     ----------
@@ -20,6 +20,15 @@ class SANConv(Conv):
         Number of simplicial filters.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Weight initialization method.
+
+    References
+    ----------
+    .. [1] Giusti, Battiloro, Di Lorenzo, Sardellitti and Barbarossa.
+        Simplicial attention neural networks (2022).
+        https://arxiv.org/abs/2203.07485.
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
     """
 
     def __init__(
@@ -58,7 +67,8 @@ class SANConv(Conv):
         - via `neighborhood` defining where messages can pass,
         - to target cells, which are the same source cells.
 
-        In practice, this will update the features on the target cells.
+        In practice, this will update the features on the target cells [2]_.
+
         .. math::
             \begin{align*}
             &🟥 \quad m_{y \rightarrow \{z\} \rightarrow x}^{u,(1 \rightarrow 2 \rightarrow 1)}  = ((L_{\uparrow,1} \odot \operatorname{att}(h_z^{t,(2)}, h_y^{t,(1)}))^u)\_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,u}\\
@@ -70,11 +80,6 @@ class SANConv(Conv):
             &🟩 \quad m_x^{(1)}  = \sum_{p=1}^P m_x^{p,(1 \rightarrow 1)} + \sum_{u=1}^{U} m_{x}^{u,(1 \rightarrow 2 \rightarrow 1)} + \sum_{d=1}^{D} m_{x}^{d,(1 \rightarrow 0 \rightarrow 1)}\\
             &🟦 \quad h_x^{t+1, (1)} = \sigma(m_x^{(1)})
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------
@@ -127,16 +132,11 @@ class SANConv(Conv):
 
 
 class SANLayer(torch.nn.Module):
-    r"""Implementation of the Simplicial Attention Network (SAN) Layer proposed in [LGCB22]_.
+    r"""Implementation of the Simplicial Attention Network (SAN) Layer proposed in [1]_.
 
     Notes
     -----
     Architecture proposed for r-simplex (r>0) classification on simplicial complices.
-
-    References
-    ----------
-    .. [LGCB22] Lorenzo Giusti, Claudio Battiloro, Paolo Di Lorenzo, Stefania Sardellitti,
-    and Sergio Barbarossa. "Simplicial attention networks." arXiv preprint arXiv:2203.07485 (2022).
 
     Parameters
     ----------

@@ -3,7 +3,7 @@ import torch
 
 
 class UniGCNIILayer(torch.nn.Module):
-    r"""Implementation of the UniGCNII layer.
+    r"""Implementation of the UniGCNII layer [1]_.
 
     Parameters
     ----------
@@ -16,9 +16,10 @@ class UniGCNIILayer(torch.nn.Module):
 
     References
     ----------
-    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021. https://arxiv.org/pdf/2105.00956.pdf
+    .. [1] Huang and Yang.
+        UniGNN: a unified framework for graph and hypergraph neural networks.
+        IJCAI 2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(self, in_channels, alpha: float, beta: float) -> None:
@@ -40,21 +41,24 @@ class UniGCNIILayer(torch.nn.Module):
         - two messages, and
         - a skip connection with a learned update function.
 
-        1. Every hyper-edge sums up the features of its constituent edges:
+        First every hyper-edge sums up the features of its constituent edges:
+
         .. math::
             \begin{align*}
             & 🟥 \quad m_{y \rightarrow z}^{(0 \rightarrow 1)} = (B^T_1)\_{zy} \cdot h^{t,(0)}_y \\
             & 🟧 \quad m_z^{(0\rightarrow1)} = \sum_{y \in \mathcal{B}(z)} m_{y \rightarrow z}^{(0 \rightarrow 1)}
             \end{align*}
 
-        2. The second message is normalized with the node and edge degrees:
+        Second, the second message is normalized with the node and edge degrees:
+
         .. math::
             \begin{align*}
             & 🟥 \quad m_{z \rightarrow x}^{(1 \rightarrow 0)}  = B_1 \cdot m_z^{(0 \rightarrow 1)} \\
             & 🟧 \quad m_{x}^{(1\rightarrow0)}  = \frac{1}{\sqrt{d_x}}\sum_{z \in \mathcal{C}(x)} \frac{1}{\sqrt{d_z}}m_{z \rightarrow x}^{(1\rightarrow0)} \\
             \end{align*}
 
-        3. The computed message is combined with skip connections and a linear transformation using hyperparameters alpha and beta:
+        Third, the computed message is combined with skip connections and a linear transformation using hyperparameters alpha and beta:
+
         .. math::
             \begin{align*}
             & 🟩 \quad m_x^{(0)}  = m_x^{(1 \rightarrow 0)} \\

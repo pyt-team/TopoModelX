@@ -6,7 +6,7 @@ from topomodelx.nn.cell.ccxn_layer import CCXNLayer
 
 
 class CCXN(torch.nn.Module):
-    """CCXN.
+    """CCXN [1]_.
 
     Parameters
     ----------
@@ -25,8 +25,9 @@ class CCXN(torch.nn.Module):
 
     References
     ----------
-    .. [HIZ20] Hajij, Istvan, Zamzmi. Cell Complex Neural Networks.
-        Topological Data Analysis and Beyond Workshop at NeurIPS 2020.
+    .. [1] Hajij, Istvan, Zamzmi.
+        Cell complex neural networks.
+        Topological data analysis and beyond workshop at NeurIPS 2020.
         https://arxiv.org/pdf/2010.00743.pdf
     """
 

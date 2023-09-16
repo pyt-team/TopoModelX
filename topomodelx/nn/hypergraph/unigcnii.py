@@ -6,7 +6,7 @@ from topomodelx.nn.hypergraph.unigcnii_layer import UniGCNIILayer
 
 
 class UniGCNII(torch.nn.Module):
-    """Hypergraph neural network utilizing the UniGCNII layer for node-level classification.
+    """Hypergraph neural network utilizing the UniGCNII layer [1]_ for node-level classification.
 
     Parameters
     ----------
@@ -23,9 +23,10 @@ class UniGCNII(torch.nn.Module):
 
     References
     ----------
-    ..  [JJ21] Jing Huang and Jie Yang. UniGNN: a unified framework for graph and hypergraph neural networks.
-        In Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence, IJCAI-21,
-        2021. https://arxiv.org/pdf/2105.00956.pdf
+    .. [1] Huang and Yang.
+        UniGNN: a unified framework for graph and hypergraph neural networks.
+        IJCAI 2021.
+        https://arxiv.org/pdf/2105.00956.pdf
     """
 
     def __init__(self, num_classes=2, in_features=1, num_layers=2, alpha=0.5, beta=0.5):

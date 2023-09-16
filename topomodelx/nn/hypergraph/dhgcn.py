@@ -1,4 +1,4 @@
-"""Allset transformer class."""
+"""DHGCN class."""
 
 import torch
 
@@ -6,7 +6,7 @@ from topomodelx.nn.hypergraph.dhgcn_layer import DHGCNLayer
 
 
 class DHGCN(torch.nn.Module):
-    """Neural network implementation of DHGCN for hypergraph classification.
+    """Neural network implementation of DHGCN [1]_ for hypergraph classification.
 
     Only dynamic topology is used here.
 
@@ -21,9 +21,8 @@ class DHGCN(torch.nn.Module):
 
     References
     ----------
-    .. [Y22] Yin N, Feng F, Luo Z, Zhang X, Wang W, Luo X, Chen C, Hua XS.
-        Dynamic hypergraph convolutional network.
-        In2022 IEEE 38th International Conference on Data Engineering (ICDE) 2022 May 9 (pp. 1621-1634). IEEE.
+    .. [1] Yin, Feng, Luo, Zhang, Wang, Luo, Chen and Hua.
+        Dynamic hypergraph convolutional network (2022).
         https://ieeexplore.ieee.org/abstract/document/9835240
     """
 

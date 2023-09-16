@@ -7,7 +7,7 @@ from topomodelx.base.message_passing import MessagePassing
 
 
 class HyperGATLayer(MessagePassing):
-    r"""Implementation of the HyperGAT layer proposed in [DWLLL20].
+    r"""Implementation of the HyperGAT layer proposed in [1]_.
 
     Parameters
     ----------
@@ -22,10 +22,9 @@ class HyperGATLayer(MessagePassing):
 
     References
     ----------
-    .. [DWLLL20] Kaize Ding, Jianling Wang, Jundong Li, Dingcheng Li, & Huan Liu. Be more with less:
-        Hypergraph attention networks for inductive text classification. In Proceedings of the 2020 Conference
-        on Empirical Methods in Natural Language Processing (EMNLP), 2020
-        (https://aclanthology.org/2020.emnlp-main.399.pdf)
+    .. [1] Ding, Wang, Li, Li and Huan Liu.
+        EMNLP, 2020.
+        https://aclanthology.org/2020.emnlp-main.399.pdf
     """
 
     def __init__(
@@ -87,7 +86,7 @@ class HyperGATLayer(MessagePassing):
         x_target=None,
         mechanism: Literal["node-level", "edge-level"] = "node-level",
     ):
-        r"""Compute attention weights for messages, as proposed in [DWLLL20].
+        r"""Compute attention weights for messages, as proposed in [1].
 
         Parameters
         ----------
@@ -98,8 +97,8 @@ class HyperGATLayer(MessagePassing):
             Input features on source cells.
             Assumes that all source cells have the same rank r.
         mechanism: Literal["node-level", "edge-level"]
-            Attention mechanism as proposed in [DWLLL20]. If set to "node-level", will compute node-level attention,
-            if set to "edge-level", will compute edge-level attention (see [DWLLL20]). Default is "node-level".
+            Attention mechanism as proposed in [1]. If set to "node-level", will compute node-level attention,
+            if set to "edge-level", will compute edge-level attention (see [1]). Default is "node-level".
 
         Returns
         -------
@@ -160,11 +159,6 @@ class HyperGATLayer(MessagePassing):
             &🟩 \quad m_x = m_{x}^{(0)}\\
             &🟦 \quad h_x^{t+1, (0)} = \sigma(m_x)
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

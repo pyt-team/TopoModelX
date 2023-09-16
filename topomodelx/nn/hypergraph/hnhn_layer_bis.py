@@ -5,7 +5,7 @@ from torch.nn import functional as F
 
 
 class HNHNLayer(torch.nn.Module):
-    """HNHN Layer introduced in the paper HNHN: Hypergraph Networks with Hyperedge Neurons by Dong et al. 2020.
+    """HNHN Layer [1]_.
 
     Given the input representation of nodes, this layer returns a new representation using hyperedges
     as a relay. In other words it makes a intermediary representation for hyperedges with those of the nodes
@@ -25,6 +25,13 @@ class HNHNLayer(torch.nn.Module):
         The param that weights multiplied into hyperedge representations are powered to beforehand.
     normalization_param_beta: float
         The param that weights multiplied into node representations are powered to beforehand.
+
+    References
+    ----------
+    .. [1] Dong, Sawin, Bengio.
+        HNHN: hypergraph networks with hyperedge neurons.
+        Graph Representation Learning and Beyond Workshop at ICML 2020.
+        https://grlplus.github.io/papers/40.pdf
     """
 
     def __init__(
