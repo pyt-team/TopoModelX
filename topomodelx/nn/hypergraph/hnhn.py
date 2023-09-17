@@ -6,7 +6,7 @@ from topomodelx.nn.hypergraph.hnhn_layer import HNHNLayer
 
 
 class HNHN(torch.nn.Module):
-    """Hypergraph Networks with Hyperedge Neurons. Implementation for multiclass node classification.
+    """Hypergraph Networks with Hyperedge Neurons [1]_. Implementation for multiclass node classification.
 
     Parameters
     ----------
@@ -24,9 +24,9 @@ class HNHN(torch.nn.Module):
 
     References
     ----------
-    .. [DSB20] Dong, Sawin, Bengio.
-        HNHN: Hypergraph networks with hyperedge neurons.
-        Graph Representation Learning and Beyond Workshop at ICML 2020
+    .. [1] Dong, Sawin, Bengio.
+        HNHN: hypergraph networks with hyperedge neurons.
+        Graph Representation Learning and Beyond Workshop at ICML 2020.
         https://grlplus.github.io/papers/40.pdf
     """
 

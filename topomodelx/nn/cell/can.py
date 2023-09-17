@@ -7,7 +7,7 @@ from topomodelx.nn.cell.can_layer import CANLayer, MultiHeadLiftLayer, PoolLayer
 
 
 class CAN(torch.nn.Module):
-    """CAN (Cell Attention Network) module for graph classification.
+    """CAN (Cell Attention Network) [1]_ module for graph classification.
 
     Parameters
     ----------
@@ -36,10 +36,10 @@ class CAN(torch.nn.Module):
 
     References
     ----------
-    .. [CAN22] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
-        Cell attention networks. (2022)
-        paper: https://arxiv.org/pdf/2209.08179.pdf
-        repository: https://github.com/lrnzgiusti/can
+    .. [1] Giusti, Battiloro, Testa, Di Lorenzo, Sardellitti and Barbarossa.
+        Cell attention networks (2022).
+        Paper: https://arxiv.org/pdf/2209.08179.pdf
+        Repository: https://github.com/lrnzgiusti/can
     """
 
     def __init__(

@@ -25,6 +25,13 @@ class HNHN2Layer(torch.nn.Module):
         The param that weights multiplied into hyperedge representations are powered to beforehand.
     normalization_param_beta: float
         The param that weights multiplied into node representations are powered to beforehand.
+
+    References
+    ----------
+    .. [1] Dong, Sawin, Bengio.
+        HNHN: hypergraph networks with hyperedge neurons.
+        Graph Representation Learning and Beyond Workshop at ICML 2020.
+        https://grlplus.github.io/papers/40.pdf
     """
 
     def __init__(

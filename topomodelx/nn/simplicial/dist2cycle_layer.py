@@ -6,7 +6,7 @@ from topomodelx.base.aggregation import Aggregation
 
 
 class Dist2CycleLayer(torch.nn.Module):
-    """Layer of Dist2Cycle."""
+    """Layer of Dist2Cycle [1]_."""
 
     def __init__(
         self,
@@ -43,7 +43,8 @@ class Dist2CycleLayer(torch.nn.Module):
 
         References
         ----------
-        .. [TNN23] Equations of Topological Neural Networks.
+        .. [1] Papillon, Sanborn, Hajij, Miolane.
+            Equations of topological neural networks (2023).
             https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters

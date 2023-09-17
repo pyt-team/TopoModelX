@@ -8,7 +8,7 @@ from topomodelx.base.conv import Conv
 class HSNLayer(torch.nn.Module):
     """Layer of a High Skip Network (HSN).
 
-    Implementation of the HSN layer proposed in [HRGZ22]_.
+    Implementation of the HSN layer proposed in [1]_.
 
     Notes
     -----
@@ -16,9 +16,9 @@ class HSNLayer(torch.nn.Module):
 
     References
     ----------
-    .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-        High Skip Networks: A Higher Order Generalization of Skip Connections.
-        Geometrical and Topological Representation Learning Workshop at ICLR 2022.
+    .. [1] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
+        High skip networks: a higher order generalization of skip connections.
+        Geometrical and topological representation learning workshop at ICLR 2022.
         https://openreview.net/pdf?id=Sc8glB-k6e9
 
     Parameters
@@ -68,8 +68,8 @@ class HSNLayer(torch.nn.Module):
     def forward(self, x_0, incidence_1, adjacency_0):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [HRGZ22]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         .. math::
             \begin{align*}
@@ -82,18 +82,6 @@ class HSNLayer(torch.nn.Module):
             &🟩 \quad m_x^{(0)}  = m_x^{(0 \rightarrow 0)} + m_x^{(1 \rightarrow 0)}\\
             &🟦 \quad h_x^{t+1,(0)}  = I(m_x^{(0)})
             \end{align*}
-
-        References
-        ----------
-        .. [HRGZ22] Hajij, Ramamurthy, Guzmán-Sáenz, Zamzmi.
-            High Skip Networks: A Higher Order Generalization of Skip Connections.
-            Geometrical and Topological Representation Learning Workshop at ICLR 2022.
-            https://openreview.net/pdf?id=Sc8glB-k6e9
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------
@@ -108,6 +96,15 @@ class HSNLayer(torch.nn.Module):
         -------
         torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
+
+        References
+        ----------
+        .. [2] Papillon, Sanborn, Hajij, Miolane.
+            Equations of topological neural networks (2023).
+            https://github.com/awesome-tnns/awesome-tnns/
+        .. [3] Papillon, Sanborn, Hajij, Miolane.
+            Architectures of topological deep learning: a survey on topological neural networks (2023).
+            https://arxiv.org/abs/2304.10031.
         """
         incidence_1_transpose = incidence_1.transpose(1, 0)
 
