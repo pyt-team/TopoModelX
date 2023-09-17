@@ -4,8 +4,8 @@ import torch
 from torch.nn import functional as F
 
 
-class HNHNLayer(torch.nn.Module):
-    """HNHN Layer [1]_.
+class HNHN2Layer(torch.nn.Module):
+    """HNHN Layer introduced in the paper HNHN: Hypergraph Networks with Hyperedge Neurons by Dong et al. 2020.
 
     Given the input representation of nodes, this layer returns a new representation using hyperedges
     as a relay. In other words it makes a intermediary representation for hyperedges with those of the nodes
