@@ -4,17 +4,11 @@ from torch.nn.parameter import Parameter
 
 
 class SCNNLayer(torch.nn.Module):
-    r"""Layer of a Simplicial Convolutional Neural Network (SCNN).
+    r"""Layer of a Simplicial Convolutional Neural Network (SCNN) [1]_.
 
     Notes
     -----
     This is Implementation of the SCNN layer.
-
-    References
-    ----------
-    .. Maosheng Yang et. al.
-        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)].
-        https://arxiv.org/pdf/2110.02585.pdf
 
     Parameters
     ----------
@@ -48,6 +42,18 @@ class SCNNLayer(torch.nn.Module):
       - total_order = 1 + conv_order_down + conv_order_up
       - to implement Lap_down@Lap_down@X, we consider chebyshev
         method to avoid matrix@matrix computation
+
+    References
+    ----------
+    .. [1] Yang, Isufi and Leus.
+        Simplicial Convolutional Neural Networks (2021).
+        https://arxiv.org/pdf/2110.02585.pdf
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -153,7 +159,7 @@ class SCNNLayer(torch.nn.Module):
         return X
 
     def forward(self, x, laplacian_down, laplacian_up):
-        r"""Forward computation.
+        r"""Forward computation ([2]_ and [3]_).
 
         .. math::
             \begin{align*}
@@ -166,14 +172,6 @@ class SCNNLayer(torch.nn.Module):
             &🟩 \quad m_x^{(1)}  = m_x^{(1 \rightarrow 1)} + \sum_{p=1}^P( \sum_{u=1}^{U} m_{x}^{p,u,(1 \rightarrow 2 \rightarrow 1)} + \sum_{d=1}^{D} m_{x}^{p,d,(1 \rightarrow 0 \rightarrow 1)})\\
             &🟦 \quad h_x^{t+1, (1)} = \sigma(m_x^{(1)})
             \end{align*}
-
-        References
-        ----------
-        .. Maosheng Yang et. al.
-        [SIMPLICIAL CONVOLUTIONAL NEURAL NETWORKS (2022)].
-        https://arxiv.org/pdf/2110.02585.pdf
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

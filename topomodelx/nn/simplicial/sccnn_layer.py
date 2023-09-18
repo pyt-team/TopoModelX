@@ -71,6 +71,11 @@ class SCCNNLayer(torch.nn.Module):
         - to implement Lap_down@Lap_down@X, we consider chebyshev method
             to avoid matrix@matrix computation
 
+    References
+    ----------
+    .. [1] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
     """
 
     def __init__(
@@ -230,7 +235,7 @@ class SCCNNLayer(torch.nn.Module):
         return X
 
     def forward(self, x_all, laplacian_all, incidence_all):
-        r"""Forward computation.
+        r"""Forward computation (see [1]_).
 
         .. math::
             \begin{align*}
@@ -241,11 +246,6 @@ class SCCNNLayer(torch.nn.Module):
             &🟩 \quad m_x^{(0)}  = m_x^{(1\rightarrow0)}\\
             &🟦 \quad h_x^{t+1, (0)} = \Theta^{t, \text{update}} \cdot (h_x^{t,(0)}||m_x^{(0)})+b^{t, \text{update}}\\
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

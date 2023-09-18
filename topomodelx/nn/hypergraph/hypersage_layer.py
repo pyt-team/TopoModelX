@@ -35,7 +35,7 @@ class GeneralizedMean(Aggregation):
 
 
 class HyperSAGELayer(MessagePassing):
-    r"""Implementation of the HyperSAGE layer proposed in [AGRW20].
+    r"""Implementation of the HyperSAGE layer proposed in [1]_.
 
     Parameters
     ----------
@@ -56,9 +56,15 @@ class HyperSAGELayer(MessagePassing):
 
     References
     ----------
-    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
-        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
-        arXiv preprint arXiv:2010.04558. 2020
+    .. [1] Arya, Gupta, Rudinac and Worring.
+        HyperSAGE: Generalizing inductive representation learning on hypergraphs (2020).
+        https://arxiv.org/abs/2010.04558
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031
     """
 
     def __init__(
@@ -117,7 +123,7 @@ class HyperSAGELayer(MessagePassing):
         This function aggregates these messages into a single output
         feature per target cell.
 
-        🟧 This function corresponds to either intra- or inter-aggregation.
+        This function corresponds to either intra- or inter-aggregation.
 
         Parameters
         ----------
@@ -127,7 +133,7 @@ class HyperSAGELayer(MessagePassing):
         mode : string
             The mode on which aggregation to compute.
             If set to "inter", will compute inter-aggregation,
-            if set to "intra", will compute intra-aggregation (see [AGRW20]).
+            if set to "intra", will compute intra-aggregation (see [1]).
             Default is "inter".
 
         Returns
@@ -147,7 +153,7 @@ class HyperSAGELayer(MessagePassing):
             )
 
     def forward(self, x: torch.Tensor, incidence: torch.Tensor):  # type: ignore[override]
-        r"""Forward pass.
+        r"""Forward pass ([2]_ and [3]_).
 
         .. math::
             \begin{align*}
@@ -158,11 +164,6 @@ class HyperSAGELayer(MessagePassing):
             &🟩 \quad m_x^{(0)}  = m_x^{(1 \rightarrow 0)}\\
             &🟦 \quad h_x^{t+1, (0)} = \sigma \left(\frac{m_x^{(0)} + h_x^{t,(0)}}{\lvert m_x^{(0)} + h_x^{t,(0)}\rvert} \cdot \Theta^t\right)
             \end{align*}
-
-        References
-        ----------
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
 
         Parameters
         ----------

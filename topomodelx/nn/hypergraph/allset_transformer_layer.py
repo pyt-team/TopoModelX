@@ -10,13 +10,7 @@ from topomodelx.base.message_passing import MessagePassing
 
 class AllSetTransformerLayer(nn.Module):
     r"""
-    Implementation of the AllSetTransformer Layer proposed in [ECCP22].
-
-    References
-    ----------
-    .. [ECCP22] Chien, E., Pan, C., Peng, J., & Milenkovic, O. You are AllSet: A Multiset
-      Function Framework for Hypergraph Neural Networks. In International Conference on
-      Learning Representations, 2022 (https://arxiv.org/pdf/2106.13264.pdf)
+    Implementation of the AllSetTransformer Layer proposed in [1]_.
 
     Parameters
     ----------
@@ -36,6 +30,13 @@ class AllSetTransformerLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+
+    References
+    ----------
+    .. [1] Chien, Pan, Peng and Milenkovic.
+        You are AllSet: a multiset function framework for hypergraph neural networks.
+        ICLR 2022.
+        https://arxiv.org/abs/2106.13264
     """
 
     def __init__(
@@ -97,19 +98,25 @@ class AllSetTransformerLayer(nn.Module):
     def forward(self, x, incidence_1):
         r"""Forward computation.
 
-        .. math::
-            "Following the \"awesome-tnns\" [github repo.](https://github.com/awesome-tnns/awesome-tnns/blob/main/Hypergraphs.md)
-            Vertex to edge:
-                🟧 $\\quad m_{\\rightarrow z}^{(\\rightarrow 1)}
-                    = AGG_{y \\in \\mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)}) \\quad \\text{with attention}$
-                🟦 $\\quad h_z^{t+1,(1)}
-                    = \\text{LN}(m_{\\rightarrow z}^{(\\rightarrow 1)} + \\text{MLP}(m_{\\rightarrow z}^{(\\rightarrow 1)} ))$
+        Vertex to edge:
 
-            Edge to vertex:
-                🟧 $\\quad m_{\\rightarrow x}^{(\\rightarrow 0)}
-                    = AGG_{z \\in \\mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)}) \\quad \\text{with attention}$
-                🟦 $\\quad h_x^{t+1,(0)}
-                    = \\text{LN}(m_{\\rightarrow x}^{(\\rightarrow 0)} + \\text{MLP}(m_{\\rightarrow x}^{(\\rightarrow 0)} ))$
+        .. math::
+            \begin{align*}
+                &🟧 \quad m_{\rightarrow z}^{(\rightarrow 1)}
+                    = AGG_{y \in \\mathcal{B}(z)} (h_y^{t, (0)}, h_z^{t,(1)}) \quad \text{with attention}\\
+                &🟦 \quad h_z^{t+1,(1)}
+                    = \text{LN}(m_{\rightarrow z}^{(\rightarrow 1)} + \text{MLP}(m_{\rightarrow z}^{(\rightarrow 1)} ))
+            \end{align*}
+
+        Edge to vertex:
+
+        .. math::
+            \begin{align*}
+                &🟧 \quad m_{\rightarrow x}^{(\rightarrow 0)}
+                    = AGG_{z \in \mathcal{C}(x)} (h_z^{t+1,(1)}, h_x^{t,(0)}) \quad \text{with attention}\\
+                &🟦 \quad h_x^{t+1,(0)}
+                    = \text{LN}(m_{\rightarrow x}^{(\rightarrow 0)} + \text{MLP}(m_{\rightarrow x}^{(\rightarrow 0)} ))
+            \end{align*}
 
         Parameters
         ----------
@@ -238,10 +245,10 @@ class AllSetTransformerBlock(nn.Module):
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
 
-        # Obtain MH from Eq(7) in AllSet paper [ECCP22]
+        # Obtain MH from Eq(7) in AllSet paper [1]
         x_message_on_target = self.multihead_att(x_source, neighborhood)
 
-        # Obtain Y from Eq(8) in AllSet paper [ECCP22]
+        # Obtain Y from Eq(8) in AllSet paper [1]
         # Skip-connection (broadcased)
         x_message_on_target = x_message_on_target + self.multihead_att.Q_weight
 
@@ -251,7 +258,7 @@ class AllSetTransformerBlock(nn.Module):
             x_message_on_target.reshape(-1, self.number_queries, self.hidden_channels)
         )
 
-        # Obtain LN(Y+FF(Y)) in Eq(8) in AllSet paper [ECCP22]
+        # Obtain LN(Y+FF(Y)) in Eq(8) in AllSet paper [1]
         x_message_on_target = self.ln1(
             x_message_on_target + F.relu(self.mlp(x_message_on_target))
         )
@@ -262,7 +269,7 @@ class AllSetTransformerBlock(nn.Module):
 class MultiHeadAttention(MessagePassing):
     """Computes the multi-head attention mechanism (QK^T)V of transformer-based architectures.
 
-    MH module from Eq(7) in AllSet paper [ECCP22]
+    MH module from Eq(7) in AllSet paper [1]_.
 
     Parameters
     ----------
@@ -377,7 +384,7 @@ class MultiHeadAttention(MessagePassing):
         """Forward pass.
 
         Computes (QK^T)V attention mechanism of transformer-based architectures.
-        Module MH from Eq(7) in AllSet paper [ECCP22]
+        Module MH from Eq (7) in AllSet paper [1]_.
 
         Parameters
         ----------

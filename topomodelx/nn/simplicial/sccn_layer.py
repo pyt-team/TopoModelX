@@ -1,4 +1,4 @@
-"""Simplicial Complex Convolutional Network (SCCN) Layer [Yang et al. LoG 2022]."""
+"""Simplicial Complex Convolutional Network (SCCN) Layer."""
 from typing import Literal
 
 import torch
@@ -8,30 +8,21 @@ from topomodelx.base.conv import Conv
 
 
 class SCCNLayer(torch.nn.Module):
-    """Simplicial Complex Convolutional Network (SCCN) layer by [YSB22]_.
+    """Simplicial Complex Convolutional Network (SCCN) layer by [1]_.
 
     This implementation applies to simplicial complexes of any rank.
 
     This layer corresponds to the leftmost tensor diagram labeled Yang22c in
-    Figure 11 of [PSHM23]_.
+    Figure 11 of [3]_.
 
     See Also
     --------
     topomodelx.nn.simplicial.scn2_layer.SCN2Layer : SCN2 layer
-        SCN layer proposed in [YSB22]_ for simplicial complexes of rank 2.
+        SCN layer proposed in [1]_ for simplicial complexes of rank 2.
         The difference between SCCN and SCN is that:
         - SCN passes messages between cells of the same rank,
         - SCCN passes messages between cells of the same ranks, one rank above
         and one rank below.
-
-    References
-    ----------
-    .. [YSB22] Ruochen Yang, Frederic Sala, and Paul Bogdan.
-        Efficient Representation Learning for Higher-Order Data with
-        Simplicial Complexes. In Bastian Rieck and Razvan Pascanu, editors,
-        Proceedings of the First Learning on Graphs Conference, volume 198
-        of Proceedings of Machine Learning Research, pages 13:1–13:21. PMLR,
-        09–12 Dec 2022a. https://proceedings.mlr.press/v198/yang22a.html.
 
     Parameters
     ----------
@@ -43,6 +34,19 @@ class SCCNLayer(torch.nn.Module):
         The function to be used for aggregation.
     update_func : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
         The activation function.
+
+    References
+    ----------
+    .. [1] Yang, Sala, Bogdan.
+        Efficient representation learning for higher-order data with
+        simplicial complexes (2022).
+        https://proceedings.mlr.press/v198/yang22a.html
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -114,11 +118,11 @@ class SCCNLayer(torch.nn.Module):
     def forward(self, features, incidences, adjacencies):
         r"""Forward pass.
 
-        The forward pass was initially proposed in [YSB22]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         The incidence and adjacency matrices passed into this layer can be normalized
-        as described in [YSB22]_ or unnormalized.
+        as described in [1]_ or unnormalized.
 
         .. math::
             \begin{align*}
@@ -142,19 +146,6 @@ class SCCNLayer(torch.nn.Module):
             &🟦 \quad h_x^{t+1,(r)}
              = \sigma(m_x^{(r)})
             \end{align*}
-
-        References
-        ----------
-        .. [YSB22] Yang, Sala, Bogdan.
-            Efficient Representation Learning for Higher-Order Data with
-            Simplicial Complexes.
-            https://proceedings.mlr.press/v198/yang22a.html
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological
-            Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
 
         Parameters
         ----------

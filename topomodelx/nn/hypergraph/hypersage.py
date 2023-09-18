@@ -6,7 +6,7 @@ from topomodelx.nn.hypergraph.hypersage_layer import HyperSAGELayer
 
 
 class HyperSAGE(torch.nn.Module):
-    """Neural network implementation of HyperSAGE for hypergraph classification.
+    """Neural network implementation of HyperSAGE [1]_ for hypergraph classification.
 
     Parameters
     ----------
@@ -19,9 +19,9 @@ class HyperSAGE(torch.nn.Module):
 
     References
     ----------
-    .. [AGRW20] Devanshu Arya, Deepak K Gupta, Stevan Rudinac and Marcel Worring.
-        HyperSAGE: Generalizing inductive representation learning on hypergraphs.
-        arXiv preprint arXiv:2010.04558. 2020
+    .. [1] Arya, Gupta, Rudinac and Worring.
+        HyperSAGE: Generalizing inductive representation learning on hypergraphs (2020).
+        https://arxiv.org/abs/2010.04558
     """
 
     def __init__(self, in_channels, out_channels, n_layers=2, **kwargs):

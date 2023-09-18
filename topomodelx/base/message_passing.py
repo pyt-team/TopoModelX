@@ -35,13 +35,14 @@ class MessagePassing(torch.nn.Module):
 
     References
     ----------
-    .. [H23] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
-        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub. Topological Deep Learning: Going Beyond Graph Data.
-        (2023) https://arxiv.org/abs/2206.00606.
+    .. [1] Hajij, Zamzmi, Papamarkou, Miolane, Guzmán-Sáenz, Ramamurthy, Birdal, Dey,
+        Mukherjee, Samaga, Livesay, Walters, Rosen, Schaub.
+        Topological deep learning: going beyond graph data (2023).
+        https://arxiv.org/abs/2206.00606.
 
-    .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-        Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-        (2023) https://arxiv.org/abs/2304.10031.
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -132,7 +133,7 @@ class MessagePassing(torch.nn.Module):
         Alternatively, users can subclass MessagePassing and overwrite
         the attention method in order to replace it with their own attention mechanism.
 
-        Details in [H23]_, Definition of "Attention Higher-Order Message Passing".
+        The implementation follows [1]_.
 
         Parameters
         ----------
@@ -171,7 +172,7 @@ class MessagePassing(torch.nn.Module):
         feature per target cell.
 
         🟧 This function corresponds to the within-neighborhood aggregation
-        defined in [H23]_ and [PSHM23]_.
+        defined in [1]_ and [2]_.
 
         Parameters
         ----------
@@ -235,7 +236,7 @@ class MessagePassing(torch.nn.Module):
 
         resulting in the within-neighborhood aggregated message :math:`m_x^{\left(r \rightarrow s\right)}`.
 
-        Details in [H23]_ and [PSHM23]_ "The Steps of Message Passing".
+        Details can be found in [1]_ and [2]_.
 
         Parameters
         ----------

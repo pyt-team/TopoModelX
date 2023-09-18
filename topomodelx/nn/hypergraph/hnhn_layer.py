@@ -10,7 +10,7 @@ from topomodelx.base.conv import Conv
 class HNHNLayer(torch.nn.Module):
     """Layer of a Hypergraph Networks with Hyperedge Neurons (HNHN).
 
-    Implementation of a simplified version of the HNHN layer proposed in [DSB20]_.
+    Implementation of a simplified version of the HNHN layer proposed in [1]_.
 
     This layer is composed of two convolutional layers:
     1. A convolutional layer sending messages from edges to nodes.
@@ -22,14 +22,6 @@ class HNHNLayer(torch.nn.Module):
     Notes
     -----
     This is the architecture proposed for node classification.
-
-    References
-    ----------
-    .. [DSB20] Dong, Sawin, Bengio.
-        HNHN: Hypergraph networks with hyperedge neurons.
-        Graph Representation Learning and Beyond Workshop at ICML 2020
-        https://grlplus.github.io/papers/40.pdf
-
 
     Parameters
     ----------
@@ -52,6 +44,19 @@ class HNHNLayer(torch.nn.Module):
         Gain for the bias initialization.
     bias_init : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Controls the bias initialization method.
+
+    References
+    ----------
+    .. [1] Dong, Sawin, Bengio.
+        HNHN: hypergraph networks with hyperedge neurons.
+        Graph Representation Learning and Beyond Workshop at ICML 2020.
+        https://grlplus.github.io/papers/40.pdf
+    .. [2] Papillon, Sanborn, Hajij, Miolane.
+        Equations of topological neural networks (2023).
+        https://github.com/awesome-tnns/awesome-tnns/
+    .. [3] Papillon, Sanborn, Hajij, Miolane.
+        Architectures of topological deep learning: a survey on topological neural networks (2023).
+        https://arxiv.org/abs/2304.10031.
     """
 
     def __init__(
@@ -157,40 +162,22 @@ class HNHNLayer(torch.nn.Module):
     def forward(self, x_0, x_1):
         r"""Forward computation.
 
-        The forward pass was initially proposed in [DSB20]_.
-        Its equations are given in [TNN23]_ and graphically illustrated in [PSHM23]_.
+        The forward pass was initially proposed in [1]_.
+        Its equations are given in [2]_ and graphically illustrated in [3]_.
 
         The equations of one layer of this neural network are given by:
+
         .. math::
-        \begin{align*}
-        &🟥 $\quad m_{y \rightarrow x}^{(0 \rightarrow 1)} = \sigma((B_1^T \cdot W^{(0)})_{xy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0)} + b^{t,(0)})$
-
-        &🟥 $\quad m_{y \rightarrow x}^{(1 \rightarrow 0)}  = \sigma((B_1 \cdot W^{(1)})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1)} + b^{t,(1)})$
-
-        &🟧 $\quad m_x^{(0 \rightarrow 1)}  = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(0 \rightarrow 1)}$
-
-        &🟧 $\quad m_x^{(1 \rightarrow 0)}  = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(1 \rightarrow 0)}$
-
-        &🟩 $\quad m_x^{(0)}  = m_x^{(1 \rightarrow 0)}$
-
-        &🟩 $\quad m_x^{(1)}  = m_x^{(0 \rightarrow 1)}$
-
-        &🟦 $\quad h_x^{t+1,(0)}  = m_x^{(0)}$
-
-        &🟦 $\quad h_x^{t+1,(1)} = m_x^{(1)}$
-        \end{align*}
-
-        References
-        ----------
-        .. [DSB20] Dong, Sawin, Bengio.
-            HNHN: Hypergraph networks with hyperedge neurons.
-            Graph Representation Learning and Beyond Workshop at ICML 2020
-            https://grlplus.github.io/papers/40.pdf
-        .. [TNN23] Equations of Topological Neural Networks.
-            https://github.com/awesome-tnns/awesome-tnns/
-        .. [PSHM23] Papillon, Sanborn, Hajij, Miolane.
-            Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
-            (2023) https://arxiv.org/abs/2304.10031.
+            \begin{align*}
+            &🟥 \quad m_{y \rightarrow x}^{(0 \rightarrow 1)} = \sigma((B_1^T \cdot W^{(0)})_{xy} \cdot h_y^{t,(0)} \cdot \Theta^{t,(0)} + b^{t,(0)})\\
+            &🟥 \quad m_{y \rightarrow x}^{(1 \rightarrow 0)}  = \sigma((B_1 \cdot W^{(1)})_{xy} \cdot h_y^{t,(1)} \cdot \Theta^{t,(1)} + b^{t,(1)})\\
+            &🟧 \quad m_x^{(0 \rightarrow 1)}  = \sum_{y \in \mathcal{B}(x)} m_{y \rightarrow x}^{(0 \rightarrow 1)}\\
+            &🟧 \quad m_x^{(1 \rightarrow 0)}  = \sum_{y \in \mathcal{C}(x)} m_{y \rightarrow x}^{(1 \rightarrow 0)}\\
+            &🟩 \quad m_x^{(0)}  = m_x^{(1 \rightarrow 0)}\\
+            &🟩 \quad m_x^{(1)}  = m_x^{(0 \rightarrow 1)}\\
+            &🟦 \quad h_x^{t+1,(0)}  = m_x^{(0)}\\
+            &🟦 \quad h_x^{t+1,(1)} = m_x^{(1)}
+            \end{align*}
 
         Parameters
         ----------
