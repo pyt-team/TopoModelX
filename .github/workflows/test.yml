@@ -65,8 +65,9 @@ jobs:
       - name: Run tests for tutorials [pytest]
         if : ${{matrix.test-scope == 'tutorials'}}
         run: |
-          pytest --cov --cov-report=xml:coverage.xml test/test_tutorials.py
+          pytest test/test_tutorials.py
       - name: Upload coverage
+        if : ${{matrix.test-scope == 'codebase'}}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
