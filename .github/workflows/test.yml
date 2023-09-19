@@ -27,13 +27,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.10", "3.11"]
         torch-version: [2.0.1]
         include:
           - torch-version: 2.0.1
+        test-scope: ["codebase", "tutorials"]
 
     steps:
       - uses: actions/checkout@v3
@@ -57,10 +58,16 @@ jobs:
       - name: Typecheck [mypy]
         run: |
           mypy -p topomodelx
-      - name: Run tests [pytest]
+      - name: Run tests for codebase [pytest]
+        if : ${{matrix.test-scope == 'codebase'}}
         run: |
-          pytest --cov --cov-report=xml:coverage.xml
+          pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+      - name: Run tests for tutorials [pytest]
+        if : ${{matrix.test-scope == 'tutorials'}}
+        run: |
+          pytest test/test_tutorials.py
       - name: Upload coverage
+        if : ${{matrix.test-scope == 'codebase'}}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
