@@ -12,18 +12,21 @@ class SCNN(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels: int
-        Dimension of input features
-    intermediate_channels: int
-        Dimension of features of intermediate layers
-    out_channels: int
-        Dimension of output features
-    conv_order_down: int
-        Order of lower convolution
-    conv_order_up: int
-        Order of upper convolution
-    n_layers: int
-        Numer of layers
+    in_channels : int
+        Dimension of input features.
+    intermediate_channels : int
+        Dimension of features of intermediate layers.
+    out_channels : int
+        Dimension of output features.
+    conv_order_down : int
+        Order of lower convolution.
+    conv_order_up : int
+        Order of upper convolution.
+    aggr : bool
+        Whether to aggregate features on the nodes into 1 feature for the whole complex.
+        Default: False.
+    n_layers : int
+        Number of layers.
     """
 
     def __init__(
@@ -33,6 +36,7 @@ class SCNN(torch.nn.Module):
         out_channels,
         conv_order_down,
         conv_order_up,
+        aggr=False,
         aggr_norm=False,
         update_func=None,
         n_layers=2,
@@ -59,7 +63,7 @@ class SCNN(torch.nn.Module):
                     update_func=update_func,
                 )
             )
-
+        self.aggr = aggr
         self.linear = torch.nn.Linear(out_channels, 1)
         self.layers = torch.nn.ModuleList(layers)
 
@@ -68,22 +72,25 @@ class SCNN(torch.nn.Module):
 
         Parameters
         ----------
-        x: tensor
-            shape = [n_simplices, channels]
+        x : tensor, shape=[n_simplices, channels]
             node/edge/face features
-
-        laplacian: tensor
-            shape = [n_simplices,n_simplices]
+        laplacian_down : tensor, shape=[n_simplices, n_simplices]
+            Down Laplacian.
             For node features, laplacian_down = None
+        laplacian_up: tensor, shape=[n_edges, n_nodes]
+            Up Laplacian.
 
-        incidence_1: tensor
-            order 1 incidence matrix
-            shape = [n_edges, n_nodes]
+        Returns
+        -------
+        one_dimensional_cells_mean : tensor, shape=[n_simplices, 1]
+            Mean on one-dimensional cells.
         """
         for layer in self.layers:
             x = layer(x, laplacian_down, laplacian_up)
 
         x_1 = self.linear(x)
+        if not self.aggr:
+            return x_1
         one_dimensional_cells_mean = torch.nanmean(x_1, dim=0)
         one_dimensional_cells_mean[torch.isnan(one_dimensional_cells_mean)] = 0
 
