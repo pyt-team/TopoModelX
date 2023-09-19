@@ -20,6 +20,7 @@ class TestAllSetTransfomer:
             n_layers=2,
             mlp_num_layers=1,
         )
+        model = model.to(device)
 
         x_0 = torch.rand(2, 2)
         incidence_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
