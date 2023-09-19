@@ -34,6 +34,7 @@ First, we recommend using Python 3.11.3, which is the python version used to run
 For example, create a conda environment:
    ```bash
    conda create -n tmx python=3.11.3
+   conda activate tmx
    ```
 
 Then:
