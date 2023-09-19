@@ -80,6 +80,7 @@ class TestSCNN:
             conv_order_down=conv_order_down,
             conv_order_up=conv_order_up,
             n_layers=num_layers,
+            aggr=True,
         )
         with torch.no_grad():
             forward_pass = model(x_1, laplacian_down_1, laplacian_up_1)
