@@ -34,6 +34,7 @@ jobs:
         torch-version: [2.0.1]
         include:
           - torch-version: 2.0.1
+        test-type: ["codebase", "tutorials"]
 
     steps:
       - uses: actions/checkout@v3
@@ -57,9 +58,14 @@ jobs:
       - name: Typecheck [mypy]
         run: |
           mypy -p topomodelx
-      - name: Run tests [pytest]
+      - name: Run tests for codebase [pytest]
+        if : ${{matrix.test-folder == "codebase"}}
         run: |
-          pytest --cov --cov-report=xml:coverage.xml
+          pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+      - name: Run tests for tutorials [pytest]
+        if : ${{matrix.test-folder == "tutorials"}}
+        run: |
+          pytest --cov --cov-report=xml:coverage.xml test/test_tutorials.py
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
