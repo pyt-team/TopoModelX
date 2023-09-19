@@ -25,11 +25,7 @@ def _exec_tutorial(path):
     subprocess.check_call(args)
 
 
-paths = sorted(glob.glob("tutorials/*.ipynb"))
-paths.extend(sorted(glob.glob("tutorials/hypergraph/*.ipynb")))
-paths.extend(sorted(glob.glob("tutorials/simplicial/*.ipynb")))
-paths.extend(sorted(glob.glob("tutorials/cell/*.ipynb")))
-paths.extend(sorted(glob.glob("tutorials/combinatorial/*.ipynb")))
+paths = sorted(glob.glob("tutorials/cell/*.ipynb"))
 
 
 @pytest.mark.parametrize("path", paths)
