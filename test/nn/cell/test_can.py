@@ -22,6 +22,7 @@ class TestCAN:
             n_layers=2,
             att_lift=False,
         )
+        model = model.to(device)
 
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)
