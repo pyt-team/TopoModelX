@@ -23,7 +23,6 @@ The Base class is composed of primarily these classes:
    hypergat
    hypersage_layer
    hypersage
-   template_layer
    unigcn_layer
    unigcn
    unigcnii_layer
