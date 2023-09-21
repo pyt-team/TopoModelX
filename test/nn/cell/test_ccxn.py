@@ -19,6 +19,7 @@ class TestCCXN:
             n_layers=2,
             att=False,
         )
+        model = model.to(device)
 
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)

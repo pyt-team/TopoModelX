@@ -19,6 +19,7 @@ class TestCWN:
             num_classes=1,
             n_layers=2,
         )
+        model = model.to(device)
 
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)
