@@ -78,11 +78,12 @@ class HNHN(torch.nn.Module):
         classes = torch.softmax(logits, -1).argmax(-1)
         return logits, classes
 
+
 class HNHNNetwork(torch.nn.Module):
     """Hypergraph Networks with Hyperedge Neurons. Implementation for multiclass node classification.
 
     Parameters
-    ---------
+    ----------
     channels_node : int
         Dimension of node features.
     channels_edge : int
@@ -116,7 +117,7 @@ class HNHNNetwork(torch.nn.Module):
         """Forward computation.
 
         Parameters
-        ---------
+        ----------
         x_0 : torch.Tensor
             shape = [n_nodes, channels_node]
             Hypernode features.
@@ -130,7 +131,7 @@ class HNHNNetwork(torch.nn.Module):
             Boundary matrix of rank 1.
 
         Returns
-        --------
+        -------
         logits : torch.Tensor
             The predicted node logits
             shape = [n_nodes, n_classes]
