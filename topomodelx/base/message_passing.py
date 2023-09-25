@@ -8,7 +8,7 @@ from topomodelx.utils.scatter import scatter
 
 
 class MessagePassing(torch.nn.Module):
-    """Defines message passing.
+    """Define message passing.
 
     This class defines message passing through a single neighborhood N,
     by decomposing it into 2 steps:

@@ -452,7 +452,7 @@ class MultiHeadCellAttention(MessagePassing):
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
+            Input features on the r-cell of the cell complex.
 
         Returns
         -------
@@ -518,14 +518,14 @@ class MultiHeadCellAttention(MessagePassing):
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
+            Input features on the r-cell of the cell complex.
         neighborhood : torch.sparse, shape=[n_k_cells, n_k_cells]
-            Neighborhood matrix mapping k-cells to k-cells (A_k). [up, down]
+            Neighborhood matrix mapping r-cells to r-cells (A_k). [up, down]
 
         Returns
         -------
         torch.Tensor, shape=[n_k_cells, channels]
-            Output features on the k-cell of the cell complex.
+            Output features on the r-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
@@ -656,7 +656,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
+            Input features on the r-cell of the cell complex.
 
         Returns
         -------
@@ -723,14 +723,14 @@ class MultiHeadCellAttention_v2(MessagePassing):
         Parameters
         ----------
         x_source : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
+            Input features on the r-cell of the cell complex.
         neighborhood : torch.sparse, shape=[n_k_cells, n_k_cells]
-            Neighborhood matrix mapping k-cells to k-cells (A_k), [up, down].
+            Neighborhood matrix mapping r-cells to r-cells (A_k), [up, down].
 
         Returns
         -------
         torch.Tensor, shape=[n_k_cells, channels]
-            Output features on the k-cell of the cell complex.
+            Output features on the r-cell of the cell complex.
         """
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
@@ -908,13 +908,13 @@ class CANLayer(torch.nn.Module):
         Parameters
         ----------
         x : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
+            Input features on the r-cell of the cell complex.
         lower_neighborhood : torch.sparse
             shape=[n_k_cells, n_k_cells]
-            Lower neighborhood matrix mapping k-cells to k-cells (A_k_low).
+            Lower neighborhood matrix mapping r-cells to r-cells (A_k_low).
         upper_neighborhood : torch.sparse
             shape=[n_k_cells, n_k_cells]
-            Upper neighborhood matrix mapping k-cells to k-cells (A_k_up).
+            Upper neighborhood matrix mapping r-cells to r-cells (A_k_up).
 
         Returns
         -------
