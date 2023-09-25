@@ -11,7 +11,7 @@ class Conv(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
     Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a x-specific update function.
+    Includes an option for an x-specific update function.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ class Conv(MessagePassing):
         Initialization method.
     with_linear_transform: bool, default=True
         Whether to apply a learnable linear transform.
-        NB: if `False` in_channels has to be equal to out_channels
+        NB: if `False` in_channels has to be equal to out_channels.
     """
 
     def __init__(

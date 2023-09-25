@@ -14,9 +14,9 @@ from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 
 def generate_complex(N: int = 100) -> tuple[SimplicialComplex, np.ndarray]:
-    """
-    Generate a simplicial complex of dimension 2 as follows:.
+    """Generate a simplicial complex as described.
 
+    Generate a simplicial complex of dimension 2 as follows:
         1. Uniformly sample N random points form the unit square and build the Delaunay triangulation.
         2. Delete triangles contained in some pre-defined disks.
     """

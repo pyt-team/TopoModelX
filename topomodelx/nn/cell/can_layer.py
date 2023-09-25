@@ -24,17 +24,17 @@ def softmax(src, index, num_cells: int):
 
     Parameters
     ----------
-    src : torch.Tensor
-        Attention coefficients. Shape: [n_k_cells, heads]
-    index : torch.Tensor
-        Indices of the target nodes. Shape: [n_k_cells]
+    src : torch.Tensor, shape = [n_k_cells, heads]
+        Attention coefficients.
+    index : torch.Tensor, shape = [n_k_cells]
+        Indices of the target nodes.
     num_cells : int
         Number of cells in the batch.
 
     Returns
     -------
-    torch.Tensor
-        Softmax of the attention coefficients. Shape: [n_k_cells, heads]
+    torch.Tensor, shape = [n_k_cells, heads]
+        Softmax of the attention coefficients.
     """
     src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
     src -= src_max  # (|n_k_cells|, H)
@@ -54,13 +54,13 @@ def add_self_loops(neighborhood):
 
     Parameters
     ----------
-    neighborhood : torch.sparse_coo_tensor
-        Neighborhood matrix. Shape: [n_k_cells, n_k_cells]
+    neighborhood : torch.sparse_coo_tensor, shape = [n_k_cells, n_k_cells]
+        Neighborhood matrix.
 
     Returns
     -------
-    torch.sparse_coo_tensor
-        Neighborhood matrix with self-loops. Shape: [n_k_cells, n_k_cells]
+    torch.sparse_coo_tensor, shape = [n_k_cells, n_k_cells]
+        Neighborhood matrix with self-loops.
     """
     N = neighborhood.shape[0]
     cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
@@ -144,15 +144,15 @@ class LiftLayer(MessagePassing):
 
         Parameters
         ----------
-        x_0: torch.Tensor
-            Node signal of shape (num_nodes, in_channels_0)
-        neighborhood_0_to_0: torch.Tensor
-            Sparse neighborhood matrix of shape (num_nodes, num_nodes)
+        x_0: torch.Tensor, shape = (num_nodes, in_channels_0)
+            Node signal.
+        neighborhood_0_to_0: torch.Tensor, shape = (num_nodes, num_nodes)
+            Sparse neighborhood matrix.
 
         Returns
         -------
-        torch.Tensor
-            Edge signal of shape (num_edges, 1)
+        torch.Tensor, shape = (num_edges, 1)
+            Edge signal.
         """
         # Extract source and target nodes from the graph's edge index
         source, target = neighborhood_0_to_0.indices()  # (num_edges,)
@@ -166,7 +166,9 @@ class LiftLayer(MessagePassing):
 
 
 class MultiHeadLiftLayer(nn.Module):
-    r"""Multi Head Attentional Lift Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
+    r"""Multi Head Attentional Lift Layer.
+
+    Multi Head Attentional Lift Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
 
     Parameters
     ----------
@@ -220,14 +222,6 @@ class MultiHeadLiftLayer(nn.Module):
     def forward(self, x_0, neighborhood_0_to_0, x_1=None) -> torch.Tensor:
         r"""Forward pass.
 
-        .. math::
-            \begin{align*}
-            &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}
-                = \alpha(h_y, h_z) = \Theta(h_z||h_y)\\
-            &🟦 \quad h_x^{(1)}
-                = \phi(h_x, m_x^{(1)})
-            \end{align*}
-
         Parameters
         ----------
         x_0: torch.Tensor
@@ -241,6 +235,16 @@ class MultiHeadLiftLayer(nn.Module):
         -------
         _: torch.Tensor
             Lifted node signal of shape (num_edges, heads + in_channels_1)
+
+        Notes
+        -----
+        .. math::
+            \begin{align*}
+            &🟥 \quad m_{(y,z) \rightarrow x}^{(0 \rightarrow 1)}
+                = \alpha(h_y, h_z) = \Theta(h_z||h_y)\\
+            &🟦 \quad h_x^{(1)}
+                = \phi(h_x, m_x^{(1)})
+            \end{align*}
         """
         # Lift the node signal for each attention head
         attention_heads_x_1 = self.lifts(x_0, neighborhood_0_to_0)
@@ -269,7 +273,9 @@ class MultiHeadLiftLayer(nn.Module):
 
 
 class PoolLayer(MessagePassing):
-    r"""Attentional Pooling Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
+    r"""Attentional Pooling Layer.
+
+    Attentional Pooling Layer adapted from the official implementation of the Cell Attention Network (CAN) [1]_.
 
     Parameters
     ----------
@@ -310,6 +316,22 @@ class PoolLayer(MessagePassing):
     def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]
         r"""Forward pass.
 
+        Parameters
+        ----------
+        x_0: torch.Tensor, shape = (num_nodes, in_channels_0)
+            Node signal.
+        lower_neighborhood: torch.Tensor
+            Lower neighborhood matrix.
+        upper_neighborhood: torch.Tensor
+            Upper neighbourhood matrix.
+
+        Returns
+        -------
+        out: torch.Tensor
+            Pooled node signal of shape (num_pooled_nodes, in_channels_0).
+
+        Notes
+        -----
         .. math::
             \begin{align*}
             &🟥 \quad m_{x}^{(r)}
@@ -317,18 +339,6 @@ class PoolLayer(MessagePassing):
             &🟦 \quad h_x^{t+1,(r)}
                 = \phi^t(h_x^t, m_{x}^{(r)}), \forall x\in \mathcal C_r^{t+1}
             \end{align*}
-
-        Parameters
-        ----------
-        x_0: torch.Tensor
-            Node signal of shape (num_nodes, in_channels_0).
-        neighborhood_0_to_0: torch.Tensor
-            Neighborhood matrix of shape (num_edges, 2).
-
-        Returns
-        -------
-        out: torch.Tensor
-            Pooled node signal of shape (num_pooled_nodes, in_channels_0).
         """
         # Compute the output edge signal by applying the activation function
         Zp = torch.einsum("nc,ce->ne", x_0, self.att_pool)
@@ -366,7 +376,9 @@ class PoolLayer(MessagePassing):
 
 
 class MultiHeadCellAttention(MessagePassing):
-    """Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GAT [2]_.
+    """Attentional Message Passing v1.
+
+    Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GAT [2]_.
 
     Parameters
     ----------
@@ -551,7 +563,9 @@ class MultiHeadCellAttention(MessagePassing):
 
 
 class MultiHeadCellAttention_v2(MessagePassing):
-    """Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GATv2 [3]_.
+    """Attentional Message Passing v2.
+
+    Attentional Message Passing from Cell Attention Network (CAN) [1]_ following the attention mechanism proposed in GATv2 [3]_
 
     Parameters
     ----------
@@ -679,13 +693,13 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor
-            Source node features. Shape: [|n_k_cells|, heads, in_channels]
+        x_source : torch.Tensor, shape = [|n_k_cells|, heads, in_channels]
+            Source node features.
 
         Returns
         -------
-        alpha : torch.Tensor
-            Attention weights. Shape: [n_k_cells, heads]
+        alpha : torch.Tensor, shape = [n_k_cells, heads]
+            Attention weights.
         """
         # Apply activation function
         x_source = self.att_activation(x_source)  # (|n_k_cells|, H, C)
@@ -711,7 +725,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         x_source : torch.Tensor, shape=[n_k_cells, channels]
             Input features on the k-cell of the cell complex.
         neighborhood : torch.sparse, shape=[n_k_cells, n_k_cells]
-            Neighborhood matrix mapping k-cells to k-cells (A_k). [up, down]
+            Neighborhood matrix mapping k-cells to k-cells (A_k), [up, down].
 
         Returns
         -------
@@ -759,10 +773,6 @@ class CANLayer(torch.nn.Module):
     The CAN layer considers an attention convolutional message passing though the upper and lower neighborhoods of the cell.
     Additionally, a skip connection can be added to the output of the layer.
 
-    Notes
-    -----
-    Add_self_loops is preferred to be False. If necessary, the self-loops should be added to the neighborhood matrix in the preprocessing step.
-
     Parameters
     ----------
     in_channels : int
@@ -788,7 +798,11 @@ class CANLayer(torch.nn.Module):
     version : Literal["v1", "v2"], default="v1"
         Version of the layer, by default "v1" which is the same as the original CAN layer. While "v2" has the same attetion mechanism as the GATv2 layer.
     share_weights : bool, default=False
-        This option is valid only for "v2". If True, the weights of the linear transformation applied to the source and target features are shared, by default False
+        This option is valid only for "v2". If True, the weights of the linear transformation applied to the source and target features are shared, by default False.
+
+    Notes
+    -----
+    Add_self_loops is preferred to be False. If necessary, the self-loops should be added to the neighborhood matrix in the preprocessing step.
     """
 
     lower_att: MultiHeadCellAttention | MultiHeadCellAttention_v2
@@ -891,6 +905,23 @@ class CANLayer(torch.nn.Module):
     def forward(self, x, lower_neighborhood, upper_neighborhood) -> torch.Tensor:
         r"""Forward pass.
 
+        Parameters
+        ----------
+        x : torch.Tensor, shape=[n_k_cells, channels]
+            Input features on the k-cell of the cell complex.
+        lower_neighborhood : torch.sparse
+            shape=[n_k_cells, n_k_cells]
+            Lower neighborhood matrix mapping k-cells to k-cells (A_k_low).
+        upper_neighborhood : torch.sparse
+            shape=[n_k_cells, n_k_cells]
+            Upper neighborhood matrix mapping k-cells to k-cells (A_k_up).
+
+        Returns
+        -------
+        torch.Tensor, shape=[n_k_cells, out_channels]
+
+        Notes
+        -----
         .. math::
             \mathcal N = \{\mathcal N_1, \mathcal N_2\} = \{A_{\uparrow, r}, A_{\downarrow, r}\}
 
@@ -906,21 +937,6 @@ class CANLayer(torch.nn.Module):
                 = \phi^{t}(h_x^t, m_{x}^{(r)})
             \end{align*}
 
-
-        Parameters
-        ----------
-        x : torch.Tensor, shape=[n_k_cells, channels]
-            Input features on the k-cell of the cell complex.
-        lower_neighborhood : torch.sparse
-            shape=[n_k_cells, n_k_cells]
-            Lower neighborhood matrix mapping k-cells to k-cells (A_k_low).
-        upper_neighborhood : torch.sparse
-            shape=[n_k_cells, n_k_cells]
-            Upper neighborhood matrix mapping k-cells to k-cells (A_k_up).
-
-        Returns
-        -------
-        torch.Tensor, shape=[n_k_cells, out_channels]
         """
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)

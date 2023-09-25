@@ -62,7 +62,7 @@ class DHGCNLayer(torch.nn.Module):
 
     @staticmethod
     def kmeans_graph(x, k, flow: str = "source_to_target"):
-        r"""K-means algorithm implementation.
+        r"""Implement k-means algorithm.
 
         Parameters
         ----------
@@ -134,7 +134,7 @@ class DHGCNLayer(torch.nn.Module):
         return torch.stack([row, col], dim=0)
 
     def kmeans(self, x_0, k=None):
-        r"""K-means algorithm wrapper.
+        r"""Wrap k-means algorithm.
 
         Parameters
         ----------
@@ -155,7 +155,7 @@ class DHGCNLayer(torch.nn.Module):
         return self.kmeans_graph(x_0, k=k, flow="source_to_target")
 
     def get_dynamic_topology(self, x_0_features):
-        r"""Dynamic topology computation.
+        r"""Compute dynamic topology.
 
         Parameters
         ----------
@@ -192,7 +192,7 @@ class DHGCNLayer(torch.nn.Module):
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 
     def forward(self, x_0):
-        r"""Forward computation (see [2]_ and [3]_).
+        r"""Forward pass (see [2]_ and [3]_).
 
         Dynamic topology module of the DHST Block is implemented here.
 

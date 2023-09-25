@@ -73,10 +73,10 @@ class SCNN(torch.nn.Module):
         Parameters
         ----------
         x : tensor, shape=[n_simplices, channels]
-            node/edge/face features
+            Tensor of features node/edge/face.
         laplacian_down : tensor, shape=[n_simplices, n_simplices]
             Down Laplacian.
-            For node features, laplacian_down = None
+            For node features, laplacian_down = None.
         laplacian_up: tensor, shape=[n_edges, n_nodes]
             Up Laplacian.
 

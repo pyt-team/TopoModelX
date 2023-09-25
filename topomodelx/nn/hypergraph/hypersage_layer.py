@@ -130,11 +130,10 @@ class HyperSAGELayer(MessagePassing):
         x_messages : Tensor, shape=[..., n_messages, out_channels]
             Features associated with each message.
             One message is sent from a source cell to a target cell.
-        mode : string
+        mode : string, default = "inter"
             The mode on which aggregation to compute.
             If set to "inter", will compute inter-aggregation,
             if set to "intra", will compute intra-aggregation (see [1]).
-            Default is "inter".
 
         Returns
         -------

@@ -15,8 +15,8 @@ class HyperGATLayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    update_func : string
-        Update method to apply to message. Default is "relu".
+    update_func : string, default = "relu"
+        Update method to apply to message.
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
 
@@ -96,9 +96,9 @@ class HyperGATLayer(MessagePassing):
         x_target : torch.Tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        mechanism: Literal["node-level", "edge-level"]
+        mechanism: Literal["node-level", "edge-level"], default = "node-level"
             Attention mechanism as proposed in [1]. If set to "node-level", will compute node-level attention,
-            if set to "edge-level", will compute edge-level attention (see [1]). Default is "node-level".
+            if set to "edge-level", will compute edge-level attention (see [1]).
 
         Returns
         -------

@@ -261,7 +261,7 @@ class AllSetBlock(nn.Module):
         x : torch.Tensor
             Input features.
         incidence : torch.sparse
-            Incidence matrix between node/hyperedges
+            Incidence matrix between node/hyperedges.
 
         Returns
         -------

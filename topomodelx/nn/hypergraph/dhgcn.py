@@ -16,7 +16,7 @@ class DHGCN(torch.nn.Module):
         Dimension of edge features
     channels_node : int
         Dimension of node features
-    n_layer : 2
+    n_layer : int, default = 2
         Amount of message passing layers.
 
     References
@@ -45,14 +45,12 @@ class DHGCN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : tensor
-            shape = [n_nodes, node_channels]
+        x_0 : tensor, shape = [n_nodes, node_channels]
             Edge features.
 
         Returns
         -------
-        _ : tensor
-            shape = [1]
+        _ : tensor, shape = [1]
             Label assigned to whole complex.
         """
         for layer in self.layers:

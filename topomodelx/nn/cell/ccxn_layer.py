@@ -15,10 +15,6 @@ class CCXNLayer(torch.nn.Module):
     2. A convolutional layer sending messages from edges to faces.
     Optionally, attention mechanisms can be used.
 
-    Notes
-    -----
-    This is the architecture proposed for entire complex classification.
-
     Parameters
     ----------
     in_channels_0 : int
@@ -29,6 +25,10 @@ class CCXNLayer(torch.nn.Module):
         Dimension of input features on faces (2-cells).
     att : bool, default=False
         Whether to use attention.
+
+    Notes
+    -----
+    This is the architecture proposed for entire complex classification.
 
     References
     ----------

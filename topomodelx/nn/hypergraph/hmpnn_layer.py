@@ -134,11 +134,11 @@ class HMPNNLayer(nn.Module):
         and aggregated messages of nodes as input and returns hyperedge messages. If not given, two inputs
         are concatenated and a linear layer reducing back to in_features plus sigmoid is applied, according
         to the paper.
-    adjacency_dropout: 0.7
+    adjacency_dropout: int, default = 0.7
         Adjacency dropout rate.
     aggr_func: Literal["sum", "mean", "add"], default="sum"
         Message aggregation function.
-    updating_dropout: 0.5
+    updating_dropout: int, default = 0.5
         Regular dropout rate applied to node and hyperedge features.
     updating_func: None
         The final function or nn.Module object to be called on node and hyperedge features to retrieve
@@ -208,8 +208,8 @@ class HMPNNLayer(nn.Module):
             Input features of the nodes.
         x_1 : torch.Tensor, shape=[n_edges, hyperedge_in_features]
             Input features of the hyperedges.
-        incidence_1 : torch.sparse.Tensor
-            Incidence matrix mapping hyperedges to nodes (B_1) with shape [n_nodes, n_edges].
+        incidence_1 : torch.sparse.Tensor, shape = [n_nodes, n_edges]
+            Incidence matrix mapping hyperedges to nodes (B_1).
 
         Returns
         -------

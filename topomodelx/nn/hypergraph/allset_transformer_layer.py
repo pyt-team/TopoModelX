@@ -232,15 +232,15 @@ class AllSetTransformerBlock(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor
-            Input features.
-        incidence : torch.sparse
-            Incidence matrix between node/hyperedges
+        x_source : Tensor, shape=[…, n_source_cells, in_channels]
+            Inputer features.
+        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+            Neighborhood matrix.
 
         Returns
         -------
-        x : torch.Tensor
-            Output features.
+        x_message_on_target :
+            Output sum over features on target cells.
         """
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()

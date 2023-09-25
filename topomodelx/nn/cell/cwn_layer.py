@@ -17,10 +17,6 @@ class CWNLayer(nn.Module):
     3. A layer that creates representations in r-cells based on the received messages.
     4. A layer that updates representations in r-cells.
 
-    Notes
-    -----
-    This is the architecture proposed for entire complex classification.
-
     Parameters
     ----------
     in_channels_0 : int
@@ -59,6 +55,10 @@ class CWNLayer(nn.Module):
 
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultUpdate for more detail).
+
+    Notes
+    -----
+    This is the architecture proposed for entire complex classification.
 
     References
     ----------
@@ -160,11 +160,9 @@ class CWNLayer(nn.Module):
             Input features on the r-cells.
         x_2 : torch.Tensor, shape=[n_{r+1}_cells, in_channels_{r+1}]
             Input features on the (r+1)-cells.
-        neighborhood_1_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r}_cells]
+        neighborhood_1_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r}_cells]
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r+1}_cells]
+        neighborhood_2_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r+1}_cells]
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
         neighborhood_0_to_1 : torch.sparse
             shape=[n_{r}_cells, n_{r-1}_cells]
@@ -221,11 +219,9 @@ class _CWNDefaultFirstConv(nn.Module):
             Input features on the (r-1)-cells.
         x_2 : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
             Input features on the r-cells.
-        neighborhood_1_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r}_cells]
+        neighborhood_1_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r}_cells]
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r+1}_cells]
+        neighborhood_2_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r+1}_cells]
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
 
         Returns
@@ -261,8 +257,7 @@ class _CWNDefaultSecondConv(nn.Module):
             Input features on the (r-1)-cells.
         x_1 : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
             Input features on the r-cells.
-        neighborhood_0_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r-1}_cells]
+        neighborhood_0_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r-1}_cells]
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns

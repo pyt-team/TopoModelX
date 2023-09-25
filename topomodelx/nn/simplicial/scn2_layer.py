@@ -13,6 +13,15 @@ class SCN2Layer(torch.nn.Module):
     This layer corresponds to the rightmost tensor diagram labeled Yang22c in
     Figure 11 of [PSHM23]_.
 
+    Parameters
+    ----------
+    in_channels_0 : int
+        Dimension of input features on nodes (0-cells).
+    in_channels_1 : int
+        Dimension of input features on edges (1-cells).
+    in_channels_2 : int
+        Dimension of input features on faces (2-cells).
+
     See Also
     --------
     topomodelx.nn.simplicial.sccn_layer.SCCNLayer : SCCN layer
@@ -37,15 +46,6 @@ class SCN2Layer(torch.nn.Module):
     .. [3] Papillon, Sanborn, Hajij, Miolane.
         Architectures of topological deep learning: a survey on topological neural networks (2023).
         https://arxiv.org/abs/2304.10031.
-
-    Parameters
-    ----------
-    in_channels_0 : int
-        Dimension of input features on nodes (0-cells).
-    in_channels_1 : int
-        Dimension of input features on edges (1-cells).
-    in_channels_2 : int
-        Dimension of input features on faces (2-cells).
     """
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2) -> None:

@@ -85,8 +85,7 @@ class UniGINLayer(torch.nn.Module):
         ----------
         x_0 : torch.Tensor, shape=[n_nodes, in_channels]
             Input features on the nodes of the hypergraph.
-        incidence_1 : torch.sparse
-            shape=[n_nodes, n_edges]
+        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
             Incidence matrix mapping edges to nodes (B_1).
 
         Returns

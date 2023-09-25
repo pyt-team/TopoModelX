@@ -10,8 +10,7 @@ class Aggregation(torch.nn.Module):
     Parameters
     ----------
     aggr_func : Literal["mean", "sum"], default="sum"
-        Aggregation method.
-        (Inter-neighborhood).
+        Aggregation method (Inter-neighborhood).
     update_func : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
         Update method to apply to merged message.
     """
@@ -51,8 +50,9 @@ class Aggregation(torch.nn.Module):
         Parameters
         ----------
         x : list
-            len = n_messages_to_merge
-            Each message has shape [n_skeleton_in, channels]
+            A list of messages to merge. Each message has shape [n_skeleton_in, channels] and
+            len = n_messages_to_merge.
+
         """
         if self.aggr_func == "sum":
             x = torch.sum(torch.stack(x), axis=0)
