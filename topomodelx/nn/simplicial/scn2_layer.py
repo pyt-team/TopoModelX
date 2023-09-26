@@ -73,22 +73,22 @@ class SCN2Layer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, node_features]
+        x_0 : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
-        x_1 : torch.Tensor, shape=[n_edges, edge_features]
+        x_1 : torch.Tensor, shape = (n_edges, edge_features)
             Input features on the edges of the simplicial complex.
-        x_2 : torch.Tensor, shape=[n_faces, face_features]
+        x_2 : torch.Tensor, shape = (n_faces, face_features)
             Input features on the faces of the simplicial complex.
-        laplacian_0 : torch.sparse, shape=[n_nodes, n_nodes]
+        laplacian_0 : torch.sparse, shape = (n_nodes, n_nodes)
             Normalized Hodge Laplacian matrix = L_upper + L_lower.
-        laplacian_1 : torch.sparse, shape=[n_edges, n_edges]
+        laplacian_1 : torch.sparse, shape = (n_edges, n_edges)
             Normalized Hodge Laplacian matrix.
-        laplacian_2 : torch.sparse, shape=[n_faces, n_faces]
+        laplacian_2 : torch.sparse, shape = (n_faces, n_faces)
             Normalized Hodge Laplacian matrix.
 
         Returns
         -------
-        torch.Tensor, shape=[n_nodes, channels]
+        torch.Tensor, shape = (n_nodes, channels)
             Output features on the nodes of the simplicial complex.
         """
         x_0 = self.conv_0_to_0(x_0, laplacian_0)

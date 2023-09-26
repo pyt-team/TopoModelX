@@ -83,15 +83,15 @@ class SANConv(Conv):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
 
         Returns
         -------
-        torch.Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape = (..., n_target_cells, out_channels)
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

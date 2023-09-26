@@ -204,18 +204,18 @@ class HMPNNLayer(nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, node_in_features]
+        x_0 : torch.Tensor, shape = (n_nodes, node_in_features)
             Input features of the nodes.
-        x_1 : torch.Tensor, shape=[n_edges, hyperedge_in_features]
+        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_features)
             Input features of the hyperedges.
-        incidence_1 : torch.sparse.Tensor, shape = [n_nodes, n_edges]
+        incidence_1 : torch.sparse.Tensor, shape = (n_nodes, n_edges)
             Incidence matrix mapping hyperedges to nodes (B_1).
 
         Returns
         -------
-        x_0 : torch.Tensor, shape=[n_nodes, node_in_features]
+        x_0 : torch.Tensor, shape = (n_nodes, node_in_features)
             Output features of the nodes.
-        x_1 : torch.Tensor, shape=[n_edges, hyperedge_in_features]
+        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_features)
             Output features of the hyperedges.
         """
         node_messages_aggregated, node_messages = self.node_to_hyperedge_messenger(

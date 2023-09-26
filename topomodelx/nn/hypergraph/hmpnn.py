@@ -67,16 +67,16 @@ class HMPNN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = [n_nodes, in_features]
+        x_0 : torch.Tensor, shape = (n_nodes, in_features)
             Node features.
-        x_1 : torch.Tensor, shape = [n_hyperedges, in_features]
+        x_1 : torch.Tensor, shape = (n_hyperedges, in_features)
             Hyperedge features.
-        incidence_1: torch.sparse.Tensor, shape = [n_nodes, n_hyperedges]
+        incidence_1: torch.sparse.Tensor, shape = (n_nodes, n_hyperedges)
             Incidence matrix (B1).
 
         Returns
         -------
-        y_pred : torch.Tensor, shape = [n_nodes, num_classes]
+        y_pred : torch.Tensor, shape = (n_nodes, num_classes)
             Predicted logits.
         """
         x_0 = self.to_hidden_linear(x_0)

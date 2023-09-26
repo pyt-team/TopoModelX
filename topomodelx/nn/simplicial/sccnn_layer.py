@@ -188,12 +188,12 @@ class SCCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_target_cells, out_channels]
+        x : torch.Tensor, shape = (n_target_cells, out_channels)
             Feature tensor.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -206,11 +206,11 @@ class SCCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        conv_operator : torch.sparse, shape = [n_simplices,n_simplices]
+        conv_operator : torch.sparse, shape = (n_simplices,n_simplices)
             Convolution operator e.g., the adjacency matrix, or the Hodge Laplacians.
         conv_order : int
             The order of the convolution.
-        x : torch.Tensor, shape = [n_simplices,num_channels]
+        x : torch.Tensor, shape = (n_simplices,num_channels)
             Feature tensor.
 
         Returns
@@ -251,9 +251,9 @@ class SCCNNLayer(torch.nn.Module):
         x_all : tuple of tensors, shape = (x_0,x_1,x_2)
             Tuple of input feature tensors:
 
-            - x_0: torch.Tensor, shape=[n_nodes,in_channels_0],
-            - x_1: torch.Tensor, shape=[n_edges,in_channels_1],
-            - x_2: torch.Tensor, shape=[n_triangles,in_channels_2].
+            - x_0: torch.Tensor, shape = (n_nodes,in_channels_0),
+            - x_1: torch.Tensor, shape = (n_edges,in_channels_1),
+            - x_2: torch.Tensor, shape = (n_triangles,in_channels_2).
 
 
         laplacian_all: tuple of tensors, shape = (laplacian_0,laplacian_down_1,laplacian_up_1,laplacian_2)
@@ -267,12 +267,12 @@ class SCCNNLayer(torch.nn.Module):
         incidence_all: tuple of tensors, shape = (b1,b2)
             Tuple of incidence tensors:
 
-            - b1: torch.sparse, shape=[n_nodes,n_edges], node-to-edge incidence matrix,
-            - b2: torch.sparse, shape=[n_edges,n_triangles], edge-to-face incidence matrix.
+            - b1: torch.sparse, shape = (n_nodes,n_edges), node-to-edge incidence matrix,
+            - b2: torch.sparse, shape = (n_edges,n_triangles), edge-to-face incidence matrix.
 
         Returns
         -------
-        y: tuple, shape = (y_0,y_1,y_2)
+        tuple, shape = (y_0,y_1,y_2)
             Tuple of output tensors:
 
             - y_0: output on nodes,

@@ -17,7 +17,7 @@ class HNHNLayer(torch.nn.Module):
     ----------
     in_features : int
         The input dimension of node features.
-    incidence_1 : torch.sparse.Tensor, shape = [n_nodes, n_edges]
+    incidence_1 : torch.sparse.Tensor, shape = (n_nodes, n_edges)
         Incidence matrix mapping hyperedges to nodes (B_1).
     activation_func: Callable
         Called on the new representations.
@@ -73,14 +73,14 @@ class HNHNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, in_features]
+        x_0 : torch.Tensor, shape = (n_nodes, in_features)
             Input features of the nodes.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape=[n_nodes, in_features]
+        x_0 : torch.Tensor, shape = (n_nodes, in_features)
             Output features of the nodes.
-        x_1 : torch.Tensor, shape=[n_hyperedges, in_features]
+        x_1 : torch.Tensor, shape = (n_hyperedges, in_features)
             Output features of the hyperedges.
         """
         x_1_prime = self.activation(

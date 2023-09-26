@@ -116,13 +116,13 @@ class CAN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = [n_nodes, in_channels_0]
+        x_0 : torch.Tensor, shape = (n_nodes, in_channels_0)
             Input features on the nodes (0-cells).
-        x_1 : torch.Tensor, shape = [n_edges, in_channels_1]
+        x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
-        lower_neighborhood : tensor, shape = [-, -]
+        lower_neighborhood : tensor, shape = (-, -)
             Lower Neighbourhood matrix.
-        upper_neighborhood : tensor, shape = [-, -]
+        upper_neighborhood : tensor, shape = (-, -)
             Upper neighbourhood matrix.
 
         Returns

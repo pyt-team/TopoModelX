@@ -20,11 +20,11 @@ class AllSetTransformer(torch.nn.Module):
         Dimension of the output features.
     dropout : float
         Dropout probability.
-    n_layers : int, optional, default: 2
+    n_layers : int, default: 2
         Number of AllSet layers in the network.
-    input_dropout : float, optional, default: 0.2
+    input_dropout : float, default: 0.2
         Dropout probability for the layer input.
-    mlp_num_layers : int, optional, default: 2
+    mlp_num_layers : int, default: 2
         Number of layers in the MLP.
     mlp_norm : bool, optional. default: False
         Whether to apply input normalization in the MLP.

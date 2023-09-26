@@ -33,18 +33,18 @@ class HSN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : tensor, shape = [n_nodes, channels]
+        x_0 : tensor, shape = (n_nodes, channels)
             Node features.
 
-        incidence_1 : tensor, shape = [n_nodes, n_edges]
+        incidence_1 : tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
-        adjacency_0 : tensor, shape = [n_nodes, n_nodes]
+        adjacency_0 : tensor, shape = (n_nodes, n_nodes)
             Adjacency matrix (up) of rank 0.
 
         Returns
         -------
-        _ : tensor, shape = [n_nodes, 2]
+        _ : tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
 
         """

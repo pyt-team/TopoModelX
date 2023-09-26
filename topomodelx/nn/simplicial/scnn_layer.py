@@ -118,12 +118,12 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_target_cells, out_channels]
+        x : torch.Tensor, shape = (n_target_cells, out_channels)
             Output features on target cells.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -136,16 +136,16 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        conv_operator : torch.sparse, shape = [n_simplices,n_simplices]
+        conv_operator : torch.sparse, shape = (n_simplices,n_simplices)
             Convolution operator e.g. adjacency matrix or the Hodge Laplacians.
         conv_order : int
             The order of the convolution
-        x : torch.Tensor, shape = [n_simplices,num_channels]
+        x : torch.Tensor, shape = (n_simplices,num_channels)
             Input feature tensor.
 
         Return
         ------
-        X : torch.Tensor
+        torch.Tensor
             Output tensor, x[:,:,k] = (conv_operator@....@conv_operator) @ x.
         """
         num_simplices, num_channels = x.shape
@@ -175,15 +175,15 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape=[n_simplex,in_channels]
+        x: torch.Tensor, shape = (n_simplex,in_channels)
             Input features on the simplices, e.g., nodes, edges, triangles, etc.
 
-        laplacian: torch.sparse, shape = [n_simplices,n_simplices]
+        laplacian: torch.sparse, shape = (n_simplices,n_simplices)
             The Hodge Laplacian matrix. Can also be adjacency matrix, lower part, or upper part.
 
         Returns
         -------
-        torch.Tensor, shape=[n_edges, channels]
+        torch.Tensor, shape = (n_edges, channels)
             Output features on the edges of the simplical complex.
         """
         num_simplices, _ = x.shape

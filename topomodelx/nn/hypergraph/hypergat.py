@@ -41,15 +41,15 @@ class HyperGAT(torch.nn.Module):
         Parameters
         ----------
         x_1 : tensor
-            shape = [n_edges, channels_edge]
+            shape = (n_edges, channels_edge)
             Edge features.
 
-        incidence_1 : tensor, shape = [n_nodes, n_edges]
+        incidence_1 : tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         for layer in self.layers:

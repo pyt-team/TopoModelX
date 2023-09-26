@@ -71,13 +71,13 @@ class SCConv(torch.nn.Module):
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape=[n_nodes, node_channels]
+        x_0: torch.Tensor, shape = (n_nodes, node_channels)
             Input features on the nodes of the simplicial complex.
-        x_1: torch.Tensor, shape=[n_edges, edge_channels]
+        x_1: torch.Tensor, shape = (n_edges, edge_channels)
             Input features on the edges of the simplicial complex.
-        x_2: torch.Tensor, shape=[n_faces, face_channels]
+        x_2: torch.Tensor, shape = (n_faces, face_channels)
             Input features on the faces of the simplicial complex.
-        incidence_1: torch.Tensor, shape=[n_faces, channels]
+        incidence_1: torch.Tensor, shape = (n_faces, channels)
             Incidence matrix of rank 1 :math:`B_1`.
         incidence_1_norm: torch.Tensor
             Normalized incidence matrix of rank 1 :math:`B^{~}_1`.
@@ -96,7 +96,7 @@ class SCConv(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
 
         """

@@ -66,7 +66,7 @@ class DHGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_nodes, node_features]
+        x : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
         k : int
             Number of clusters/centroids
@@ -80,7 +80,7 @@ class DHGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape=[n_nodes, 2]
+        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
             Indices of the on-zero values in the feature matrix of hypergraph
             convolutional network.
             The order of dimensions of the matrix is defined by the value of the flow
@@ -138,12 +138,12 @@ class DHGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, node_features]
+        x_0 : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape=[n_nodes, 2]
+        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
             Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
         """
         if k is None:
@@ -159,12 +159,12 @@ class DHGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0_features : torch.Tensor, shape=[n_nodes, node_features]
+        x_0_features : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        hyperedge_incidence_matrix : torch.Tensor, shape=[n_nodes, n_nodes + k_centroids]
+        hyperedge_incidence_matrix : torch.Tensor, shape = (n_nodes, n_nodes + k_centroids)
             Incidence matrix mapping edges to nodes.
         """
         device = x_0_features.device
@@ -207,12 +207,12 @@ class DHGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, node_channels]
+        x_0 : torch.Tensor, shape = (n_nodes, node_channels)
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape=[n_nodes, out_channels]
+        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
             Output features on the nodes of the simplicial complex.
         """
         # dynamic topology processing:

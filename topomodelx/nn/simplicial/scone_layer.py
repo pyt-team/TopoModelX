@@ -88,16 +88,16 @@ class SCoNeLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape=[n_edges, in_channels]
+        x: torch.Tensor, shape = (n_edges, in_channels)
             Input features on the edges of the simplicial complex.
-        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
+        incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
             Incidence matrix :math:`B_1` mapping edges to nodes.
-        incidence_2 : torch.sparse, shape=[n_edges, n_triangles]
+        incidence_2 : torch.sparse, shape = (n_edges, n_triangles)
             Incidence matrix :math:`B_2` mapping triangles to edges.
 
         Returns
         -------
-        torch.Tensor, shape=[n_edges, out_channels]
+        torch.Tensor, shape = (n_edges, out_channels)
             Output features on the edges of the simplicial complex.
         """
         z1 = incidence_2 @ incidence_2.T @ x @ self.weight_2

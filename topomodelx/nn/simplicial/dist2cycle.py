@@ -33,12 +33,12 @@ class Dist2Cycle(torch.nn.Module):
 
         Parameters
         ----------
-        x_1e : tensor, shape = [n_nodes, channels]
+        x_1e : tensor, shape = (n_nodes, channels)
             Node features.
 
         Returns
         -------
-        _ : tensor, shape = [n_nodes, 2]
+        _ : tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
 
         """

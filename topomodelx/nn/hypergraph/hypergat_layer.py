@@ -90,10 +90,10 @@ class HyperGATLayer(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape = (n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
+        x_target : torch.Tensor, shape = (n_target_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
         mechanism: Literal["node-level", "edge-level"], default = "node-level"
@@ -102,7 +102,7 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = (n_messages, 1)
             Attention weights: one scalar per message between a source and a target cell.
         """
         if mechanism == "node-level":
@@ -134,12 +134,12 @@ class HyperGATLayer(MessagePassing):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
+        x_message_on_target : torch.Tensor, shape = (n_target_cells, out_channels)
             Output features on target cells.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":

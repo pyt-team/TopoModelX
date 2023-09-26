@@ -50,15 +50,15 @@ class UniGIN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : tensor, shape = [n_nodes, in_channels_node]
+        x_0 : tensor, shape = (n_nodes, in_channels_node)
             Edge features.
 
-        incidence_1 : tensor, shape = [n_nodes, n_edges]
+        incidence_1 : tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         x_0 = self.inp_embed(x_0)

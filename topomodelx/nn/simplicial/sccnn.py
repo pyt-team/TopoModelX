@@ -78,11 +78,11 @@ class SCCNN(torch.nn.Module):
         ----------
         x_all : tuple of tensors, shape = (node, edge, face)
             Tuple of feature tensors.
-            Each entry shape = [n_simplices, channels].
+            Each entry shape = (n_simplices, channels).
 
         laplacian_all : tuple of tensors, shape = (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2)
             Tuple of Laplacian tensors.
-            Each entry shape = [n_simplices,n_simplices].
+            Each entry shape = (n_simplices,n_simplices).
 
         incidence_all : tuple of tensors
             Tuple of order 1 and 2 incidence matrices:
@@ -92,7 +92,7 @@ class SCCNN(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         x_0, x_1, x_2 = x_all
@@ -201,11 +201,11 @@ class SCCNNComplex(torch.nn.Module):
         ----------
         x_all : tuple of tensors
             Tuple of feature tensors (node, edge, face).
-            Each entry shape = [n_simplices, channels].
+            Each entry shape = (n_simplices, channels).
 
         laplacian_all : tuple of tensors
             Tuple of Laplacian tensors (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2).
-            Each entry shape = [n_simplices,n_simplices].
+            Each entry shape = (n_simplices,n_simplices).
 
         incidence_all : tuple of tensors
             Tuple of order 1 and 2 incidence matrices.
@@ -214,7 +214,7 @@ class SCCNNComplex(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = [n_nodes, 2]
+        tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
         """
         x_0, x_1, x_2 = x_all

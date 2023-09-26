@@ -25,7 +25,7 @@ class HNHNLayer(torch.nn.Module):
         Dimension of node features.
     channels_edge : int
         Dimension of edge features.
-    incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
+    incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
     use_bias : bool
         Flag controlling whether to use a bias term in the convolution.
@@ -180,16 +180,16 @@ class HNHNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, channels_node]
+        x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Input features on the hypernodes.
-        x_1 : torch.Tensor, shape=[n_edges, channels_edge]
+        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
             Input features on the hyperedges.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape=[n_nodes, channels_node]
+        x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Output features on the hypernodes.
-        x_1 : torch.Tensor, shape=[n_edges, channels_edge]
+        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
             Output features on the hyperedges.
         """
         # Move incidence matrices to device

@@ -49,21 +49,21 @@ class SCCN(torch.nn.Module):
 
         Parameters
         ----------
-        features: Dict[int, torch.Tensor], length=max_rank+1, shape=[n_rank_r_cells, channels]
+        features: dict[int, torch.Tensor], length=max_rank+1, shape = (n_rank_r_cells, channels)
             Input features on the cells of the simplicial complex.
-        incidences : Dict[int, torch.sparse], length=max_rank, shape=[n_rank_r_minus_1_cells, n_rank_r_cells]
+        incidences : dict[int, torch.sparse], length=max_rank, shape = (n_rank_r_minus_1_cells, n_rank_r_cells)
             Incidence matrices :math:`B_r` mapping r-cells to (r-1)-cells.
-        adjacencies : Dict[int, torch.sparse], length=max_rank, shape=[n_rank_r_cells, n_rank_r_cells]
+        adjacencies : dict[int, torch.sparse], length=max_rank, shape = (n_rank_r_cells, n_rank_r_cells)
             Adjacency matrices :math:`H_r` mapping cells to cells via lower and upper cells.
 
         Returns
         -------
         _ : tensor
             If n_classes > 2:
-                shape = [n_nodes, n_classes]
+                shape = (n_nodes, n_classes)
                 Logits assigned to each node.
             If n_classes == 2:
-                shape = [n_nodes,]
+                shape = (n_nodes,)
                 Binary logits assigned to each node.
 
         """

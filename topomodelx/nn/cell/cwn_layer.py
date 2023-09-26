@@ -154,23 +154,23 @@ class CWNLayer(nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_{r-1}_cells, in_channels_{r-1}]
+        x_0 : torch.Tensor, shape = (n_{r-1}_cells, in_channels_{r-1})
             Input features on the (r-1)-cells.
-        x_1 : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x_1 : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Input features on the r-cells.
-        x_2 : torch.Tensor, shape=[n_{r+1}_cells, in_channels_{r+1}]
+        x_2 : torch.Tensor, shape = (n_{r+1}_cells, in_channels_{r+1})
             Input features on the (r+1)-cells.
-        neighborhood_1_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r}_cells]
+        neighborhood_1_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r+1}_cells]
+        neighborhood_2_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
         neighborhood_0_to_1 : torch.sparse
-            shape=[n_{r}_cells, n_{r-1}_cells]
+            shape = (n_{r}_cells, n_{r-1}_cells)
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns
         -------
-        torch.Tensor, shape=[n_{r}_cells, out_channels]
+        torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations of the r-cells.
 
         References
@@ -215,18 +215,18 @@ class _CWNDefaultFirstConv(nn.Module):
 
         Parameters
         ----------
-        x_1 : torch.Tensor, shape=[n_{r-1}_cells, in_channels_{r-1}]
+        x_1 : torch.Tensor, shape = (n_{r-1}_cells, in_channels_{r-1})
             Input features on the (r-1)-cells.
-        x_2 : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x_2 : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Input features on the r-cells.
-        neighborhood_1_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r}_cells]
+        neighborhood_1_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r+1}_cells]
+        neighborhood_2_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
 
         Returns
         -------
-        torch.Tensor, shape=[n_{r}_cells, out_channels]
+        torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
         x_up = F.elu(self.conv_1_to_1(x_1, neighborhood_1_to_1))
@@ -253,16 +253,16 @@ class _CWNDefaultSecondConv(nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_{r-1}_cells, in_channels_{r-1}]
+        x_0 : torch.Tensor, shape = (n_{r-1}_cells, in_channels_{r-1})
             Input features on the (r-1)-cells.
-        x_1 : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x_1 : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Input features on the r-cells.
-        neighborhood_0_to_1 : torch.sparse, shape=[n_{r}_cells, n_{r-1}_cells]
+        neighborhood_0_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns
         -------
-        torch.Tensor, shape=[n_{r}_cells, out_channels]
+        torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
         x_boundary = F.elu(self.conv_0_to_1(x_0, neighborhood_0_to_1))
@@ -285,14 +285,14 @@ class _CWNDefaultAggregate(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Representations on the r-cells produced by the first convolutional step.
-        y : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        y : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Representations on the r-cells produced by the second convolutional step.
 
         Returns
         -------
-        torch.Tensor, shape=[n_{r}_cells, out_channels]
+        torch.Tensor, shape = (n_{r}_cells, out_channels)
             Aggregated representations on the r-cells.
         """
         return x + y
@@ -310,14 +310,14 @@ class _CWNDefaultUpdate(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             New representations on the r-cells obtained after the aggregation step.
-        x_prev : torch.Tensor, shape=[n_{r}_cells, in_channels_{r}]
+        x_prev : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Original representations on the r-cells passed into the CWN layer.
 
         Returns
         -------
-        torch.Tensor, shape=[n_{r}_cells, out_channels]
+        torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
         x_updated = F.elu(self.transform(x))
