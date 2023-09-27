@@ -51,9 +51,11 @@ Then:
    ```bash
    pip install -e '.[all]'
    ```
-   **Note:** Requires pip >= 21.3. Refer: [PEP 660](https://peps.python.org/pep-0660/). 
+   **Notes:**
+   - Requires pip >= 21.3. Refer: [PEP 660](https://peps.python.org/pep-0660/).
+   - On Windows, use `pip install -e .[all]` instead (without quotes around `[all]`).
 
-3. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
+4. Install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
       ```bash
       pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
@@ -63,7 +65,7 @@ Then:
 
       where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
 
-4. Ensure that you have a working tmx installation by running the entire test suite with
+5. Ensure that you have a working tmx installation by running the entire test suite with
 
    ```bash
    pytest
@@ -71,7 +73,7 @@ Then:
 
    In case an error occurs, please first check if all sub-packages ([`torch-scatter`](https://github.com/rusty1s/pytorch_scatter), [`torch-sparse`](https://github.com/rusty1s/pytorch_sparse), [`torch-cluster`](https://github.com/rusty1s/pytorch_cluster) and [`torch-spline-conv`](https://github.com/rusty1s/pytorch_spline_conv)) are on its latest reported version.
 
-5. Install pre-commit hooks:
+6. Install pre-commit hooks:
 
    ```bash
    pre-commit install
