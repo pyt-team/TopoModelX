@@ -1,4 +1,4 @@
-"""Unit tests for the HMCLayer class."""
+"""Tests for the HMCLayer class."""
 import math
 
 import pytest

@@ -1,4 +1,4 @@
-"""Unit tests for the HMC class."""
+"""Tests for the HMC class."""
 import numpy as np
 import torch
 
