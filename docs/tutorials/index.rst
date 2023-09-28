@@ -4,9 +4,9 @@
 Tutorials
 =========
 
----------------------------------------------------------
-Tutorials for Topological Neural Nets on Cellular Complex
----------------------------------------------------------
+---------------------------------------------
+Topological Neural Nets on Cellular Complexes
+---------------------------------------------
 
 .. nbgallery::
    :maxdepth: 1
@@ -15,9 +15,9 @@ Tutorials for Topological Neural Nets on Cellular Complex
    ../notebooks/cell/*
 
 
-----------------------------------------------------
-Tutorials for Topological Neural Nets on Hypergraphs
-----------------------------------------------------
+--------------------------------------
+Topological Neural Nets on Hypergraphs
+--------------------------------------
 
 .. nbgallery::
    :maxdepth: 1
@@ -25,9 +25,9 @@ Tutorials for Topological Neural Nets on Hypergraphs
 
    ../notebooks/hypergraph/*
 
------------------------------------------------------------
-Tutorials for Topological Neural Nets on Simplicial Complex
------------------------------------------------------------
+-----------------------------------------------
+Topological Neural Nets on Simplicial Complexes
+-----------------------------------------------
 
 .. nbgallery::
    :maxdepth: 1
