@@ -44,15 +44,15 @@ class HyperSAGE(torch.nn.Module):
 
         Parameters
         ----------
-        x: tensor, shape = (n_nodes, features_nodes)
+        x: torch.Tensor, shape = (n_nodes, features_nodes)
             Edge features.
 
-        incidence: tensor, shape = (n_nodes, n_edges)
+        incidence: torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
         -------
-        _ : tensor, shape = (1)
+        torch.Tensor, shape = (1)
             Label assigned to whole complex.
         """
         for layer in self.layers:

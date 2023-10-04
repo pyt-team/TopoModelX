@@ -23,8 +23,8 @@ class SCNNLayer(torch.nn.Module):
         - down: for the lower convolutions.
         - up: for the upper convolutions.
 
-    Example
-    -------
+    Examples
+    --------
     Here we provide an example of pseudocode for SCNN layer
     input X: [n_simplices, in_channels]
     Lap_down, Lap_up: [n_simplices, n_simplices]

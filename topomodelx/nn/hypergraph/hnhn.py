@@ -56,7 +56,7 @@ class HNHN(torch.nn.Module):
         x_1 : torch.Tensor, shape = (n_nodes, channels_edge)
             Hyperedge features.
 
-        incidence_1 : tensor, shape = (n_nodes, n_edges)
+        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
@@ -120,7 +120,7 @@ class HNHNNetwork(torch.nn.Module):
             shape = [n_nodes, channels_edge]
             Hyperedge features.
 
-        incidence_1 : tensor
+        incidence_1 : torch.Tensor
             shape = [n_nodes, n_edges]
             Boundary matrix of rank 1.
 

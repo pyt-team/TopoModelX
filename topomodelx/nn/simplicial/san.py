@@ -84,12 +84,12 @@ class SAN(torch.nn.Module):
 
         Parameters
         ----------
-        L : tensor, shape = (n_edges, n_edges)
+        L : torch.Tensor, shape = (n_edges, n_edges)
             Hodge laplacian of rank 1.
 
         Returns
         -------
-        _ : tensor, shape = (n_edges, n_edges)
+        torch.Tensor, shape = (n_edges, n_edges)
             Projection matrix.
         """
         projection_mat = (
@@ -103,19 +103,19 @@ class SAN(torch.nn.Module):
 
         Parameters
         ----------
-        x : tensor, shape = (n_nodes, channels_in)
+        x : torch.Tensor, shape = (n_nodes, channels_in)
             Node features.
 
-        laplacian_up : tensor, shape = (n_edges, n_edges)
+        laplacian_up : torch.Tensor, shape = (n_edges, n_edges)
             Upper laplacian of rank 1.
 
-        Ld : tensor, shape = (n_edges, n_edges)
+        Ld : torch.Tensor, shape = (n_edges, n_edges)
             Down laplacian of rank 1.
 
 
         Returns
         -------
-        _ : tensor, shape = (n_nodes, 2)
+        torch.Tensor, shape = (n_nodes, 2)
             One-hot labels assigned to edges.
 
         """

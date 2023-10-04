@@ -18,8 +18,8 @@ class SCCNNLayer(torch.nn.Module):
         Convolution order of the simplicial filters.
         To avoid too many parameters, we consider them to be the same.
 
-    Example
-    -------
+    Examples
+    --------
     Here we provide an example of pseudocode for SCCNN layer in an SC
     of order two
     input X_0: [n_nodes, in_channels]
