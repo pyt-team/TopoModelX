@@ -92,7 +92,7 @@ class SCCNN(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = (1)
+        torch.Tensor, shape = (1)
             Label assigned to whole complex.
         """
         x_0, x_1, x_2 = x_all
@@ -214,7 +214,7 @@ class SCCNNComplex(torch.nn.Module):
 
         Returns
         -------
-        tensor, shape = (n_nodes, 2)
+        torch.Tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
         """
         x_0, x_1, x_2 = x_all

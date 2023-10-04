@@ -45,12 +45,12 @@ class DHGCN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : tensor, shape = (n_nodes, node_channels)
+        x_0 : torch.Tensor, shape = (n_nodes, node_channels)
             Edge features.
 
         Returns
         -------
-        _ : tensor, shape = (1)
+        torch.Tensor, shape = (1)
             Label assigned to whole complex.
         """
         for layer in self.layers:
