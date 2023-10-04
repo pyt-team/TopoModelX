@@ -96,7 +96,7 @@ class SCConv(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = (1)
+        torch.Tensor, shape = (1)
             Label assigned to whole complex.
 
         """

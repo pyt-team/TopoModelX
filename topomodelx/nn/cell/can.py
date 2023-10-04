@@ -120,14 +120,14 @@ class CAN(torch.nn.Module):
             Input features on the nodes (0-cells).
         x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
-        lower_neighborhood : tensor, shape = (-, -)
+        lower_neighborhood : torch.Tensor, shape = (-, -)
             Lower Neighbourhood matrix.
-        upper_neighborhood : tensor, shape = (-, -)
+        upper_neighborhood : torch.Tensor, shape = (-, -)
             Upper neighbourhood matrix.
 
         Returns
         -------
-        output tensor
+        torch.Tensor
         """
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)

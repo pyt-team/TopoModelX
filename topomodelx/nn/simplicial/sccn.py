@@ -58,7 +58,7 @@ class SCCN(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor
+        torch.Tensor
             If n_classes > 2:
                 shape = (n_nodes, n_classes)
                 Logits assigned to each node.
