@@ -8,15 +8,15 @@ class SCCNNLayer(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels: tuple of int
-        dimensions of input features on nodes, edges, and triangles
-    out_channels: tuple of int
-        dimensions of output features on ndoes, edges, and triangles
-    sc_order: int
-        e.g., 2
-    conv_order: int
-        convolution order of the simplicial filters
-        to avoid too many parameters, we consider them to be the same
+    in_channels : tuple of int
+        Dimensions of input features on nodes, edges, and triangles.
+    out_channels : tuple of int
+        Dimensions of output features on nodes, edges, and triangles.
+    sc_order : int
+        SC order.
+    conv_order : int
+        Convolution order of the simplicial filters.
+        To avoid too many parameters, we consider them to be the same.
 
     Example
     -------
@@ -149,15 +149,15 @@ class SCCNNLayer(torch.nn.Module):
     def reset_parameters(self, gain: float = 1.414):
         r"""Reset learnable parameters.
 
-        Notes
-        -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
-
         Parameters
         ----------
         gain : float
             Gain for the weight initialization.
+
+        Notes
+        -----
+        This function will be called by subclasses of
+        MessagePassing that have trainable weights.
         """
         if self.initialization == "xavier_uniform":
             torch.nn.init.xavier_uniform_(self.weight_0, gain=gain)
@@ -188,13 +188,12 @@ class SCCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor,
-        shape=[n_target_cells, out_channels]
-            Output features on target cells.
+        x : torch.Tensor, shape = (n_target_cells, out_channels)
+            Feature tensor.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -207,17 +206,17 @@ class SCCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        conv_operator: torch.sparse
-        shape = [n_simplices,n_simplices]
-        e.g., the adjacency matrix, or the Hodge Laplacians
-        conv_order: int
-        the order of the convolution
-        x : torch.Tensor
-        shape = [n_simplices,num_channels]
+        conv_operator : torch.sparse, shape = (n_simplices,n_simplices)
+            Convolution operator e.g., the adjacency matrix, or the Hodge Laplacians.
+        conv_order : int
+            The order of the convolution.
+        x : torch.Tensor, shape = (n_simplices,num_channels)
+            Feature tensor.
 
-        Return
-        ------
-        x[:, :, k] = (conv_operator@....@conv_operator) @ x
+        Returns
+        -------
+        torch.Tensor
+            Output tensor. x[:, :, k] = (conv_operator@....@conv_operator) @ x.
         """
         num_simplices, num_channels = x.shape
         X = torch.empty(size=(num_simplices, num_channels, conv_order))
@@ -249,31 +248,36 @@ class SCCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_all : tuple (x_0,x_1,x_2)
-        - x_0: torch.Tensor, shape=[n_nodes,in_channels_0]
-        - x_1: torch.Tensor, shape=[n_edges,in_channels_1]
-        - x_2: torch.Tensor, shape=[n_triangles,in_channels_2]
+        x_all : tuple of tensors, shape = (x_0,x_1,x_2)
+            Tuple of input feature tensors:
 
-        laplacian_all: tuple of tensors
-            (laplacian_0,laplacian_down_1,laplacian_up_1,laplacian_2)
-        - laplacian_0: torch.sparse, graph Laplacian
-        - laplacian_down_1: torch.sparse, the 1-Hodge laplacian (lower part)
-        - laplacian_up_1: torch.sparse, the 1-hodge laplacian (upper part)
-        - laplacian_2: torch.sparse, the 2-hodge laplacian
+            - x_0: torch.Tensor, shape = (n_nodes,in_channels_0),
+            - x_1: torch.Tensor, shape = (n_edges,in_channels_1),
+            - x_2: torch.Tensor, shape = (n_triangles,in_channels_2).
 
-        incidence_all: tuple (b1,b2)
-        - b1: torch.sparse,
-            shape=[n_nodes,n_edges],
-            node-to-edge incidence matrix
-        - b2: torch.sparse,
-            shape=[n_edges,n_triangles]
-            edge-to-face incidence matrix
+
+        laplacian_all: tuple of tensors, shape = (laplacian_0,laplacian_down_1,laplacian_up_1,laplacian_2)
+            Tuple of laplacian tensors:
+
+            - laplacian_0: torch.sparse, graph Laplacian,
+            - laplacian_down_1: torch.sparse, the 1-Hodge laplacian (lower part),
+            - laplacian_up_1: torch.sparse, the 1-hodge laplacian (upper part),
+            - laplacian_2: torch.sparse, the 2-hodge laplacian.
+
+        incidence_all: tuple of tensors, shape = (b1,b2)
+            Tuple of incidence tensors:
+
+            - b1: torch.sparse, shape = (n_nodes,n_edges), node-to-edge incidence matrix,
+            - b2: torch.sparse, shape = (n_edges,n_triangles), edge-to-face incidence matrix.
+
         Returns
         -------
-        y: tuple (y_0,y_1,y_2)
-        - y_0: output on nodes
-        - y_1: output on edges
-        - y_2: output on triangles
+        tuple, shape = (y_0,y_1,y_2)
+            Tuple of output tensors:
+
+            - y_0: output on nodes,
+            - y_1: output on edges,
+            - y_2: output on triangles.
         """
         x_0, x_1, x_2 = x_all
 

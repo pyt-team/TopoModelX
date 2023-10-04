@@ -11,7 +11,7 @@ class Conv(MessagePassing):
     """Message passing: steps 1, 2, and 3.
 
     Builds the message passing route given by one neighborhood matrix.
-    Includes an option for a x-specific update function.
+    Includes an option for an x-specific update function.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ class Conv(MessagePassing):
         Initialization method.
     with_linear_transform: bool, default=True
         Whether to apply a learnable linear transform.
-        NB: if `False` in_channels has to be equal to out_channels
+        NB: if `False` in_channels has to be equal to out_channels.
     """
 
     def __init__(
@@ -77,12 +77,12 @@ class Conv(MessagePassing):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
+        x_message_on_target : torch.Tensor, shape = (n_target_cells, out_channels)
             Output features on target cells.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -106,12 +106,12 @@ class Conv(MessagePassing):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+        x_target : Tensor, shape = (..., n_target_cells, in_channels)
             Input features on target cells.
             Assumes that all target cells have the same rank s.
             Optional. If not provided, x_target is assumed to be x_source,
@@ -119,7 +119,7 @@ class Conv(MessagePassing):
 
         Returns
         -------
-        torch.Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape = (..., n_target_cells, out_channels)
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

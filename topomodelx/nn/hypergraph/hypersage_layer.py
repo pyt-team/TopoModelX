@@ -102,12 +102,12 @@ class HyperSAGELayer(MessagePassing):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor, shape=[n_target_nodes, out_channels]
+        x_message_on_target : torch.Tensor, shape = (n_target_nodes, out_channels)
             Output features on target nodes.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_nodes, out_channels]
+        torch.Tensor, shape = (n_target_nodes, out_channels)
             Updated output features on target nodes.
         """
         if self.update_func == "sigmoid":
@@ -127,18 +127,17 @@ class HyperSAGELayer(MessagePassing):
 
         Parameters
         ----------
-        x_messages : Tensor, shape=[..., n_messages, out_channels]
+        x_messages : Tensor, shape = (..., n_messages, out_channels)
             Features associated with each message.
             One message is sent from a source cell to a target cell.
-        mode : string
+        mode : string, default = "inter"
             The mode on which aggregation to compute.
             If set to "inter", will compute inter-aggregation,
             if set to "intra", will compute intra-aggregation (see [1]).
-            Default is "inter".
 
         Returns
         -------
-        Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape = (...,  n_target_cells, out_channels)
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.

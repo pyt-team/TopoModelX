@@ -120,9 +120,9 @@ class AllSetTransformerLayer(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_nodes, channels]
+        x : torch.Tensor, shape = (n_nodes, channels)
             Node input features.
-        incidence_1 : torch.sparse, shape=[n_nodes, n_hyperedges]
+        incidence_1 : torch.sparse, shape = (n_nodes, n_hyperedges)
             Incidence matrix :math:`B_1` mapping hyperedges to nodes.
 
         Returns
@@ -232,15 +232,15 @@ class AllSetTransformerBlock(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor
-            Input features.
-        incidence : torch.sparse
-            Incidence matrix between node/hyperedges
+        x_source : Tensor, shape = (…, n_source_cells, in_channels)
+            Inputer features.
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
+            Neighborhood matrix.
 
         Returns
         -------
-        x : torch.Tensor
-            Output features.
+        x_message_on_target :
+            Output sum over features on target cells.
         """
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
@@ -350,15 +350,15 @@ class MultiHeadAttention(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape = (n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
 
         Returns
         -------
-        torch.Tensor, shape = [n_target_cells, heads, number_queries, n_source_cells]
+        torch.Tensor, shape = (n_target_cells, heads, number_queries, n_source_cells)
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_K = torch.matmul(x_source, self.K_weight)
@@ -388,15 +388,15 @@ class MultiHeadAttention(MessagePassing):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
 
         Returns
         -------
-        Tensor, shape=[..., n_target_cells, out_channels]
+        Tensor, shape = (..., n_target_cells, out_channels)
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

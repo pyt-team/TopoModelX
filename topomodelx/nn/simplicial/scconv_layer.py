@@ -126,28 +126,33 @@ class SCConvLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape=[n_nodes, node_channels]
+        x_0: torch.Tensor, shape = (n_nodes, node_channels)
             Input features on the nodes of the simplicial complex.
-        x_1: torch.Tensor, shape=[n_edges, edge_channels]
+        x_1: torch.Tensor, shape = (n_edges, edge_channels)
             Input features on the edges of the simplicial complex.
-        x_2: torch.Tensor, shape=[n_faces, face_channels]
+        x_2: torch.Tensor, shape = (n_faces, face_channels)
             Input features on the faces of the simplicial complex.
-        incidence_1: torch.Tensor, shape=[n_faces, channels]
-            incidence matrix of rank 1 :math:`B_1`.
-        incidence_1_norm: torch.Tensor,
-            normalized incidence matrix of rank 1 :math:`B^{~}_1`.
-        incidence_2: torch.Tensor,
-             incidence matrix of rank 2 :math:`B_2`.
-        incidence_2_norm: torch.Tensor,
-            normalized incidence matrix of rank 2 :math:`B^{~}_2`.
-        adjacency_up_0_norm: torch.Tensor,
-            normalized upper adjacency matrix of rank 0.
-        adjacency_up_1_norm: torch.Tensor,
-            normalized upper adjacency matrix of rank 1.
-        adjacency_down_1_norm: torch.Tensor,
-            normalized down adjacency matrix of rank 1.
-        adjacency_down_2_norm: torch.Tensor,
-            normalized down adjacency matrix of rank 2.
+        incidence_1: torch.Tensor, shape = (n_faces, channels)
+            Incidence matrix of rank 1 :math:`B_1`.
+        incidence_1_norm: torch.Tensor
+            Normalized incidence matrix of rank 1 :math:`B^{~}_1`.
+        incidence_2: torch.Tensor
+            Incidence matrix of rank 2 :math:`B_2`.
+        incidence_2_norm: torch.Tensor
+            Normalized incidence matrix of rank 2 :math:`B^{~}_2`.
+        adjacency_up_0_norm: torch.Tensor
+            Normalized upper adjacency matrix of rank 0.
+        adjacency_up_1_norm: torch.Tensor
+            Normalized upper adjacency matrix of rank 1.
+        adjacency_down_1_norm: torch.Tensor
+            Normalized down adjacency matrix of rank 1.
+        adjacency_down_2_norm: torch.Tensor
+            Normalized down adjacency matrix of rank 2.
+
+        Returns
+        -------
+        tuple of tensors, shape = (x0_out, x1_out, x2_out)
+            Output features on the nodes of the simplicial complex.
 
         Notes
         -----

@@ -75,22 +75,22 @@ class CWN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = [n_nodes, in_channels_0]
+        x_0 : torch.Tensor, shape = (n_nodes, in_channels_0)
             Input features on the nodes (0-cells).
-        x_1 : torch.Tensor, shape = [n_edges, in_channels_1]
+        x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
-        x_2 : torch.Tensor, shape = [n_faces, in_channels_2]
+        x_2 : torch.Tensor, shape = (n_faces, in_channels_2)
             Input features on the faces (2-cells).
-        neighborhood_1_to_1 : tensor, shape = [n_edges, n_edges]
+        neighborhood_1_to_1 : tensor, shape = (n_edges, n_edges)
             Upper-adjacency matrix of rank 1.
-        neighborhood_2_to_1 : tensor, shape = [n_edges, n_faces]
+        neighborhood_2_to_1 : tensor, shape = (n_edges, n_faces)
             Boundary matrix of rank 2.
-        neighborhood_0_to_1 : tensor, shape = [n_edges, n_nodes]
+        neighborhood_0_to_1 : tensor, shape = (n_edges, n_nodes)
             Coboundary matrix of rank 1.
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         x_0 = F.elu(self.proj_0(x_0))

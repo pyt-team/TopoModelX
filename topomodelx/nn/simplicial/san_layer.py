@@ -83,15 +83,15 @@ class SANConv(Conv):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
 
         Returns
         -------
-        torch.Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape = (..., n_target_cells, out_channels)
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """
@@ -144,8 +144,8 @@ class SANLayer(torch.nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels.
-    n_filters : int, optional
-        Approximation order. Defaults to 2.
+    n_filters : int, default = 2
+        Approximation order.
     """
 
     def __init__(
@@ -197,19 +197,19 @@ class SANLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor
-            Input tensor of shape (..., n_cells, in_channels).
-        down_indices : torch.Tensor
-            Down indices tensor of shape (..., n_cells_down, n_neighbors).
-        up_indices : torch.Tensor
-            Up indices tensor of shape (..., n_cells_up, n_neighbors).
+        x : torch.Tensor, shape = (..., n_cells, in_channels)
+            Input tensor.
+        down_indices : torch.Tensor, shape = (..., n_cells_down, n_neighbors)
+            Down indices tensor.
+        up_indices : torch.Tensor, shape = (..., n_cells_up, n_neighbors)
+            Up indices tensor.
         laplacians : tuple of torch.Tensor
             Tuple of lower and upper laplacians.
 
         Returns
         -------
-        torch.Tensor
-            Output tensor of shape (..., n_cells, out_channels).
+        torch.Tensor, shape = (..., n_cells, out_channels)
+            Output tensor.
         """
         # Compute the down and up convolutions
         z_down = self.conv_down(x, laplacian_down)

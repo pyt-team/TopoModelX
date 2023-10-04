@@ -19,19 +19,14 @@ class HNHNLayer(torch.nn.Module):
     Two hyperparameters alpha and beta, control the normalization strenght.
     The convolutional layers support the training of a bias term.
 
-    Notes
-    -----
-    This is the architecture proposed for node classification.
-
     Parameters
     ----------
     channels_node : int
         Dimension of node features.
     channels_edge : int
         Dimension of edge features.
-    incidence_1 : torch.sparse
+    incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
-        shape=[n_nodes, n_edges]
     use_bias : bool
         Flag controlling whether to use a bias term in the convolution.
     use_normalized_incidence : bool
@@ -44,6 +39,10 @@ class HNHNLayer(torch.nn.Module):
         Gain for the bias initialization.
     bias_init : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Controls the bias initialization method.
+
+    Notes
+    -----
+    This is the architecture proposed for node classification.
 
     References
     ----------
@@ -181,17 +180,17 @@ class HNHNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, channels_node]
-            Input features on the hypernodes
-        x_1 : torch.Tensor, shape=[n_edges, channels_edge]
-            Input features on the hyperedges
+        x_0 : torch.Tensor, shape = (n_nodes, channels_node)
+            Input features on the hypernodes.
+        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
+            Input features on the hyperedges.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape=[n_nodes, channels_node]
-            Output features on the hypernodes
-        x_1 : torch.Tensor, shape=[n_edges, channels_edge]
-            Output features on the hyperedges
+        x_0 : torch.Tensor, shape = (n_nodes, channels_node)
+            Output features on the hypernodes.
+        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
+            Output features on the hyperedges.
         """
         # Move incidence matrices to device
         self.incidence_1 = self.incidence_1.to(x_0.device)

@@ -102,9 +102,9 @@ class AllSetLayer(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape=[n_nodes, channels]
+        x : torch.Tensor, shape = (n_nodes, channels)
             Node input features.
-        incidence_1 : torch.sparse, shape=[n_nodes, n_hyperedges]
+        incidence_1 : torch.sparse, shape = (n_nodes, n_hyperedges)
             Incidence matrix :math:`B_1` mapping hyperedges to nodes.
 
         Returns
@@ -261,7 +261,7 @@ class AllSetBlock(nn.Module):
         x : torch.Tensor
             Input features.
         incidence : torch.sparse
-            Incidence matrix between node/hyperedges
+            Incidence matrix between node/hyperedges.
 
         Returns
         -------

@@ -8,7 +8,7 @@ from topomodelx.utils.scatter import scatter
 
 
 class MessagePassing(torch.nn.Module):
-    """MessagePassing.
+    """Define message passing.
 
     This class defines message passing through a single neighborhood N,
     by decomposing it into 2 steps:
@@ -65,8 +65,7 @@ class MessagePassing(torch.nn.Module):
 
         Notes
         -----
-        This function will be called by subclasses of
-        MessagePassing that have trainable weights.
+        This function will be called by subclasses of MessagePassing that have trainable weights.
         """
         match self.initialization:
             case "uniform":
@@ -109,10 +108,10 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+        x_target : Tensor, shape = (..., n_target_cells, in_channels)
             Input features on target cells.
             Assumes that all target cells have the same rank s.
             Optional. If not provided, x_target is assumed to be x_source,
@@ -120,7 +119,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape=[..., n_source_cells, in_channels]
+        torch.Tensor, shape = (..., n_source_cells, in_channels)
             Messages on source cells.
         """
         return x_source
@@ -137,16 +136,16 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
+        x_source : torch.Tensor, shape = (n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
+        x_target : torch.Tensor, shape = (n_target_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
 
         Returns
         -------
-        torch.Tensor, shape = [n_messages, 1]
+        torch.Tensor, shape = (n_messages, 1)
             Attention weights: one scalar per message between a source and a target cell.
         """
         x_source_per_message = x_source[self.source_index_j]
@@ -176,13 +175,13 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_messages : Tensor, shape=[..., n_messages, out_channels]
+        x_messages : Tensor, shape = (..., n_messages, out_channels)
             Features associated with each message.
             One message is sent from a source cell to a target cell.
 
         Returns
         -------
-        Tensor, shape=[...,  n_target_cells, out_channels]
+        Tensor, shape = (...,  n_target_cells, out_channels)
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
             Assumes that all target cells have the same rank s.
@@ -240,12 +239,12 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_source : Tensor, shape=[..., n_source_cells, in_channels]
+        x_source : Tensor, shape = (..., n_source_cells, in_channels)
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        neighborhood : torch.sparse, shape=[n_target_cells, n_source_cells]
+        neighborhood : torch.sparse, shape = (n_target_cells, n_source_cells)
             Neighborhood matrix.
-        x_target : Tensor, shape=[..., n_target_cells, in_channels]
+        x_target : Tensor, shape = (..., n_target_cells, in_channels)
             Input features on target cells.
             Assumes that all target cells have the same rank s.
             Optional. If not provided, x_target is assumed to be x_source,
@@ -253,7 +252,7 @@ class MessagePassing(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape=[..., n_target_cells, out_channels]
+        torch.Tensor, shape = (..., n_target_cells, out_channels)
             Output features on target cells.
             Assumes that all target cells have the same rank s.
         """

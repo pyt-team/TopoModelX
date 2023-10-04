@@ -13,6 +13,15 @@ class SCN2Layer(torch.nn.Module):
     This layer corresponds to the rightmost tensor diagram labeled Yang22c in
     Figure 11 of [PSHM23]_.
 
+    Parameters
+    ----------
+    in_channels_0 : int
+        Dimension of input features on nodes (0-cells).
+    in_channels_1 : int
+        Dimension of input features on edges (1-cells).
+    in_channels_2 : int
+        Dimension of input features on faces (2-cells).
+
     See Also
     --------
     topomodelx.nn.simplicial.sccn_layer.SCCNLayer : SCCN layer
@@ -37,15 +46,6 @@ class SCN2Layer(torch.nn.Module):
     .. [3] Papillon, Sanborn, Hajij, Miolane.
         Architectures of topological deep learning: a survey on topological neural networks (2023).
         https://arxiv.org/abs/2304.10031.
-
-    Parameters
-    ----------
-    in_channels_0 : int
-        Dimension of input features on nodes (0-cells).
-    in_channels_1 : int
-        Dimension of input features on edges (1-cells).
-    in_channels_2 : int
-        Dimension of input features on faces (2-cells).
     """
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2) -> None:
@@ -73,22 +73,22 @@ class SCN2Layer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape=[n_nodes, node_features]
+        x_0 : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
-        x_1 : torch.Tensor, shape=[n_edges, edge_features]
+        x_1 : torch.Tensor, shape = (n_edges, edge_features)
             Input features on the edges of the simplicial complex.
-        x_2 : torch.Tensor, shape=[n_faces, face_features]
+        x_2 : torch.Tensor, shape = (n_faces, face_features)
             Input features on the faces of the simplicial complex.
-        laplacian_0 : torch.sparse, shape=[n_nodes, n_nodes]
+        laplacian_0 : torch.sparse, shape = (n_nodes, n_nodes)
             Normalized Hodge Laplacian matrix = L_upper + L_lower.
-        laplacian_1 : torch.sparse, shape=[n_edges, n_edges]
+        laplacian_1 : torch.sparse, shape = (n_edges, n_edges)
             Normalized Hodge Laplacian matrix.
-        laplacian_2 : torch.sparse, shape=[n_faces, n_faces]
+        laplacian_2 : torch.sparse, shape = (n_faces, n_faces)
             Normalized Hodge Laplacian matrix.
 
         Returns
         -------
-        torch.Tensor, shape=[n_nodes, channels]
+        torch.Tensor, shape = (n_nodes, channels)
             Output features on the nodes of the simplicial complex.
         """
         x_0 = self.conv_0_to_0(x_0, laplacian_0)

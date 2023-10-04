@@ -14,7 +14,7 @@ class UniSAGE(torch.nn.Module):
         Dimension of edge features
     channels_node : int
         Dimension of node features
-    n_layer : 2
+    n_layer : int, default = 2
         Amount of message passing layers.
 
     References
@@ -43,18 +43,15 @@ class UniSAGE(torch.nn.Module):
 
         Parameters
         ----------
-        x_1 : tensor
-            shape = [n_edges, channels_edge]
+        x_1 : tensor, shape = (n_edges, channels_edge)
             Edge features.
 
-        incidence_1 : tensor
-            shape = [n_nodes, n_edges]
+        incidence_1 : tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
         -------
-        _ : tensor
-            shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         for layer in self.layers:

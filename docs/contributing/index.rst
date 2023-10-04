@@ -173,7 +173,7 @@ Here's a generic docstring template::
 
       Parameters
       ----------
-      my_param_1 : array-like, shape=[..., dim]
+      my_param_1 : array-like, shape = (..., dim)
          Write a short description of parameter my_param_1.
       my_param_2 : str, {"vector", "matrix"}
          Write a short description of parameter my_param_2.
@@ -181,7 +181,7 @@ Here's a generic docstring template::
 
       Returns
       -------
-      my_result : array-like, shape=[..., dim, dim]
+      my_result : array-like, shape = (..., dim, dim)
          Write a short description of the result returned by the method.
 
       Notes
@@ -209,7 +209,7 @@ And here's a filled-in example from the Scikit-Learn project, modified to our sy
 
        Parameters
        ----------
-       X : {array-like, sparse_matrix} of shape=[..., n_features]
+       X : {array-like, sparse_matrix} of shape = (..., n_features)
           New data to transform.
        y : Ignored
           Not used, present here for API consistency by convention.
@@ -219,7 +219,7 @@ And here's a filled-in example from the Scikit-Learn project, modified to our sy
 
        Returns
        -------
-       labels : array, shape=[...,]
+       labels : array, shape = (...,)
           Index of the cluster each sample belongs to.
        """
        return self.fit(X, sample_weight=sample_weight).labels_
@@ -228,10 +228,10 @@ In general, have the following in mind:
 
    #. Use built-in Python types. (``bool`` instead of ``boolean``)
 
-   #. Use ``[`` for defining shapes: ``array-like, shape=[..., dim]``
+   #. Use ``[`` for defining shapes: ``array-like, shape = (..., dim)``
 
    #. If a shape can vary, use a list-like notation:
-      ``array-like, shape=[dimension[:axis], n, dimension[axis:]]``
+      ``array-like, shape = (dimension[:axis), n, dimension[axis:]]``
 
    #. For strings with multiple options, use brackets:
       ``input: str, {"log", "squared", "multinomial"}``

@@ -60,7 +60,7 @@ class SCACMPS(torch.nn.Module):
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         for i in range(self.n_layers):

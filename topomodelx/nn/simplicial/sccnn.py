@@ -7,22 +7,23 @@ from topomodelx.nn.simplicial.sccnn_layer import SCCNNLayer
 class SCCNN(torch.nn.Module):
     """SCCNN implementation for complex classification.
 
-    Note: In this task, we can consider the output on any order of simplices for the classification task, which of course can be amended by a readout layer.
+    Note: In this task, we can consider the output on any order of simplices for the classification task,
+    which of course can be amended by a readout layer.
 
     Parameters
     ----------
-    in_channels_all: tuple of int
-        Dimension of input features on (nodes, edges, faces)
-    intermediate_channels_all: tuple of int
-        Dimension of features of intermediate layers on (nodes, edges, faces)
-    out_channels_all: tuple of int
-        Dimension of output features on (nodes, edges, faces)
-    conv_order: int
-        Order of convolutions, we consider the same order for all convolutions
-    sc_order: int
-        SC order
-    n_layers: int
-        Numer of layers
+    in_channels_all : tuple of int
+        Dimension of input features on (nodes, edges, faces).
+    intermediate_channels_all : tuple of int
+        Dimension of features of intermediate layers on (nodes, edges, faces).
+    out_channels_all : tuple of int
+        Dimension of output features on (nodes, edges, faces).
+    conv_order : int
+        Order of convolutions, we consider the same order for all convolutions.
+    sc_order : int
+        SC order.
+    n_layers : int
+        Number of layers.
     """
 
     def __init__(
@@ -75,22 +76,23 @@ class SCCNN(torch.nn.Module):
 
         Parameters
         ----------
-        x: tuple tensors
-            (node, edge, face) features
-            each entry shape = [n_simplices, channels]
+        x_all : tuple of tensors, shape = (node, edge, face)
+            Tuple of feature tensors.
+            Each entry shape = (n_simplices, channels).
 
-        laplacian: tuple of tensors
-            (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2)
-            each entry shape = [n_simplices,n_simplices]
+        laplacian_all : tuple of tensors, shape = (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2)
+            Tuple of Laplacian tensors.
+            Each entry shape = (n_simplices,n_simplices).
 
-        incidence_1: tuple of tensors
-            tuple pf order 1 and 2 incidence matrices
-            shape of B1 = [n_nodes, n_edges]
-            shape of B2 = [n_edges, n_faces]
+        incidence_all : tuple of tensors
+            Tuple of order 1 and 2 incidence matrices:
+
+            - Shape of B1 = [n_nodes, n_edges],
+            - Shape of B2 = [n_edges, n_faces].
 
         Returns
         -------
-        _ : tensor, shape = [1]
+        _ : tensor, shape = (1)
             Label assigned to whole complex.
         """
         x_0, x_1, x_2 = x_all
@@ -197,23 +199,22 @@ class SCCNNComplex(torch.nn.Module):
 
         Parameters
         ----------
-        x: tuple tensors
-            (node, edge, face) features
-            each entry shape = [n_simplices, channels]
+        x_all : tuple of tensors
+            Tuple of feature tensors (node, edge, face).
+            Each entry shape = (n_simplices, channels).
 
-        laplacian: tuple of tensors
-            (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2)
-            each entry shape = [n_simplices,n_simplices]
+        laplacian_all : tuple of tensors
+            Tuple of Laplacian tensors (graph laplacian L0, down edge laplacian L1_d, upper edge laplacian L1_u, face laplacian L2).
+            Each entry shape = (n_simplices,n_simplices).
 
-        incidence_1: tuple of tensors
-            tuple pf order 1 and 2 incidence matrices
-            shape of B1 = [n_nodes, n_edges]
-            shape of B2 = [n_edges, n_faces]
+        incidence_all : tuple of tensors
+            Tuple of order 1 and 2 incidence matrices.
+            Shape of B1 = [n_nodes, n_edges].
+            Shape of B2 = [n_edges, n_faces].
 
         Returns
         -------
-        _ : tensor
-            shape = [n_nodes, 2]
+        tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
         """
         x_0, x_1, x_2 = x_all

@@ -18,11 +18,11 @@ class HMPNN(torch.nn.Module):
         dimension from in_features to the last item in the tuple.
     num_classes: int
         Number of classes
-    n_layer : 2
+    n_layer : int, default = 2
         Number of HMPNNLayer layers.
-    adjacency_dropout_rate: 0.7
+    adjacency_dropout_rate: int, default = 0.7
         Adjacency dropout rate.
-    regular_dropout_rate: 0.5
+    regular_dropout_rate: int, default = 0.5
         Regular dropout rate applied on features.
 
     References
@@ -67,17 +67,17 @@ class HMPNN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor
-            Node features with shape [n_nodes, in_features]
-        x_1 : torch.Tensor
-            Hyperedge features with shape [n_hyperedges, in_features]
-        incidence_1: torch.sparse.Tensor
-            Incidence matrix (B1) of shape [n_nodes, n_hyperedges]
+        x_0 : torch.Tensor, shape = (n_nodes, in_features)
+            Node features.
+        x_1 : torch.Tensor, shape = (n_hyperedges, in_features)
+            Hyperedge features.
+        incidence_1: torch.sparse.Tensor, shape = (n_nodes, n_hyperedges)
+            Incidence matrix (B1).
 
         Returns
         -------
-        y_pred : torch.Tensor
-            Predicted logits with shape [n_nodes, num_classes]
+        y_pred : torch.Tensor, shape = (n_nodes, num_classes)
+            Predicted logits.
         """
         x_0 = self.to_hidden_linear(x_0)
         x_1 = self.to_hidden_linear(x_1)

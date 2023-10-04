@@ -16,12 +16,12 @@ class SCNNLayer(torch.nn.Module):
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    conv_order: int
-      The order of the convolutions.
-      if conv_order == 0:
-        the corresponding convolution is not performed.
-      - down: for the lower convolutions.
-      - up: for the upper convolutions.
+    conv_order : int
+        The order of the convolutions.
+        if conv_order == 0:
+            the corresponding convolution is not performed.
+        - down: for the lower convolutions.
+        - up: for the upper convolutions.
 
     Example
     -------
@@ -118,12 +118,12 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_message_on_target: torch.Tensor, shape=[n_target_cells, out_channels]
+        x : torch.Tensor, shape = (n_target_cells, out_channels)
             Output features on target cells.
 
         Returns
         -------
-        torch.Tensor, shape=[n_target_cells, out_channels]
+        torch.Tensor, shape = (n_target_cells, out_channels)
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":
@@ -136,17 +136,17 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        conv_operator: torch.sparse
-          shape = [n_simplices,n_simplices]
-          e.g. adjacency matrix or the Hodge Laplacians
-        conv_order: int
-          the order of the convolution
-        x : torch.Tensor
-          shape = [n_simplices,num_channels]
+        conv_operator : torch.sparse, shape = (n_simplices,n_simplices)
+            Convolution operator e.g. adjacency matrix or the Hodge Laplacians.
+        conv_order : int
+            The order of the convolution
+        x : torch.Tensor, shape = (n_simplices,num_channels)
+            Input feature tensor.
 
         Return
         ------
-          x[:,:,k] = (conv_operator@....@conv_operator) @ x
+        torch.Tensor
+            Output tensor, x[:,:,k] = (conv_operator@....@conv_operator) @ x.
         """
         num_simplices, num_channels = x.shape
         X = torch.empty(size=(num_simplices, num_channels, conv_order))
@@ -175,20 +175,16 @@ class SCNNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape=[n_simplex,in_channels]
-          Inpute features on the simplices, e.g., nodes, edges, triangles, etc.
+        x: torch.Tensor, shape = (n_simplex,in_channels)
+            Input features on the simplices, e.g., nodes, edges, triangles, etc.
 
-        laplacian: torch.sparse
-          shape = [n_simplices,n_simplices]
-          The Hodge Laplacian matrix
-            - can also be adjacency matrix
-            - lower part
-            - upper part
+        laplacian: torch.sparse, shape = (n_simplices,n_simplices)
+            The Hodge Laplacian matrix. Can also be adjacency matrix, lower part, or upper part.
 
         Returns
         -------
-        torch.Tensor, shape=[n_edges, channels]
-          Output features on the edges of the simplical complex.
+        torch.Tensor, shape = (n_edges, channels)
+            Output features on the edges of the simplical complex.
         """
         num_simplices, _ = x.shape
 

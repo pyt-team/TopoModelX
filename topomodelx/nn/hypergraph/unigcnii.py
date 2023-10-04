@@ -48,15 +48,15 @@ class UniGCNII(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = [num_nodes, in_channels]
+        x_0 : torch.Tensor, shape = (num_nodes, in_channels)
             Input features of the nodes of the hypergraph.
-        incidence_1 : torch.Tensor, shape = [num_nodes, num_edges]
+        incidence_1 : torch.Tensor, shape = (num_nodes, num_edges)
             Incidence matrix of the hypergraph.
             It is expected that the incidence matrix contains self-loops for all nodes.
 
         Returns
         -------
-        y_hat : torch.Tensor, shape = [num_nodes, num_classes]
+        y_hat : torch.Tensor, shape = (num_nodes, num_classes)
             Contains the logits for classification for every node.
         """
         # Copy the original features to use as skip connections
