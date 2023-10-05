@@ -5,7 +5,7 @@ import torch
 from scipy.sparse import _csc
 
 
-def from_sparse(data: _csc.csc_matrix):
+def from_sparse(data: _csc.csc_matrix) -> torch.Tensor:
     """Convert sparse input data directly to torch sparse coo format.
 
     Parameters
