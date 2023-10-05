@@ -18,11 +18,6 @@ def from_sparse(data: _csc.csc_matrix):
     torch.sparse_coo, same shape as data
         input data converted to tensor.
     """
-    if not isinstance(data, _csc.csc_matrix):
-        raise ValueError(
-            f"Expected Data type sparse._csc.csc_matrix, found {type(data)}"
-        )
-
     # cast from csc_matrix to coo format for compatibility
     coo = data.tocoo()
 
