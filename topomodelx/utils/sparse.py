@@ -22,7 +22,7 @@ def from_sparse(data: scipy.sparse._csc.csc_matrix, dense=False):
             f"Expected Data type scipy.sparse._csc.csc_matrix, found {type(data)}"
         )
 
-    # Cast from csc_matrix to coo format
+    # cast from csc_matrix to coo format
     coo = data.tocoo()
 
     v = torch.FloatTensor(coo.data)

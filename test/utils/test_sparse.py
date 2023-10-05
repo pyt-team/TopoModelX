@@ -7,7 +7,7 @@ from topomodelx.utils.sparse import from_sparse
 
 
 def test_from_sparse():
-    # test numerical matching
+    # test matrix matches numerically
     test_matrix = sparse._csc.csc_matrix(np.random.rand(100, 100))
     a = torch.from_numpy(test_matrix.todense()).to_sparse()
     b = from_sparse(test_matrix)
