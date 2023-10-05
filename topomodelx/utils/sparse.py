@@ -1,11 +1,11 @@
 """Utils for more efficient sparse matrix casting to torch."""
 
 import numpy as np
-import scipy
 import torch
+from scipy.sparse import _csc
 
 
-def from_sparse(data: scipy.sparse._csc.csc_matrix):
+def from_sparse(data: _csc.csc_matrix):
     """Convert sparse input data directly to torch sparse coo format.
 
     Parameters
@@ -18,9 +18,9 @@ def from_sparse(data: scipy.sparse._csc.csc_matrix):
     torch.sparse_coo, same shape as data
         input data converted to tensor.
     """
-    if not isinstance(data, scipy.sparse._csc.csc_matrix):
+    if not isinstance(data, _csc.csc_matrix):
         raise ValueError(
-            f"Expected Data type scipy.sparse._csc.csc_matrix, found {type(data)}"
+            f"Expected Data type sparse._csc.csc_matrix, found {type(data)}"
         )
 
     # cast from csc_matrix to coo format for compatibility
