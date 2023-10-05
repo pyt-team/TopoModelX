@@ -5,7 +5,7 @@ import scipy
 import torch
 
 
-def from_sparse(data: scipy.sparse._csc.csc_matrix, dense=False):
+def from_sparse(data: scipy.sparse._csc.csc_matrix):
     """Convert sparse input data directly to torch sparse coo format.
 
     Parameters
@@ -29,9 +29,4 @@ def from_sparse(data: scipy.sparse._csc.csc_matrix, dense=False):
     v = torch.FloatTensor(coo.data)
     i = torch.LongTensor(np.vstack((coo.row, coo.col)))
 
-    out = torch.sparse_coo_tensor(i, v, coo.shape)
-
-    if dense:
-        return out.to_dense()
-
-    return out
+    return torch.sparse_coo_tensor(i, v, coo.shape)
