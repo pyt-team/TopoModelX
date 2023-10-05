@@ -15,9 +15,7 @@ def test_from_sparse():
     a = torch.from_numpy(test_matrix.todense()).to_sparse()
     b = from_sparse(test_matrix)
 
-    assert torch.equal(
-        a.to_dense().type(torch.float32), b.to_dense().type(torch.float32)
-    )
+    torch.testing.assert_close(a.to_dense(), b.to_dense(), check_dtype=False)
 
     # test on larger dimension
     test_matrix = sparse.csc_matrix(
@@ -26,9 +24,7 @@ def test_from_sparse():
     a = torch.from_numpy(test_matrix.todense()).to_sparse()
     b = from_sparse(test_matrix)
 
-    assert torch.equal(
-        a.to_dense().type(torch.float32), b.to_dense().type(torch.float32)
-    )
+    torch.testing.assert_close(a.to_dense(), b.to_dense(), check_dtype=False)
 
 
 def test_fail_on_wrong_type():

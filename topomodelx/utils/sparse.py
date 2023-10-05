@@ -26,7 +26,7 @@ def from_sparse(data: _csc.csc_matrix):
     # cast from csc_matrix to coo format for compatibility
     coo = data.tocoo()
 
-    v = torch.FloatTensor(coo.data)
-    i = torch.LongTensor(np.vstack((coo.row, coo.col)))
+    values = torch.FloatTensor(coo.data)
+    indices = torch.LongTensor(np.vstack((coo.row, coo.col)))
 
-    return torch.sparse_coo_tensor(i, v, coo.shape)
+    return torch.sparse_coo_tensor(indices, values, coo.shape)
