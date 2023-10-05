@@ -7,6 +7,7 @@ import torch
 from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.scnn import SCNN
+from topomodelx.utils.sparse import from_sparse
 
 
 class TestSCNN:
@@ -41,12 +42,12 @@ class TestSCNN:
         laplacian_up_1 = simplicial_complex.up_laplacian_matrix(rank=1)
         laplacian_2 = simplicial_complex.hodge_laplacian_matrix(rank=2, weight=True)
 
-        incidence_1 = torch.from_numpy(incidence_1.todense()).to_sparse()
-        incidence_2 = torch.from_numpy(incidence_2.todense()).to_sparse()
-        laplacian_0 = torch.from_numpy(laplacian_0.todense()).to_sparse()
-        laplacian_down_1 = torch.from_numpy(laplacian_down_1.todense()).to_sparse()
-        laplacian_up_1 = torch.from_numpy(laplacian_up_1.todense()).to_sparse()
-        laplacian_2 = torch.from_numpy(laplacian_2.todense()).to_sparse()
+        incidence_1 = from_sparse(incidence_1)
+        incidence_2 = from_sparse(incidence_2)
+        laplacian_0 = from_sparse(laplacian_0)
+        laplacian_down_1 = from_sparse(laplacian_down_1)
+        laplacian_up_1 = from_sparse(laplacian_up_1)
+        laplacian_2 = from_sparse(laplacian_2)
         conv_order_down = 2
         conv_order_up = 2
         intermediate_channels = 4

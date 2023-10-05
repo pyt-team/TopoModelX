@@ -6,6 +6,7 @@ import torch
 from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.sca_cmps import SCACMPS
+from topomodelx.utils.sparse import from_sparse
 
 
 class TestSCA:
@@ -38,10 +39,10 @@ class TestSCA:
         down_lap2 = simplicial_complex.down_laplacian_matrix(rank=2)
         incidence_1t = simplicial_complex.incidence_matrix(rank=1).T
         incidence_2t = simplicial_complex.incidence_matrix(rank=2).T
-        down_lap1 = torch.from_numpy(down_lap1.todense()).to_sparse()
-        down_lap2 = torch.from_numpy(down_lap2.todense()).to_sparse()
-        incidence_1t = torch.from_numpy(incidence_1t.todense()).to_sparse()
-        incidence_2t = torch.from_numpy(incidence_2t.todense()).to_sparse()
+        down_lap1 = from_sparse(down_lap1)
+        down_lap2 = from_sparse(down_lap2)
+        incidence_1t = from_sparse(incidence_1t)
+        incidence_2t = from_sparse(incidence_2t)
         channels_list = [x_0.shape[-1], x_1.shape[-1], x_2.shape[-1]]
         complex_dim = 3
         model = SCACMPS(
