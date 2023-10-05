@@ -1,3 +1,5 @@
+"""Tests from_sparse utility function."""
+
 import numpy as np
 import pytest
 import torch
@@ -7,7 +9,8 @@ from topomodelx.utils.sparse import from_sparse
 
 
 def test_from_sparse():
-    # test matrix matches numerically
+    """Tests from_sparse matches sparse -> dense -> sparse."""
+    # test values matche
     test_matrix = sparse._csc.csc_matrix(np.random.rand(100, 100))
     a = torch.from_numpy(test_matrix.todense()).to_sparse()
     b = from_sparse(test_matrix)
@@ -29,6 +32,7 @@ def test_from_sparse():
 
 
 def test_fail_on_wrong_type():
+    """Tests from_sparse raises exception with non sparse input."""
     with pytest.raises(ValueError):
         test_matrix = np.random.rand(100, 100)
-        res = from_sparse(test_matrix)
+        from_sparse(test_matrix)
