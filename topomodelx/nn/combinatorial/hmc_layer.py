@@ -600,8 +600,7 @@ class HBS(torch.nn.Module):
             return torch.nn.functional.tanh(message)
         else:
             raise RuntimeError(
-                "Update activation function not "
-                "recognized. Should be either sigmoid, "
+                "Update function not recognized. Should be either sigmoid, "
                 "relu or tanh."
             )
 
