@@ -215,7 +215,7 @@ class HBNS(torch.nn.Module):
 
     def update(
         self, message_on_source: torch.Tensor, message_on_target: torch.Tensor
-    ) -> tuple[torch.FloatTensor, torch.FloatTensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         r"""Update signal features on each cell with an activation function.
 
         The implemented activation functions are sigmoid, ReLU and tanh.
@@ -254,7 +254,7 @@ class HBNS(torch.nn.Module):
 
     def attention(
         self, s_message: torch.Tensor, t_message: torch.Tensor
-    ) -> tuple[torch.sparse.FloatTensor, torch.sparse.FloatTensor]:
+    ) -> tuple[torch.sparse.Tensor, torch.sparse.Tensor]:
         r"""Compute attention matrices :math:`A_s` and :math:`A_t`.
 
         ..  math::
@@ -337,7 +337,7 @@ class HBNS(torch.nn.Module):
 
     def forward(
         self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
-    ) -> tuple[torch.FloatTensor, torch.FloatTensor]:
+    ) -> tuple[torch.Tensor, torch.Tensor]:
         r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for non-squared
@@ -514,7 +514,7 @@ class HBS(torch.nn.Module):
         negative_slope: float = 0.2,
         softmax: bool = False,
         m_hop: int = 1,
-        update_func: str = None,
+        update_func: str | None = None,
         initialization: str = "xavier_uniform",
     ) -> None:
         super().__init__()
@@ -606,7 +606,7 @@ class HBS(torch.nn.Module):
 
     def attention(
         self, message: torch.Tensor, A_p: torch.Tensor, a_p: torch.Tensor
-    ) -> torch.sparse.FloatTensor:
+    ) -> torch.sparse.Tensor:
         """Compute the attention matrix.
 
         Parameters
@@ -645,7 +645,7 @@ class HBS(torch.nn.Module):
 
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
-    ) -> torch.FloatTensor:
+    ) -> torch.Tensor:
         r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for squared
