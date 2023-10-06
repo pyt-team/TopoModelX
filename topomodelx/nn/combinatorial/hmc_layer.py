@@ -1,8 +1,5 @@
 """Higher-Order Attentional NN Layer for Mesh Classification."""
 
-
-from typing import List
-
 import torch
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
@@ -154,7 +151,7 @@ class HBNS(torch.nn.Module):
         target_out_channels: int,
         negative_slope: float = 0.2,
         softmax: bool = False,
-        update_func: str = None,
+        update_func: str | None = None,
         initialization: str = "xavier_uniform",
     ) -> None:
         super().__init__()
@@ -212,13 +209,13 @@ class HBNS(torch.nn.Module):
             torch.nn.init.xavier_normal_(self.att_weight.view(-1, 1), gain=gain)
         else:
             raise RuntimeError(
-                "Initialization method not recognized. "
+                "Initialization method not recognized."
                 "Should be either xavier_uniform or xavier_normal."
             )
 
     def update(
         self, message_on_source: torch.Tensor, message_on_target: torch.Tensor
-    ) -> tuple[torch.Tensor]:
+    ) -> tuple[torch.FloatTensor, torch.FloatTensor]:
         r"""Update signal features on each cell with an activation function.
 
         The implemented activation functions are sigmoid, ReLU and tanh.
@@ -257,7 +254,7 @@ class HBNS(torch.nn.Module):
 
     def attention(
         self, s_message: torch.Tensor, t_message: torch.Tensor
-    ) -> tuple[torch.Tensor]:
+    ) -> tuple[torch.sparse.FloatTensor, torch.sparse.FloatTensor]:
         r"""Compute attention matrices :math:`A_s` and :math:`A_t`.
 
         ..  math::
@@ -340,7 +337,7 @@ class HBNS(torch.nn.Module):
 
     def forward(
         self, x_source: torch.Tensor, x_target: torch.Tensor, neighborhood: torch.Tensor
-    ) -> tuple[torch.Tensor]:
+    ) -> tuple[torch.FloatTensor, torch.FloatTensor]:
         r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for non-squared
@@ -597,14 +594,20 @@ class HBS(torch.nn.Module):
         """
         if self.update_func == "sigmoid":
             return torch.sigmoid(message)
-        elif self.update_func == "relu":
+        if self.update_func == "relu":
             return torch.nn.functional.relu(message)
-        elif self.update_func == "tanh":
+        if self.update_func == "tanh":
             return torch.nn.functional.tanh(message)
+        else:
+            raise RuntimeError(
+                "Update activation function not "
+                "recognized. Should be either sigmoid, "
+                "relu or tanh."
+            )
 
     def attention(
         self, message: torch.Tensor, A_p: torch.Tensor, a_p: torch.Tensor
-    ) -> torch.Tensor:
+    ) -> torch.sparse.FloatTensor:
         """Compute the attention matrix.
 
         Parameters
@@ -638,11 +641,12 @@ class HBS(torch.nn.Module):
         att_p = (
             torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
         )
+
         return att_p
 
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
-    ) -> torch.Tensor:
+    ) -> torch.FloatTensor:
         r"""Compute forward pass.
 
         The forward pass of the Higher Order Attention Block for squared
@@ -669,16 +673,20 @@ class HBS(torch.nn.Module):
         message = [
             torch.mm(x_source, w) for w in self.weight
         ]  # [m-hop, n_source_cells, d_t_out]
-        # Create a torch.eye with the device of x_source
-        result = torch.eye(x_source.shape[0], device=self.get_device()).to_sparse_coo()
 
-        neighborhood = [
-            result := torch.sparse.mm(neighborhood, result) for _ in range(self.m_hop)
-        ]
+        # Create a torch.eye with the device of x_source
+        A_p = torch.eye(x_source.shape[0], device=self.get_device()).to_sparse_coo()
+
+        m_hop_matrices = []
+
+        # Generate the list of neighborhood matrices :math:`A, \dots, A^m`
+        for _ in range(self.m_hop):
+            A_p = torch.sparse.mm(A_p, neighborhood)
+            m_hop_matrices.append(A_p)
 
         att = [
             self.attention(m_p, A_p, a_p)
-            for m_p, A_p, a_p in zip(message, neighborhood, self.att_weight)
+            for m_p, A_p, a_p in zip(message, m_hop_matrices, self.att_weight)
         ]
 
         def sparse_hadamard(A_p, att_p):
@@ -689,14 +697,16 @@ class HBS(torch.nn.Module):
                 device=self.get_device(),
             )
 
-        neighborhood = [
-            sparse_hadamard(A_p, att_p) for A_p, att_p in zip(neighborhood, att)
+        att_m_hop_matrices = [
+            sparse_hadamard(A_p, att_p) for A_p, att_p in zip(m_hop_matrices, att)
         ]
-        message = [torch.mm(n_p, m_p) for n_p, m_p in zip(neighborhood, message)]
+
+        message = [torch.mm(n_p, m_p) for n_p, m_p in zip(att_m_hop_matrices, message)]
         result = torch.zeros_like(message[0])
 
         for m_p in message:
             result += m_p
+
         if self.update_func is None:
             return result
 
@@ -791,9 +801,9 @@ class HMCLayer(torch.nn.Module):
 
     def __init__(
         self,
-        in_channels: List[int],
-        intermediate_channels: List[int],
-        out_channels: List[int],
+        in_channels: list[int],
+        intermediate_channels: list[int],
+        out_channels: list[int],
         negative_slope: float,
         softmax_attention=False,
         update_func_attention=None,
