@@ -458,6 +458,47 @@ class TestHBS:
 
     def test_update_func(self):
         """Test if the update function is correctly applied."""
+        message = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+
+        assert torch.allclose(
+            HBS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                negative_slope=0.2,
+                softmax=False,
+                m_hop=2,
+                update_func="relu",
+                initialization="xavier_uniform",
+            ).update(message),
+            torch.nn.functional.relu(message),
+        )
+
+        assert torch.allclose(
+            HBS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                negative_slope=0.2,
+                softmax=False,
+                m_hop=2,
+                update_func="sigmoid",
+                initialization="xavier_uniform",
+            ).update(message),
+            torch.nn.functional.sigmoid(message),
+        )
+
+        assert torch.allclose(
+            HBS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                negative_slope=0.2,
+                softmax=False,
+                m_hop=2,
+                update_func="tanh",
+                initialization="xavier_uniform",
+            ).update(message),
+            torch.nn.functional.tanh(message),
+        )
+
         with pytest.raises((RuntimeError, AssertionError)):
             HBS(
                 source_in_channels=self.d_s_in,
