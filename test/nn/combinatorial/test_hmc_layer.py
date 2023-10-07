@@ -181,6 +181,50 @@ class TestHBNS:
         assert message_on_source.shape == (self.n_source_cells, self.d_s_out)
         assert message_on_target.shape == (self.n_target_cells, self.d_t_out)
 
+    def test_update_func(self):
+        """Test if the update function is correctly applied."""
+        message_on_source = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+        message_on_target = torch.tensor([[7, 8], [9, 10], [11, 12]], dtype=torch.float)
+
+        assert torch.allclose(
+            HBNS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                target_in_channels=self.d_t_in,
+                target_out_channels=self.d_t_out,
+                negative_slope=0.2,
+                update_func="relu",
+                initialization="xavier_normal",
+            ).update(message_on_source, message_on_target)[0],
+            torch.nn.functional.relu(message_on_source),
+        )
+
+        assert torch.allclose(
+            HBNS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                target_in_channels=self.d_t_in,
+                target_out_channels=self.d_t_out,
+                negative_slope=0.2,
+                update_func="sigmoid",
+                initialization="xavier_normal",
+            ).update(message_on_source, message_on_target)[1],
+            torch.nn.functional.sigmoid(message_on_target),
+        )
+
+        assert torch.allclose(
+            HBNS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                target_in_channels=self.d_t_in,
+                target_out_channels=self.d_t_out,
+                negative_slope=0.2,
+                update_func="tanh",
+                initialization="xavier_normal",
+            ).update(message_on_source, message_on_target)[0],
+            torch.nn.functional.tanh(message_on_source),
+        )
+
     def test_attention_without_softmax(self):
         """Test the calculation of the attention matrices without softmax."""
         self.set_constant_weights()
