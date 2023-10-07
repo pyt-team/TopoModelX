@@ -467,9 +467,7 @@ class TestHBS:
                 m_hop=2,
                 update_func="non_existing_function",
                 initialization="xavier_uniform",
-            ).update(
-                torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
-            )
+            ).update(torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float))
 
     def test_attention_without_softmax(self):
         """Test the attention matrix calculation without softmax."""
