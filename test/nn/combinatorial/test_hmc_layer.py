@@ -456,6 +456,21 @@ class TestHBS:
                 initialization="non_existing",
             )
 
+    def test_update_func(self):
+        """Test if the update function is correctly applied."""
+        with pytest.raises((RuntimeError, AssertionError)):
+            HBS(
+                source_in_channels=self.d_s_in,
+                source_out_channels=self.d_s_out,
+                negative_slope=0.2,
+                softmax=False,
+                m_hop=2,
+                update_func="non_existing_function",
+                initialization="xavier_uniform",
+            ).update(
+                torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
+            )
+
     def test_attention_without_softmax(self):
         """Test the attention matrix calculation without softmax."""
         self.set_weights_to_one()
