@@ -6,6 +6,7 @@ import torch
 from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.san import SAN
+from topomodelx.utils.sparse import from_sparse
 
 
 class TestSAN:
@@ -32,9 +33,7 @@ class TestSAN:
             simplicial_complex.add_simplex(simplex)
         x_1 = torch.randn(35, 2)
         x_0 = torch.randn(15, 2)
-        incidence_0_1 = torch.from_numpy(
-            simplicial_complex.incidence_matrix(1).todense()
-        ).to_sparse()
+        incidence_0_1 = from_sparse(simplicial_complex.incidence_matrix(1))
         x = x_1 + torch.sparse.mm(incidence_0_1.T, x_0)
         in_channels = x.shape[-1]
         hidden_channels = 16
@@ -45,12 +44,8 @@ class TestSAN:
             out_channels=out_channels,
             n_layers=1,
         )
-        laplacian_down_1 = torch.from_numpy(
-            simplicial_complex.down_laplacian_matrix(rank=1).todense()
-        ).to_sparse()
-        laplacian_up_1 = torch.from_numpy(
-            simplicial_complex.up_laplacian_matrix(rank=1).todense()
-        ).to_sparse()
+        laplacian_down_1 = from_sparse(simplicial_complex.down_laplacian_matrix(rank=1))
+        laplacian_up_1 = from_sparse(simplicial_complex.up_laplacian_matrix(rank=1))
 
         assert torch.any(
             torch.isclose(

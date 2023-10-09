@@ -6,6 +6,7 @@ import torch
 from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.scn2 import SCN2
+from topomodelx.utils.sparse import from_sparse
 
 
 class TestSCN2:
@@ -38,9 +39,9 @@ class TestSCN2:
         laplacian_1 = simplicial_complex.normalized_laplacian_matrix(rank=1)
         laplacian_2 = simplicial_complex.normalized_laplacian_matrix(rank=2)
 
-        laplacian_0 = torch.from_numpy(laplacian_0.todense()).to_sparse()
-        laplacian_1 = torch.from_numpy(laplacian_1.todense()).to_sparse()
-        laplacian_2 = torch.from_numpy(laplacian_2.todense()).to_sparse()
+        laplacian_0 = from_sparse(laplacian_0)
+        laplacian_1 = from_sparse(laplacian_1)
+        laplacian_2 = from_sparse(laplacian_2)
         in_channels_0 = x_0.shape[1]
         in_channels_1 = x_1.shape[1]
         in_channels_2 = x_2.shape[1]

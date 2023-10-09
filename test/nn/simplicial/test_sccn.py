@@ -6,6 +6,7 @@ import torch
 from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.sccn import SCCN
+from topomodelx.utils.sparse import from_sparse
 
 
 class TestSCCN:
@@ -38,7 +39,7 @@ class TestSCCN:
         max_rank = 2
 
         def sparse_to_torch(X):
-            return torch.from_numpy(X.todense()).to_sparse()
+            return from_sparse(X)
 
         incidences = {
             f"rank_{r}": sparse_to_torch(simplicial_complex.incidence_matrix(rank=r))

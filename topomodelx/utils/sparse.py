@@ -24,4 +24,4 @@ def from_sparse(data: _csc.csc_matrix) -> torch.Tensor:
     values = torch.FloatTensor(coo.data)
     indices = torch.LongTensor(np.vstack((coo.row, coo.col)))
 
-    return torch.sparse_coo_tensor(indices, values, coo.shape)
+    return torch.sparse_coo_tensor(indices, values, coo.shape).coalesce()
