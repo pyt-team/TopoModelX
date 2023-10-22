@@ -15,8 +15,8 @@ class HyperGATLayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    update_func : string, default = "relu"
-        Update method to apply to message.
+    update_func : string
+        Update method to apply to message. Default is "relu".
     initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Initialization method.
 
@@ -90,19 +90,19 @@ class HyperGATLayer(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor, shape = (n_source_cells, in_channels)
+        x_source : torch.Tensor, shape=[n_source_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        x_target : torch.Tensor, shape = (n_target_cells, in_channels)
+        x_target : torch.Tensor, shape=[n_target_cells, in_channels]
             Input features on source cells.
             Assumes that all source cells have the same rank r.
-        mechanism: Literal["node-level", "edge-level"], default = "node-level"
+        mechanism: Literal["node-level", "edge-level"]
             Attention mechanism as proposed in [1]. If set to "node-level", will compute node-level attention,
-            if set to "edge-level", will compute edge-level attention (see [1]).
+            if set to "edge-level", will compute edge-level attention (see [1]). Default is "node-level".
 
         Returns
         -------
-        torch.Tensor, shape = (n_messages, 1)
+        torch.Tensor, shape = [n_messages, 1]
             Attention weights: one scalar per message between a source and a target cell.
         """
         if mechanism == "node-level":
@@ -134,12 +134,12 @@ class HyperGATLayer(MessagePassing):
 
         Parameters
         ----------
-        x_message_on_target : torch.Tensor, shape = (n_target_cells, out_channels)
+        x_message_on_target : torch.Tensor, shape=[n_target_cells, out_channels]
             Output features on target cells.
 
         Returns
         -------
-        torch.Tensor, shape = (n_target_cells, out_channels)
+        torch.Tensor, shape=[n_target_cells, out_channels]
             Updated output features on target cells.
         """
         if self.update_func == "sigmoid":

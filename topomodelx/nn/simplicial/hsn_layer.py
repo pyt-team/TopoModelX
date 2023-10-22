@@ -85,16 +85,16 @@ class HSNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_nodes, channels)
+        x: torch.Tensor, shape=[n_nodes, channels]
             Input features on the nodes of the simplicial complex.
-        incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
+        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
             Incidence matrix :math:`B_1` mapping edges to nodes.
-        adjacency_0 : torch.sparse, shape = (n_nodes, n_nodes)
+        adjacency_0 : torch.sparse, shape=[n_nodes, n_nodes]
             Adjacency matrix :math:`A_0^{\uparrow}` mapping nodes to nodes via edges.
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, channels)
+        torch.Tensor, shape=[n_nodes, channels]
             Output features on the nodes of the simplicial complex.
 
         References

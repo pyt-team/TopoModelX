@@ -7,7 +7,14 @@ from topomodelx.base.aggregation import Aggregation
 
 
 class SCoNeLayer(torch.nn.Module):
-    """Implementation of the SCoNe layer proposed in [1]_.
+    """
+    Implementation of the SCoNe layer proposed in [1]_.
+
+    Notes
+    -----
+    This is the architecture proposed for trajectory prediction on simplicial complexes.
+
+    For the trajectory prediction architecture proposed in [1]_, these layers are stacked before applying the boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of the last node in the given trajectory to predict the next node. When implemented like this, we get a map from (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     Parameters
     ----------
@@ -17,15 +24,6 @@ class SCoNeLayer(torch.nn.Module):
         Output dimension of features on each edge.
     update_func : Literal['relu', 'sigmoid', 'tanh']
         Update function to use when updating edge features.
-
-    Notes
-    -----
-    This is the architecture proposed for trajectory prediction on simplicial complexes.
-
-    For the trajectory prediction architecture proposed in [1]_, these layers are stacked before applying the
-    boundary map from 1-chains to 0-chains. Finally, one can apply the softmax operator on the neighbouring nodes of
-    the last node in the given trajectory to predict the next node. When implemented like this, we get a map from
-    (ordered) 1-chains (trajectories) to the neighbouring nodes of the last node in the 1-chain.
 
     References
     ----------
@@ -88,16 +86,16 @@ class SCoNeLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_edges, in_channels)
+        x: torch.Tensor, shape=[n_edges, in_channels]
             Input features on the edges of the simplicial complex.
-        incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
+        incidence_1 : torch.sparse, shape=[n_nodes, n_edges]
             Incidence matrix :math:`B_1` mapping edges to nodes.
-        incidence_2 : torch.sparse, shape = (n_edges, n_triangles)
+        incidence_2 : torch.sparse, shape=[n_edges, n_triangles]
             Incidence matrix :math:`B_2` mapping triangles to edges.
 
         Returns
         -------
-        torch.Tensor, shape = (n_edges, out_channels)
+        torch.Tensor, shape=[n_edges, out_channels]
             Output features on the edges of the simplicial complex.
         """
         z1 = incidence_2 @ incidence_2.T @ x @ self.weight_2

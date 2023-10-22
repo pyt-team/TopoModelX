@@ -61,21 +61,21 @@ class CCXN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, in_channels_0)
+        x_0 : torch.Tensor, shape = [n_nodes, in_channels_0]
             Input features on the nodes (0-cells).
-        x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
+        x_1 : torch.Tensor, shape = [n_edges, in_channels_1]
             Input features on the edges (1-cells).
-        neighborhood_0_to_0 : torch.Tensor, shape = (n_nodes, n_nodes)
+        neighborhood_0_to_0 : tensor, shape = [n_nodes, n_nodes]
             Adjacency matrix of rank 0 (up).
-        neighborhood_1_to_2 : torch.Tensor, shape = (n_faces, n_edges)
+        neighborhood_1_to_2 : tensor, shape = [n_faces, n_edges]
             Transpose of boundary matrix of rank 2.
-        x_2 : torch.Tensor, shape = (n_faces, in_channels_2)
+        x_2 : torch.Tensor, shape = [n_faces, in_channels_2]
             Input features on the faces (2-cells).
             Optional. Use for attention mechanism between edges and faces.
 
         Returns
         -------
-        torch.Tensor, shape = (1)
+        _ : tensor, shape = [1]
             Label assigned to whole complex.
         """
         for layer in self.layers:

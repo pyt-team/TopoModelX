@@ -15,16 +15,16 @@ class SAN(torch.nn.Module):
         Dimension of hidden features.
     out_channels : int
         Dimension of output features.
-    simplex_order_k : int, default = 1
-        Order r of the considered simplices.
-    n_filters : int, default = 2
-        Approximation order for simplicial filters.
-    order_harmonic : int, default = 5
-        Approximation order for harmonic convolution.
-    epsilon_harmonic : float, default = 1e-1
-        Epsilon value for harmonic convolution.
-    n_layers : int, default = 2
-        Number of message passing layers.
+    simplex_order_k : int
+        Order r of the considered simplices. Default to 1 (edges).
+    n_filters : int, optional
+        Approximation order for simplicial filters. Defaults to 2.
+    order_harmonic : int, optional
+        Approximation order for harmonic convolution. Defaults to 5.
+    epsilon_harmonic : float, optional
+        Epsilon value for harmonic convolution. Defaults to 1e-1.
+    n_layers : int, optional
+        Number of message passing layers. Defaults to 2.
     """
 
     def __init__(
@@ -84,12 +84,14 @@ class SAN(torch.nn.Module):
 
         Parameters
         ----------
-        L : torch.Tensor, shape = (n_edges, n_edges)
+        L : tensor
+            shape = [n_edges, n_edges]
             Hodge laplacian of rank 1.
 
         Returns
         -------
-        torch.Tensor, shape = (n_edges, n_edges)
+        _ : tensor
+            shape = [n_edges, n_edges]
             Projection matrix.
         """
         projection_mat = (
@@ -103,19 +105,23 @@ class SAN(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_nodes, channels_in)
+        x : tensor
+            shape = [n_nodes, channels_in]
             Node features.
 
-        laplacian_up : torch.Tensor, shape = (n_edges, n_edges)
+        laplacian_up : tensor
+            shape = [n_edges, n_edges]
             Upper laplacian of rank 1.
 
-        Ld : torch.Tensor, shape = (n_edges, n_edges)
+        Ld : tensor
+            shape = [n_edges, n_edges]
             Down laplacian of rank 1.
 
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, 2)
+        _ : tensor
+            shape = [n_nodes, 2]
             One-hot labels assigned to edges.
 
         """

@@ -97,14 +97,15 @@ class UniGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, in_channels)
+        x_0 : torch.Tensor, shape=[n_nodes, in_channels]
             Input features on the nodes of the hypergraph.
-        incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
+        incidence_1 : torch.sparse
+            shape=[n_nodes, n_edges]
             Incidence matrix mapping edges to nodes (B_1).
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
+        x_0 : torch.Tensor, shape=[n_nodes, out_channels]
             Output features on the nodes of the hypergraph.
         """
         if x_0.shape[-2] != incidence_1.shape[-2]:

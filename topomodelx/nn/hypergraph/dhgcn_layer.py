@@ -62,11 +62,11 @@ class DHGCNLayer(torch.nn.Module):
 
     @staticmethod
     def kmeans_graph(x, k, flow: str = "source_to_target"):
-        r"""Implement k-means algorithm.
+        r"""K-means algorithm implementation.
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_nodes, node_features)
+        x : torch.Tensor, shape=[n_nodes, node_features]
             Input features on the nodes of the simplicial complex.
         k : int
             Number of clusters/centroids
@@ -80,7 +80,7 @@ class DHGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
+        hyperedge_index : torch.Tensor, shape=[n_nodes, 2]
             Indices of the on-zero values in the feature matrix of hypergraph
             convolutional network.
             The order of dimensions of the matrix is defined by the value of the flow
@@ -134,16 +134,16 @@ class DHGCNLayer(torch.nn.Module):
         return torch.stack([row, col], dim=0)
 
     def kmeans(self, x_0, k=None):
-        r"""Wrap k-means algorithm.
+        r"""K-means algorithm wrapper.
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, node_features)
+        x_0 : torch.Tensor, shape=[n_nodes, node_features]
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
+        hyperedge_index : torch.Tensor, shape=[n_nodes, 2]
             Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
         """
         if k is None:
@@ -155,16 +155,16 @@ class DHGCNLayer(torch.nn.Module):
         return self.kmeans_graph(x_0, k=k, flow="source_to_target")
 
     def get_dynamic_topology(self, x_0_features):
-        r"""Compute dynamic topology.
+        r"""Dynamic topology computation.
 
         Parameters
         ----------
-        x_0_features : torch.Tensor, shape = (n_nodes, node_features)
+        x_0_features : torch.Tensor, shape=[n_nodes, node_features]
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        hyperedge_incidence_matrix : torch.Tensor, shape = (n_nodes, n_nodes + k_centroids)
+        hyperedge_incidence_matrix : torch.Tensor, shape=[n_nodes, n_nodes + k_centroids]
             Incidence matrix mapping edges to nodes.
         """
         device = x_0_features.device
@@ -192,7 +192,7 @@ class DHGCNLayer(torch.nn.Module):
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 
     def forward(self, x_0):
-        r"""Forward pass (see [2]_ and [3]_).
+        r"""Forward computation (see [2]_ and [3]_).
 
         Dynamic topology module of the DHST Block is implemented here.
 
@@ -207,12 +207,12 @@ class DHGCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, node_channels)
+        x_0 : torch.Tensor, shape=[n_nodes, node_channels]
             Input features on the nodes of the simplicial complex.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
+        x_0 : torch.Tensor, shape=[n_nodes, out_channels]
             Output features on the nodes of the simplicial complex.
         """
         # dynamic topology processing:

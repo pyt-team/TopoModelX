@@ -67,18 +67,18 @@ class UniGCNIILayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (num_nodes, in_channels)
+        x_0 : torch.Tensor, shape = [num_nodes, in_channels]
             Input features of the nodes of the hypergraph.
-        incidence_1 : torch.Tensor, shape = (num_nodes, num_edges)
+        incidence_1 : torch.Tensor, shape = [num_nodes, num_edges]
             Incidence matrix of the hypergraph.
             It is expected that the incidence matrix contains self-loops for all nodes.
-        x_skip : torch.Tensor, shape = (num_nodes, in_channels), optional
+        x_skip : torch.Tensor, shape = [num_nodes, in_channels], optional
             Original node features of the hypergraph used for the skip connections.
             If not provided, the input to the layer is used as a skip connection.
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (num_nodes, in_channels)
+        x_0 : torch.Tensor, shape = [num_nodes, in_channels]
             Output features of the nodes of the hypergraph.
 
         """

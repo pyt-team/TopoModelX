@@ -14,10 +14,11 @@ class HNHN(torch.nn.Module):
         Dimension of node features.
     channels_edge : int
         Dimension of edge features.
-    incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
+    incidence_1 : torch.sparse
         Incidence matrix mapping edges to nodes (B_1).
+        shape=[n_nodes, n_edges]
     n_classes: int
-        Number of classes.
+        Number of classes
     n_layers : int
         Number of HNHN message passing layers.
 
@@ -50,21 +51,26 @@ class HNHN(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, channels_node)
+        x_0 : torch.Tensor
+            shape = [n_nodes, channels_node]
             Hypernode features.
 
-        x_1 : torch.Tensor, shape = (n_nodes, channels_edge)
+        x_1 : torch.Tensor
+            shape = [n_nodes, channels_edge]
             Hyperedge features.
 
-        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
+        incidence_1 : tensor
+            shape = [n_nodes, n_edges]
             Boundary matrix of rank 1.
 
         Returns
         -------
-        logits : torch.Tensor, shape = (n_nodes, n_classes)
+        logits : torch.Tensor
             The predicted node logits
-        classes : torch.Tensor, shape = (n_nodes)
+            shape = [n_nodes, n_classes]
+        classes : torch.Tensor
             The predicted node class
+            shape = [n_nodes]
         """
         for layer in self.layers:
             x_0, x_1 = layer(x_0, x_1)
@@ -120,7 +126,7 @@ class HNHNNetwork(torch.nn.Module):
             shape = [n_nodes, channels_edge]
             Hyperedge features.
 
-        incidence_1 : torch.Tensor
+        incidence_1 : tensor
             shape = [n_nodes, n_edges]
             Boundary matrix of rank 1.
 

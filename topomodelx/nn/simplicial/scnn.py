@@ -72,17 +72,17 @@ class SCNN(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_simplices, channels)
-            Tensor of features node/edge/face.
-        laplacian_down : torch.Tensor, shape = (n_simplices, n_simplices)
+        x : tensor, shape=[n_simplices, channels]
+            node/edge/face features
+        laplacian_down : tensor, shape=[n_simplices, n_simplices]
             Down Laplacian.
-            For node features, laplacian_down = None.
-        laplacian_up: torch.Tensor, shape = (n_edges, n_nodes)
+            For node features, laplacian_down = None
+        laplacian_up: tensor, shape=[n_edges, n_nodes]
             Up Laplacian.
 
         Returns
         -------
-        torch.Tensor, shape = (n_simplices, 1)
+        one_dimensional_cells_mean : tensor, shape=[n_simplices, 1]
             Mean on one-dimensional cells.
         """
         for layer in self.layers:

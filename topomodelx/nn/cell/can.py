@@ -112,22 +112,20 @@ class CAN(torch.nn.Module):
     def forward(
         self, x_0, x_1, neighborhood_0_to_0, lower_neighborhood, upper_neighborhood
     ):
-        """Forward pass.
+        """Forward computation through layers.
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, in_channels_0)
+        x_0 : torch.Tensor, shape = [n_nodes, in_channels_0]
             Input features on the nodes (0-cells).
-        x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
+        x_1 : torch.Tensor, shape = [n_edges, in_channels_1]
             Input features on the edges (1-cells).
-        lower_neighborhood : torch.Tensor, shape = (-, -)
-            Lower Neighbourhood matrix.
-        upper_neighborhood : torch.Tensor, shape = (-, -)
-            Upper neighbourhood matrix.
+        lower_neighborhood : tensor, shape = [-, -]
+        upper_neighborhood : tensor, shape = [-, -]
 
         Returns
         -------
-        torch.Tensor
+        output tensor
         """
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)
