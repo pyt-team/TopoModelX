@@ -48,6 +48,7 @@ class AllSet(torch.nn.Module):
         mlp_activation=None,
         mlp_dropout=0.0,
         mlp_norm=None,
+        task_level="graph",
     ):
         super().__init__()
         layers = [
@@ -65,7 +66,7 @@ class AllSet(torch.nn.Module):
         for _ in range(n_layers - 1):
             layers.append(
                 AllSetLayer(
-                    in_channels=in_channels,
+                    in_channels=hidden_channels,
                     hidden_channels=hidden_channels,
                     dropout=dropout,
                     mlp_num_layers=mlp_num_layers,
@@ -76,6 +77,7 @@ class AllSet(torch.nn.Module):
             )
         self.layers = torch.nn.ModuleList(layers)
         self.linear = torch.nn.Linear(hidden_channels, out_channels)
+        self.out_pool = True if task_level == "graph" else False
 
     def forward(self, x_0, incidence_1):
         """Forward computation.
@@ -92,12 +94,14 @@ class AllSet(torch.nn.Module):
         torch.Tensor
             Output prediction.
         """
-        # cidx = edge_index[1].min()
-        # edge_index[1] -= cidx
-        # reversed_edge_index = torch.stack(
-        #     [edge_index[1], edge_index[0]], dim=0)
-
+        
         for layer in self.layers:
             x_0 = layer(x_0, incidence_1)
-        pooled_x = torch.max(x_0, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+        
+        # Pool over all nodes in the hypergraph 
+        if self.out_pool is True:
+            x = torch.max(x_0, dim=0)[0]
+        else:
+            x = x_0
+
+        return self.linear(x)

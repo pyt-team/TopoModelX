@@ -44,6 +44,8 @@ class HMPNN(torch.nn.Module):
     ):
         super().__init__()
         hidden_features = (in_features,) + hidden_features
+
+        
         self.to_hidden_linear = torch.nn.Sequential(
             *[
                 torch.nn.Linear(hidden_features[i], hidden_features[i + 1])

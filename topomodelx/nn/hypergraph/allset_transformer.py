@@ -47,6 +47,7 @@ class AllSetTransformer(torch.nn.Module):
         dropout=0.2,
         mlp_num_layers=2,
         mlp_dropout=0.0,
+        task_level="graph",
     ):
         super().__init__()
         layers = [
@@ -73,6 +74,7 @@ class AllSetTransformer(torch.nn.Module):
             )
         self.layers = torch.nn.ModuleList(layers)
         self.linear = torch.nn.Linear(hidden_channels, out_channels)
+        self.out_pool = True if task_level == "graph" else False
 
     def forward(self, x_0, incidence_1):
         """
@@ -92,5 +94,11 @@ class AllSetTransformer(torch.nn.Module):
         """
         for layer in self.layers:
             x_0 = layer(x_0, incidence_1)
-        pooled_x = torch.max(x_0, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            
+        # Pool over all nodes in the hypergraph 
+        if self.out_pool is True:
+            x = torch.max(x_0, dim=0)[0]
+        else:
+            x = x_0
+
+        return self.linear(x)
