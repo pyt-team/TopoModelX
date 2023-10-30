@@ -10,15 +10,15 @@ class UniGCNII(torch.nn.Module):
 
     Parameters
     ----------
-    num_classes: int, default=2
+    num_classes : int, default=2
         Number of classes used for node classification.
-    in_features: int, default=1
+    in_features : int, default=1
         Number of input features on the nodes.
-    n_layers: int, default=2
+    num_layers : int, default=2
         Number of UniGCNII message passing layers.
-    alpha: float, default=0.5
+    alpha : float, default=0.5
         Parameter of the UniGCNII layer.
-    beta: float, default=0.5
+    beta : float, default=0.5
         Parameter of the UniGCNII layer.
 
     References
@@ -56,7 +56,7 @@ class UniGCNII(torch.nn.Module):
 
         Returns
         -------
-        y_hat : torch.Tensor, shape = (num_nodes, num_classes)
+        torch.Tensor, shape = (num_nodes, num_classes)
             Contains the logits for classification for every node.
         """
         # Copy the original features to use as skip connections

@@ -6,7 +6,13 @@ from topomodelx.base.aggregation import Aggregation
 
 
 class Dist2CycleLayer(torch.nn.Module):
-    """Layer of Dist2Cycle [1]_."""
+    """Layer of Dist2Cycle [1]_.
+
+    Parameters
+    ----------
+    channels : int
+        Dimension of features.
+    """
 
     def __init__(
         self,
@@ -41,15 +47,9 @@ class Dist2CycleLayer(torch.nn.Module):
             &🟦 \quad h_x^{t+1,(1)} = \sigma(m_{x}^{(1)})
             \end{align*}
 
-        References
-        ----------
-        .. [1] Papillon, Sanborn, Hajij, Miolane.
-            Equations of topological neural networks (2023).
-            https://github.com/awesome-tnns/awesome-tnns/
-
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_nodes, channels)
+        x_e: torch.Tensor, shape = (n_nodes, channels)
             Input features on the edges of the simplicial complex.
         incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
             Incidence matrix :math:`B_1` mapping edges to nodes.
@@ -60,6 +60,12 @@ class Dist2CycleLayer(torch.nn.Module):
         -------
         torch.Tensor, shape = (n_nodes, channels)
             Output features on the nodes of the simplicial complex.
+
+        References
+        ----------
+        .. [1] Papillon, Sanborn, Hajij, Miolane.
+            Equations of topological neural networks (2023).
+            https://github.com/awesome-tnns/awesome-tnns/
         """
         x_e = adjacency * Linv
         x_e = self.aggr_on_edges([x_e])

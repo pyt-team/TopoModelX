@@ -43,6 +43,7 @@ doc = [
     "jupyter",
     "nbsphinx",
     "nbsphinx_link",
+    "numpydoc",
     "sphinx",
     "sphinx_gallery",
     "pydata-sphinx-theme"

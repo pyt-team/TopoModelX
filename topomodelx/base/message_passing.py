@@ -175,7 +175,7 @@ class MessagePassing(torch.nn.Module):
 
         Parameters
         ----------
-        x_messages : Tensor, shape = (..., n_messages, out_channels)
+        x_message : torch.Tensor, shape = (..., n_messages, out_channels)
             Features associated with each message.
             One message is sent from a source cell to a target cell.
 

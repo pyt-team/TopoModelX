@@ -97,11 +97,9 @@ class CCXNLayer(torch.nn.Module):
             Input features on the nodes of the cell complex.
         x_1 : torch.Tensor, shape = (n_1_cells, channels)
             Input features on the edges of the cell complex.
-        neighborhood_0_to_0 : torch.sparse
-            shape = (n_0_cells, n_0_cells)
+        neighborhood_0_to_0 : torch.sparse, shape = (n_0_cells, n_0_cells)
             Neighborhood matrix mapping nodes to nodes (A_0_up).
-        neighborhood_1_to_2 : torch.sparse
-            shape = (n_2_cells, n_1_cells)
+        neighborhood_1_to_2 : torch.sparse, shape = (n_2_cells, n_1_cells)
             Neighborhood matrix mapping edges to faces (B_2^T).
         x_2 : torch.Tensor, shape = (n_2_cells, channels)
             Input features on the faces of the cell complex.

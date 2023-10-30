@@ -109,7 +109,7 @@ class AllSetLayer(nn.Module):
 
         Returns
         -------
-        x : torch.Tensor
+        torch.Tensor
             Output features.
         """
         if x.shape[-2] != incidence_1.shape[-2]:
@@ -265,7 +265,7 @@ class AllSetBlock(nn.Module):
 
         Returns
         -------
-        x : torch.Tensor
+        torch.Tensor
             Output features.
         """
         x = F.relu(self.encoder(x))

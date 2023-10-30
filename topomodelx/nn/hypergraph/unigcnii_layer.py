@@ -78,9 +78,8 @@ class UniGCNIILayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (num_nodes, in_channels)
+        torch.Tensor, shape = (num_nodes, in_channels)
             Output features of the nodes of the hypergraph.
-
         """
         x_skip = x_0 if x_skip is None else x_skip
         incidence_1_transpose = incidence_1.transpose(0, 1)

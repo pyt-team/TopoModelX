@@ -16,7 +16,7 @@ class HNHN(torch.nn.Module):
         Dimension of edge features.
     incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
-    n_classes: int
+    n_classes : int
         Number of classes.
     n_layers : int
         Number of HNHN message passing layers.
@@ -56,9 +56,6 @@ class HNHN(torch.nn.Module):
         x_1 : torch.Tensor, shape = (n_nodes, channels_edge)
             Hyperedge features.
 
-        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
-            Boundary matrix of rank 1.
-
         Returns
         -------
         logits : torch.Tensor, shape = (n_nodes, n_classes)
@@ -85,8 +82,8 @@ class HNHNNetwork(torch.nn.Module):
     incidence_1 : torch.sparse
         Incidence matrix mapping edges to nodes (B_1).
         shape=[n_nodes, n_edges]
-    n_classes: int
-        Number of classes
+    n_classes : int
+        Number of classes.
     n_layers : int
         Number of HNHN message passing layers.
     """
@@ -112,26 +109,17 @@ class HNHNNetwork(torch.nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor
-            shape = [n_nodes, channels_node]
+        x_0 : torch.Tensor, shape = [n_nodes, channels_node]
             Hypernode features.
-
-        x_1 : torch.Tensor
-            shape = [n_nodes, channels_edge]
+        x_1 : torch.Tensor, shape = [n_nodes, channels_edge]
             Hyperedge features.
-
-        incidence_1 : torch.Tensor
-            shape = [n_nodes, n_edges]
-            Boundary matrix of rank 1.
 
         Returns
         -------
-        logits : torch.Tensor
+        logits : torch.Tensor, shape = [n_nodes, n_classes]
             The predicted node logits
-            shape = [n_nodes, n_classes]
-        classes : torch.Tensor
-            The predicted node class
-            shape = [n_nodes]
+        classes : torch.Tensor, shape = [n_nodes]
+            The predicted node class.
         """
         for layer in self.layers:
             x_0, x_1 = layer(x_0, x_1)
