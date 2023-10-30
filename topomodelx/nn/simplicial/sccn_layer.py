@@ -15,25 +15,25 @@ class SCCNLayer(torch.nn.Module):
     This layer corresponds to the leftmost tensor diagram labeled Yang22c in
     Figure 11 of [3]_.
 
-    See Also
-    --------
-    topomodelx.nn.simplicial.scn2_layer.SCN2Layer : SCN2 layer
-        SCN layer proposed in [1]_ for simplicial complexes of rank 2.
-        The difference between SCCN and SCN is that:
-        - SCN passes messages between cells of the same rank,
-        - SCCN passes messages between cells of the same ranks, one rank above
-        and one rank below.
-
     Parameters
     ----------
     channels : int
         Dimension of features on each simplicial cell.
     max_rank : int
         Maximum rank of the cells in the simplicial complex.
-    aggr_func : Literal["mean", "sum"], default="sum"
+    aggr_func : {"mean", "sum"}, default="sum"
         The function to be used for aggregation.
-    update_func : Literal["relu", "sigmoid", "tanh", None], default="sigmoid"
+    update_func : {"relu", "sigmoid", "tanh", None}, default="sigmoid"
         The activation function.
+
+    See Also
+    --------
+    topomodelx.nn.simplicial.scn2_layer.SCN2Layer
+        SCN layer proposed in [1]_ for simplicial complexes of rank 2.
+        The difference between SCCN and SCN is that:
+        - SCN passes messages between cells of the same rank,
+        - SCCN passes messages between cells of the same ranks, one rank above
+        and one rank below.
 
     References
     ----------
@@ -149,7 +149,7 @@ class SCCNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        features: dict[int, torch.Tensor], length=max_rank+1, shape = (n_rank_r_cells, channels)
+        features : dict[int, torch.Tensor], length=max_rank+1, shape = (n_rank_r_cells, channels)
             Input features on the cells of the simplicial complex.
         incidences : dict[int, torch.sparse], length=max_rank, shape = (n_rank_r_minus_1_cells, n_rank_r_cells)
             Incidence matrices :math:`B_r` mapping r-cells to (r-1)-cells.
@@ -158,7 +158,7 @@ class SCCNLayer(torch.nn.Module):
 
         Returns
         -------
-        out_features : dict[int, torch.Tensor], length=max_rank+1, shape = (n_rank_r_cells, channels)
+        dict[int, torch.Tensor], length=max_rank+1, shape = (n_rank_r_cells, channels)
             Output features on the cells of the simplicial complex.
         """
         out_features = {}

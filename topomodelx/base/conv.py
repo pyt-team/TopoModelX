@@ -21,13 +21,15 @@ class Conv(MessagePassing):
         Dimension of output features.
     aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
-    update_func : Literal["relu", "sigmoid"], optional
+    update_func : {"relu", "sigmoid"}, optional
         Update method to apply to message.
     att : bool, default=False
         Whether to use attention.
-    initialization : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
+    initialization : {"xavier_uniform", "xavier_normal"}, default="xavier_uniform"
         Initialization method.
-    with_linear_transform: bool, default=True
+    initialization_gain : float, default=1.414
+        Initialization gain.
+    with_linear_transform : bool, default=True
         Whether to apply a learnable linear transform.
         NB: if `False` in_channels has to be equal to out_channels.
     """

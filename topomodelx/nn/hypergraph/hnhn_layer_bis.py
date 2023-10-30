@@ -19,11 +19,11 @@ class HNHNLayer(torch.nn.Module):
         The input dimension of node features.
     incidence_1 : torch.sparse.Tensor, shape = (n_nodes, n_edges)
         Incidence matrix mapping hyperedges to nodes (B_1).
-    activation_func: Callable
+    activation_func : Callable
         Called on the new representations.
-    normalization_param_alpha: float
+    normalization_param_alpha : float
         The param that weights multiplied into hyperedge representations are powered to beforehand.
-    normalization_param_beta: float
+    normalization_param_beta : float
         The param that weights multiplied into node representations are powered to beforehand.
 
     References

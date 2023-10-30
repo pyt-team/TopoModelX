@@ -15,8 +15,6 @@ class SAN(torch.nn.Module):
         Dimension of hidden features.
     out_channels : int
         Dimension of output features.
-    simplex_order_k : int, default = 1
-        Order r of the considered simplices.
     n_filters : int, default = 2
         Approximation order for simplicial filters.
     order_harmonic : int, default = 5
@@ -84,7 +82,7 @@ class SAN(torch.nn.Module):
 
         Parameters
         ----------
-        L : torch.Tensor, shape = (n_edges, n_edges)
+        laplacian : torch.Tensor, shape = (n_edges, n_edges)
             Hodge laplacian of rank 1.
 
         Returns
@@ -105,19 +103,15 @@ class SAN(torch.nn.Module):
         ----------
         x : torch.Tensor, shape = (n_nodes, channels_in)
             Node features.
-
         laplacian_up : torch.Tensor, shape = (n_edges, n_edges)
             Upper laplacian of rank 1.
-
-        Ld : torch.Tensor, shape = (n_edges, n_edges)
+        laplacian_down : torch.Tensor, shape = (n_edges, n_edges)
             Down laplacian of rank 1.
-
 
         Returns
         -------
         torch.Tensor, shape = (n_nodes, 2)
             One-hot labels assigned to edges.
-
         """
         # Compute the projection matrix for the harmonic component
         laplacian = laplacian_up + laplacian_down

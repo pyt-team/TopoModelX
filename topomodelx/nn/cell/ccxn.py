@@ -69,9 +69,6 @@ class CCXN(torch.nn.Module):
             Adjacency matrix of rank 0 (up).
         neighborhood_1_to_2 : torch.Tensor, shape = (n_faces, n_edges)
             Transpose of boundary matrix of rank 2.
-        x_2 : torch.Tensor, shape = (n_faces, in_channels_2)
-            Input features on the faces (2-cells).
-            Optional. Use for attention mechanism between edges and faces.
 
         Returns
         -------

@@ -22,6 +22,12 @@ class SCCNN(torch.nn.Module):
         Order of convolutions, we consider the same order for all convolutions.
     sc_order : int
         SC order.
+    aggr_norm : bool
+        Whether to normalize the aggregation.
+    update_func : str
+        Activation function used in aggregation layers.
+    num_classes : int
+        Number of classes.
     n_layers : int
         Number of layers.
     """

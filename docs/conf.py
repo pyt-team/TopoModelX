@@ -10,25 +10,19 @@ author = "PyT-Team Authors"
 extensions = [
     "nbsphinx",
     "nbsphinx_link",
+    "numpydoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.githubpages",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_gallery.load_style",
 ]
 
-# Configure napoleon for numpy docstring
-napoleon_google_docstring = False
-napoleon_numpy_docstring = True
-napoleon_use_param = False
-napoleon_use_ivar = False
-napoleon_use_rtype = False
-napoleon_include_init_with_doc = False
-
-# Configure nbsphinx for notebooks execution
+# Configure nbsphinx for notebook execution
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
     "--InlineBackend.rc={'figure.dpi': 96}",
@@ -162,3 +156,17 @@ nbsphinx_thumbnails = {
     "notebooks/simplicial/scone_train_bis": "_thumbnails/simplicial/scone_train_bis.png",
     "notebooks/simplicial/scone_train": "_thumbnails/simplicial/scone_train.png",
 }
+
+# configure intersphinx
+intersphinx_mapping = {
+    "networkx": ("https://networkx.org/documentation/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "toponetx": ("https://pyt-team.github.io/toponetx/", None),
+}
+
+# configure numpydoc
+numpydoc_validation_checks = {"all", "GL01", "ES01", "SA01", "EX01"}
+numpydoc_show_class_members = False
+numpydoc_class_members_toctree = False

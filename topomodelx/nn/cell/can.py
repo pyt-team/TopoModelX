@@ -11,28 +11,28 @@ class CAN(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels_0: int
+    in_channels_0 : int
         Number of input channels for the node-level input.
-    in_channels_1: int
+    in_channels_1 : int
         Number of input channels for the edge-level input.
-    out_channels: int
+    out_channels : int
         Number of output channels.
-    num_classest: int
+    num_classes : int
         Number of output classes.
-    dropout: float, optional
+    dropout : float, optional
         Dropout probability. Default is 0.5.
-    heads: int, optional
+    heads : int, optional
         Number of attention heads. Default is 3.
-    concat: bool, optional
+    concat : bool, optional
         Whether to concatenate the output channels of attention heads. Default is True.
-    skip_connection: bool, optional
+    skip_connection : bool, optional
         Whether to use skip connections. Default is True.
-    att_activation: torch.nn.Module, optional
+    att_activation : torch.nn.Module, optional
         Activation function for attention mechanism. Default is torch.nn.LeakyReLU(0.2).
-    n_layers: int, optional
-        Number of CAN layers. Default is 2.
-    att_lift: bool, optional
-        Whether to apply a lift the signal from node-level to edge-level input. Default is True.
+    n_layers : int, default=2
+        Number of CAN layers.
+    att_lift : bool, default=True
+        Whether to apply a lift the signal from node-level to edge-level input.
 
     References
     ----------
@@ -120,6 +120,8 @@ class CAN(torch.nn.Module):
             Input features on the nodes (0-cells).
         x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
+        neighborhood_0_to_0 : torch.Tensor, shape = (n_nodes, n_nodes)
+            Neighborhood matrix from nodes to nodes.
         lower_neighborhood : torch.Tensor, shape = (-, -)
             Lower Neighbourhood matrix.
         upper_neighborhood : torch.Tensor, shape = (-, -)
@@ -128,6 +130,7 @@ class CAN(torch.nn.Module):
         Returns
         -------
         torch.Tensor
+            Output prediction for the cell complex.
         """
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)

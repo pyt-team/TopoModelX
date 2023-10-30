@@ -10,16 +10,15 @@ class UniGCNLayer(torch.nn.Module):
 
     Implementation of UniGCN layer proposed in [1]_.
 
-
     Parameters
     ----------
     in_channels : int
         Dimension of input features.
     out_channels : int
         Dimension of output features.
-    use_bn : boolean
+    use_bn : bool, default=False
         Whether to use bathnorm after the linear transformation.
-    aggr_norm: boolean
+    aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
 
     References
@@ -104,7 +103,7 @@ class UniGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
+        torch.Tensor, shape = (n_nodes, out_channels)
             Output features on the nodes of the hypergraph.
         """
         if x_0.shape[-2] != incidence_1.shape[-2]:

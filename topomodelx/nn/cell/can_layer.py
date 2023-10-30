@@ -16,12 +16,6 @@ from topomodelx.utils.scatter import scatter_add, scatter_sum
 def softmax(src, index, num_cells: int):
     r"""Compute the softmax of the attention coefficients.
 
-    Notes
-    -----
-    There should be of a default implementation of softmax in the utils file.
-    Subtracting the maximum element in it from all elements to avoid overflow
-    and underflow.
-
     Parameters
     ----------
     src : torch.Tensor, shape = (n_k_cells, heads)
@@ -35,6 +29,12 @@ def softmax(src, index, num_cells: int):
     -------
     torch.Tensor, shape = (n_k_cells, heads)
         Softmax of the attention coefficients.
+
+    Notes
+    -----
+    There should be of a default implementation of softmax in the utils file.
+    Subtracting the maximum element in it from all elements to avoid overflow
+    and underflow.
     """
     src_max = src.max(dim=0, keepdim=True)[0]  # (1, H)
     src -= src_max  # (|n_k_cells|, H)
@@ -48,10 +48,6 @@ def softmax(src, index, num_cells: int):
 def add_self_loops(neighborhood):
     """Add self-loops to the neighborhood matrix.
 
-    Notes
-    -----
-    Add to utils file.
-
     Parameters
     ----------
     neighborhood : torch.sparse_coo_tensor, shape = (n_k_cells, n_k_cells)
@@ -61,6 +57,10 @@ def add_self_loops(neighborhood):
     -------
     torch.sparse_coo_tensor, shape = (n_k_cells, n_k_cells)
         Neighborhood matrix with self-loops.
+
+    Notes
+    -----
+    Add to utils file.
     """
     N = neighborhood.shape[0]
     cell_index, cell_weight = neighborhood._indices(), neighborhood._values()
@@ -88,13 +88,13 @@ class LiftLayer(MessagePassing):
 
     Parameters
     ----------
-    in_channels_0: int
+    in_channels_0 : int
         Number of input channels of the node signal.
-    heads: int
+    heads : int
         Number of attention heads.
-    signal_lift_activation: Callable
+    signal_lift_activation : Callable
         Activation function applied to the lifted signal.
-    signal_lift_dropout: float
+    signal_lift_dropout : float
         Dropout rate applied to the lifted signal.
 
     References
@@ -125,28 +125,37 @@ class LiftLayer(MessagePassing):
         nn.init.xavier_uniform_(self.att_parameter.data, gain=gain)
 
     def message(self, x_source, x_target=None):
-        """Construct a message from source 0-cells to target 1-cell."""
+        """Construct a message from source 0-cells to target 1-cell.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor, shape = (num_edges, in_channels_0)
+            Node signal of the source 0-cells.
+        x_target : torch.Tensor, shape = (num_edges, in_channels_0)
+            Node signal of the target 1-cell.
+
+        Returns
+        -------
+        torch.Tensor, shape = (num_edges, heads)
+            Edge signal.
+        """
         # Concatenate source and target node feature vectors
-        node_features_stacked = torch.cat(
-            (x_source, x_target), dim=1
-        )  # (num_edges, 2 * in_channels_0)
+        node_features_stacked = torch.cat((x_source, x_target), dim=1)
 
         # Compute the output edge signal by applying the activation function
         edge_signal = torch.einsum(
             "ij,jh->ih", node_features_stacked, self.att_parameter
         )  # (num_edges, heads)
-        edge_signal = self.signal_lift_activation(edge_signal)  # (num_edges, heads)
-
-        return edge_signal  # (num_edges, heads)
+        return self.signal_lift_activation(edge_signal)
 
     def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:  # type: ignore[override]
         """Forward pass.
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape = (num_nodes, in_channels_0)
+        x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
             Node signal.
-        neighborhood_0_to_0: torch.Tensor, shape = (num_nodes, num_nodes)
+        neighborhood_0_to_0 : torch.Tensor, shape = (num_nodes, num_nodes)
             Sparse neighborhood matrix.
 
         Returns
@@ -172,15 +181,15 @@ class MultiHeadLiftLayer(nn.Module):
 
     Parameters
     ----------
-    in_channels_0: int
+    in_channels_0 : int
         Number of input channels.
-    heads: int, optional
+    heads : int, optional
         Number of attention heads.
-    signal_lift_activation: Callable, optional
+    signal_lift_activation : Callable, optional
         Activation function to apply to the output edge signal.
-    signal_lift_dropout: float, optional
+    signal_lift_dropout : float, optional
         Dropout rate to apply to the output edge signal.
-    signal_lift_readout: str, optional
+    signal_lift_readout : str, optional
         Readout method to apply to the output edge signal.
     """
 
@@ -224,17 +233,17 @@ class MultiHeadLiftLayer(nn.Module):
 
         Parameters
         ----------
-        x_0: torch.Tensor
-            Node signal of shape (num_nodes, in_channels_0)
-        neighborhood_0_to_0: torch.Tensor
-            Edge index of shape (2, num_edges)
-        x_1: torch.Tensor, optional
-            Node signal of shape (num_edges, in_channels_1)
+        x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
+            Node signal.
+        neighborhood_0_to_0 : torch.Tensor, shape = (2, num_edges)
+            Edge index.
+        x_1 : torch.Tensor, shape = (num_edges, in_channels_1), optional
+            Edge signal.
 
         Returns
         -------
-        _: torch.Tensor
-            Lifted node signal of shape (num_edges, heads + in_channels_1)
+        torch.Tensor, shape = (num_edges, heads + in_channels_1)
+            Lifted node signal.
 
         Notes
         -----
@@ -279,13 +288,13 @@ class PoolLayer(MessagePassing):
 
     Parameters
     ----------
-    k_pool: float
-        The pooling ratio i.e, the fraction of edges to keep after the pooling operation. (0,1]
-    in_channels_0: int
+    k_pool : float in (0, 1]
+        The pooling ratio i.e, the fraction of edges to keep after the pooling operation.
+    in_channels_0 : int
         Number of input channels of the input signal.
-    signal_pool_activation: Callable
+    signal_pool_activation : Callable
         Activation function applied to the pooled signal.
-    readout: bool, optional
+    readout : bool, optional
         Whether to apply a readout operation to the pooled signal.
     """
 
@@ -318,16 +327,16 @@ class PoolLayer(MessagePassing):
 
         Parameters
         ----------
-        x_0: torch.Tensor, shape = (num_nodes, in_channels_0)
+        x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
             Node signal.
-        lower_neighborhood: torch.Tensor
+        lower_neighborhood : torch.Tensor
             Lower neighborhood matrix.
-        upper_neighborhood: torch.Tensor
+        upper_neighborhood : torch.Tensor
             Upper neighbourhood matrix.
 
         Returns
         -------
-        out: torch.Tensor
+        torch.Tensor
             Pooled node signal of shape (num_pooled_nodes, in_channels_0).
 
         Notes
@@ -386,6 +395,8 @@ class MultiHeadCellAttention(MessagePassing):
         Number of input channels.
     out_channels : int
         Number of output channels.
+    dropout : float
+        Dropout rate applied to the output signal.
     heads : int
         Number of attention heads.
     concat : bool
@@ -481,15 +492,15 @@ class MultiHeadCellAttention(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor
-            Source node features. Shape: [n_k_cells, in_channels]
-        x_target : torch.Tensor
-            Target node features. Shape: [n_k_cells, in_channels]
+        x_source : torch.Tensor, shape = [n_k_cells, in_channels]
+            Source node features.
+        x_target : torch.Tensor, shape = [n_k_cells, in_channels]
+            Target node features.
 
         Returns
         -------
-        torch.Tensor
-            Attention weights. Shape: [n_k_cells, heads]
+        torch.Tensor, shape = [n_k_cells, heads]
+            Attention weights.
         """
         # Compute attention coefficients
         alpha_src = torch.einsum(
@@ -520,7 +531,7 @@ class MultiHeadCellAttention(MessagePassing):
         x_source : torch.Tensor, shape = (n_k_cells, channels)
             Input features on the r-cell of the cell complex.
         neighborhood : torch.sparse, shape = (n_k_cells, n_k_cells)
-            Neighborhood matrix mapping r-cells to r-cells (A_k). [up, down]
+            Neighborhood matrix mapping r-cells to r-cells (A_k).
 
         Returns
         -------
@@ -573,6 +584,8 @@ class MultiHeadCellAttention_v2(MessagePassing):
         Number of input channels.
     out_channels : int
         Number of output channels.
+    dropout : float
+        Dropout rate applied to the output signal.
     heads : int
         Number of attention heads.
     concat : bool
@@ -698,7 +711,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         Returns
         -------
-        alpha : torch.Tensor, shape = (n_k_cells, heads)
+        torch.Tensor, shape = (n_k_cells, heads)
             Attention weights.
         """
         # Apply activation function
@@ -778,19 +791,19 @@ class CANLayer(torch.nn.Module):
     in_channels : int
         Dimension of input features on n-cells.
     out_channels : int
-        Dimension of output
+        Dimension of output.
     heads : int, default=1
-        Number of attention heads
+        Number of attention heads.
     dropout : float, optional
         Dropout probability of the normalized attention coefficients.
     concat : bool, default=True
         If True, the output of each head is concatenated. Otherwise, the output of each head is averaged.
     skip_connection : bool, default=True
         If True, skip connection is added.
-    add_self_loops : bool, optional
-        If True, self-loops are added to the neighborhood matrix.
     att_activation : Callable, default=torch.nn.LeakyReLU()
         Activation function applied to the attention coefficients.
+    add_self_loops : bool, optional
+        If True, self-loops are added to the neighborhood matrix.
     aggr_func : Literal["mean", "sum"], default="sum"
         Between-neighborhood aggregation function applied to the messages.
     update_func : Literal["relu", "sigmoid", "tanh", None], default="relu"
@@ -822,7 +835,6 @@ class CANLayer(torch.nn.Module):
         update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
         version: Literal["v1", "v2"] = "v1",
         share_weights: bool = False,
-        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -909,16 +921,15 @@ class CANLayer(torch.nn.Module):
         ----------
         x : torch.Tensor, shape = (n_k_cells, channels)
             Input features on the r-cell of the cell complex.
-        lower_neighborhood : torch.sparse
-            shape = (n_k_cells, n_k_cells)
+        lower_neighborhood : torch.sparse, shape = (n_k_cells, n_k_cells)
             Lower neighborhood matrix mapping r-cells to r-cells (A_k_low).
-        upper_neighborhood : torch.sparse
-            shape = (n_k_cells, n_k_cells)
+        upper_neighborhood : torch.sparse, shape = (n_k_cells, n_k_cells)
             Upper neighborhood matrix mapping r-cells to r-cells (A_k_up).
 
         Returns
         -------
         torch.Tensor, shape = (n_k_cells, out_channels)
+            Output features on the r-cell of the cell complex.
 
         Notes
         -----
@@ -936,7 +947,6 @@ class CANLayer(torch.nn.Module):
             &🟦 \quad h_x^{t+1,(r)}
                 = \phi^{t}(h_x^t, m_{x}^{(r)})
             \end{align*}
-
         """
         # message and within-neighborhood aggregation
         lower_x = self.lower_att(x, lower_neighborhood)

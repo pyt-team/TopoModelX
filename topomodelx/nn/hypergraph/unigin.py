@@ -11,7 +11,11 @@ class UniGIN(torch.nn.Module):
     Parameters
     ----------
     in_channels_node : int
-        Dimension of node features
+        Dimension of node features.
+    intermediate_channels : int
+        Dimension of intermediate features.
+    out_channels : int
+        Dimension of output features.
     n_layer : int, default = 2
         Amount of message passing layers.
 

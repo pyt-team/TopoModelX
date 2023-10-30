@@ -10,10 +10,9 @@ class Dist2Cycle(torch.nn.Module):
     Parameters
     ----------
     channels : int
-        Dimension of features
+        Dimension of features.
     n_layers : int
         Amount of message passing layers.
-
     """
 
     def __init__(self, channels, n_layers=2):
@@ -35,12 +34,13 @@ class Dist2Cycle(torch.nn.Module):
         ----------
         x_1e : torch.Tensor, shape = (n_nodes, channels)
             Node features.
+        Linv : torch.Tensor
+        adjacency : torch.Tensor
 
         Returns
         -------
         torch.Tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
-
         """
         logits = self.linear(x_1e)
         return torch.softmax(logits, dim=-1)

@@ -7,7 +7,6 @@ class UniGINLayer(torch.nn.Module):
 
     Implementation of UniGIN layer proposed in [1]_.
 
-
     Parameters
     ----------
     nn : torch.nn.Module
@@ -90,7 +89,7 @@ class UniGINLayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
+        torch.Tensor, shape = (n_nodes, out_channels)
             Output features on the nodes of the hypergraph.
         """
         incidence_1_transpose = incidence_1.to_dense().T.to_sparse()

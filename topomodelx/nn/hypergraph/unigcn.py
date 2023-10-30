@@ -11,10 +11,10 @@ class UniGCN(torch.nn.Module):
     Parameters
     ----------
     channels_edge : int
-        Dimension of edge features
+        Dimension of edge features.
     channels_node : int
-        Dimension of node features
-    n_layer : int, default = 2
+        Dimension of node features.
+    n_layers : int, default = 2
         Amount of message passing layers.
 
     References

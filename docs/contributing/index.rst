@@ -160,6 +160,8 @@ N.B. Within Notes, you can:
 - include LaTex code
 - cite references in text using ids placed in References
 
+.. _docstring-examples:
+
 Docstring Examples
 ~~~~~~~~~~~~~~~~~~
 

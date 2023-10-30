@@ -16,11 +16,11 @@ class SCACMPSLayer(torch.nn.Module):
 
     Parameters
     ----------
-    channels_list: list[int]
+    channels_list : list[int]
         Dimension of features at each dimension.
-    complex_dim: int
+    complex_dim : int
         Highest dimension of chains on the input simplicial complexes.
-    att: bool
+    att : bool, default=False
         Whether to use attention.
 
     References
@@ -83,11 +83,29 @@ class SCACMPSLayer(torch.nn.Module):
                 layer.reset_parameters()
 
     def weight_func(self, x):
-        r"""Weight function for intra aggregation layer according to [1]_."""
+        r"""Weight function for intra aggregation layer according to [1]_.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+
+        Returns
+        -------
+        torch.Tensor
+        """
         return 1 / (1 + torch.exp(-x))
 
     def intra_aggr(self, x):
-        r"""Based on the use by [1]_."""
+        r"""Based on the use by [1]_.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+
+        Returns
+        -------
+        torch.Tensor
+        """
         x_list = list(torch.split(x, 1, dim=0))
         x_weight = self.aggr(x_list)
         x_weight = torch.matmul(torch.relu(x_weight), x.transpose(1, 0))
@@ -121,16 +139,16 @@ class SCACMPSLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x_list: list[torch.Tensor]
+        x_list : list[torch.Tensor]
             List of tensors holding the features of each chain at each level.
-        down_lap_list: list[torch.Tensor]
+        down_lap_list : list[torch.Tensor]
             List of down laplacian matrices for skeletons from 1 dimension to the dimension of the simplicial complex.
-        incidencet_list: list[torch.Tensor]
+        incidencet_list : list[torch.Tensor]
             List of transpose incidence matrices for skeletons from 1 dimension to the dimension of the simplicial complex.
 
         Returns
         -------
-        x_list: list[torch.Tensor]
+        list[torch.Tensor]
             Output for skeletons of each dimension (the node features are left untouched: x_list[0]).
         """
         for i in range(1, self.dim):

@@ -10,10 +10,10 @@ class HyperSAGE(torch.nn.Module):
 
     Parameters
     ----------
-    channels_edge : int
-        Dimension of edge features
-    channels_node : int
-        Dimension of node features
+    in_channels : int
+        Dimension of the input features.
+    out_channels : int
+        Dimension of the output features.
     n_layer : int, default = 2
         Amount of message passing layers.
 
@@ -44,10 +44,9 @@ class HyperSAGE(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_nodes, features_nodes)
+        x : torch.Tensor, shape = (n_nodes, features_nodes)
             Edge features.
-
-        incidence: torch.Tensor, shape = (n_nodes, n_edges)
+        incidence : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
