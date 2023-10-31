@@ -34,6 +34,7 @@ class SAN(torch.nn.Module):
         order_harmonic=5,
         epsilon_harmonic=1e-1,
         n_layers=2,
+        num_classes=2,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -73,7 +74,7 @@ class SAN(torch.nn.Module):
                     n_filters=self.n_filters,
                 )
             )
-        self.linear = torch.nn.Linear(out_channels, 2)
+        self.linear = torch.nn.Linear(out_channels, num_classes)
 
     def compute_projection_matrix(self, laplacian):
         """Compute the projection matrix.

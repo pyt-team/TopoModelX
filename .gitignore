@@ -11,6 +11,7 @@ coverage.xml
 .venv
 *.out
 *.pt
+*.pickle
 **/*.cpython-38.pyc
 **/__pycache__/**
 __pycache__/

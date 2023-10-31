@@ -199,7 +199,7 @@ class SCCNNComplex(torch.nn.Module):
         self.layers = torch.nn.ModuleList(layers)
 
         out_channels_0, out_channels_1, out_channels_2 = out_channels_all
-        self.out_linear_0 = torch.nn.Linear(out_channels_0, num_classes)
+        self.out_linear_1 = torch.nn.Linear(out_channels_0, num_classes)
 
     def forward(self, x_all, laplacian_all, incidence_all):
         """Forward computation.
@@ -237,8 +237,8 @@ class SCCNNComplex(torch.nn.Module):
         """
         We pass the output on the nodes to a linear layer and use that to generate a probability label for nodes
         """
-        x_0, _, _ = x_all
-        logits = self.out_linear_0(x_0)
-        label = torch.softmax(logits, dim=1)
+        x_0, x_1, _ = x_all
+        logits = self.out_linear_1(x_0)
+        # label = torch.softmax(logits, dim=1)
 
-        return label
+        return torch.sigmoid(logits)
