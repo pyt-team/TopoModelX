@@ -40,6 +40,7 @@ class SCNN(torch.nn.Module):
         aggr_norm=False,
         update_func=None,
         n_layers=2,
+        num_classes=1,
     ):
         super().__init__()
         # First layer -- initial layer has the in_channels as input, and inter_channels as the output
@@ -64,7 +65,7 @@ class SCNN(torch.nn.Module):
                 )
             )
         self.aggr = aggr
-        self.linear = torch.nn.Linear(out_channels, 1)
+        self.linear = torch.nn.Linear(out_channels, num_classes)
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, x, laplacian_down, laplacian_up):
