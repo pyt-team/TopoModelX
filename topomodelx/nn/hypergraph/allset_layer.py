@@ -26,6 +26,7 @@ class AllSetLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+    
 
     References
     ----------

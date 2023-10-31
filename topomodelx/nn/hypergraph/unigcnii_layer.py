@@ -8,7 +8,9 @@ class UniGCNIILayer(torch.nn.Module):
     Parameters
     ----------
     in_channels : int
-        Number of input channels of the node (rank-0) features.
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     alpha : float
         The alpha parameter determining the importance of the self-loop (\theta_2).
     beta : float
@@ -22,13 +24,18 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, alpha: float, beta: float) -> None:
+    def __init__(
+            self, 
+            in_channels, 
+            hidden_channels,
+            alpha: float, 
+            beta: float
+        ) -> None:
         super().__init__()
 
-        self.in_channels = in_channels
         self.alpha = alpha
         self.beta = beta
-        self.linear = torch.nn.Linear(in_channels, in_channels, bias=False)
+        self.linear = torch.nn.Linear(in_channels, hidden_channels, bias=False)
 
     def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""

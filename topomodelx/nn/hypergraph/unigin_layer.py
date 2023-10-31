@@ -10,9 +10,6 @@ class UniGINLayer(torch.nn.Module):
 
     Parameters
     ----------
-    nn : torch.nn.Module
-        A neural network that maps node features :obj:`x` of shape :obj:`[-1, in_channels]` to
-        shape :obj:`[-1, out_channels]`, *e.g.*, defined by :class:`torch.nn.Sequential`.
     in_channels : int
         Dimension of input features.
     eps : float
@@ -36,19 +33,19 @@ class UniGINLayer(torch.nn.Module):
 
     def __init__(
         self,
-        nn,
         in_channels,
-        eps: float = 0.0,
+        eps: float = 0.,
         train_eps: bool = False,
     ) -> None:
         super().__init__()
-        self.in_channels = in_channels
+        
         self.initial_eps = eps
         if train_eps:
             self.eps = torch.nn.Parameter(torch.Tensor([eps]))
         else:
             self.register_buffer("eps", torch.Tensor([eps]))
-        self.nn = nn
+        
+        self.linear = torch.nn.Linear(in_channels, in_channels)
 
     def forward(self, x_0, incidence_1):
         r"""[1]_ initially proposed the forward pass.
@@ -99,4 +96,4 @@ class UniGINLayer(torch.nn.Module):
         # Second pass fills in features of nodes by adding features of the incident edges
         m_1_0 = torch.sparse.mm(incidence_1.float(), m_0_1)
         # Update node features using GIN update equation
-        return self.nn((1 + self.eps) * x_0 + m_1_0)
+        return self.linear((1 + self.eps) * x_0 + m_1_0)

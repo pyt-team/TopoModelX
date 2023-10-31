@@ -12,11 +12,11 @@ class AllSet(torch.nn.Module):
 
     Parameters
     ----------
-    in_dim : int
+    in_channels : int
         Dimension of the input features.
-    hid_dim : int
+    hidden_channels : int
         Dimension of the hidden features.
-    out_dim : int
+    out_channels : int
         Dimension of the output features.
     dropout : float
         Dropout probability.
@@ -28,6 +28,9 @@ class AllSet(torch.nn.Module):
         Number of layers in the MLP.
     mlp_norm : bool, default: False
         Whether to apply input normalization in the MLP.
+    task_level: str, default="graph"
+        Level of the task. Either "graph" or "node".
+        If "graph", the output is pooled over all nodes in the hypergraph.
 
     References
     ----------

@@ -1,7 +1,7 @@
 """UniGCNII class."""
 
 import torch
-
+import math
 from topomodelx.nn.hypergraph.unigcnii_layer import UniGCNIILayer
 
 
@@ -10,16 +10,26 @@ class UniGCNII(torch.nn.Module):
 
     Parameters
     ----------
-    num_classes: int, default=2
-        Number of classes used for node classification.
-    in_features: int, default=1
-        Number of input features on the nodes.
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
+    out_channels : int
+        Dimension of the output features.
     n_layers: int, default=2
         Number of UniGCNII message passing layers.
     alpha: float, default=0.5
         Parameter of the UniGCNII layer.
     beta: float, default=0.5
         Parameter of the UniGCNII layer.
+    input_drop: float, default=0.2
+        Dropout rate for the input features.
+    layer_drop: float, default=0.2
+        Dropout rate for the hidden features.
+    task_level: str, default="graph"
+        Level of the task. Either "graph" or "node".
+        If "graph", the output is pooled over all nodes in the hypergraph.
+
 
     References
     ----------
@@ -29,19 +39,41 @@ class UniGCNII(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, num_classes=2, in_features=1, num_layers=2, alpha=0.5, beta=0.5):
+    def __init__(
+            self, 
+            in_channels,
+            hidden_channels,
+            out_channels,
+            n_layers=2, 
+            alpha=0.5, 
+            beta=0.5,
+            input_drop=0.2,
+            layer_drop=0.2,
+            task_level="graph",
+        ):
         super().__init__()
         layers = []
-        self.num_features = in_features
-        self.num_classes = num_classes
-
-        for _ in range(num_layers):
+        
+        self.input_drop = torch.nn.Dropout(input_drop)
+        self.layer_drop = torch.nn.Dropout(layer_drop)
+        # Define initial linear layer
+        self.linear_init = torch.nn.Linear(in_channels, hidden_channels)
+        
+        
+        # Define convolutional layers 
+        for i in range(n_layers):
+            beta = math.log(alpha/(i+1)+1)
             layers.append(
-                UniGCNIILayer(in_channels=in_features, alpha=alpha, beta=beta)
-            )
+                UniGCNIILayer(
+                    in_channels=hidden_channels, 
+                    hidden_channels=hidden_channels,
+                    alpha=alpha,
+                    beta=beta)
+                )
 
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(self.num_features, self.num_classes)
+        self.linear = torch.nn.Linear(hidden_channels, out_channels)
+        self.out_pool = True if task_level == "graph" else False
 
     def forward(self, x_0, incidence_1):
         """Forward pass through the model.
@@ -59,12 +91,22 @@ class UniGCNII(torch.nn.Module):
         y_hat : torch.Tensor, shape = (num_nodes, num_classes)
             Contains the logits for classification for every node.
         """
-        # Copy the original features to use as skip connections
-        x_0_skip = x_0.clone()
+
+        x_0 = self.input_drop(x_0)
+        x_0 = self.linear_init(x_0)
+        x_0 = torch.nn.functional.relu(x_0)
+        x_0_skip = x_0
 
         for layer in self.layers:
             x_0 = layer(x_0, incidence_1, x_0_skip)
+            x_0 = self.layer_drop(x_0)
+            x_0 = torch.nn.functional.relu(x_0)
+        
+        # Pool over all nodes in the hypergraph 
+        if self.out_pool is True:
+            x = torch.max(x_0, dim=0)[0]
+        else:
+            x = x_0
 
-        # linear layer for node classification output
-        # softmax ommited for use of cross-entropy loss
-        return self.linear(x_0)
+       
+        return self.linear(x)

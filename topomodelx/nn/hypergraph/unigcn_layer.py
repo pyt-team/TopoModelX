@@ -14,9 +14,9 @@ class UniGCNLayer(torch.nn.Module):
     Parameters
     ----------
     in_channels : int
-        Dimension of input features.
-    out_channels : int
-        Dimension of output features.
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     use_bn : boolean
         Whether to use bathnorm after the linear transformation.
     aggr_norm: boolean
@@ -37,21 +37,25 @@ class UniGCNLayer(torch.nn.Module):
     """
 
     def __init__(
-        self, in_channels, out_channels, aggr_norm: bool = False, use_bn: bool = False
+        self, 
+        in_channels,
+        hidden_channels,
+        aggr_norm: bool = False, 
+        use_bn: bool = False
     ) -> None:
         super().__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+        
+        with_linear_transform = False if in_channels == hidden_channels else True  
         self.conv_level1_0_to_1 = Conv(
             in_channels=in_channels,
-            out_channels=in_channels,
+            out_channels=hidden_channels,
             aggr_norm=aggr_norm,
             update_func=None,
-            with_linear_transform=False,
+            with_linear_transform=with_linear_transform,
         )
         self.conv_level2_1_to_0 = Conv(
-            in_channels=in_channels,
-            out_channels=out_channels,
+            in_channels=hidden_channels,
+            out_channels=hidden_channels,
             aggr_norm=aggr_norm,
             update_func=None,
         )

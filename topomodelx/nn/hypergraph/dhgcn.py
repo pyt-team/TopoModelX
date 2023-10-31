@@ -18,6 +18,9 @@ class DHGCN(torch.nn.Module):
         Dimension of node features
     n_layer : int, default = 2
         Amount of message passing layers.
+    task_level: str, default="graph"
+        Level of the task. Either "graph" or "node".
+        If "graph", the output is pooled over all nodes in the hypergraph.
 
     References
     ----------
@@ -26,19 +29,35 @@ class DHGCN(torch.nn.Module):
         https://ieeexplore.ieee.org/abstract/document/9835240
     """
 
-    def __init__(self, channels_node, n_layers=2):
+    def __init__(
+        self, 
+        in_channels, 
+        hidden_channels, 
+        out_channels, 
+        n_layers=1, 
+        task_level="graph"
+    ):
         super().__init__()
         layers = []
-        for _ in range(n_layers):
+        layers.append(
+            DHGCNLayer(
+                in_channels=in_channels,
+                intermediate_channels=hidden_channels,
+                out_channels=hidden_channels,
+            )
+        )
+        for _ in range(n_layers - 1):
             layers.append(
                 DHGCNLayer(
-                    in_channels=channels_node,
-                    intermediate_channels=channels_node,
-                    out_channels=channels_node,
+                    in_channels=hidden_channels,
+                    intermediate_channels=hidden_channels,
+                    out_channels=hidden_channels,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(channels_node, 1)
+        self.linear = torch.nn.Linear(hidden_channels, out_channels)
+        self.out_pool = True if task_level == "graph" else False
+        
 
     def forward(self, x_0):
         """Forward computation through layers, then global average pooling, then linear layer.
@@ -55,6 +74,11 @@ class DHGCN(torch.nn.Module):
         """
         for layer in self.layers:
             x_0 = layer(x_0)
-        pooled_x = torch.mean(x_0, dim=0)
-        output = self.linear(pooled_x)
-        return output[0]
+        
+        # Pool over all nodes in the hypergraph 
+        if self.out_pool is True:
+            x = torch.max(x_0, dim=0)[0]
+        else:
+            x = x_0        
+        
+        return self.linear(x)

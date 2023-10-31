@@ -28,6 +28,9 @@ class AllSetTransformer(torch.nn.Module):
         Number of layers in the MLP.
     mlp_norm : bool, optional. default: False
         Whether to apply input normalization in the MLP.
+    task_level: str, default="graph"
+        Level of the task. Either "graph" or "node".
+        If "graph", the output is pooled over all nodes in the hypergraph.
 
     References
     ----------
