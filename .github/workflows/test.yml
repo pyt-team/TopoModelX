@@ -2,7 +2,7 @@ name: "Test"
 
 on:
   push:
-    branches: [main,github-actions-test]
+    branches: [main,github-actions-test,ghaction-speedup-iss215]
     paths-ignore:
     - 'docs/**'
     - 'README.md'
