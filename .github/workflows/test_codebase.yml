@@ -1,4 +1,4 @@
-name: "Test"
+name: "Testing Codebase"
 
 on:
   push:
@@ -17,24 +17,19 @@ on:
     - 'LICENSE.txt'
     - '.gitignore'
 
-# Disable debugger's warnings from nbconvert in test_tutorials.py
-env:
-  PYDEVD_DISABLE_FILE_VALIDATION: 1
-
 jobs:
 
   pytest:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.10", "3.11"]
         torch-version: [2.0.1]
         include:
           - torch-version: 2.0.1
-        test-scope: ["codebase", "tutorials-simplicial", "tutorials-hypergraph", "tutorials-cell-combinatorial"]
 
     steps:
       - uses: actions/checkout@v3
@@ -59,23 +54,9 @@ jobs:
         run: |
           mypy -p topomodelx
       - name: Run tests for codebase [pytest]
-        if : ${{matrix.test-scope == 'codebase'}}
         run: |
           pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
-      - name: Run tests for tutorials on simplicial domain [pytest]
-        if : ${{matrix.test-scope == 'tutorials-simplicial'}}
-        run: |
-          pytest test/tutorials/test_simplicial.py
-      - name: Run tests for tutorials on hypergraph domain [pytest]
-        if : ${{matrix.test-scope == 'tutorials-hypergraph'}}
-        run: |
-          pytest test/tutorials/test_hypergraph.py
-      - name: Run tests for tutorials on cell and combinatorial domains [pytest]
-        if : ${{matrix.test-scope == 'tutorials-cell-combinatorial'}}
-        run: |
-          pytest test/tutorials/test_cell.py test/tutorials/test_combinatorial.py
       - name: Upload coverage
-        if : ${{matrix.test-scope == 'codebase'}}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
