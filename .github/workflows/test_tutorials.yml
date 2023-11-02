@@ -1,6 +1,7 @@
 name: "Testing Tutorials"
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
   push:
     branches: [main,github-actions-test,ghaction-speedup-iss215]
     paths-ignore:
