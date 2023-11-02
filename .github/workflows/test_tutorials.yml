@@ -36,6 +36,7 @@ jobs:
         include:
           - torch-version: 2.0.1
         test-scope: ["tutorials-simplicial", "tutorials-hypergraph", "tutorials-cell-combinatorial"]
+        test-group: [1, 2, 3, 4]
 
     steps:
       - uses: actions/checkout@v3
@@ -59,15 +60,15 @@ jobs:
       - name: Typecheck [mypy]
         run: |
           mypy -p topomodelx
-      - name: Run tests for tutorials on simplicial domain [pytest]
+      - name: Run tests for tutorials on simplicial domain [pytest] [Group-${{ matrix.test-group}}]
         if : ${{matrix.test-scope == 'tutorials-simplicial'}}
         run: |
-          pytest -n 4 test/tutorials/test_simplicial.py
-      - name: Run tests for tutorials on hypergraph domain [pytest]
+          pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_simplicial.py
+      - name: Run tests for tutorials on hypergraph domain [pytest] [Group-${{ matrix.test-group}}]
         if : ${{matrix.test-scope == 'tutorials-hypergraph'}}
         run: |
-          pytest -n 4 test/tutorials/test_hypergraph.py
-      - name: Run tests for tutorials on cell and combinatorial domains [pytest]
+          pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
+      - name: Run tests for tutorials on cell and combinatorial domains [pytest] [Group-${{ matrix.test-group}}]
         if : ${{matrix.test-scope == 'tutorials-cell-combinatorial'}}
         run: |
-          pytest -n 4 test/tutorials/test_cell.py test/tutorials/test_combinatorial.py
+          pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_cell.py test/tutorials/test_combinatorial.py
