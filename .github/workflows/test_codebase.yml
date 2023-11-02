@@ -40,14 +40,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: "pyproject.toml"
+          run: |
+            pip install --upgrade pip setuptools wheel
+            pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+            pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+            pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+            pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
-      - name: Install PyTorch ${{ matrix.torch-version }}+cpu
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      # - name: Install PyTorch ${{ matrix.torch-version }}+cpu
+      #   run: |
+      #     pip install --upgrade pip setuptools wheel
+      #     pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+      #     pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      #     pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      #     pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
       - name: Install main package
         run: |
           pip install -e .[all]
