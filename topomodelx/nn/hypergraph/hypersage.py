@@ -24,22 +24,31 @@ class HyperSAGE(torch.nn.Module):
         https://arxiv.org/abs/2010.04558
     """
 
-    def __init__(self, in_channels, out_channels, n_layers=2, **kwargs):
+    def __init__(
+            self, 
+            in_channels, 
+            hidden_channels,
+              out_channels, 
+              n_layers=2, 
+              task_level="graph",
+              **kwargs
+        ):
         super().__init__()
         layers = []
         layers.append(
-            HyperSAGELayer(in_channels=in_channels, out_channels=out_channels, **kwargs)
+            HyperSAGELayer(in_channels=in_channels, out_channels=hidden_channels, **kwargs)
         )
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=out_channels, out_channels=out_channels, **kwargs
+                    in_channels=hidden_channels, out_channels=hidden_channels, **kwargs
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(out_channels, 1)
+        self.linear = torch.nn.Linear(hidden_channels, out_channels)
+        self.out_pool = True if task_level == "graph" else False
 
-    def forward(self, x, incidence):
+    def forward(self, x_0, incidence):
         """Forward computation through layers, then linear layer, then global max pooling.
 
         Parameters
@@ -56,6 +65,12 @@ class HyperSAGE(torch.nn.Module):
             Label assigned to whole complex.
         """
         for layer in self.layers:
-            x = layer.forward(x, incidence)
-        pooled_x = torch.max(x, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            x_0 = layer.forward(x_0, incidence)
+        
+        # Pool over all nodes in the hypergraph 
+        if self.out_pool is True:
+            x = torch.max(x_0, dim=0)[0]
+        else:
+            x = x_0
+
+        return self.linear(x)
