@@ -1,6 +1,7 @@
 name: "Testing Tutorials"
 
 on:
+  workflow_dispatch
   push:
     branches: [main,github-actions-test,ghaction-speedup-iss215]
     paths-ignore:
@@ -61,12 +62,12 @@ jobs:
       - name: Run tests for tutorials on simplicial domain [pytest]
         if : ${{matrix.test-scope == 'tutorials-simplicial'}}
         run: |
-          pytest test/tutorials/test_simplicial.py
+          pytest -n 4 test/tutorials/test_simplicial.py
       - name: Run tests for tutorials on hypergraph domain [pytest]
         if : ${{matrix.test-scope == 'tutorials-hypergraph'}}
         run: |
-          pytest test/tutorials/test_hypergraph.py
+          pytest -n 4 test/tutorials/test_hypergraph.py
       - name: Run tests for tutorials on cell and combinatorial domains [pytest]
         if : ${{matrix.test-scope == 'tutorials-cell-combinatorial'}}
         run: |
-          pytest test/tutorials/test_cell.py test/tutorials/test_combinatorial.py
+          pytest -n 4 test/tutorials/test_cell.py test/tutorials/test_combinatorial.py

@@ -1,6 +1,7 @@
 name: "Testing Codebase"
 
 on:
+  workflow_dispatch
   push:
     branches: [main,github-actions-test,ghaction-speedup-iss215]
     paths-ignore:
@@ -55,7 +56,7 @@ jobs:
           mypy -p topomodelx
       - name: Run tests for codebase [pytest]
         run: |
-          pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+          pytest -n 2 --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
