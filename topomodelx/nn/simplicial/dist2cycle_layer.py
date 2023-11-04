@@ -21,7 +21,7 @@ class Dist2CycleLayer(torch.nn.Module):
         super().__init__()
         self.channels = channels
         # feature learning
-        self.fc_neigh = nn.Linear(channels, 1, bias=True)
+        self.fc_neigh = nn.Linear(channels, channels, bias=True)
         self.aggr_on_edges = Aggregation(aggr_func="sum", update_func="relu")
         # need to support for other update functions like leaky relu
         # which is main for dist2Cycle

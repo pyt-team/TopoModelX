@@ -24,7 +24,6 @@ class HSN(torch.nn.Module):
                     channels=channels,
                 )
             )
-        self.linear = torch.nn.Linear(channels, 2)
         self.layers = layers
 
     def forward(self, x_0, incidence_1, adjacency_0):
@@ -48,5 +47,4 @@ class HSN(torch.nn.Module):
         """
         for layer in self.layers:
             x_0 = layer(x_0, incidence_1, adjacency_0)
-        logits = self.linear(x_0)
-        return torch.softmax(logits, dim=-1)
+        return x_0
