@@ -38,8 +38,8 @@ class Dist2Cycle(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, 2)
-            One-hot labels assigned to nodes.
+        torch.Tensor, shape = (n_nodes, channels)
+            Final node hidden representations.
         """
         for layer in self.layers:
             x_1e = layer(x_1e, Linv, adjacency)

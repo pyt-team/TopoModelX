@@ -112,8 +112,8 @@ class SAN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, 2)
-            One-hot labels assigned to edges.
+        torch.Tensor, shape = (n_edges, out_channels)
+            Final hidden representations of edges.
         """
         # Compute the projection matrix for the harmonic component
         laplacian = laplacian_up + laplacian_down

@@ -48,13 +48,13 @@ class SCCN(torch.nn.Module):
         -------
         Dict of torch.Tensor
             rank_0 : torch.Tensor
-                Output features on nodes.
+                Final hidden representations of nodes.
             rank_1 : torch.Tensor
-                Output features on edges.
+                Final hidden representations of edges.
             rank_2 : torch.Tensor
-                Output features on triangles.
+                Final hidden representations of triangles.
             rank_3 : torch.Tensor
-                Output features on tetrahedra.
+                Final hidden representations of tetrahedra.
             ...
             (up to max_rank)
         """
