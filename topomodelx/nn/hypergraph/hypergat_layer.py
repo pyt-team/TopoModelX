@@ -169,8 +169,10 @@ class HyperGATLayer(MessagePassing):
 
         Returns
         -------
-        x : torch.Tensor
-            Output features.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         intra_aggregation = incidence.t() @ (x_source @ self.weight1)
 
@@ -200,4 +202,5 @@ class HyperGATLayer(MessagePassing):
         inter_aggregation_with_attention = incidence_with_attention @ (
             messages_on_edges @ self.weight2
         )
-        return self.update(inter_aggregation_with_attention)
+        
+        return self.update(inter_aggregation_with_attention), messages_on_edges

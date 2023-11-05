@@ -14,8 +14,6 @@ class UniGCNII(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     n_layers: int, default=2
         Number of UniGCNII message passing layers.
     alpha: float, default=0.5
@@ -26,10 +24,6 @@ class UniGCNII(torch.nn.Module):
         Dropout rate for the input features.
     layer_drop: float, default=0.2
         Dropout rate for the hidden features.
-    task_level: str, default="graph"
-        Level of the task. Either "graph" or "node".
-        If "graph", the output is pooled over all nodes in the hypergraph.
-
 
     References
     ----------
@@ -43,13 +37,11 @@ class UniGCNII(torch.nn.Module):
             self, 
             in_channels,
             hidden_channels,
-            out_channels,
             n_layers=2, 
             alpha=0.5, 
             beta=0.5,
             input_drop=0.2,
             layer_drop=0.2,
-            task_level="graph",
         ):
         super().__init__()
         layers = []
@@ -58,8 +50,7 @@ class UniGCNII(torch.nn.Module):
         self.layer_drop = torch.nn.Dropout(layer_drop)
         # Define initial linear layer
         self.linear_init = torch.nn.Linear(in_channels, hidden_channels)
-        
-        
+    
         # Define convolutional layers 
         for i in range(n_layers):
             beta = math.log(alpha/(i+1)+1)
@@ -72,8 +63,6 @@ class UniGCNII(torch.nn.Module):
                 )
 
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.out_pool = True if task_level == "graph" else False
 
     def forward(self, x_0, incidence_1):
         """Forward pass through the model.
@@ -88,8 +77,10 @@ class UniGCNII(torch.nn.Module):
 
         Returns
         -------
-        y_hat : torch.Tensor, shape = (num_nodes, num_classes)
-            Contains the logits for classification for every node.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
 
         x_0 = self.input_drop(x_0)
@@ -98,15 +89,8 @@ class UniGCNII(torch.nn.Module):
         x_0_skip = x_0
 
         for layer in self.layers:
-            x_0 = layer(x_0, incidence_1, x_0_skip)
+            x_0, x_1 = layer(x_0, incidence_1, x_0_skip)
             x_0 = self.layer_drop(x_0)
             x_0 = torch.nn.functional.relu(x_0)
         
-        # Pool over all nodes in the hypergraph 
-        if self.out_pool is True:
-            x = torch.max(x_0, dim=0)[0]
-        else:
-            x = x_0
-
-       
-        return self.linear(x)
+        return (x_0, x_1)

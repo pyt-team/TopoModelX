@@ -12,25 +12,19 @@ class AllSetTransformer(torch.nn.Module):
 
     Parameters
     ----------
-    in_dim : int
+    in_channels : int
         Dimension of the input features.
-    hid_dim : int
+    hidden_channels : int
         Dimension of the hidden features.
-    out_dim : int
-        Dimension of the output features.
-    dropout : float
-        Dropout probability.
     n_layers : int, default: 2
         Number of AllSet layers in the network.
-    input_dropout : float, default: 0.2
-        Dropout probability for the layer input.
+    dropout : float
+        Dropout probability.
     mlp_num_layers : int, default: 2
         Number of layers in the MLP.
-    mlp_norm : bool, optional. default: False
-        Whether to apply input normalization in the MLP.
-    task_level: str, default="graph"
-        Level of the task. Either "graph" or "node".
-        If "graph", the output is pooled over all nodes in the hypergraph.
+    mlp_dropout:
+        Dropout probability in the MLP.
+    
 
     References
     ----------
@@ -44,13 +38,11 @@ class AllSetTransformer(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         n_layers=1,
         heads=4,
         dropout=0.2,
         mlp_num_layers=2,
         mlp_dropout=0.0,
-        task_level="graph",
     ):
         super().__init__()
         layers = [
@@ -76,8 +68,7 @@ class AllSetTransformer(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.out_pool = True if task_level == "graph" else False
+       
 
     def forward(self, x_0, incidence_1):
         """
@@ -87,7 +78,7 @@ class AllSetTransformer(torch.nn.Module):
         ----------
         x : torch.Tensor
             Input features.
-        edge_index : torch.Tensor
+        incidence_1 : torch.Tensor
             Edge list (of size (2, |E|)).
 
         Returns
@@ -96,12 +87,7 @@ class AllSetTransformer(torch.nn.Module):
             Output prediction.
         """
         for layer in self.layers:
-            x_0 = layer(x_0, incidence_1)
-            
-        # Pool over all nodes in the hypergraph 
-        if self.out_pool is True:
-            x = torch.max(x_0, dim=0)[0]
-        else:
-            x = x_0
-
-        return self.linear(x)
+            x_0, x_1 = layer(x_0, incidence_1)
+        
+        return (x_0, x_1)
+       

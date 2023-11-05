@@ -14,14 +14,8 @@ class HyperGAT(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     n_layer : int, default = 2
         Amount of message passing layers.
-    task_level: str, default="graph"
-        Level of the task. Either "graph" or "node".
-        If "graph", the output is pooled over all nodes in the hypergraph.
-
 
     References
     ----------
@@ -34,9 +28,7 @@ class HyperGAT(torch.nn.Module):
             self, 
             in_channels,
             hidden_channels,
-            out_channels, 
             n_layers=2,
-            task_level="graph",
         ):
         super().__init__()
         layers = []
@@ -46,8 +38,6 @@ class HyperGAT(torch.nn.Module):
                 HyperGATLayer(in_channels=hidden_channels, out_channels=hidden_channels)
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.out_pool = True if task_level == "graph" else False
 
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
@@ -63,16 +53,12 @@ class HyperGAT(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         for layer in self.layers:
-            x_0 = layer.forward(x_0, incidence_1)
+            x_0, x_1 = layer.forward(x_0, incidence_1)
         
-        # Pool over all nodes in the hypergraph 
-        if self.out_pool is True:
-            x = torch.max(x_0, dim=0)[0]
-        else:
-            x = x_0
-
-        return self.linear(x)
+        return x_0, x_1

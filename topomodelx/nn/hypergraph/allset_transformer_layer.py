@@ -95,7 +95,7 @@ class AllSetTransformerLayer(nn.Module):
         self.vertex2edge.reset_parameters()
         self.edge2vertex.reset_parameters()
 
-    def forward(self, x, incidence_1):
+    def forward(self, x_0, incidence_1):
         r"""Forward computation.
 
         Vertex to edge:
@@ -120,28 +120,30 @@ class AllSetTransformerLayer(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_nodes, channels)
+        x_0 : torch.Tensor, shape = (n_nodes, channels)
             Node input features.
         incidence_1 : torch.sparse, shape = (n_nodes, n_hyperedges)
             Incidence matrix :math:`B_1` mapping hyperedges to nodes.
 
         Returns
         -------
-        x : torch.Tensor
-            Output features.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
-        if x.shape[-2] != incidence_1.shape[-2]:
+        if x_0.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
-                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x.shape[0]})."
+                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x_0.shape[0]})."
             )
 
-        x = F.relu(self.vertex2edge(x, incidence_1.transpose(1, 0)))
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        x_1 = F.relu(self.vertex2edge(x_0, incidence_1.transpose(1, 0)))
+        x_1 = F.dropout(x_1, p=self.dropout, training=self.training)
 
-        x = F.relu(self.edge2vertex(x, incidence_1))
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        x_0 = F.relu(self.edge2vertex(x_1, incidence_1))
+        x_0 = F.dropout(x_0, p=self.dropout, training=self.training)
 
-        return x
+        return x_0, x_1
 
 
 class AllSetTransformerBlock(nn.Module):

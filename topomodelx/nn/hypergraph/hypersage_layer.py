@@ -215,5 +215,5 @@ class HyperSAGELayer(MessagePassing):
         )
 
         x_message = x + inter_edge_aggregation
-
-        return self.update(x_message / x_message.norm(p=2) @ self.weight)
+        x_0 = self.update(x_message / x_message.norm(p=2) @ self.weight)
+        return x_0

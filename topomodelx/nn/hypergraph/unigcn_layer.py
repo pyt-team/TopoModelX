@@ -108,17 +108,20 @@ class UniGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
-            Output features on the nodes of the hypergraph.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
+        
         if x_0.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
                 f"Mismatch in number of nodes in features and nodes: {x_0.shape[-2]} and {incidence_1.shape[-2]}."
             )
 
         incidence_1_transpose = incidence_1.transpose(1, 0)
-        m_0_1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
+        x_1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
         if self.bn is not None:
-            m_0_1 = self.bn(m_0_1)
-        m_1_0 = self.conv_level2_1_to_0(m_0_1, incidence_1)
-        return m_1_0
+            x_1 = self.bn(x_1)
+        x_0 = self.conv_level2_1_to_0(x_1, incidence_1)
+        return (x_0, x_1)

@@ -10,10 +10,10 @@ class HyperSAGE(torch.nn.Module):
 
     Parameters
     ----------
-    channels_edge : int
-        Dimension of edge features
-    channels_node : int
-        Dimension of node features
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
 
@@ -27,11 +27,9 @@ class HyperSAGE(torch.nn.Module):
     def __init__(
             self, 
             in_channels, 
-            hidden_channels,
-              out_channels, 
-              n_layers=2, 
-              task_level="graph",
-              **kwargs
+            hidden_channels, 
+            n_layers=2, 
+            **kwargs
         ):
         super().__init__()
         layers = []
@@ -45,9 +43,7 @@ class HyperSAGE(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.out_pool = True if task_level == "graph" else False
-
+        
     def forward(self, x_0, incidence):
         """Forward computation through layers, then linear layer, then global max pooling.
 
@@ -67,10 +63,4 @@ class HyperSAGE(torch.nn.Module):
         for layer in self.layers:
             x_0 = layer.forward(x_0, incidence)
         
-        # Pool over all nodes in the hypergraph 
-        if self.out_pool is True:
-            x = torch.max(x_0, dim=0)[0]
-        else:
-            x = x_0
-
-        return self.linear(x)
+        return x_0

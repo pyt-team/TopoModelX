@@ -87,13 +87,16 @@ class UniGINLayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
-            Output features on the nodes of the hypergraph.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
         # First pass fills in features of edges by adding features of constituent nodes
-        m_0_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0)
+        x_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0)
         # Second pass fills in features of nodes by adding features of the incident edges
-        m_1_0 = torch.sparse.mm(incidence_1.float(), m_0_1)
+        m_1_0 = torch.sparse.mm(incidence_1.float(), x_1)
         # Update node features using GIN update equation
-        return self.linear((1 + self.eps) * x_0 + m_1_0)
+        x_0 = self.linear((1 + self.eps) * x_0 + m_1_0)
+        return (x_0, x_1)

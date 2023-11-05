@@ -60,8 +60,8 @@ class HNHNLayer(torch.nn.Module):
 
     def __init__(
         self,
-        channels_node,
-        channels_edge,
+        in_channels,
+        hidden_channels,
         incidence_1,
         use_bias: bool = True,
         use_normalized_incidence: bool = True,
@@ -77,23 +77,23 @@ class HNHNLayer(torch.nn.Module):
         self.use_normalized_incidence = use_normalized_incidence
         self.incidence_1 = incidence_1
         self.incidence_1_transpose = incidence_1.transpose(1, 0)
-        self.channels_edge = channels_edge
-        self.channels_node = channels_node
-        self.conv_1_to_0 = Conv(
-            in_channels=channels_edge,
-            out_channels=channels_node,
+        
+        self.conv_0_to_1 = Conv(
+            in_channels=in_channels,
+            out_channels=hidden_channels,
             aggr_norm=False,
             update_func=None,
         )
-        self.conv_0_to_1 = Conv(
-            in_channels=channels_node,
-            out_channels=channels_edge,
+
+        self.conv_1_to_0 = Conv(
+            in_channels=hidden_channels,
+            out_channels=hidden_channels,
             aggr_norm=False,
             update_func=None,
         )
         if self.use_bias:
-            self.bias_1_to_0 = Parameter(torch.Tensor(1, channels_node))
-            self.bias_0_to_1 = Parameter(torch.Tensor(1, channels_edge))
+            self.bias_1_to_0 = Parameter(torch.Tensor(1, hidden_channels))
+            self.bias_0_to_1 = Parameter(torch.Tensor(1, hidden_channels))
             self.init_biases()
         if self.use_normalized_incidence:
             self.alpha = alpha
@@ -196,11 +196,11 @@ class HNHNLayer(torch.nn.Module):
         self.incidence_1 = self.incidence_1.to(x_0.device)
         self.incidence_1_transpose = self.incidence_1_transpose.to(x_0.device)
         # Compute output hyperedge features
-        x_1_tp1 = self.conv_0_to_1(x_0, self.incidence_1_transpose)  # nodes to edges
+        x_1 = self.conv_0_to_1(x_0, self.incidence_1_transpose)  # nodes to edges
         if self.use_bias:
-            x_1_tp1 += self.bias_0_to_1
+            x_1 += self.bias_0_to_1
         # Compute output hypernode features
-        x_0_tp1 = self.conv_1_to_0(x_1, self.incidence_1)  # edges to nodes
+        x_0 = self.conv_1_to_0(x_1, self.incidence_1)  # edges to nodes
         if self.use_bias:
-            x_0_tp1 += self.bias_1_to_0
-        return torch.sigmoid(x_0_tp1), torch.sigmoid(x_1_tp1)
+            x_0 += self.bias_1_to_0
+        return (torch.relu(x_0), torch.relu(x_1))

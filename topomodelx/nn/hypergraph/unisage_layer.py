@@ -106,8 +106,10 @@ class UniSAGELayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
-            Output features on the nodes of the hypergraph.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         x_0 = self.linear(x_0)
         if self.bn is not None:
@@ -120,8 +122,12 @@ class UniSAGELayer(torch.nn.Module):
         else:
             # Transpose generates CSC tensor, thus we have to convert to csr
             incidence_1_transpose = incidence_1.transpose(1, 0).to_sparse_csr()
+        
         # First pass fills in features of edges by adding features of constituent nodes
-        m_0_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0, reduce=self.e_aggr)
+        x_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0, reduce=self.e_aggr)
+        
         # Second pass fills in features of nodes by adding features of the incident edges
-        m_1_0 = torch.sparse.mm(incidence_1.float(), m_0_1, reduce=self.v_aggr)
-        return x_0 + m_1_0
+        m_1_0 = torch.sparse.mm(incidence_1.float(), x_1, reduce=self.v_aggr)
+        x_0 = x_0 + m_1_0
+        
+        return (x_0, x_1)

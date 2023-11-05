@@ -83,18 +83,18 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
 
 
 class _DefaultHyperedgeToNodeMessagingFunc(nn.Module):
-    def __init__(self, in_features) -> None:
+    def __init__(self, in_channels) -> None:
         super().__init__()
-        self.linear = nn.Linear(2 * in_features, in_features)
+        self.linear = nn.Linear(2 * in_channels, in_channels)
 
     def forward(self, x_1, m_0):
         return F.sigmoid(self.linear(torch.cat((x_1, m_0), dim=1)))
 
 
 class _DefaultUpdatingFunc(nn.Module):
-    def __init__(self, in_features) -> None:
+    def __init__(self, in_channels) -> None:
         super().__init__()
-        # self.linear = nn.Linear(in_features, in_features)
+        # self.linear = nn.Linear(in_channels, in_channels)
 
     def forward(self, x, m):
         return F.sigmoid(x + m)
@@ -124,7 +124,7 @@ class HMPNNLayer(nn.Module):
 
     Parameters
     ----------
-    in_features : int
+    in_channels : int
         Dimension of input features.
     node_to_hyperedge_messaging_func: None
         Node messaging function as a callable or nn.Module object. If not given, a linear plus sigmoid
@@ -132,7 +132,7 @@ class HMPNNLayer(nn.Module):
     hyperedge_to_node_messaging_func: None
         Hyperedge messaging function as a callable or nn.Module object. It gets hyperedge input features
         and aggregated messages of nodes as input and returns hyperedge messages. If not given, two inputs
-        are concatenated and a linear layer reducing back to in_features plus sigmoid is applied, according
+        are concatenated and a linear layer reducing back to in_channels plus sigmoid is applied, according
         to the paper.
     adjacency_dropout: int, default = 0.7
         Adjacency dropout rate.
@@ -155,7 +155,7 @@ class HMPNNLayer(nn.Module):
 
     def __init__(
         self,
-        in_features,
+        in_channels,
         node_to_hyperedge_messaging_func=None,
         hyperedge_to_node_messaging_func=None,
         adjacency_dropout: float = 0.7,
@@ -167,24 +167,24 @@ class HMPNNLayer(nn.Module):
 
         if node_to_hyperedge_messaging_func is None:
             node_to_hyperedge_messaging_func = nn.Sequential(
-                nn.Linear(in_features, in_features), nn.Sigmoid()
+                nn.Linear(in_channels, in_channels), nn.Sigmoid()
             )
         self.node_to_hyperedge_messenger = _NodeToHyperedgeMessenger(
             node_to_hyperedge_messaging_func, adjacency_dropout, aggr_func
         )
         if hyperedge_to_node_messaging_func is None:
             hyperedge_to_node_messaging_func = _DefaultHyperedgeToNodeMessagingFunc(
-                in_features
+                in_channels
             )
         self.hyperedge_to_node_messenger = _HyperedgeToNodeMessenger(
             hyperedge_to_node_messaging_func, adjacency_dropout, aggr_func
         )
-        self.node_batchnorm = nn.BatchNorm1d(in_features)
-        self.hyperedge_batchnorm = nn.BatchNorm1d(in_features)
+        self.node_batchnorm = nn.BatchNorm1d(in_channels)
+        self.hyperedge_batchnorm = nn.BatchNorm1d(in_channels)
         self.dropout = torch.distributions.Bernoulli(updating_dropout)
 
         if updating_func is None:
-            updating_func = _DefaultUpdatingFunc(in_features)
+            updating_func = _DefaultUpdatingFunc(in_channels)
         self.updating_func = updating_func
 
     def apply_regular_dropout(self, x):
@@ -204,18 +204,18 @@ class HMPNNLayer(nn.Module):
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (n_nodes, node_in_features)
+        x_0 : torch.Tensor, shape = (n_nodes, node_in_channels)
             Input features of the nodes.
-        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_features)
+        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_channels)
             Input features of the hyperedges.
         incidence_1 : torch.sparse.Tensor, shape = (n_nodes, n_edges)
             Incidence matrix mapping hyperedges to nodes (B_1).
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, node_in_features)
+        x_0 : torch.Tensor, shape = (n_nodes, node_in_channels)
             Output features of the nodes.
-        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_features)
+        x_1 : torch.Tensor, shape = (n_edges, hyperedge_in_channels)
             Output features of the hyperedges.
         """
         node_messages_aggregated, node_messages = self.node_to_hyperedge_messenger(
