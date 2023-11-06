@@ -24,3 +24,6 @@ topomodelx/base/debug.ipynb
 tutorials/hypergraph/citeseer6cls3703.pt.1
 tutorials/hypergraph/cora
 tags
+
+Dockerfile
+docker-compose.yml
