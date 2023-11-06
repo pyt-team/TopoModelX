@@ -158,7 +158,7 @@ class HNHNLayer(torch.nn.Module):
         if self.use_bias:
             self.init_biases()
 
-    def forward(self, x_0, x_1):
+    def forward(self, x_0):
         r"""Forward computation.
 
         The forward pass was initially proposed in [1]_.

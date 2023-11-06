@@ -12,18 +12,20 @@ class TestHMPNN:
     def test_forward(self):
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model = HMPNN(8, (8, 8), 1, 1).to(device)
+        in_channels = 8
+        hidden_channels = 32
+        model = HMPNN(
+            in_channels=in_channels,
+            hidden_channels=hidden_channels,
+        ).to(device)
 
-        x_0 = torch.rand(8, 8)
-        x_1 = torch.rand(8, 8)
+        n_nodes, n_edges = 8, 10
+        x_0 = torch.rand(n_nodes, in_channels).float().to(device)
+        x_1 = torch.rand(n_edges, in_channels).float().to(device)
 
-        adjacency_1 = torch.from_numpy(np.random.rand(8, 8)).to_sparse()
-
-        x_0, x_1 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
-        )
+        adjacency_1 = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
         adjacency_1 = adjacency_1.float().to(device)
 
-        y = model(x_0, x_1, adjacency_1)
-        assert y.shape == torch.Size([8, 1])
+        x_0, x_1 = model(x_0, x_1, adjacency_1)
+        assert x_0.shape == torch.Size([n_nodes, hidden_channels])
+        assert x_1.shape == torch.Size([n_edges, hidden_channels])

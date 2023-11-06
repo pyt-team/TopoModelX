@@ -59,7 +59,7 @@ class UniGCNLayer(torch.nn.Module):
             aggr_norm=aggr_norm,
             update_func=None,
         )
-        self.bn = nn.BatchNorm1d(in_channels) if use_bn else None
+        self.bn = nn.BatchNorm1d(hidden_channels) if use_bn else None
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""

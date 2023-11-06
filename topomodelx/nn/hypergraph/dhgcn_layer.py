@@ -212,8 +212,10 @@ class DHGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels)
-            Output features on the nodes of the simplicial complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         # dynamic topology processing:
         x_0_features = self.fc_layer(x_0)
@@ -225,7 +227,7 @@ class DHGCNLayer(torch.nn.Module):
             x_0_features, incidence_1_dynamic_topology_transpose
         )
         x_0_features = self.conv_dt_level0_1_to_0(x_1, incidence_1_dynamic_topology)
-        return x_0_features
+        return x_0_features, x_1
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""

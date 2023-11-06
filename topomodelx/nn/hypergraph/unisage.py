@@ -46,14 +46,14 @@ class UniSAGE(torch.nn.Module):
         layers.append(
                 UniSAGELayer(
                     in_channels=in_channels,
-                    out_channels=hidden_channels,
+                    hidden_channels=hidden_channels,
                 )
             )
         for _ in range(n_layers - 1):
             layers.append(
                 UniSAGELayer(
                     in_channels=hidden_channels,
-                    out_channels=hidden_channels,
+                    hidden_channels=hidden_channels,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)

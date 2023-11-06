@@ -12,16 +12,13 @@ class DHGCN(torch.nn.Module):
 
     Parameters
     ----------
-    channels_edge : int
-        Dimension of edge features
-    channels_node : int
-        Dimension of node features
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
-    task_level: str, default="graph"
-        Level of the task. Either "graph" or "node".
-        If "graph", the output is pooled over all nodes in the hypergraph.
-
+   
     References
     ----------
     .. [1] Yin, Feng, Luo, Zhang, Wang, Luo, Chen and Hua.
@@ -32,10 +29,8 @@ class DHGCN(torch.nn.Module):
     def __init__(
         self, 
         in_channels, 
-        hidden_channels, 
-        out_channels, 
+        hidden_channels,  
         n_layers=1, 
-        task_level="graph"
     ):
         super().__init__()
         layers = []
@@ -55,8 +50,7 @@ class DHGCN(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
-        self.out_pool = True if task_level == "graph" else False
+       
         
 
     def forward(self, x_0):
@@ -69,16 +63,12 @@ class DHGCN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         for layer in self.layers:
-            x_0 = layer(x_0)
+            x_0, x_1 = layer(x_0)
         
-        # Pool over all nodes in the hypergraph 
-        if self.out_pool is True:
-            x = torch.max(x_0, dim=0)[0]
-        else:
-            x = x_0        
-        
-        return self.linear(x)
+        return (x_0, x_1)

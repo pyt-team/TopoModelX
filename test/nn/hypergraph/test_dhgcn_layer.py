@@ -41,8 +41,8 @@ class TestDHGCNLayer:
     def test_forward(self, dhgcn_layer):
         """Test the forward pass of the DHGCN layer."""
         x = torch.randn(4, 10)
-        output = dhgcn_layer.forward(x)
-        assert output.shape == (4, 10)
+        x_0, _ = dhgcn_layer.forward(x)
+        assert x_0.shape == (4, 10)
 
     def test_forward_invalid_input(self, dhgcn_layer):
         """Test the forward pass of the DHGCN layer."""

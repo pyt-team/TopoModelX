@@ -55,16 +55,13 @@ class HNHN(torch.nn.Module):
         self.layers = torch.nn.ModuleList(layers)
 
 
-    def forward(self, x_0, x_1):
+    def forward(self, x_0):
         """Forward computation.
 
         Parameters
         ----------
         x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Hypernode features.
-
-        x_1 : torch.Tensor, shape = (n_nodes, channels_edge)
-            Hyperedge features.
 
         incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
@@ -78,7 +75,7 @@ class HNHN(torch.nn.Module):
         """
         
         for layer in self.layers:
-            x_0, x_1 = layer(x_0, x_1)
+            x_0, x_1 = layer(x_0)
         
         return x_0, x_1
 

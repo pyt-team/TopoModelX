@@ -32,10 +32,10 @@ class HyperGAT(torch.nn.Module):
         ):
         super().__init__()
         layers = []
-        layers.append(HyperGATLayer(in_channels=in_channels, out_channels=hidden_channels))
+        layers.append(HyperGATLayer(in_channels=in_channels, hidden_channels=hidden_channels))
         for _ in range(1, n_layers):
             layers.append(
-                HyperGATLayer(in_channels=hidden_channels, out_channels=hidden_channels)
+                HyperGATLayer(in_channels=hidden_channels, hidden_channels=hidden_channels)
             )
         self.layers = torch.nn.ModuleList(layers)
 

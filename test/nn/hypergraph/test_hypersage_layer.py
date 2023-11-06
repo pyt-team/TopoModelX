@@ -21,7 +21,6 @@ class TestHyperSAGELayer:
         incidence_2 = torch.tensor(
             [[1, 0], [0, 1], [1, 1]], dtype=torch.float32
         ).to_sparse()
-        print(incidence_2)
         output = hypersage_layer.forward(x_2, incidence_2)
         assert output.shape == (3, 30)
 
