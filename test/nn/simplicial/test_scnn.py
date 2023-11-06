@@ -51,7 +51,6 @@ class TestSCNN:
         conv_order_down = 2
         conv_order_up = 2
         intermediate_channels = 4
-        out_channels = intermediate_channels
         num_layers = 2
         in_channels = in_channels_1
 
@@ -76,17 +75,19 @@ class TestSCNN:
 
         model = SCNN(
             in_channels=in_channels,
-            intermediate_channels=intermediate_channels,
-            out_channels=out_channels,
+            hidden_channels=intermediate_channels,
             conv_order_down=conv_order_down,
             conv_order_up=conv_order_up,
             n_layers=num_layers,
-            aggr=True,
         )
         with torch.no_grad():
             forward_pass = model(x_1, laplacian_down_1, laplacian_up_1)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([137.2366]), rtol=1e-02)
+            torch.isclose(
+                forward_pass,
+                torch.tensor([698.6230, -947.6419, 85.7539, -631.1517]),
+                rtol=1e-02,
+            )
         )
 
     def test_reset_parameters(self):
