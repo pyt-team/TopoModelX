@@ -179,16 +179,16 @@ class HyperSAGELayer(MessagePassing):
 
         def nodes_per_edge(e):
             return (
-                torch.index_select(input=incidence, dim=1, index=torch.LongTensor([e]))
+                torch.index_select(input=incidence.to("cpu"), dim=1, index=torch.LongTensor([e]))
                 .coalesce()
-                .indices()[0]
+                .indices()[0].to(self.device)
             )
 
         def edges_per_node(v):
             return (
-                torch.index_select(input=incidence, dim=0, index=torch.LongTensor([v]))
+                torch.index_select(input=incidence.to("cpu"), dim=0, index=torch.LongTensor([v]))
                 .coalesce()
-                .indices()[1]
+                .indices()[1].to(self.device)
             )
 
         messages_per_edges = [
@@ -196,7 +196,7 @@ class HyperSAGELayer(MessagePassing):
         ]
         num_of_messages_per_edges = torch.Tensor(
             [message.size()[-2] for message in messages_per_edges]
-        ).reshape(-1, 1)
+        ).reshape(-1, 1).to(self.device)
         intra_edge_aggregation = torch.stack(
             [self.aggregate(message, mode="intra") for message in messages_per_edges]
         )

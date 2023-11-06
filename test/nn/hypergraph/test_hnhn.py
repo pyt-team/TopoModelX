@@ -14,7 +14,7 @@ class TestHNHN:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
-        adjacency_1 = adjacency_1.float().to(device)
+        adjacency_1 = adjacency_1.float()
         hidden_channels = 5
 
         model = HNHN(

@@ -169,25 +169,27 @@ class DHGCNLayer(torch.nn.Module):
         """
         device = x_0_features.device
         n_nodes = x_0_features.size(0)
-        batch = torch.zeros(x_0_features.size(0), dtype=torch.long, device=device)
+        batch = torch.zeros(x_0_features.size(0), dtype=torch.long, device='cpu')
         local_edge_index = knn_graph(
-            x_0_features,
+            x_0_features.cpu(),
             k=self.k_neighbours,
             batch=batch,
             loop=False,
             flow="source_to_target",
-        )
+        ).to(device)
         local_hyperedges = torch.sparse_coo_tensor(
             local_edge_index,
             torch.ones(local_edge_index.size(1), device=device),
             size=(n_nodes, n_nodes),
+            device=device,
         )  # [n_nodes, n_hyperedges = n_nodes]
 
-        global_edge_index = self.kmeans(x_0_features)
+        global_edge_index = self.kmeans(x_0_features.cpu())
         global_hyperedges = torch.sparse_coo_tensor(
             global_edge_index,
             torch.ones(n_nodes, device=device),
             size=(n_nodes, self.k_centroids),
+            device=device,
         )  # [n_nodes, n_hyperedges = k_centroids]
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 

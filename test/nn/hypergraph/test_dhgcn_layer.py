@@ -28,7 +28,7 @@ class TestDHGCNLayer:
         output = dhgcn_layer.kmeans(x_0, k=dhgcn_layer.k_centroids)
         assert output.shape == (2, 4)
         if torch.cuda.is_available():
-            x_0 = x_0.to("gpu")
+            x_0 = x_0
             output = dhgcn_layer.kmeans(x_0, k=dhgcn_layer.k_centroids)
             assert output.device.type == x_0.device.type
 

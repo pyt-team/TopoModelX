@@ -19,6 +19,7 @@ class TestHyperSAGE:
             in_channels=2,
             hidden_channels=2,
             n_layers=2,
+            device=device,
             initialization="xavier_uniform",
         ).to(device)
         x_0 = torch.rand(2, 2).float().to(device)

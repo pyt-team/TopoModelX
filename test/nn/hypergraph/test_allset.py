@@ -17,7 +17,7 @@ class TestAllSet:
             hidden_channels=4,
             n_layers=2,
             mlp_num_layers=1,
-        )
+        ).to(device)
 
         x_0 = torch.rand(4, 4)
         incidence_1 = torch.from_numpy(np.random.rand(4, 4)).to_sparse()

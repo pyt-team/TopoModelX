@@ -39,7 +39,9 @@ class HyperSAGE(torch.nn.Module):
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=hidden_channels, out_channels=hidden_channels, **kwargs
+                    in_channels=hidden_channels, 
+                    out_channels=hidden_channels, 
+                    **kwargs
                 )
             )
         self.layers = torch.nn.ModuleList(layers)

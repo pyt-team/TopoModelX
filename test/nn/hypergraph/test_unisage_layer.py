@@ -39,7 +39,7 @@ class TestUniSAGELayer:
             _ = UniSAGELayer(10, 30, e_aggr="invalid_aggregator")
         assert (
             str(exc_info.value)
-            == "Unsupported aggregator: invalid_aggregator, should be 'sum', 'mean', 'amax', or 'amin'"
+            == "Unsupported aggregator: invalid_aggregator, should be 'sum', 'mean',"
         )
 
     def test_reset_params(self, uniSAGE_layer):

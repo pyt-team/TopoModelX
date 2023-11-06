@@ -3,7 +3,7 @@
 from typing import Literal
 
 import torch
-
+from topomodelx.base.conv import Conv
 
 class UniSAGELayer(torch.nn.Module):
     """Layer of UniSAGE proposed in [1]_.
@@ -14,9 +14,9 @@ class UniSAGELayer(torch.nn.Module):
         Dimension of input features.
     hidden_channels : int
         Dimension of output features.
-    e_aggr : Literal["sum", "mean", "amax", "amin"], default="sum"
+    e_aggr : Literal["sum", "mean",], default="sum"
         Aggregator function for hyperedges.
-    v_aggr : Literal["sum", "mean", "amax", "amin"], default="mean"
+    v_aggr : Literal["sum", "mean",], default="mean"
         Aggregator function for nodes.
     use_bn : boolean
         Whether to use bathnorm after the linear transformation.
@@ -36,29 +36,47 @@ class UniSAGELayer(torch.nn.Module):
     """
 
     def _validate_aggr(self, aggr):
-        if aggr not in {"sum", "mean", "amax", "amin"}:
+        if aggr not in {"sum", "mean",}:
             raise ValueError(
-                f"Unsupported aggregator: {aggr}, should be 'sum', 'mean', 'amax', or 'amin'"
+                f"Unsupported aggregator: {aggr}, should be 'sum', 'mean',"
             )
 
     def __init__(
         self,
         in_channels,
         hidden_channels,
-        e_aggr: Literal["sum", "mean", "amax", "amin"] = "sum",
-        v_aggr: Literal["sum", "mean", "amax", "amin"] = "mean",
+        e_aggr: Literal["sum", "mean",] = "sum",
+        v_aggr: Literal["sum", "mean",] = "mean",
         use_bn: bool = False,
     ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
         self.bn = torch.nn.BatchNorm1d(hidden_channels) if use_bn else None
+        
+        # Initial linear transformation
         self.linear = torch.nn.Linear(in_channels, hidden_channels)
+        
+        # Define the aggregation
         self.v_aggr = v_aggr
         self.e_aggr = e_aggr
 
         self._validate_aggr(v_aggr)
         self._validate_aggr(e_aggr)
+
+        self.vertex2edge = Conv(
+            in_channels=hidden_channels,
+            out_channels=hidden_channels,
+            aggr_norm=False if self.e_aggr=="sum" else True,
+            with_linear_transform=False, 
+            )
+
+        self.edge2vertex = Conv(
+            in_channels=hidden_channels,
+            out_channels=hidden_channels,
+            aggr_norm=False if self.v_aggr=="sum" else True,
+            with_linear_transform=False,
+            )
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
@@ -115,19 +133,8 @@ class UniSAGELayer(torch.nn.Module):
         if self.bn is not None:
             x_0 = self.bn(x_0)
 
-        # Use sparse CSR to enable reduce operation
-        if incidence_1.layout != torch.sparse_csr:
-            incidence_1_transpose = incidence_1.T.to_sparse_csr()
-            incidence_1 = incidence_1.to_sparse_csr()
-        else:
-            # Transpose generates CSC tensor, thus we have to convert to csr
-            incidence_1_transpose = incidence_1.transpose(1, 0).to_sparse_csr()
-        
-        # First pass fills in features of edges by adding features of constituent nodes
-        x_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0, reduce=self.e_aggr)
-        
-        # Second pass fills in features of nodes by adding features of the incident edges
-        m_1_0 = torch.sparse.mm(incidence_1.float(), x_1, reduce=self.v_aggr)
+        x_1 =  self.vertex2edge(x_0, incidence_1.transpose(1, 0))
+        m_1_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = x_0 + m_1_0
         
         return (x_0, x_1)
