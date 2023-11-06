@@ -98,7 +98,7 @@ class TestSCCNN:
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of SCCNN."""
-        model = SCCNN((3, 3, 3), (3, 3, 3), (3, 3, 3), 2, 2, 1, 2)
+        model = SCCNN((3, 3, 3), (3, 3, 3), 2, 2, 2)
         for layer in model.children():
             if hasattr(layer, "reset_parameters"):
                 layer.reset_parameters()

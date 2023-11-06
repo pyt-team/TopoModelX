@@ -66,10 +66,10 @@ class TestScone:
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of Scone."""
-        N = 150
-        sc, coords = generate_complex(N)
-        hidden_dims = [16, 16, 16, 16, 16, 16]
-        model = SCoNe(sc, hidden_dims)
+        in_channels = 1
+        hidden_channels = 16
+        n_layers = 6
+        model = SCoNe(in_channels, hidden_channels, n_layers)
         for layer in model.children():
             if hasattr(layer, "reset_parameters"):
                 layer.reset_parameters()

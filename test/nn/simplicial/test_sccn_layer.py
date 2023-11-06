@@ -64,7 +64,7 @@ class TestSCCNLayer:
         for module in sccn.modules():
             if isinstance(module, topomodelx.base.conv.Conv):
                 try:
-                    torch.testing.assert_allclose(
+                    torch.testing.assert_close(
                         module.weight,
                         torch.nn.init.xavier_uniform_(
                             module.weight.clone(), gain=1.414
