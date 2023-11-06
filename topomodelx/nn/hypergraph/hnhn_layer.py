@@ -21,10 +21,10 @@ class HNHNLayer(torch.nn.Module):
 
     Parameters
     ----------
-    channels_node : int
+    in_channels : int
         Dimension of node features.
-    channels_edge : int
-        Dimension of edge features.
+    hidden_channels : int
+        Dimension of hidden features.
     incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
     use_bias : bool

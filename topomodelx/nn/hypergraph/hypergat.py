@@ -14,7 +14,7 @@ class HyperGAT(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    n_layer : int, default = 2
+    n_layers : int, default = 2
         Amount of message passing layers.
 
     References

@@ -18,7 +18,7 @@ class UniSAGE(torch.nn.Module):
         Dropout rate for the input features.
     layer_drop: float, default=0.2
         Dropout rate for the hidden features.
-    n_layer : int, default = 2
+    n_layers : int, default = 2
         Amount of message passing layers.
         
     References

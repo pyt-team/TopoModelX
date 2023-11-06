@@ -11,9 +11,9 @@ class HMPNN(torch.nn.Module):
 
     Parameters
     ----------
-    in_features : int
+    in_channels : int
         Dimension of input features
-    hidden_features : Tuple[int]
+    hidden_channels : Tuple[int]
         A tuple of hidden feature dimensions to gradually reduce node/hyperedge representations feature
         dimension from in_features to the last item in the tuple.
     num_classes: int
