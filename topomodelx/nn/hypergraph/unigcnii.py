@@ -16,15 +16,15 @@ class UniGCNII(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    n_layers: int, default=2
+    n_layers : int, default=2
         Number of UniGCNII message passing layers.
     alpha : float, default=0.5
         Parameter of the UniGCNII layer.
     beta : float, default=0.5
         Parameter of the UniGCNII layer.
-    input_drop: float, default=0.2
+    input_drop : float, default=0.2
         Dropout rate for the input features.
-    layer_drop: float, default=0.2
+    layer_drop : float, default=0.2
         Dropout rate for the hidden features.
 
     References
@@ -50,10 +50,9 @@ class UniGCNII(torch.nn.Module):
 
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
-        # Define initial linear layer
-        self.linear_init = torch.nn.Linear(in_channels, hidden_channels)
 
-        # Define convolutional layers
+        self.initial_linear_layer = torch.nn.Linear(in_channels, hidden_channels)
+
         for i in range(n_layers):
             beta = math.log(alpha / (i + 1) + 1)
             layers.append(
@@ -86,7 +85,7 @@ class UniGCNII(torch.nn.Module):
             Output hyperedge features.
         """
         x_0 = self.input_drop(x_0)
-        x_0 = self.linear_init(x_0)
+        x_0 = self.initial_linear_layer(x_0)
         x_0 = torch.nn.functional.relu(x_0)
         x_0_skip = x_0
 
@@ -95,4 +94,4 @@ class UniGCNII(torch.nn.Module):
             x_0 = self.layer_drop(x_0)
             x_0 = torch.nn.functional.relu(x_0)
 
-        return (x_0, x_1)
+        return x_0, x_1

@@ -22,7 +22,7 @@ class HMPNN(torch.nn.Module):
         Number of HMPNNLayer layers.
     adjacency_dropout_rate: int, default = 0.7
         Adjacency dropout rate.
-    regular_dropout_rate: int, default = 0.5
+    regular_dropout_rate : int, default = 0.5
         Regular dropout rate applied on features.
 
     References
@@ -45,12 +45,6 @@ class HMPNN(torch.nn.Module):
 
         self.linear_node = torch.nn.Linear(in_channels, hidden_channels)
         self.linear_edge = torch.nn.Linear(in_channels, hidden_channels)
-        # self.to_hidden_linear = torch.nn.Sequential(
-        #     *[
-        #         torch.nn.Linear(hidden_features[i], hidden_features[i + 1])
-        #         for i in range(len(hidden_features) - 1)
-        #     ]
-        # )
 
         self.layers = torch.nn.ModuleList(
             [
@@ -62,7 +56,7 @@ class HMPNN(torch.nn.Module):
                 for _ in range(n_layers)
             ]
         )
-        # self.to_categories_linear = torch.nn.Linear(hidden_features[-1], num_classes)
+
 
     def forward(self, x_0, x_1, incidence_1):
         """Forward computation through layers.
@@ -89,4 +83,4 @@ class HMPNN(torch.nn.Module):
         for layer in self.layers:
             x_0, x_1 = layer(x_0, x_1, incidence_1)
 
-        return (x_0, x_1)
+        return x_0, x_1

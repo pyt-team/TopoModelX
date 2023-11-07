@@ -11,9 +11,9 @@ class UniGINLayer(torch.nn.Module):
     ----------
     in_channels : int
         Dimension of input features.
-    eps : float
+    eps : float, default=0.0
         Constant in GIN Update equation.
-    train_eps : bool
+    train_eps : boolm, default=False
         Whether to make eps a trainable parameter.
 
     References
@@ -98,4 +98,4 @@ class UniGINLayer(torch.nn.Module):
         m_1_0 = torch.sparse.mm(incidence_1.float(), x_1)
         # Update node features using GIN update equation
         x_0 = self.linear((1 + self.eps) * x_0 + m_1_0)
-        return (x_0, x_1)
+        return x_0, x_1

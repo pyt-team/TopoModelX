@@ -65,10 +65,8 @@ class UniSAGELayer(torch.nn.Module):
         self.hidden_channels = hidden_channels
         self.bn = torch.nn.BatchNorm1d(hidden_channels) if use_bn else None
 
-        # Initial linear transformation
         self.linear = torch.nn.Linear(in_channels, hidden_channels)
 
-        # Define the aggregation
         self.v_aggr = v_aggr
         self.e_aggr = e_aggr
 
@@ -148,4 +146,4 @@ class UniSAGELayer(torch.nn.Module):
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = x_0 + m_1_0
 
-        return (x_0, x_1)
+        return x_0, x_1

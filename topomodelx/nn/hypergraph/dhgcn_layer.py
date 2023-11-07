@@ -219,7 +219,7 @@ class DHGCNLayer(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-        # dynamic topology processing:
+        # Dynamic topology processing:
         x_0_features = self.fc_layer(x_0)
         incidence_1_dynamic_topology = self.get_dynamic_topology(x_0_features)
         incidence_1_dynamic_topology_transpose = incidence_1_dynamic_topology.transpose(

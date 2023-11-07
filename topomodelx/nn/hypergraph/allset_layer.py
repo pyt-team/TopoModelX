@@ -126,7 +126,7 @@ class AllSetLayer(nn.Module):
         x_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = F.dropout(x_0, p=self.dropout, training=self.training)
 
-        return (x_0, x_1)
+        return x_0, x_1
 
 
 class MLP(nn.Sequential):

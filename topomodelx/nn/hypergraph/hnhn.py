@@ -16,7 +16,7 @@ class HNHN(torch.nn.Module):
         Dimension of the hidden features.
     incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
-    n_layers : int
+    n_layers : int, default = 2
         Number of HNHN message passing layers.
 
     References

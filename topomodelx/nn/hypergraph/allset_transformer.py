@@ -20,11 +20,11 @@ class AllSetTransformer(torch.nn.Module):
         Number of AllSet layers in the network.
     heads : int, default: 4
         Number of attention heads.
-    dropout : float
+    dropout : float, default: 0.2
         Dropout probability.
     mlp_num_layers : int, default: 2
         Number of layers in the MLP.
-    mlp_dropout:
+    mlp_dropout: float, default: 0.2
         Dropout probability in the MLP.
 
     References
@@ -43,7 +43,7 @@ class AllSetTransformer(torch.nn.Module):
         heads=4,
         dropout=0.2,
         mlp_num_layers=2,
-        mlp_dropout=0.0,
+        mlp_dropout=0.2,
     ):
         super().__init__()
         layers = [
@@ -89,4 +89,4 @@ class AllSetTransformer(torch.nn.Module):
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
 
-        return (x_0, x_1)
+        return x_0, x_1

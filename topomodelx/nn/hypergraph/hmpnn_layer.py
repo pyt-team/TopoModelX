@@ -94,7 +94,6 @@ class _DefaultHyperedgeToNodeMessagingFunc(nn.Module):
 class _DefaultUpdatingFunc(nn.Module):
     def __init__(self, in_channels) -> None:
         super().__init__()
-        # self.linear = nn.Linear(in_channels, in_channels)
 
     def forward(self, x, m):
         return F.sigmoid(x + m)
@@ -134,13 +133,13 @@ class HMPNNLayer(nn.Module):
         and aggregated messages of nodes as input and returns hyperedge messages. If not given, two inputs
         are concatenated and a linear layer reducing back to in_channels plus sigmoid is applied, according
         to the paper.
-    adjacency_dropout: int, default = 0.7
+    adjacency_dropout : int, default = 0.7
         Adjacency dropout rate.
-    aggr_func: Literal["sum", "mean", "add"], default="sum"
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
         Message aggregation function.
-    updating_dropout: int, default = 0.5
+    updating_dropout : int, default = 0.5
         Regular dropout rate applied to node and hyperedge features.
-    updating_func: None
+    updating_func : callable or None, default = None
         The final function or nn.Module object to be called on node and hyperedge features to retrieve
         their new representation. If not given, a linear layer is applied, received message is added
         and sigmoid is called.

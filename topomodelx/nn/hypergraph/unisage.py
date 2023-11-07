@@ -14,9 +14,9 @@ class UniSAGE(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    input_drop: float, default=0.2
+    input_drop : float, default=0.2
         Dropout rate for the input features.
-    layer_drop: float, default=0.2
+    layer_drop : float, default=0.2
         Dropout rate for the hidden features.
     n_layers : int, default = 2
         Amount of message passing layers.
@@ -78,10 +78,9 @@ class UniSAGE(torch.nn.Module):
         """
         x_0 = self.input_drop(x_0)
 
-        # Iterate over layers
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
             x_0 = self.layer_drop(x_0)
             x_0 = torch.nn.functional.relu(x_0)
 
-        return (x_0, x_1)
+        return x_0, x_1

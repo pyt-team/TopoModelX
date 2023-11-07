@@ -164,7 +164,7 @@ class AllSetTransformerBlock(nn.Module):
         Number of attention heads.
     number_queries : int, default=1
         Number of queries.
-    dropout : float, optional
+    dropout : float, default=0.0
         Dropout probability.
     mlp_num_layers : int, default=1
         Number of layers in the MLP.
@@ -184,7 +184,7 @@ class AllSetTransformerBlock(nn.Module):
         hidden_channels,
         heads: int = 4,
         number_queries: int = 1,
-        dropout: float = 0.0,
+        dropout: float = 0.,
         mlp_num_layers: int = 1,
         mlp_activation=None,
         mlp_dropout: float = 0.0,

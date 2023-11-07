@@ -51,9 +51,9 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    aggr_func_intra : Aggregation
+    aggr_func_intra : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
-    aggr_func_inter : Aggregation
+    aggr_func_inter : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
     update_func : Literal["relu", "sigmoid"], default="relu"
         Update method to apply to message.

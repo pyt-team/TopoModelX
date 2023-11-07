@@ -69,4 +69,4 @@ class DHGCN(torch.nn.Module):
         for layer in self.layers:
             x_0, x_1 = layer(x_0)
 
-        return (x_0, x_1)
+        return x_0, x_1

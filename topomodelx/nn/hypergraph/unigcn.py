@@ -69,4 +69,4 @@ class UniGCN(torch.nn.Module):
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
 
-        return (x_0, x_1)
+        return x_0, x_1
