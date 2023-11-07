@@ -2,7 +2,7 @@ name: "Docs: Check and Deploy"
 
 on:
   push:
-    branches: [main, github-actions-test,ghaction-speedup-iss215]
+    branches: [main, github-actions-test]
   pull_request:
     branches: [main]
 permissions:
