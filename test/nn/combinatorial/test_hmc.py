@@ -15,11 +15,7 @@ class TestHMC:
         intermediate_channels = [2, 2, 2]
         final_channels = [2, 2, 2]
         channels_per_layer = [[in_channels, intermediate_channels, final_channels]]
-        model = HMC(
-            channels_per_layer, 
-            negative_slope=0.2, 
-            num_classes=2
-        ).to(device)
+        model = HMC(channels_per_layer, negative_slope=0.2, num_classes=2).to(device)
 
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)

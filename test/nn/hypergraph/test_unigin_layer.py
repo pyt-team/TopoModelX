@@ -1,7 +1,7 @@
 """Test the UniGIN layer."""
+import numpy as np
 import pytest
 import torch
-import numpy as np
 
 from topomodelx.nn.hypergraph.unigin_layer import UniGINLayer
 
@@ -17,7 +17,6 @@ class TestUniGINLayer:
 
     def test_forward(self, UniGIN_layer):
         """Test the forward pass of the UniGIN layer."""
-
         n_nodes, n_edges = 2, 3
         incidence = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
         incidence = incidence.float()
@@ -26,4 +25,3 @@ class TestUniGINLayer:
 
         assert x_0.shape == torch.Size([n_nodes, self.in_channels])
         assert x_1.shape == torch.Size([n_edges, self.in_channels])
-

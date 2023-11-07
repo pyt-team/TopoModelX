@@ -18,7 +18,7 @@ class DHGCN(torch.nn.Module):
         Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
-   
+
     References
     ----------
     .. [1] Yin, Feng, Luo, Zhang, Wang, Luo, Chen and Hua.
@@ -27,10 +27,10 @@ class DHGCN(torch.nn.Module):
     """
 
     def __init__(
-        self, 
-        in_channels, 
-        hidden_channels,  
-        n_layers=1, 
+        self,
+        in_channels,
+        hidden_channels,
+        n_layers=1,
     ):
         super().__init__()
         layers = []
@@ -50,8 +50,6 @@ class DHGCN(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-       
-        
 
     def forward(self, x_0):
         """Forward computation through layers, then global average pooling, then linear layer.
@@ -70,5 +68,5 @@ class DHGCN(torch.nn.Module):
         """
         for layer in self.layers:
             x_0, x_1 = layer(x_0)
-        
+
         return (x_0, x_1)

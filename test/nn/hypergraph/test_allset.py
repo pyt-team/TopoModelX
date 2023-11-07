@@ -26,4 +26,4 @@ class TestAllSet:
         incidence_1 = incidence_1.float().to(device)
 
         x_0, _ = model(x_0, incidence_1)
-        assert x_0.shape==(4, 4)
+        assert x_0.shape == (4, 4)

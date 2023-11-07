@@ -33,17 +33,17 @@ class UniGINLayer(torch.nn.Module):
     def __init__(
         self,
         in_channels,
-        eps: float = 0.,
+        eps: float = 0.0,
         train_eps: bool = False,
     ) -> None:
         super().__init__()
-        
+
         self.initial_eps = eps
         if train_eps:
             self.eps = torch.nn.Parameter(torch.Tensor([eps]))
         else:
             self.register_buffer("eps", torch.Tensor([eps]))
-        
+
         self.linear = torch.nn.Linear(in_channels, in_channels)
 
     def forward(self, x_0, incidence_1):

@@ -25,7 +25,8 @@ class UniGCN(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, 
+    def __init__(
+        self,
         in_channels,
         hidden_channels,
         n_layers=2,
@@ -33,11 +34,11 @@ class UniGCN(torch.nn.Module):
         super().__init__()
         layers = []
         layers.append(
-                UniGCNLayer(
-                    in_channels=in_channels,
-                    hidden_channels=hidden_channels,
-                )
+            UniGCNLayer(
+                in_channels=in_channels,
+                hidden_channels=hidden_channels,
             )
+        )
         for _ in range(n_layers - 1):
             layers.append(
                 UniGCNLayer(
@@ -46,7 +47,6 @@ class UniGCN(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-
 
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
@@ -68,5 +68,5 @@ class UniGCN(torch.nn.Module):
         """
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
-        
+
         return (x_0, x_1)

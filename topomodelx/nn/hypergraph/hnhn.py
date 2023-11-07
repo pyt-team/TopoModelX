@@ -27,23 +27,17 @@ class HNHN(torch.nn.Module):
         https://grlplus.github.io/papers/40.pdf
     """
 
-    def __init__(
-        self, 
-        in_channels, 
-        hidden_channels, 
-        incidence_1,  
-        n_layers=2
-    ):
+    def __init__(self, in_channels, hidden_channels, incidence_1, n_layers=2):
         super().__init__()
 
         layers = []
         layers.append(
-                HNHNLayer(
-                    in_channels=in_channels,
-                    hidden_channels=hidden_channels,
-                    incidence_1=incidence_1,
-                )
+            HNHNLayer(
+                in_channels=in_channels,
+                hidden_channels=hidden_channels,
+                incidence_1=incidence_1,
             )
+        )
         for _ in range(n_layers - 1):
             layers.append(
                 HNHNLayer(
@@ -53,7 +47,6 @@ class HNHN(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-
 
     def forward(self, x_0):
         """Forward computation.
@@ -73,8 +66,7 @@ class HNHN(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-        
         for layer in self.layers:
             x_0, x_1 = layer(x_0)
-        
+
         return x_0, x_1

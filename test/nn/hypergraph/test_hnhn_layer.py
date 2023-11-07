@@ -26,14 +26,13 @@ class TestHNHNLayer:
     def test_forward(self, template_layer):
         """Test the forward pass of the HNHN layer."""
         n_nodes, n_edges = template_layer.incidence_1.shape
-        
 
         x_0 = torch.randn(n_nodes, self.in_channels)
         x_0_out, x_1_out = template_layer.forward(x_0)
 
         assert x_0_out.shape == (n_nodes, self.hidden_channels)
         assert x_1_out.shape == (n_edges, self.hidden_channels)
-        
+
         return
 
     def test_compute_normalization_matrices(self, template_layer):

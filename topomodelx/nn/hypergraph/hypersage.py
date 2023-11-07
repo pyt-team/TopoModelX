@@ -24,28 +24,22 @@ class HyperSAGE(torch.nn.Module):
         https://arxiv.org/abs/2010.04558
     """
 
-    def __init__(
-            self, 
-            in_channels, 
-            hidden_channels, 
-            n_layers=2, 
-            **kwargs
-        ):
+    def __init__(self, in_channels, hidden_channels, n_layers=2, **kwargs):
         super().__init__()
         layers = []
         layers.append(
-            HyperSAGELayer(in_channels=in_channels, out_channels=hidden_channels, **kwargs)
+            HyperSAGELayer(
+                in_channels=in_channels, out_channels=hidden_channels, **kwargs
+            )
         )
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=hidden_channels, 
-                    out_channels=hidden_channels, 
-                    **kwargs
+                    in_channels=hidden_channels, out_channels=hidden_channels, **kwargs
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        
+
     def forward(self, x_0, incidence):
         """Forward computation through layers, then linear layer, then global max pooling.
 
@@ -63,5 +57,5 @@ class HyperSAGE(torch.nn.Module):
         """
         for layer in self.layers:
             x_0 = layer.forward(x_0, incidence)
-        
+
         return x_0

@@ -1,7 +1,9 @@
 """UniGCNII class."""
 
-import torch
 import math
+
+import torch
+
 from topomodelx.nn.hypergraph.unigcnii_layer import UniGCNIILayer
 
 
@@ -34,33 +36,34 @@ class UniGCNII(torch.nn.Module):
     """
 
     def __init__(
-            self, 
-            in_channels,
-            hidden_channels,
-            n_layers=2, 
-            alpha=0.5, 
-            beta=0.5,
-            input_drop=0.2,
-            layer_drop=0.2,
-        ):
+        self,
+        in_channels,
+        hidden_channels,
+        n_layers=2,
+        alpha=0.5,
+        beta=0.5,
+        input_drop=0.2,
+        layer_drop=0.2,
+    ):
         super().__init__()
         layers = []
-        
+
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
         # Define initial linear layer
         self.linear_init = torch.nn.Linear(in_channels, hidden_channels)
-    
-        # Define convolutional layers 
+
+        # Define convolutional layers
         for i in range(n_layers):
-            beta = math.log(alpha/(i+1)+1)
+            beta = math.log(alpha / (i + 1) + 1)
             layers.append(
                 UniGCNIILayer(
-                    in_channels=hidden_channels, 
+                    in_channels=hidden_channels,
                     hidden_channels=hidden_channels,
                     alpha=alpha,
-                    beta=beta)
+                    beta=beta,
                 )
+            )
 
         self.layers = torch.nn.ModuleList(layers)
 
@@ -82,7 +85,6 @@ class UniGCNII(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-
         x_0 = self.input_drop(x_0)
         x_0 = self.linear_init(x_0)
         x_0 = torch.nn.functional.relu(x_0)
@@ -92,5 +94,5 @@ class UniGCNII(torch.nn.Module):
             x_0, x_1 = layer(x_0, incidence_1, x_0_skip)
             x_0 = self.layer_drop(x_0)
             x_0 = torch.nn.functional.relu(x_0)
-        
+
         return (x_0, x_1)

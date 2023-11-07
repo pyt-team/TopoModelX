@@ -29,7 +29,7 @@ class TestUniSAGELayer:
         incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
         layer = UniSAGELayer(10, 30, e_aggr="sum")
         x_0, x_1 = layer(x, incidence)
-        
+
         assert x_0.shape == torch.Size([3, 30])
         assert x_1.shape == torch.Size([3, 30])
 

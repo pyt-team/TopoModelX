@@ -12,15 +12,15 @@ class TestHNHN:
     def test_forward(self):
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
+
         n_nodes, n_edges = 2, 2
         incidence = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
         incidence = incidence.float().to(device)
-        
+
         in_channels, hidden_channels = 2, 6
-        model = HyperGAT(in_channels=in_channels, 
-                         hidden_channels=hidden_channels, 
-                         n_layers=2).to(device)
+        model = HyperGAT(
+            in_channels=in_channels, hidden_channels=hidden_channels, n_layers=2
+        ).to(device)
 
         x_0 = torch.rand(2, 2).float().to(device)
 

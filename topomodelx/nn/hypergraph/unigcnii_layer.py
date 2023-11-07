@@ -3,7 +3,8 @@ import torch
 
 
 class UniGCNIILayer(torch.nn.Module):
-    r"""Implementation of the UniGCNII layer [1]_.
+    r"""
+    Implementation of the UniGCNII layer [1]_.
 
     Parameters
     ----------
@@ -24,13 +25,7 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(
-            self, 
-            in_channels, 
-            hidden_channels,
-            alpha: float, 
-            beta: float
-        ) -> None:
+    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float) -> None:
         super().__init__()
 
         self.alpha = alpha

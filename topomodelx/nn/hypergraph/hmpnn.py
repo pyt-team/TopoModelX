@@ -62,7 +62,7 @@ class HMPNN(torch.nn.Module):
                 for _ in range(n_layers)
             ]
         )
-        #self.to_categories_linear = torch.nn.Linear(hidden_features[-1], num_classes)
+        # self.to_categories_linear = torch.nn.Linear(hidden_features[-1], num_classes)
 
     def forward(self, x_0, x_1, incidence_1):
         """Forward computation through layers.

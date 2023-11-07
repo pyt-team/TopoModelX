@@ -6,7 +6,8 @@ from topomodelx.base.conv import Conv
 
 
 class AllSetLayer(nn.Module):
-    r"""AllSet Layer Module [1]_.
+    """
+    AllSet Layer Module [1]_.
 
     A module for AllSet layer in a bipartite graph.
 
@@ -26,6 +27,7 @@ class AllSetLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+
     References
     ----------
     .. [1] Chien, Pan, Peng and Milenkovic.

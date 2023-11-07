@@ -36,15 +36,15 @@ class UniGCNLayer(torch.nn.Module):
     """
 
     def __init__(
-        self, 
+        self,
         in_channels,
         hidden_channels,
-        aggr_norm: bool = False, 
-        use_bn: bool = False
+        aggr_norm: bool = False,
+        use_bn: bool = False,
     ) -> None:
         super().__init__()
-        
-        with_linear_transform = False if in_channels == hidden_channels else True  
+
+        with_linear_transform = False if in_channels == hidden_channels else True
         self.conv_level1_0_to_1 = Conv(
             in_channels=in_channels,
             out_channels=hidden_channels,
@@ -112,7 +112,6 @@ class UniGCNLayer(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-        
         if x_0.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
                 f"Mismatch in number of nodes in features and nodes: {x_0.shape[-2]} and {incidence_1.shape[-2]}."

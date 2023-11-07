@@ -28,7 +28,7 @@ class AllSet(torch.nn.Module):
         Activation function in the MLP.
     mlp_norm : bool, default: False
         Whether to apply input normalization in the MLP.
-    
+
     References
     ----------
     .. [1] Chien, Pan, Peng and Milenkovic.
@@ -74,7 +74,6 @@ class AllSet(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-      
 
     def forward(self, x_0, incidence_1):
         """Forward computation.
@@ -93,11 +92,7 @@ class AllSet(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-        
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
 
         return (x_0, x_1)
-    
-
-

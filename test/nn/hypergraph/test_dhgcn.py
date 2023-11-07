@@ -11,11 +11,10 @@ class TestDHGCNL:
     def test_forward(self):
         """Test forward method."""
         # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        in_channels, hidden_channels = 8,4
+        in_channels, hidden_channels = 8, 4
         model = DHGCN(
-            in_channels=in_channels, 
-            hidden_channels=hidden_channels, 
-            n_layers=2)
+            in_channels=in_channels, hidden_channels=hidden_channels, n_layers=2
+        )
 
         n_nodes = 8
         x_0 = torch.rand(n_nodes, in_channels)

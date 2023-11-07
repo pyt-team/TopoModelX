@@ -31,10 +31,9 @@ class TestAllSetLayer:
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
         x_0, x_1 = allset_layer.forward(x_0, incidence_1)
-        
+
         assert x_0.shape == (3, 64)
         assert x_1.shape == (3, 64)
-        
 
     def test_AllSetBlock(self):
         """Test the AllSetBlock class.

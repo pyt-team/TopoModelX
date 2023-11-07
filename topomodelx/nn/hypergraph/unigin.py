@@ -20,7 +20,7 @@ class UniGIN(torch.nn.Module):
         Dropout rate for the input features.
     layer_drop: float, default=0.2
         Dropout rate for the hidden features.
-   
+
 
     References
     ----------
@@ -31,25 +31,23 @@ class UniGIN(torch.nn.Module):
     """
 
     def __init__(
-        self, 
+        self,
         in_channels,
         hidden_channels,
         n_layers=2,
         input_drop=0.2,
         layer_drop=0.2,
-       
     ):
         super().__init__()
         layers = []
-        
+
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
-        
-        # Define initial linear layer        
+
+        # Define initial linear layer
         self.linear_init = torch.nn.Linear(in_channels, hidden_channels)
 
         for _ in range(n_layers):
-           
             layers.append(
                 UniGINLayer(
                     in_channels=hidden_channels,
@@ -57,7 +55,7 @@ class UniGIN(torch.nn.Module):
             )
 
         self.layers = torch.nn.ModuleList(layers)
-        
+
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
 

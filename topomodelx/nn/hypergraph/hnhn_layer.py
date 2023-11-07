@@ -77,7 +77,7 @@ class HNHNLayer(torch.nn.Module):
         self.use_normalized_incidence = use_normalized_incidence
         self.incidence_1 = incidence_1
         self.incidence_1_transpose = incidence_1.transpose(1, 0)
-        
+
         self.conv_0_to_1 = Conv(
             in_channels=in_channels,
             out_channels=hidden_channels,

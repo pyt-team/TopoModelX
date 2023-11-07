@@ -52,7 +52,9 @@ class HyperGATLayer(MessagePassing):
         )
 
         self.att_weight1 = torch.nn.Parameter(torch.zeros(size=(hidden_channels, 1)))
-        self.att_weight2 = torch.nn.Parameter(torch.zeros(size=(2 * hidden_channels, 1)))
+        self.att_weight2 = torch.nn.Parameter(
+            torch.zeros(size=(2 * hidden_channels, 1))
+        )
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -204,5 +206,5 @@ class HyperGATLayer(MessagePassing):
         inter_aggregation_with_attention = incidence_with_attention @ (
             messages_on_edges @ self.weight2
         )
-        
+
         return self.update(inter_aggregation_with_attention), messages_on_edges

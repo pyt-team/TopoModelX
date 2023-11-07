@@ -169,7 +169,7 @@ class DHGCNLayer(torch.nn.Module):
         """
         device = x_0_features.device
         n_nodes = x_0_features.size(0)
-        batch = torch.zeros(x_0_features.size(0), dtype=torch.long, device='cpu')
+        batch = torch.zeros(x_0_features.size(0), dtype=torch.long, device="cpu")
         local_edge_index = knn_graph(
             x_0_features.cpu(),
             k=self.k_neighbours,

@@ -17,13 +17,10 @@ class TestUniGCN:
         incidence = incidence.float().to(device)
         in_channels, hidden_channels = 2, 10
         model = UniGCN(
-            in_channels=in_channels,
-            hidden_channels=hidden_channels,
-            n_layers=2
+            in_channels=in_channels, hidden_channels=hidden_channels, n_layers=2
         ).to(device)
 
         x_0 = torch.rand(n_nodes, in_channels).float().to(device)
-
 
         x_0, x_1 = model(x_0, incidence)
 

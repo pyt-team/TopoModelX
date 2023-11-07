@@ -26,7 +26,7 @@ class AllSetTransformer(torch.nn.Module):
         Number of layers in the MLP.
     mlp_dropout:
         Dropout probability in the MLP.
-    
+
     References
     ----------
     .. [1] Chien, Pan, Peng and Milenkovic.
@@ -69,7 +69,6 @@ class AllSetTransformer(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-       
 
     def forward(self, x_0, incidence_1):
         """
@@ -89,6 +88,5 @@ class AllSetTransformer(torch.nn.Module):
         """
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
-        
+
         return (x_0, x_1)
-       

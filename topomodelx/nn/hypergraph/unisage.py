@@ -20,7 +20,7 @@ class UniSAGE(torch.nn.Module):
         Dropout rate for the hidden features.
     n_layers : int, default = 2
         Amount of message passing layers.
-        
+
     References
     ----------
     .. [1] Huang and Yang.
@@ -30,7 +30,7 @@ class UniSAGE(torch.nn.Module):
     """
 
     def __init__(
-        self, 
+        self,
         in_channels,
         hidden_channels,
         input_drop=0.2,
@@ -41,14 +41,14 @@ class UniSAGE(torch.nn.Module):
 
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
-        
+
         layers = []
         layers.append(
-                UniSAGELayer(
-                    in_channels=in_channels,
-                    hidden_channels=hidden_channels,
-                )
+            UniSAGELayer(
+                in_channels=in_channels,
+                hidden_channels=hidden_channels,
             )
+        )
         for _ in range(n_layers - 1):
             layers.append(
                 UniSAGELayer(
@@ -57,8 +57,7 @@ class UniSAGE(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        
-        
+
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
 
@@ -77,14 +76,12 @@ class UniSAGE(torch.nn.Module):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-
         x_0 = self.input_drop(x_0)
-        
+
         # Iterate over layers
         for layer in self.layers:
             x_0, x_1 = layer(x_0, incidence_1)
             x_0 = self.layer_drop(x_0)
             x_0 = torch.nn.functional.relu(x_0)
-       
-        return (x_0, x_1)
 
+        return (x_0, x_1)

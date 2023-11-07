@@ -13,11 +13,13 @@ class TestHyperGATLayer:
         """Return a hypergat layer."""
         in_channels = 10
         self.hidden_channels = 30
-        return HyperGATLayer(in_channels=in_channels, hidden_channels=self.hidden_channels)
+        return HyperGATLayer(
+            in_channels=in_channels, hidden_channels=self.hidden_channels
+        )
 
     def test_forward(self, hypergat_layer):
         """Test the forward pass of the hypergat layer."""
-        n_nodes, n_edges = 3, 3 
+        n_nodes, n_edges = 3, 3
         x_0 = torch.randn(n_nodes, 10)
         incidence_2 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
