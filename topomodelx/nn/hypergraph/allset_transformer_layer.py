@@ -184,7 +184,7 @@ class AllSetTransformerBlock(nn.Module):
         hidden_channels,
         heads: int = 4,
         number_queries: int = 1,
-        dropout: float = 0.,
+        dropout: float = 0.0,
         mlp_num_layers: int = 1,
         mlp_activation=None,
         mlp_dropout: float = 0.0,

@@ -57,7 +57,6 @@ class HMPNN(torch.nn.Module):
             ]
         )
 
-
     def forward(self, x_0, x_1, incidence_1):
         """Forward computation through layers.
 
