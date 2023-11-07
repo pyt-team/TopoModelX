@@ -12,11 +12,17 @@ class SCCNNLayer(torch.nn.Module):
         Dimensions of input features on nodes, edges, and triangles.
     out_channels : tuple of int
         Dimensions of output features on nodes, edges, and triangles.
-    sc_order : int
-        SC order.
     conv_order : int
         Convolution order of the simplicial filters.
         To avoid too many parameters, we consider them to be the same.
+    sc_order : int
+        SC order.
+    aggr_norm : bool, default = False
+        Whether to normalize the aggregated message by the neighborhood size.
+    update_func : str, default = None
+        Activation function used in aggregation layers.
+    initialization : str, default = "xavier_normal"
+        Weight initialization method.
 
     Examples
     --------
@@ -255,7 +261,6 @@ class SCCNNLayer(torch.nn.Module):
             - x_1: torch.Tensor, shape = (n_edges,in_channels_1),
             - x_2: torch.Tensor, shape = (n_triangles,in_channels_2).
 
-
         laplacian_all: tuple of tensors, shape = (laplacian_0,laplacian_down_1,laplacian_up_1,laplacian_2)
             Tuple of laplacian tensors:
 
@@ -264,7 +269,7 @@ class SCCNNLayer(torch.nn.Module):
             - laplacian_up_1: torch.sparse, the 1-hodge laplacian (upper part),
             - laplacian_2: torch.sparse, the 2-hodge laplacian.
 
-        incidence_all: tuple of tensors, shape = (b1,b2)
+        incidence_all : tuple of tensors, shape = (b1,b2)
             Tuple of incidence tensors:
 
             - b1: torch.sparse, shape = (n_nodes,n_edges), node-to-edge incidence matrix,
@@ -272,12 +277,12 @@ class SCCNNLayer(torch.nn.Module):
 
         Returns
         -------
-        tuple, shape = (y_0,y_1,y_2)
-            Tuple of output tensors:
-
-            - y_0: output on nodes,
-            - y_1: output on edges,
-            - y_2: output on triangles.
+        y_0 : torch.Tensor
+            Output features on nodes.
+        y_1 : torch.Tensor
+            Output features on edges.
+        y_2 : torch.Tensor
+            Output features on triangles.
         """
         x_0, x_1, x_2 = x_all
 

@@ -20,6 +20,8 @@ class AllSetTransformerLayer(nn.Module):
         Dimension of the hidden features.
     heads : int, default=4
         Number of attention heads.
+    number_queries : int, default=1
+        Number of queries.
     dropout : float, optional
         Dropout probability.
     mlp_num_layers : int, default=1
@@ -425,7 +427,7 @@ class MLP(nn.Sequential):
     hidden_channels : list of int
         List of dimensions of the hidden features.
     norm_layer : callable or None, optional
-        Type of layer normalization
+        Type of layer normalization.
     activation_layer : callable or None, optional
         Type of activation function.
     dropout : float, optional

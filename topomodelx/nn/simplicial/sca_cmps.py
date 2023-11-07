@@ -10,12 +10,14 @@ class SCACMPS(torch.nn.Module):
 
     Parameters
     ----------
-    channels_list: list[int]
+    channels_list : list[int]
         Dimension of features on each node, edge, simplex, tetahedron,... respectively
-    complex_dimension: int
+    complex_dim : int
         Highest dimension of simplicial complex feature being trained on.
     n_classes : int
         Dimension to which the complex embeddings will be projected.
+    n_layers : int, default = 2
+        Amount of message passing layers.
     att : bool
         Whether to use attention.
     """
@@ -51,11 +53,11 @@ class SCACMPS(torch.nn.Module):
 
         Parameters
         ----------
-        x_list: list[torch.Tensor]
+        x_list : list[torch.Tensor]
             List of tensor inputs for each dimension of the complex (nodes, edges, etc.).
-        laplacian_down_list: list[torch.Tensor]
+        laplacian_down_list : list[torch.Tensor]
             List of the down laplacian matrix for each dimension in the complex starting at edges.
-        incidence_t_list: list[torch.Tensor]
+        incidence_t_list : list[torch.Tensor]
             List of the transpose incidence matrices for the edges and faces.
 
         Returns

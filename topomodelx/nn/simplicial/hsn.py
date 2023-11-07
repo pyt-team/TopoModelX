@@ -10,10 +10,9 @@ class HSN(torch.nn.Module):
     Parameters
     ----------
     channels : int
-        Dimension of features
+        Dimension of features.
     n_layers : int
         Amount of message passing layers.
-
     """
 
     def __init__(self, channels, n_layers=2):
@@ -46,7 +45,6 @@ class HSN(torch.nn.Module):
         -------
         torch.Tensor, shape = (n_nodes, 2)
             One-hot labels assigned to nodes.
-
         """
         for layer in self.layers:
             x_0 = layer(x_0, incidence_1, adjacency_0)

@@ -44,10 +44,8 @@ class HyperGAT(torch.nn.Module):
 
         Parameters
         ----------
-        x_1 : torch.Tensor
-            shape = (n_edges, channels_edge)
+        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
             Edge features.
-
         incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 

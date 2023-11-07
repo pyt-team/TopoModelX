@@ -51,10 +51,9 @@ class HyperSAGE(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_nodes, features_nodes)
+        x : torch.Tensor, shape = (n_nodes, features_nodes)
             Edge features.
-
-        incidence: torch.Tensor, shape = (n_nodes, n_edges)
+        incidence : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns

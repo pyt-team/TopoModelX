@@ -18,6 +18,8 @@ class AllSetTransformer(torch.nn.Module):
         Dimension of the hidden features.
     n_layers : int, default: 2
         Number of AllSet layers in the network.
+    heads : int, default: 4
+        Number of attention heads.
     dropout : float
         Dropout probability.
     mlp_num_layers : int, default: 2
@@ -25,7 +27,6 @@ class AllSetTransformer(torch.nn.Module):
     mlp_dropout:
         Dropout probability in the MLP.
     
-
     References
     ----------
     .. [1] Chien, Pan, Peng and Milenkovic.
@@ -76,7 +77,7 @@ class AllSetTransformer(torch.nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor
+        x_0 : torch.Tensor
             Input features.
         incidence_1 : torch.Tensor
             Edge list (of size (2, |E|)).

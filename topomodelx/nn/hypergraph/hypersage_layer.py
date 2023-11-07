@@ -14,6 +14,8 @@ class GeneralizedMean(Aggregation):
     ----------
     power : int, default=2
         Power for the generalized mean.
+    **kwargs : keyword arguments, optional
+        Arguments for the base aggregation layer.
     """
 
     def __init__(self, power: int = 2, **kwargs) -> None:
@@ -26,6 +28,12 @@ class GeneralizedMean(Aggregation):
         Parameters
         ----------
         x : torch.Tensor
+            Input features.
+
+        Returns
+        -------
+        torch.Tensor
+            Output features.
         """
         n = x.size()[-2]
         x = torch.sum(torch.pow(x, self.power), -2) / n
@@ -95,9 +103,7 @@ class HyperSAGELayer(MessagePassing):
         )
         self.reset_parameters()
 
-    def update(
-        self, x_message_on_target: torch.Tensor, x_target: torch.Tensor | None = None
-    ) -> torch.Tensor:
+    def update(self, x_message_on_target: torch.Tensor) -> torch.Tensor:
         r"""Update embeddings on each node (step 4).
 
         Parameters
@@ -130,7 +136,7 @@ class HyperSAGELayer(MessagePassing):
         x_messages : Tensor, shape = (..., n_messages, out_channels)
             Features associated with each message.
             One message is sent from a source cell to a target cell.
-        mode : string, default = "inter"
+        mode : str, default = "inter"
             The mode on which aggregation to compute.
             If set to "inter", will compute inter-aggregation,
             if set to "intra", will compute intra-aggregation (see [1]).
@@ -173,7 +179,7 @@ class HyperSAGELayer(MessagePassing):
 
         Returns
         -------
-        x : torch.Tensor
+        torch.Tensor
             Output features.
         """
 

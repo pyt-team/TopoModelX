@@ -7,7 +7,6 @@ class UniGINLayer(torch.nn.Module):
 
     Implementation of UniGIN layer proposed in [1]_.
 
-
     Parameters
     ----------
     in_channels : int

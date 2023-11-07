@@ -266,7 +266,7 @@ class AllSetBlock(nn.Module):
 
         Returns
         -------
-        x : torch.Tensor
+        torch.Tensor
             Output features.
         """
         x = F.relu(self.encoder(x))

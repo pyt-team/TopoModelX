@@ -10,6 +10,11 @@ class HSNLayer(torch.nn.Module):
 
     Implementation of the HSN layer proposed in [1]_.
 
+    Parameters
+    ----------
+    channels : int
+        Dimension of features on each simplicial cell.
+
     Notes
     -----
     This is the architecture proposed for node classification on simplicial complices.
@@ -20,11 +25,6 @@ class HSNLayer(torch.nn.Module):
         High skip networks: a higher order generalization of skip connections.
         Geometrical and topological representation learning workshop at ICLR 2022.
         https://openreview.net/pdf?id=Sc8glB-k6e9
-
-    Parameters
-    ----------
-    channels : int
-        Dimension of features on each simplicial cell.
     """
 
     def __init__(
@@ -85,7 +85,7 @@ class HSNLayer(torch.nn.Module):
 
         Parameters
         ----------
-        x: torch.Tensor, shape = (n_nodes, channels)
+        x_0 : torch.Tensor, shape = (n_nodes, channels)
             Input features on the nodes of the simplicial complex.
         incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
             Incidence matrix :math:`B_1` mapping edges to nodes.

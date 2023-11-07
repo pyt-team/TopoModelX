@@ -16,9 +16,9 @@ class UniGCNII(torch.nn.Module):
         Dimension of the hidden features.
     n_layers: int, default=2
         Number of UniGCNII message passing layers.
-    alpha: float, default=0.5
+    alpha : float, default=0.5
         Parameter of the UniGCNII layer.
-    beta: float, default=0.5
+    beta : float, default=0.5
         Parameter of the UniGCNII layer.
     input_drop: float, default=0.2
         Dropout rate for the input features.

@@ -10,16 +10,15 @@ class UniGCNLayer(torch.nn.Module):
 
     Implementation of UniGCN layer proposed in [1]_.
 
-
     Parameters
     ----------
     in_channels : int
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    use_bn : boolean
+    use_bn : boolean, default=False
         Whether to use bathnorm after the linear transformation.
-    aggr_norm: boolean
+    aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
 
     References

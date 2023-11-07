@@ -144,7 +144,6 @@ class CWNLayer(nn.Module):
             &🟧 \quad m_x^{(r)} = AGG_{\mathcal{N}\_k \in \mathcal{N}} (m_x^k)
             \end{align*}
 
-
         4. Finally, an update step is applied:
 
         .. math::
@@ -164,8 +163,7 @@ class CWNLayer(nn.Module):
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
         neighborhood_2_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
-        neighborhood_0_to_1 : torch.sparse
-            shape = (n_{r}_cells, n_{r-1}_cells)
+        neighborhood_0_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns

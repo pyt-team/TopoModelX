@@ -134,10 +134,6 @@ class SANConv(Conv):
 class SANLayer(torch.nn.Module):
     r"""Implementation of the Simplicial Attention Network (SAN) Layer proposed in [1]_.
 
-    Notes
-    -----
-    Architecture proposed for r-simplex (r>0) classification on simplicial complices.
-
     Parameters
     ----------
     in_channels : int
@@ -146,6 +142,10 @@ class SANLayer(torch.nn.Module):
         Number of output channels.
     n_filters : int, default = 2
         Approximation order.
+
+    Notes
+    -----
+    Architecture proposed for r-simplex (r>0) classification on simplicial complices.
     """
 
     def __init__(
@@ -199,12 +199,11 @@ class SANLayer(torch.nn.Module):
         ----------
         x : torch.Tensor, shape = (..., n_cells, in_channels)
             Input tensor.
-        down_indices : torch.Tensor, shape = (..., n_cells_down, n_neighbors)
-            Down indices tensor.
-        up_indices : torch.Tensor, shape = (..., n_cells_up, n_neighbors)
-            Up indices tensor.
-        laplacians : tuple of torch.Tensor
-            Tuple of lower and upper laplacians.
+        laplacian_up : torch.Tensor
+        laplacian_down : torch.Tensor
+            The up- and down-laplacians of the simplicial complex.
+        projection_mat : torch.Tensor
+            The projection matrix used.
 
         Returns
         -------
