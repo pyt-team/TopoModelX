@@ -38,7 +38,7 @@ class TestSCNN:
         incidence_1 = simplicial_complex.incidence_matrix(rank=1)
         incidence_2 = simplicial_complex.incidence_matrix(rank=2)
         laplacian_0 = simplicial_complex.hodge_laplacian_matrix(rank=0, weight=True)
-        laplacian_down_1 = simplicial_complex.down_laplacian_matrix(rank=1, weight=True)
+        laplacian_down_1 = simplicial_complex.down_laplacian_matrix(rank=1)
         laplacian_up_1 = simplicial_complex.up_laplacian_matrix(rank=1)
         laplacian_2 = simplicial_complex.hodge_laplacian_matrix(rank=2, weight=True)
 
