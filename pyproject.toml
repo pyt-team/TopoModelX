@@ -62,7 +62,9 @@ test = [
     "pytest-cov",
     "coverage",
     "jupyter",
-    "mypy"
+    "mypy",
+    "pytest-xdist",
+    "pytest-split"
 ]
 
 dev = ["TopoModelX[test, lint]"]
