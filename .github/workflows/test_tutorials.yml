@@ -94,7 +94,7 @@ jobs:
           pip install -e .[all]
       - name: Run tests for tutorials on hypergraph domain [pytest] [Group-${{ matrix.test-group}}]
         run: |
-          pytest --splits 5 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
+          pytest --splits 3 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
 
   cell-pytest:
     runs-on: ${{ matrix.os }}
