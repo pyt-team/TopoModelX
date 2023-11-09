@@ -51,9 +51,9 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    aggr_func_intra : Aggregation
+    aggr_func_intra : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
-    aggr_func_inter : Aggregation
+    aggr_func_inter : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
     update_func : Literal["relu", "sigmoid"], default="relu"
         Update method to apply to message.
@@ -185,24 +185,32 @@ class HyperSAGELayer(MessagePassing):
 
         def nodes_per_edge(e):
             return (
-                torch.index_select(input=incidence, dim=1, index=torch.LongTensor([e]))
+                torch.index_select(
+                    input=incidence.to("cpu"), dim=1, index=torch.LongTensor([e])
+                )
                 .coalesce()
                 .indices()[0]
+                .to(self.device)
             )
 
         def edges_per_node(v):
             return (
-                torch.index_select(input=incidence, dim=0, index=torch.LongTensor([v]))
+                torch.index_select(
+                    input=incidence.to("cpu"), dim=0, index=torch.LongTensor([v])
+                )
                 .coalesce()
                 .indices()[1]
+                .to(self.device)
             )
 
         messages_per_edges = [
             x[nodes_per_edge(e), :] for e in range(incidence.size()[1])
         ]
-        num_of_messages_per_edges = torch.Tensor(
-            [message.size()[-2] for message in messages_per_edges]
-        ).reshape(-1, 1)
+        num_of_messages_per_edges = (
+            torch.Tensor([message.size()[-2] for message in messages_per_edges])
+            .reshape(-1, 1)
+            .to(self.device)
+        )
         intra_edge_aggregation = torch.stack(
             [self.aggregate(message, mode="intra") for message in messages_per_edges]
         )
@@ -221,5 +229,5 @@ class HyperSAGELayer(MessagePassing):
         )
 
         x_message = x + inter_edge_aggregation
-
-        return self.update(x_message / x_message.norm(p=2) @ self.weight)
+        x_0 = self.update(x_message / x_message.norm(p=2) @ self.weight)
+        return x_0

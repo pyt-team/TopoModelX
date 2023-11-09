@@ -17,14 +17,12 @@ class TestHyperSAGE:
         incidence = incidence.float().to(device)
         model = HyperSAGE(
             in_channels=2,
-            out_channels=2,
+            hidden_channels=2,
             n_layers=2,
+            device=device,
             initialization="xavier_uniform",
         ).to(device)
-        x_0 = torch.rand(2, 2)
+        x_0 = torch.rand(2, 2).float().to(device)
+        x_0 = model(x_0, incidence)
 
-        x_0 = torch.tensor(x_0).float().to(device)
-
-        y1 = model(x_0, incidence)
-
-        assert y1.shape == torch.Size([])
+        assert x_0.shape == torch.Size([2, 2])

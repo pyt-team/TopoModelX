@@ -3,12 +3,15 @@ import torch
 
 
 class UniGCNIILayer(torch.nn.Module):
-    r"""Implementation of the UniGCNII layer [1]_.
+    r"""
+    Implementation of the UniGCNII layer [1]_.
 
     Parameters
     ----------
     in_channels : int
-        Number of input channels of the node (rank-0) features.
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     alpha : float
         The alpha parameter determining the importance of the self-loop (\theta_2).
     beta : float
@@ -22,13 +25,12 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, alpha: float, beta: float) -> None:
+    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float) -> None:
         super().__init__()
 
-        self.in_channels = in_channels
         self.alpha = alpha
         self.beta = beta
-        self.linear = torch.nn.Linear(in_channels, in_channels, bias=False)
+        self.linear = torch.nn.Linear(in_channels, hidden_channels, bias=False)
 
     def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
@@ -78,14 +80,17 @@ class UniGCNIILayer(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (num_nodes, in_channels)
-            Output features of the nodes of the hypergraph.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
+
         """
         x_skip = x_0 if x_skip is None else x_skip
         incidence_1_transpose = incidence_1.transpose(0, 1)
 
         # First message without any learning or parameters
-        m_0_1 = torch.sparse.mm(incidence_1_transpose, x_0)
+        x_1 = torch.sparse.mm(incidence_1_transpose, x_0)
 
         # Compute node and edge degrees for normalization.
         node_degree = torch.sum(incidence_1.to_dense(), dim=1)
@@ -103,10 +108,11 @@ class UniGCNIILayer(torch.nn.Module):
         edge_degree = edge_degree / torch.sum(incidence_1.to_dense(), dim=0)
 
         # Second message normalized with node and edge degrees (using broadcasting)
-        m_1_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * torch.sparse.mm(
-            incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree)), m_0_1
+        x_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * torch.sparse.mm(
+            incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree)), x_1
         )
 
         # Introduce skip connections with hyperparameter alpha and beta
-        x_combined = ((1 - self.alpha) * m_1_0) + (self.alpha * x_skip)
-        return ((1 - self.beta) * x_combined) + self.beta * self.linear(x_combined)
+        x_combined = ((1 - self.alpha) * x_0) + (self.alpha * x_skip)
+        x_0 = ((1 - self.beta) * x_combined) + self.beta * self.linear(x_combined)
+        return x_0, x_1

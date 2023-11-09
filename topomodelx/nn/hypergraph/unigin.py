@@ -10,14 +10,17 @@ class UniGIN(torch.nn.Module):
 
     Parameters
     ----------
-    in_channels_node : int
-        Dimension of node features.
-    intermediate_channels : int
-        Dimension of intermediate features.
-    out_channels : int
-        Dimension of output features.
-    n_layer : int, default = 2
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
+    n_layers : int, default = 2
         Amount of message passing layers.
+    input_drop : float, default=0.2
+        Dropout rate for the input features.
+    layer_drop : float, default=0.2
+        Dropout rate for the hidden features.
+
 
     References
     ----------
@@ -28,26 +31,29 @@ class UniGIN(torch.nn.Module):
     """
 
     def __init__(
-        self, in_channels_node, intermediate_channels, out_channels, n_layers=2
+        self,
+        in_channels,
+        hidden_channels,
+        n_layers=2,
+        input_drop=0.2,
+        layer_drop=0.2,
     ):
         super().__init__()
         layers = []
+
+        self.input_drop = torch.nn.Dropout(input_drop)
+        self.layer_drop = torch.nn.Dropout(layer_drop)
+
+        self.initial_linear_layer = torch.nn.Linear(in_channels, hidden_channels)
+
         for _ in range(n_layers):
-            mlp = torch.nn.Sequential(
-                torch.nn.Linear(intermediate_channels, 2 * intermediate_channels),
-                torch.nn.ReLU(),
-                torch.nn.Linear(2 * intermediate_channels, intermediate_channels),
-            )
             layers.append(
                 UniGINLayer(
-                    nn=mlp,
-                    in_channels=intermediate_channels,
+                    in_channels=hidden_channels,
                 )
             )
 
-        self.inp_embed = torch.nn.Linear(in_channels_node, intermediate_channels)
         self.layers = torch.nn.ModuleList(layers)
-        self.out_decoder = torch.nn.Linear(intermediate_channels, out_channels)
 
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
@@ -62,11 +68,15 @@ class UniGIN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
-        x_0 = self.inp_embed(x_0)
+        x_0 = self.initial_linear_layer(x_0)
         for layer in self.layers:
-            x_0 = layer(x_0, incidence_1)
-        pooled_x_0 = torch.mean(x_0, dim=0)
-        return torch.sigmoid(self.out_decoder(pooled_x_0))
+            x_0, x_1 = layer(x_0, incidence_1)
+            x_0 = self.layer_drop(x_0)
+            x_0 = torch.nn.functional.relu(x_0)
+
+        return x_0, x_1

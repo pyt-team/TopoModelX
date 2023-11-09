@@ -16,7 +16,7 @@ def _exec_tutorial(path):
         "--to",
         "notebook",
         "--execute",
-        "--ExecutePreprocessor.timeout=1000",
+        "--ExecutePreprocessor.timeout=1500",
         "--ExecutePreprocessor.kernel_name=python3",
         "--output",
         file_name,

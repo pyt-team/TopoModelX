@@ -13,20 +13,20 @@ class TestUniGCNLayer:
         x = torch.randn(3, 10)
         layer = UniGCNLayer(10, 30)
         incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
-        output = layer.forward(x, incidence)
-        assert output.shape == (3, 30)
+        x_0, _ = layer.forward(x, incidence)
+        assert x_0.shape == torch.Size([3, 30])
 
         layer = UniGCNLayer(10, 30, use_bn=True)
-        output = layer.forward(x, incidence)
-        assert output.shape == (3, 30)
+        x_0, _ = layer.forward(x, incidence)
+        assert x_0.shape == torch.Size([3, 30])
 
     def test_sum_aggregator(self):
         """Test sum aggregator."""
         x = torch.randn(3, 10)
         incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
         layer = UniGCNLayer(10, 30)
-        output = layer(x, incidence)
-        assert output.shape == (3, 30)
+        x_0, _ = layer(x, incidence)
+        assert x_0.shape == (3, 30)
 
     def test_aggregator_validation(self):
         """Test validation."""
@@ -66,8 +66,8 @@ class TestUniGCNLayer:
         incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
 
         layer = UniGCNLayer(10, 30, aggr_norm=True)
-        output = layer(x, incidence)
-        assert output.shape == (3, 30)
+        x_0, _ = layer(x, incidence)
+        assert x_0.shape == (3, 30)
 
     def test_batchnorm(self):
         """Test batchnorm."""

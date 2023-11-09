@@ -16,18 +16,16 @@ class AllSetTransformer(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
-    n_layers : int, default: 1
+    n_layers : int, default: 2
         Number of AllSet layers in the network.
     heads : int, default: 4
         Number of attention heads.
-    dropout : float, default=0.2
+    dropout : float, default: 0.2
         Dropout probability.
     mlp_num_layers : int, default: 2
         Number of layers in the MLP.
-    mlp_dropout : float, default=0.0
-        Dropout probability for the MLP.
+    mlp_dropout: float, default: 0.2
+        Dropout probability in the MLP.
 
     References
     ----------
@@ -41,12 +39,11 @@ class AllSetTransformer(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         n_layers=1,
         heads=4,
         dropout=0.2,
         mlp_num_layers=2,
-        mlp_dropout=0.0,
+        mlp_dropout=0.2,
     ):
         super().__init__()
         layers = [
@@ -72,7 +69,6 @@ class AllSetTransformer(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
 
     def forward(self, x_0, incidence_1):
         """
@@ -91,6 +87,6 @@ class AllSetTransformer(torch.nn.Module):
             Output prediction.
         """
         for layer in self.layers:
-            x_0 = layer(x_0, incidence_1)
-        pooled_x = torch.max(x_0, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            x_0, x_1 = layer(x_0, incidence_1)
+
+        return x_0, x_1

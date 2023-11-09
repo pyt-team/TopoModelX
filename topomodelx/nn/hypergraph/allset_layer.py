@@ -6,7 +6,8 @@ from topomodelx.base.conv import Conv
 
 
 class AllSetLayer(nn.Module):
-    r"""AllSet Layer Module [1]_.
+    """
+    AllSet Layer Module [1]_.
 
     A module for AllSet layer in a bipartite graph.
 
@@ -76,7 +77,7 @@ class AllSetLayer(nn.Module):
         self.vertex2edge.reset_parameters()
         self.edge2vertex.reset_parameters()
 
-    def forward(self, x, incidence_1):
+    def forward(self, x_0, incidence_1):
         r"""
         Forward computation.
 
@@ -109,21 +110,23 @@ class AllSetLayer(nn.Module):
 
         Returns
         -------
-        torch.Tensor
-            Output features.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
-        if x.shape[-2] != incidence_1.shape[-2]:
+        if x_0.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
-                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x.shape[0]})."
+                f"Shape of incidence matrix ({incidence_1.shape}) does not have the correct number of nodes ({x_0.shape[0]})."
             )
 
-        x = self.vertex2edge(x, incidence_1.transpose(1, 0))
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        x_1 = self.vertex2edge(x_0, incidence_1.transpose(1, 0))
+        x_1 = F.dropout(x_1, p=self.dropout, training=self.training)
 
-        x = self.edge2vertex(x, incidence_1)
-        x = F.dropout(x, p=self.dropout, training=self.training)
+        x_0 = self.edge2vertex(x_1, incidence_1)
+        x_0 = F.dropout(x_0, p=self.dropout, training=self.training)
 
-        return x
+        return x_0, x_1
 
 
 class MLP(nn.Sequential):
@@ -258,8 +261,8 @@ class AllSetBlock(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor
-            Input features.
+        x_0 : torch.Tensor
+            Input node features.
         incidence : torch.sparse
             Incidence matrix between node/hyperedges.
 

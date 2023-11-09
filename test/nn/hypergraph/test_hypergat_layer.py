@@ -12,17 +12,21 @@ class TestHyperGATLayer:
     def hypergat_layer(self):
         """Return a hypergat layer."""
         in_channels = 10
-        out_channels = 30
-        return HyperGATLayer(in_channels, out_channels)
+        self.hidden_channels = 30
+        return HyperGATLayer(
+            in_channels=in_channels, hidden_channels=self.hidden_channels
+        )
 
     def test_forward(self, hypergat_layer):
         """Test the forward pass of the hypergat layer."""
-        x_2 = torch.randn(3, 10)
+        n_nodes, n_edges = 3, 3
+        x_0 = torch.randn(n_nodes, 10)
         incidence_2 = torch.tensor(
             [[1, 0, 0], [0, 1, 1], [1, 1, 1]], dtype=torch.float32
         ).to_sparse()
-        output = hypergat_layer.forward(x_2, incidence_2)
-        assert output.shape == (3, 30)
+        x_0, x_1 = hypergat_layer.forward(x_0, incidence_2)
+        assert x_0.shape == torch.Size([n_nodes, self.hidden_channels])
+        assert x_1.shape == torch.Size([n_edges, self.hidden_channels])
 
     def test_forward_with_invalid_input(self, hypergat_layer):
         """Test the forward pass of the hypergat layer with invalid input."""

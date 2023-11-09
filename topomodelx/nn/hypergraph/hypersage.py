@@ -12,8 +12,8 @@ class HyperSAGE(torch.nn.Module):
     ----------
     in_channels : int
         Dimension of the input features.
-    out_channels : int
-        Dimension of the output features.
+    hidden_channels : int
+        Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
 
@@ -24,22 +24,23 @@ class HyperSAGE(torch.nn.Module):
         https://arxiv.org/abs/2010.04558
     """
 
-    def __init__(self, in_channels, out_channels, n_layers=2, **kwargs):
+    def __init__(self, in_channels, hidden_channels, n_layers=2, **kwargs):
         super().__init__()
         layers = []
         layers.append(
-            HyperSAGELayer(in_channels=in_channels, out_channels=out_channels, **kwargs)
+            HyperSAGELayer(
+                in_channels=in_channels, out_channels=hidden_channels, **kwargs
+            )
         )
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=out_channels, out_channels=out_channels, **kwargs
+                    in_channels=hidden_channels, out_channels=hidden_channels, **kwargs
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(out_channels, 1)
 
-    def forward(self, x, incidence):
+    def forward(self, x_0, incidence):
         """Forward computation through layers, then linear layer, then global max pooling.
 
         Parameters
@@ -55,6 +56,6 @@ class HyperSAGE(torch.nn.Module):
             Label assigned to whole complex.
         """
         for layer in self.layers:
-            x = layer.forward(x, incidence)
-        pooled_x = torch.max(x, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            x_0 = layer.forward(x_0, incidence)
+
+        return x_0

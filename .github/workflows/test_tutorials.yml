@@ -71,7 +71,7 @@ jobs:
         torch-version: [2.0.1]
         include:
           - torch-version: 2.0.1
-        test-group: [1, 2, 3, 4]
+        test-group: [1, 2, 3]
 
     steps:
       - uses: actions/checkout@v3

@@ -13,9 +13,9 @@ class UniGCNLayer(torch.nn.Module):
     Parameters
     ----------
     in_channels : int
-        Dimension of input features.
-    out_channels : int
-        Dimension of output features.
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     use_bn : bool, default=False
         Whether to use bathnorm after the linear transformation.
     aggr_norm : bool, default=False
@@ -36,25 +36,29 @@ class UniGCNLayer(torch.nn.Module):
     """
 
     def __init__(
-        self, in_channels, out_channels, aggr_norm: bool = False, use_bn: bool = False
+        self,
+        in_channels,
+        hidden_channels,
+        aggr_norm: bool = False,
+        use_bn: bool = False,
     ) -> None:
         super().__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+
+        with_linear_transform = False if in_channels == hidden_channels else True
         self.conv_level1_0_to_1 = Conv(
             in_channels=in_channels,
-            out_channels=in_channels,
+            out_channels=hidden_channels,
             aggr_norm=aggr_norm,
             update_func=None,
-            with_linear_transform=False,
+            with_linear_transform=with_linear_transform,
         )
         self.conv_level2_1_to_0 = Conv(
-            in_channels=in_channels,
-            out_channels=out_channels,
+            in_channels=hidden_channels,
+            out_channels=hidden_channels,
             aggr_norm=aggr_norm,
             update_func=None,
         )
-        self.bn = nn.BatchNorm1d(in_channels) if use_bn else None
+        self.bn = nn.BatchNorm1d(hidden_channels) if use_bn else None
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
@@ -103,8 +107,10 @@ class UniGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, out_channels)
-            Output features on the nodes of the hypergraph.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         if x_0.shape[-2] != incidence_1.shape[-2]:
             raise ValueError(
@@ -112,8 +118,8 @@ class UniGCNLayer(torch.nn.Module):
             )
 
         incidence_1_transpose = incidence_1.transpose(1, 0)
-        m_0_1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
+        x_1 = self.conv_level1_0_to_1(x_0, incidence_1_transpose)
         if self.bn is not None:
-            m_0_1 = self.bn(m_0_1)
-        m_1_0 = self.conv_level2_1_to_0(m_0_1, incidence_1)
-        return m_1_0
+            x_1 = self.bn(x_1)
+        x_0 = self.conv_level2_1_to_0(x_1, incidence_1)
+        return x_0, x_1

@@ -16,18 +16,16 @@ class AllSet(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    out_channels : int
-        Dimension of the output features.
     n_layers : int, default: 2
         Number of AllSet layers in the network.
-    dropout : float
-        Dropout probability.
+    layer_dropout: float, default: 0.2
+        Dropout probability for the AllSet layer.
     mlp_num_layers : int, default: 2
         Number of layers in the MLP.
-    mlp_activation : torch.nn.Module, default: None
-        Activation function for the MLP.
     mlp_dropout : float, default: 0.0
         Dropout probability for the MLP.
+    mlp_activation : torch.nn.Module, default: None
+        Activation function in the MLP.
     mlp_norm : bool, default: False
         Whether to apply input normalization in the MLP.
 
@@ -43,9 +41,8 @@ class AllSet(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
         n_layers=2,
-        dropout=0.2,
+        layer_dropout=0.2,
         mlp_num_layers=2,
         mlp_activation=None,
         mlp_dropout=0.0,
@@ -56,7 +53,7 @@ class AllSet(torch.nn.Module):
             AllSetLayer(
                 in_channels=in_channels,
                 hidden_channels=hidden_channels,
-                dropout=dropout,
+                dropout=layer_dropout,
                 mlp_num_layers=mlp_num_layers,
                 mlp_activation=mlp_activation,
                 mlp_dropout=mlp_dropout,
@@ -67,9 +64,9 @@ class AllSet(torch.nn.Module):
         for _ in range(n_layers - 1):
             layers.append(
                 AllSetLayer(
-                    in_channels=in_channels,
+                    in_channels=hidden_channels,
                     hidden_channels=hidden_channels,
-                    dropout=dropout,
+                    dropout=layer_dropout,
                     mlp_num_layers=mlp_num_layers,
                     mlp_activation=mlp_activation,
                     mlp_dropout=mlp_dropout,
@@ -77,7 +74,6 @@ class AllSet(torch.nn.Module):
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(hidden_channels, out_channels)
 
     def forward(self, x_0, incidence_1):
         """Forward computation.
@@ -91,15 +87,12 @@ class AllSet(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor
-            Output prediction.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
-        # cidx = edge_index[1].min()
-        # edge_index[1] -= cidx
-        # reversed_edge_index = torch.stack(
-        #     [edge_index[1], edge_index[0]], dim=0)
-
         for layer in self.layers:
-            x_0 = layer(x_0, incidence_1)
-        pooled_x = torch.max(x_0, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            x_0, x_1 = layer(x_0, incidence_1)
+
+        return x_0, x_1

@@ -13,14 +13,16 @@ class TestUniGCNII:
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        incidence = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        n_nodes, n_edges = 2, 5
+        incidence = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
         incidence = incidence.float().to(device)
-        model = UniGCNII(num_classes=1, in_features=2, num_layers=2).to(device)
+        in_channels, hidden_channels = 2, 10
+        model = UniGCNII(
+            in_channels=in_channels, hidden_channels=hidden_channels, n_layers=2
+        ).to(device)
 
-        x_0 = torch.rand(2, 2)
+        x_0 = torch.rand(n_nodes, in_channels).float().to(device)
+        x_0, x_1 = model(x_0, incidence)
 
-        x_0 = torch.tensor(x_0).float().to(device)
-
-        y1 = model(x_0, incidence)
-
-        assert len(y1.shape) != -1
+        assert x_0.shape == torch.Size([n_nodes, hidden_channels])
+        assert x_1.shape == torch.Size([n_edges, hidden_channels])

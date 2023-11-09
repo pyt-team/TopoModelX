@@ -10,15 +10,13 @@ class HNHN(torch.nn.Module):
 
     Parameters
     ----------
-    channels_node : int
-        Dimension of node features.
-    channels_edge : int
-        Dimension of edge features.
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     incidence_1 : torch.sparse, shape = (n_nodes, n_edges)
         Incidence matrix mapping edges to nodes (B_1).
-    n_classes : int
-        Number of classes.
-    n_layers : int
+    n_layers : int, default = 2
         Number of HNHN message passing layers.
 
     References
@@ -29,23 +27,28 @@ class HNHN(torch.nn.Module):
         https://grlplus.github.io/papers/40.pdf
     """
 
-    def __init__(
-        self, channels_node, channels_edge, incidence_1, n_classes, n_layers=2
-    ):
+    def __init__(self, in_channels, hidden_channels, incidence_1, n_layers=2):
         super().__init__()
-        self.layers = torch.nn.ModuleList(
-            [
+
+        layers = []
+        layers.append(
+            HNHNLayer(
+                in_channels=in_channels,
+                hidden_channels=hidden_channels,
+                incidence_1=incidence_1,
+            )
+        )
+        for _ in range(n_layers - 1):
+            layers.append(
                 HNHNLayer(
-                    channels_node=channels_node,
-                    channels_edge=channels_edge,
+                    in_channels=hidden_channels,
+                    hidden_channels=hidden_channels,
                     incidence_1=incidence_1,
                 )
-                for _ in range(n_layers)
-            ]
-        )
-        self.linear = torch.nn.Linear(channels_node, n_classes)
+            )
+        self.layers = torch.nn.ModuleList(layers)
 
-    def forward(self, x_0, x_1):
+    def forward(self, x_0):
         """Forward computation.
 
         Parameters
@@ -53,76 +56,17 @@ class HNHN(torch.nn.Module):
         x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Hypernode features.
 
-        x_1 : torch.Tensor, shape = (n_nodes, channels_edge)
-            Hyperedge features.
+        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
+            Boundary matrix of rank 1.
 
         Returns
         -------
-        logits : torch.Tensor, shape = (n_nodes, n_classes)
-            The predicted node logits
-        classes : torch.Tensor, shape = (n_nodes)
-            The predicted node class
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         for layer in self.layers:
-            x_0, x_1 = layer(x_0, x_1)
-        logits = self.linear(x_0)
-        classes = torch.softmax(logits, -1).argmax(-1)
-        return logits, classes
+            x_0, x_1 = layer(x_0)
 
-
-class HNHNNetwork(torch.nn.Module):
-    """Hypergraph Networks with Hyperedge Neurons. Implementation for multiclass node classification.
-
-    Parameters
-    ----------
-    channels_node : int
-        Dimension of node features.
-    channels_edge : int
-        Dimension of edge features.
-    incidence_1 : torch.sparse
-        Incidence matrix mapping edges to nodes (B_1).
-        shape=[n_nodes, n_edges]
-    n_classes : int
-        Number of classes.
-    n_layers : int
-        Number of HNHN message passing layers.
-    """
-
-    def __init__(
-        self, channels_node, channels_edge, incidence_1, n_classes, n_layers=2
-    ):
-        super().__init__()
-        self.layers = torch.nn.ModuleList(
-            [
-                HNHNLayer(
-                    channels_node=channels_node,
-                    channels_edge=channels_edge,
-                    incidence_1=incidence_1,
-                )
-                for _ in range(n_layers)
-            ]
-        )
-        self.linear = torch.nn.Linear(channels_node, n_classes)
-
-    def forward(self, x_0, x_1):
-        """Forward computation.
-
-        Parameters
-        ----------
-        x_0 : torch.Tensor, shape = [n_nodes, channels_node]
-            Hypernode features.
-        x_1 : torch.Tensor, shape = [n_nodes, channels_edge]
-            Hyperedge features.
-
-        Returns
-        -------
-        logits : torch.Tensor, shape = [n_nodes, n_classes]
-            The predicted node logits
-        classes : torch.Tensor, shape = [n_nodes]
-            The predicted node class.
-        """
-        for layer in self.layers:
-            x_0, x_1 = layer(x_0, x_1)
-        logits = self.linear(x_0)
-        classes = torch.softmax(logits, -1).argmax(-1)
-        return logits, classes
+        return x_0, x_1

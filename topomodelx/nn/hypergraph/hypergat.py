@@ -12,9 +12,9 @@ class HyperGAT(torch.nn.Module):
     ----------
     in_channels : int
         Dimension of the input features.
-    out_channels : int
-        Dimension of the output features.
-    n_layer : int, default = 2
+    hidden_channels : int
+        Dimension of the hidden features.
+    n_layers : int, default = 2
         Amount of message passing layers.
 
     References
@@ -24,18 +24,26 @@ class HyperGAT(torch.nn.Module):
         https://aclanthology.org/2020.emnlp-main.399.pdf
     """
 
-    def __init__(self, in_channels, out_channels, n_layers=2):
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels,
+        n_layers=2,
+    ):
         super().__init__()
         layers = []
-        layers.append(HyperGATLayer(in_channels=in_channels, out_channels=out_channels))
+        layers.append(
+            HyperGATLayer(in_channels=in_channels, hidden_channels=hidden_channels)
+        )
         for _ in range(1, n_layers):
             layers.append(
-                HyperGATLayer(in_channels=out_channels, out_channels=out_channels)
+                HyperGATLayer(
+                    in_channels=hidden_channels, hidden_channels=hidden_channels
+                )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(out_channels, 1)
 
-    def forward(self, x_1, incidence_1):
+    def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
 
         Parameters
@@ -47,10 +55,12 @@ class HyperGAT(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         for layer in self.layers:
-            x_1 = layer.forward(x_1, incidence_1)
-        pooled_x = torch.max(x_1, dim=0)[0]
-        return torch.sigmoid(self.linear(pooled_x))[0]
+            x_0, x_1 = layer.forward(x_0, incidence_1)
+
+        return x_0, x_1

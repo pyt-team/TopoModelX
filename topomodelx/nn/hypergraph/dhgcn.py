@@ -12,10 +12,10 @@ class DHGCN(torch.nn.Module):
 
     Parameters
     ----------
-    channels_edge : int
-        Dimension of edge features
-    channels_node : int
-        Dimension of node features
+    in_channels : int
+        Dimension of the input features.
+    hidden_channels : int
+        Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
 
@@ -26,19 +26,30 @@ class DHGCN(torch.nn.Module):
         https://ieeexplore.ieee.org/abstract/document/9835240
     """
 
-    def __init__(self, channels_node, n_layers=2):
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels,
+        n_layers=1,
+    ):
         super().__init__()
         layers = []
-        for _ in range(n_layers):
+        layers.append(
+            DHGCNLayer(
+                in_channels=in_channels,
+                intermediate_channels=hidden_channels,
+                out_channels=hidden_channels,
+            )
+        )
+        for _ in range(n_layers - 1):
             layers.append(
                 DHGCNLayer(
-                    in_channels=channels_node,
-                    intermediate_channels=channels_node,
-                    out_channels=channels_node,
+                    in_channels=hidden_channels,
+                    intermediate_channels=hidden_channels,
+                    out_channels=hidden_channels,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
-        self.linear = torch.nn.Linear(channels_node, 1)
 
     def forward(self, x_0):
         """Forward computation through layers, then global average pooling, then linear layer.
@@ -50,11 +61,12 @@ class DHGCN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor
+            Output node features.
+        x_1 : torch.Tensor
+            Output hyperedge features.
         """
         for layer in self.layers:
-            x_0 = layer(x_0)
-        pooled_x = torch.mean(x_0, dim=0)
-        output = self.linear(pooled_x)
-        return output[0]
+            x_0, x_1 = layer(x_0)
+
+        return x_0, x_1

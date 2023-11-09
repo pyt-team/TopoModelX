@@ -3,7 +3,7 @@
 import numpy as np
 import torch
 
-from topomodelx.nn.hypergraph.hnhn import HNHN, HNHNNetwork
+from topomodelx.nn.hypergraph.hnhn import HNHN
 
 
 class TestHNHN:
@@ -14,55 +14,18 @@ class TestHNHN:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
-        adjacency_1 = adjacency_1.float().to(device)
+        adjacency_1 = adjacency_1.float()
+        hidden_channels = 5
 
         model = HNHN(
-            channels_node=2,
-            channels_edge=2,
+            in_channels=2,
+            hidden_channels=hidden_channels,
             incidence_1=adjacency_1,
-            n_classes=1,
             n_layers=2,
         ).to(device)
 
-        x_0 = torch.rand(2, 2)
-        x_1 = torch.rand(2, 2)
+        x_0 = torch.rand(2, 2).float().to(device)
 
-        x_0, x_1 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
-        )
-
-        y1, y2 = model(x_0, x_1)
-        assert y1.shape == torch.Size([2, 1])
-        assert y2.shape == torch.Size([2])
-
-
-class TestHNHNNetwork:
-    """Test the HNHNNetwork."""
-
-    def test_forward(self):
-        """Test forward method."""
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
-        adjacency_1 = adjacency_1.float().to(device)
-
-        model = HNHNNetwork(
-            channels_node=2,
-            channels_edge=2,
-            incidence_1=adjacency_1,
-            n_classes=1,
-            n_layers=2,
-        ).to(device)
-
-        x_0 = torch.rand(2, 2)
-        x_1 = torch.rand(2, 2)
-
-        x_0, x_1 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
-        )
-
-        y1, y2 = model(x_0, x_1)
-        assert y1.shape == torch.Size([2, 1])
-        assert y2.shape == torch.Size([2])
+        x_0, x_1 = model(x_0)
+        assert x_0.shape == torch.Size([2, hidden_channels])
+        assert x_1.shape == torch.Size([2, hidden_channels])
