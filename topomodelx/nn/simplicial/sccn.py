@@ -15,15 +15,11 @@ class SCCN(torch.nn.Module):
         Maximum rank of the cells in the simplicial complex.
     n_layers : int
         Number of message passing layers.
-    n_classes : int
-        Number of classes.
     update_func : str
         Activation function used in aggregation layers.
     """
 
-    def __init__(
-        self, channels, max_rank, n_layers=2, n_classes=2, update_func="sigmoid"
-    ):
+    def __init__(self, channels, max_rank, n_layers=2, update_func="sigmoid"):
         super().__init__()
         layers = []
         for _ in range(n_layers):
@@ -34,13 +30,6 @@ class SCCN(torch.nn.Module):
                     update_func=update_func,
                 )
             )
-
-        assert n_classes >= 2, "n_classes must be >= 2"
-
-        if n_classes == 2:
-            n_classes = 1
-
-        self.linear = torch.nn.Linear(channels, n_classes)
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, features, incidences, adjacencies):
@@ -57,15 +46,18 @@ class SCCN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor
-            If n_classes > 2:
-                shape = (n_nodes, n_classes)
-                Logits assigned to each node.
-            If n_classes == 2:
-                shape = (n_nodes,)
-                Binary logits assigned to each node.
+        Dict of torch.Tensor
+            rank_0 : torch.Tensor
+                Final hidden representations of nodes.
+            rank_1 : torch.Tensor
+                Final hidden representations of edges.
+            rank_2 : torch.Tensor
+                Final hidden representations of triangles.
+            rank_3 : torch.Tensor
+                Final hidden representations of tetrahedra.
+            ...
+            (up to max_rank)
         """
         for layer in self.layers:
             features = layer(features, incidences, adjacencies)
-        logits = self.linear(features["rank_0"]).squeeze()
-        return logits
+        return features

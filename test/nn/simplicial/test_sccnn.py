@@ -55,16 +55,13 @@ class TestSCCNN:
         laplacian_2 = from_sparse(laplacian_2)
         conv_order = 2
         intermediate_channels_all = (16, 16, 16)
-        out_channels_all = intermediate_channels_all
         num_layers = 2
         max_rank = 2
         model = SCCNN(
             in_channels_all=in_channels_all,
-            intermediate_channels_all=intermediate_channels_all,
-            out_channels_all=out_channels_all,
+            hidden_channels_all=intermediate_channels_all,
             conv_order=conv_order,
             sc_order=max_rank,
-            num_classes=1,
             n_layers=num_layers,
         )
         x_all = (x_0.float(), x_1.float(), x_2.float())
@@ -73,12 +70,35 @@ class TestSCCNN:
         with torch.no_grad():
             forward_pass = model(x_all, laplacian_all, incidence_all)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([-801.8149]), rtol=1e-02)
+            torch.isclose(
+                forward_pass[0][0],
+                torch.tensor(
+                    [
+                        -849.9192,
+                        -1154.0405,
+                        1032.2395,
+                        -1020.0388,
+                        -1100.6816,
+                        1640.7571,
+                        -2232.0454,
+                        737.5161,
+                        2104.5352,
+                        -293.3221,
+                        1316.4978,
+                        3998.2910,
+                        -160.5043,
+                        2006.0248,
+                        -876.4661,
+                        -1675.6056,
+                    ]
+                ),
+                rtol=1e-02,
+            )
         )
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of SCCNN."""
-        model = SCCNN((3, 3, 3), (3, 3, 3), (3, 3, 3), 2, 2, 1, 2)
+        model = SCCNN((3, 3, 3), (3, 3, 3), 2, 2, 2)
         for layer in model.children():
             if hasattr(layer, "reset_parameters"):
                 layer.reset_parameters()
