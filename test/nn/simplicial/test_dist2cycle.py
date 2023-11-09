@@ -29,7 +29,18 @@ class TestDist2Cycle:
         assert torch.any(
             torch.isclose(
                 model(x_1e, laplacian_inv, adjacency_1)[0],
-                torch.tensor([0.4174, 0.5826]),
+                torch.tensor(
+                    [
+                        -0.2935,
+                        -0.3515,
+                        0.1012,
+                        -0.0772,
+                        0.1376,
+                        -0.2901,
+                        0.2625,
+                        -0.2595,
+                    ]
+                ),
                 rtol=1e-2,
             )
         )

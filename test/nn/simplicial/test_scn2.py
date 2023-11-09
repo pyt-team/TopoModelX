@@ -45,12 +45,14 @@ class TestSCN2:
         in_channels_0 = x_0.shape[1]
         in_channels_1 = x_1.shape[1]
         in_channels_2 = x_2.shape[1]
-        model = SCN2(in_channels_0, in_channels_1, in_channels_2, num_classes=1)
+        model = SCN2(in_channels_0, in_channels_1, in_channels_2)
         forward_pass = model(x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2)
         with torch.no_grad():
             forward_pass = model(x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([-0.2138]), rtol=1e-02)
+            torch.isclose(
+                forward_pass[0][0], torch.tensor([0.1980, 0.0922]), rtol=1e-02
+            )
         )
 
     def test_reset_parameters(self):

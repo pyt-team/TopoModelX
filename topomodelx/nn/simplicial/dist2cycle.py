@@ -24,7 +24,6 @@ class Dist2Cycle(torch.nn.Module):
                     channels=channels,
                 )
             )
-        self.linear = torch.nn.Linear(channels, 2)  # changed
         self.layers = layers
 
     def forward(self, x_1e, Linv, adjacency):
@@ -39,8 +38,9 @@ class Dist2Cycle(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, 2)
-            One-hot labels assigned to nodes.
+        torch.Tensor, shape = (n_nodes, channels)
+            Final node hidden representations.
         """
-        logits = self.linear(x_1e)
-        return torch.softmax(logits, dim=-1)
+        for layer in self.layers:
+            x_1e = layer(x_1e, Linv, adjacency)
+        return x_1e

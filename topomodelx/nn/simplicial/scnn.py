@@ -14,8 +14,8 @@ class SCNN(torch.nn.Module):
     ----------
     in_channels : int
         Dimension of input features.
-    intermediate_channels : int
-        Dimension of features of intermediate layers.
+    hidden_channels : int
+        Dimension of features of hidden layers.
     out_channels : int
         Dimension of output features.
     conv_order_down : int
@@ -32,11 +32,9 @@ class SCNN(torch.nn.Module):
     def __init__(
         self,
         in_channels,
-        intermediate_channels,
-        out_channels,
+        hidden_channels,
         conv_order_down,
         conv_order_up,
-        aggr=False,
         aggr_norm=False,
         update_func=None,
         n_layers=2,
@@ -46,7 +44,7 @@ class SCNN(torch.nn.Module):
         layers = [
             SCNNLayer(
                 in_channels=in_channels,
-                out_channels=intermediate_channels,
+                out_channels=hidden_channels,
                 conv_order_down=conv_order_down,
                 conv_order_up=conv_order_up,
             )
@@ -55,16 +53,14 @@ class SCNN(torch.nn.Module):
         for _ in range(n_layers - 1):
             layers.append(
                 SCNNLayer(
-                    in_channels=intermediate_channels,
-                    out_channels=out_channels,
+                    in_channels=hidden_channels,
+                    out_channels=hidden_channels,
                     conv_order_down=conv_order_down,
                     conv_order_up=conv_order_up,
                     aggr_norm=aggr_norm,
                     update_func=update_func,
                 )
             )
-        self.aggr = aggr
-        self.linear = torch.nn.Linear(out_channels, 1)
         self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, x, laplacian_down, laplacian_up):
@@ -82,16 +78,10 @@ class SCNN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_simplices, 1)
-            Mean on one-dimensional cells.
+        torch.Tensor, shape = (n_simplices, hidden_channels)
+            Final hidden representation of one-dimensional cells.
         """
         for layer in self.layers:
             x = layer(x, laplacian_down, laplacian_up)
 
-        x_1 = self.linear(x)
-        if not self.aggr:
-            return x_1
-        one_dimensional_cells_mean = torch.nanmean(x_1, dim=0)
-        one_dimensional_cells_mean[torch.isnan(one_dimensional_cells_mean)] = 0
-
-        return one_dimensional_cells_mean
+        return x
