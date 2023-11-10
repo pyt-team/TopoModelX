@@ -1,0 +1,167 @@
+name: "Testing Tutorials"
+
+on: 
+  workflow_dispatch:
+  push:
+    branches: [main,github-actions-test]
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    - 'LICENSE.txt'
+    - '.gitignore'
+
+  pull_request:
+    branches: [main]
+    paths-ignore:
+    - 'docs/**'
+    - 'README.md'
+    - 'LICENSE.txt'
+    - '.gitignore'
+
+# Disable debugger's warnings from nbconvert in test_tutorials.py
+env:
+  PYDEVD_DISABLE_FILE_VALIDATION: 1
+
+jobs:
+
+  simplicial-pytest:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11"]
+        torch-version: [2.0.1]
+        include:
+          - torch-version: 2.0.1
+        test-group: [1, 2, 3, 4]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+
+      - name: Install PyTorch ${{ matrix.torch-version }}+cpu
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      - name: Install main package
+        run: |
+          pip install -e .[all]
+      - name: Run tests for tutorials on simplicial domain [pytest] [Group-${{ matrix.test-group}}]
+        run: |
+          pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_simplicial.py
+
+  hypergraph-pytest:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11"]
+        torch-version: [2.0.1]
+        include:
+          - torch-version: 2.0.1
+        test-group: [1, 2, 3]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+
+      - name: Install PyTorch ${{ matrix.torch-version }}+cpu
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      - name: Install main package
+        run: |
+          pip install -e .[all]
+      - name: Run tests for tutorials on hypergraph domain [pytest] [Group-${{ matrix.test-group}}]
+        run: |
+          pytest --splits 5 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
+
+  cell-pytest:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11"]
+        torch-version: [2.0.1]
+        include:
+          - torch-version: 2.0.1
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+
+      - name: Install PyTorch ${{ matrix.torch-version }}+cpu
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      - name: Install main package
+        run: |
+          pip install -e .[all]
+      - name: Run tests for tutorials on cell domains [pytest] 
+        run: |
+          pytest test/tutorials/test_cell.py
+
+  combinatorial-pytest:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10", "3.11"]
+        torch-version: [2.0.1]
+        include:
+          - torch-version: 2.0.1
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+
+      - name: Install PyTorch ${{ matrix.torch-version }}+cpu
+        run: |
+          pip install --upgrade pip setuptools wheel
+          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+      - name: Install main package
+        run: |
+          pip install -e .[all]
+      - name: Run tests for tutorials on combinatorial domains [pytest] 
+        run: |
+          pytest test/tutorials/test_combinatorial.py

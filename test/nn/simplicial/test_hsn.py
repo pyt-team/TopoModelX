@@ -29,7 +29,9 @@ class TestHSN:
         assert torch.any(
             torch.isclose(
                 model(x_1e, laplacian_inv, adjacency_1)[0],
-                torch.tensor([0.4077, 0.5923]),
+                torch.tensor(
+                    [0.6942, 0.5649, 0.3680, 0.3968, 0.4345, 0.4687, 0.5999, 0.4920]
+                ),
                 rtol=1e-2,
             )
         )

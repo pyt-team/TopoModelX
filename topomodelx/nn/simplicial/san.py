@@ -29,7 +29,7 @@ class SAN(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        out_channels,
+        out_channels=None,
         n_filters=2,
         order_harmonic=5,
         epsilon_harmonic=1e-1,
@@ -38,10 +38,13 @@ class SAN(torch.nn.Module):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
-        self.out_channels = out_channels
+        self.out_channels = (
+            out_channels if out_channels is not None else hidden_channels
+        )
         self.n_filters = n_filters
         self.order_harmonic = order_harmonic
         self.epsilon_harmonic = epsilon_harmonic
+
         if n_layers == 1:
             self.layers = [
                 SANLayer(
@@ -73,7 +76,6 @@ class SAN(torch.nn.Module):
                     n_filters=self.n_filters,
                 )
             )
-        self.linear = torch.nn.Linear(out_channels, 2)
 
     def compute_projection_matrix(self, laplacian):
         """Compute the projection matrix.
@@ -110,8 +112,8 @@ class SAN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (n_nodes, 2)
-            One-hot labels assigned to edges.
+        torch.Tensor, shape = (n_edges, out_channels)
+            Final hidden representations of edges.
         """
         # Compute the projection matrix for the harmonic component
         laplacian = laplacian_up + laplacian_down
@@ -120,4 +122,4 @@ class SAN(torch.nn.Module):
         # Forward computation
         for layer in self.layers:
             x = layer(x, laplacian_up, laplacian_down, projection_mat)
-        return torch.sigmoid(self.linear(x))
+        return x
