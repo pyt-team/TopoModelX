@@ -14,8 +14,11 @@ class UniGINLayer(torch.nn.Module):
         Dimension of input features.
     eps : float, default=0.0
         Constant in GIN Update equation.
-    train_eps : boolm, default=False
+    train_eps : bool, default=False
         Whether to make eps a trainable parameter.
+    use_bn : bool, default=False
+        Whether to apply batch normalization after the layer.
+
 
     References
     ----------
@@ -36,6 +39,7 @@ class UniGINLayer(torch.nn.Module):
         in_channels,
         eps: float = 0.0,
         train_eps: bool = False,
+        use_bn: bool = False,
     ) -> None:
         super().__init__()
 
@@ -47,6 +51,8 @@ class UniGINLayer(torch.nn.Module):
 
         self.linear = torch.nn.Linear(in_channels, in_channels)
         
+        self.bn = torch.nn.BatchNorm1d(in_channels) if use_bn else None
+
         self.vertex2edge = Conv(
             in_channels = in_channels,
             out_channels = in_channels,
@@ -110,4 +116,8 @@ class UniGINLayer(torch.nn.Module):
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         # Update node features using GIN update equation
         x_0 = self.linear((1 + self.eps) * x_0 + m_1_0)
+        
+        if self.bn is not None:
+            x_0 = self.bn(x_0)
+            
         return x_0, x_1

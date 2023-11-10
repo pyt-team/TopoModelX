@@ -20,6 +20,12 @@ class UniGIN(torch.nn.Module):
         Dropout rate for the input features.
     layer_drop : float, default=0.2
         Dropout rate for the hidden features.
+    eps : float, default=0
+        Constant in GIN Update equation.
+    train_eps : bool, default=False
+        Whether to make eps a trainable parameter.
+    use_bn : bool, default=False
+        Whether to apply batch normalization after every GIN layer.
 
 
     References
@@ -37,6 +43,9 @@ class UniGIN(torch.nn.Module):
         n_layers=2,
         input_drop=0.2,
         layer_drop=0.2,
+        eps=0,
+        train_eps=False,
+        use_bn=False,
     ):
         super().__init__()
         layers = []
@@ -50,6 +59,9 @@ class UniGIN(torch.nn.Module):
             layers.append(
                 UniGINLayer(
                     in_channels=hidden_channels,
+                    eps=eps,
+                    train_eps=train_eps,
+                    use_bn=use_bn,
                 )
             )
 
