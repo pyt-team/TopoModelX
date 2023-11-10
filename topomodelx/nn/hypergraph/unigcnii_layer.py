@@ -1,7 +1,6 @@
 """UniGCNII layer implementation."""
 import torch
 
-from topomodelx.base.conv import Conv
 
 class UniGCNIILayer(torch.nn.Module):
     r"""
@@ -32,11 +31,6 @@ class UniGCNIILayer(torch.nn.Module):
         self.alpha = alpha
         self.beta = beta
         self.linear = torch.nn.Linear(in_channels, hidden_channels, bias=False)
-        self.conv = Conv(
-            in_channels=in_channels,
-            out_channels=in_channels,
-            with_linear_transform=False,
-        )
 
     def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
@@ -96,8 +90,8 @@ class UniGCNIILayer(torch.nn.Module):
         incidence_1_transpose = incidence_1.transpose(0, 1)
 
         # First message without any learning or parameters
-        x_1 = self.conv(x_0, incidence_1_transpose)
-        
+        x_1 = torch.sparse.mm(incidence_1_transpose, x_0)
+
         # Compute node and edge degrees for normalization.
         node_degree = torch.sum(incidence_1.to_dense(), dim=1)
 
@@ -114,8 +108,8 @@ class UniGCNIILayer(torch.nn.Module):
         edge_degree = edge_degree / torch.sum(incidence_1.to_dense(), dim=0)
 
         # Second message normalized with node and edge degrees (using broadcasting)
-        x_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * self.conv(
-            x_1, incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree))
+        x_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * torch.sparse.mm(
+            incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree)), x_1
         )
 
         # Introduce skip connections with hyperparameter alpha and beta
