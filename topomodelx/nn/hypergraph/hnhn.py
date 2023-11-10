@@ -48,7 +48,7 @@ class HNHN(torch.nn.Module):
             )
         self.layers = torch.nn.ModuleList(layers)
 
-    def forward(self, x_0):
+    def forward(self, x_0, incidence_1=None):
         """Forward computation.
 
         Parameters
@@ -67,6 +67,6 @@ class HNHN(torch.nn.Module):
             Output hyperedge features.
         """
         for layer in self.layers:
-            x_0, x_1 = layer(x_0)
+            x_0, x_1 = layer(x_0, incidence_1)
 
         return x_0, x_1
