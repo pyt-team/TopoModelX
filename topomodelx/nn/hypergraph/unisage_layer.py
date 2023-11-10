@@ -21,7 +21,7 @@ class UniSAGELayer(torch.nn.Module):
     v_aggr : Literal["sum", "mean",], default="mean"
         Aggregator function for nodes.
     use_bn : boolean
-        Whether to use bathnorm after the linear transformation.
+        Whether to use batch norm after the linear transformation.
 
     References
     ----------
@@ -139,11 +139,12 @@ class UniSAGELayer(torch.nn.Module):
             Output hyperedge features.
         """
         x_0 = self.linear(x_0)
-        if self.bn is not None:
-            x_0 = self.bn(x_0)
 
         x_1 = self.vertex2edge(x_0, incidence_1.transpose(1, 0))
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = x_0 + m_1_0
+        
+        if self.bn is not None:
+            x_0 = self.bn(x_0)
 
         return x_0, x_1
