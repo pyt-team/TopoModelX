@@ -33,9 +33,9 @@ class UniGCNIILayer(torch.nn.Module):
         self.beta = beta
         self.linear = torch.nn.Linear(in_channels, hidden_channels, bias=False)
         self.conv = Conv(
-            in_channels=in_channels,
-            out_channels=in_channels,
-            with_linear_transform=False,
+            in_channels = in_channels,
+            out_channels = in_channels,
+            with_linear_transform = False,
         )
 
     def reset_parameters(self) -> None:
