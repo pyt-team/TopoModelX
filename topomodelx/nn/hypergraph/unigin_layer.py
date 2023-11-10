@@ -56,7 +56,7 @@ class UniGINLayer(torch.nn.Module):
         self.vertex2edge = Conv(
             in_channels = in_channels,
             out_channels = in_channels,
-            with_linear_transform = True,
+            with_linear_transform = False,
         )
         self.edge2vertex = Conv(
             in_channels = in_channels,
