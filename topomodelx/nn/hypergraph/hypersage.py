@@ -16,7 +16,8 @@ class HyperSAGE(torch.nn.Module):
         Dimension of the hidden features.
     n_layer : int, default = 2
         Amount of message passing layers.
-
+    alpha : int, default = -1
+        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.
     References
     ----------
     .. [1] Arya, Gupta, Rudinac and Worring.
@@ -24,18 +25,18 @@ class HyperSAGE(torch.nn.Module):
         https://arxiv.org/abs/2010.04558
     """
 
-    def __init__(self, in_channels, hidden_channels, n_layers=2, **kwargs):
+    def __init__(self, in_channels, hidden_channels, n_layers=2, alpha=-1, **kwargs):
         super().__init__()
         layers = []
         layers.append(
             HyperSAGELayer(
-                in_channels=in_channels, out_channels=hidden_channels, **kwargs
+                in_channels=in_channels, out_channels=hidden_channels, alpha=alpha, **kwargs
             )
         )
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=hidden_channels, out_channels=hidden_channels, **kwargs
+                    in_channels=hidden_channels, out_channels=hidden_channels, alpha=alpha, **kwargs
                 )
             )
         self.layers = torch.nn.ModuleList(layers)
