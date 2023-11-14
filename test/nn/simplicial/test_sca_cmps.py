@@ -56,7 +56,9 @@ class TestSCA:
         incidence_t_list = [incidence_1t, incidence_2t]
         forward_pass = model(x_list, down_lap_list, incidence_t_list)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([1.9269, 1.4873]), rtol=1e-02)
+            torch.isclose(
+                forward_pass[0][0], torch.tensor([1.9269, 1.4873]), rtol=1e-02
+            )
         )
 
     def test_reset_parameters(self):
