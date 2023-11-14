@@ -46,9 +46,8 @@ class TestSCA:
         channels_list = [x_0.shape[-1], x_1.shape[-1], x_2.shape[-1]]
         complex_dim = 3
         model = SCACMPS(
-            channels_list=channels_list,
+            in_channels_all=channels_list,
             complex_dim=complex_dim,
-            n_classes=1,
             n_layers=3,
             att=False,
         )
@@ -57,7 +56,7 @@ class TestSCA:
         incidence_t_list = [incidence_1t, incidence_2t]
         forward_pass = model(x_list, down_lap_list, incidence_t_list)
         assert torch.any(
-            torch.isclose(forward_pass, torch.tensor([-4.8042]), rtol=1e-02)
+            torch.isclose(forward_pass, torch.tensor([1.9269, 1.4873]), rtol=1e-02)
         )
 
     def test_reset_parameters(self):
@@ -65,7 +64,6 @@ class TestSCA:
         model = SCACMPS(
             [2, 2, 2],
             2,
-            n_classes=1,
             n_layers=3,
             att=False,
         )
