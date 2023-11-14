@@ -161,16 +161,16 @@ class SCConvLayer(torch.nn.Module):
         """
         x0_level_0_0 = self.conv_0_to_0(x_0, adjacency_up_0_norm)
 
-        x0_level_1_0 = self.conv_1_to_0(x_1, incidence_1)
+        x0_level_1_0 = self.conv_1_to_0(x_1, incidence_1.T)
 
-        x0_level_0_1 = self.conv_0_to_1(x_0, incidence_1_norm)
+        x0_level_0_1 = self.conv_0_to_1(x_0, incidence_1_norm.T)
 
         adj_norm = adjacency_down_1_norm.add(adjacency_up_1_norm)
         x1_level_1_1 = self.conv_1_to_1(x_1, adj_norm)
 
-        x2_level_2_1 = self.conv_2_to_1(x_2, incidence_2)
+        x2_level_2_1 = self.conv_2_to_1(x_2, incidence_2.T)
 
-        x1_level_1_2 = self.conv_1_to_2(x_1, incidence_2_norm)
+        x1_level_1_2 = self.conv_1_to_2(x_1, incidence_2_norm.T)
 
         x_2_level_2_2 = self.conv_2_to_2(x_2, adjacency_down_2_norm)
 
