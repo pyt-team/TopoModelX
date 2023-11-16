@@ -17,6 +17,8 @@ class UniGCNIILayer(torch.nn.Module):
         The alpha parameter determining the importance of the self-loop (\theta_2).
     beta : float
         The beta parameter determining the importance of the learned matrix (\theta_1).
+    use_norm : bool, default=False
+        Whether to apply row normalization after the layer.
 
     References
     ----------
@@ -26,7 +28,7 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float) -> None:
+    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float, use_norm: bool) -> None:
         super().__init__()
 
         self.alpha = alpha
@@ -37,6 +39,7 @@ class UniGCNIILayer(torch.nn.Module):
             out_channels = in_channels,
             with_linear_transform = False,
         )
+        self.use_norm = use_norm
 
     def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
@@ -121,4 +124,11 @@ class UniGCNIILayer(torch.nn.Module):
         # Introduce skip connections with hyperparameter alpha and beta
         x_combined = ((1 - self.alpha) * x_0) + (self.alpha * x_skip)
         x_0 = ((1 - self.beta) * x_combined) + self.beta * self.linear(x_combined)
+        
+        if self.use_norm:
+            rownorm = x_0.detach().norm(dim=1, keepdim=True)
+            scale = rownorm.pow(-1)
+            scale[torch.isinf(scale)] = 0.
+            x_0 = x_0 * scale
+        
         return x_0, x_1

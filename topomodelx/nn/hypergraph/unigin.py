@@ -24,8 +24,8 @@ class UniGIN(torch.nn.Module):
         Constant in GIN Update equation.
     train_eps : bool, default=False
         Whether to make eps a trainable parameter.
-    use_bn : bool, default=False
-        Whether to apply batch normalization after every GIN layer.
+    use_norm : bool, default=False
+        Whether to apply row normalization after every layer.
 
 
     References
@@ -45,7 +45,7 @@ class UniGIN(torch.nn.Module):
         layer_drop=0.2,
         eps=0,
         train_eps=False,
-        use_bn=False,
+        use_norm=False,
     ):
         super().__init__()
         layers = []
@@ -61,7 +61,7 @@ class UniGIN(torch.nn.Module):
                     in_channels=hidden_channels,
                     eps=eps,
                     train_eps=train_eps,
-                    use_bn=use_bn,
+                    use_norm=use_norm,
                 )
             )
 

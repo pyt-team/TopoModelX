@@ -26,8 +26,8 @@ class UniSAGE(torch.nn.Module):
         Aggregator function for hyperedges.
     v_aggr : Literal["sum", "mean",], default="mean"
         Aggregator function for nodes.
-    use_bn : boolean
-        Whether to use batch norm after the linear transformation.
+    use_norm : boolean
+        Whether to apply row normalization after every layer.
 
 
     References
@@ -53,7 +53,7 @@ class UniSAGE(torch.nn.Module):
             "sum",
             "mean",
         ] = "mean",
-        use_bn: bool = False,
+        use_norm: bool = False,
     ):
         super().__init__()
 
@@ -67,7 +67,7 @@ class UniSAGE(torch.nn.Module):
                 hidden_channels=hidden_channels,
                 e_aggr=e_aggr,
                 v_aggr=v_aggr,
-                use_bn=use_bn,
+                use_norm=use_norm,
             )
         )
         for _ in range(n_layers - 1):
