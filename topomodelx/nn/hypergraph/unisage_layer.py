@@ -90,8 +90,6 @@ class UniSAGELayer(torch.nn.Module):
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.linear.reset_parameters()
-        if self.bn is not None:
-            self.bn.reset_parameters()
 
     def forward(self, x_0, incidence_1):
         r"""[1]_ initially proposed the forward pass.
