@@ -20,13 +20,13 @@ class TestSCConvLayer:
         x_0 = torch.randn(n_nodes, node_channels)
         x_1 = torch.randn(n_edges, edge_channels)
         x_2 = torch.randn(n_faces, face_channels)
-        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
+        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float().T
         # incidence_1_norm = torch.randint(0, 2, (n_nodes, n_edges)).float()
-        incidence_1_norm = torch.randint(0, 2, (n_edges, n_nodes)).float()
+        incidence_1_norm = torch.randint(0, 2, (n_edges, n_nodes)).float().T
 
-        incidence_2 = torch.randint(0, 2, (n_edges, n_faces)).float()
+        incidence_2 = torch.randint(0, 2, (n_edges, n_faces)).float().T
         # incidence_2_norm = torch.randint(0, 2, (n_edges, n_faces)).float()
-        incidence_2_norm = torch.randint(0, 2, (n_faces, n_edges)).float()
+        incidence_2_norm = torch.randint(0, 2, (n_faces, n_edges)).float().T
 
         adjacency_up_0_norm = torch.randint(0, 2, (n_nodes, n_nodes)).float()
         adjacency_up_1_norm = torch.randint(0, 2, (n_edges, n_edges)).float()

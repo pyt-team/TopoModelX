@@ -1,7 +1,6 @@
 """Simplicial 2-Complex Convolutional Network Implementation for binary node classification."""
 import torch
 
-from topomodelx.base.aggregation import Aggregation
 from topomodelx.nn.simplicial.scconv_layer import SCConvLayer
 
 
@@ -26,32 +25,25 @@ class SCConv(torch.nn.Module):
     """
 
     def __init__(
-        self, node_channels, edge_channels, face_channels, n_classes, n_layers=2
+        self, node_channels, edge_channels=None, face_channels=None, n_layers=2
     ):
         super().__init__()
         self.node_channels = node_channels
-        self.edge_channels = edge_channels
-        self.face_channels = face_channels
-        self.n_classes = n_classes
+        self.edge_channels = node_channels if edge_channels is None else edge_channels
+        self.face_channels = node_channels if face_channels is None else face_channels
+        self.n_layers = n_layers
 
         layers = []
         for _ in range(n_layers):
             layers.append(
                 SCConvLayer(
-                    node_channels=node_channels,
-                    edge_channels=edge_channels,
-                    face_channels=face_channels,
+                    node_channels=self.node_channels,
+                    edge_channels=self.edge_channels,
+                    face_channels=self.face_channels,
                 )
             )
 
         self.layers = torch.nn.ModuleList(layers)
-        self.linear_x0 = torch.nn.Linear(node_channels, self.n_classes)
-        self.linear_x1 = torch.nn.Linear(edge_channels, self.n_classes)
-        self.linear_x2 = torch.nn.Linear(face_channels, self.n_classes)
-        self.aggr = Aggregation(
-            aggr_func="mean",
-            update_func="sigmoid",
-        )
 
     def forward(
         self,
@@ -115,21 +107,4 @@ class SCConv(torch.nn.Module):
                 adjacency_down_2_norm,
             )
 
-        x_0 = self.linear_x0(x_0)
-        x_1 = self.linear_x1(x_1)
-        x_2 = self.linear_x2(x_2)
-
-        node_mean = torch.nanmean(x_0, dim=0)
-        node_mean[torch.isnan(node_mean)] = 0
-
-        edge_mean = torch.nanmean(x_1, dim=0)
-        edge_mean[torch.isnan(edge_mean)] = 0
-
-        face_mean = torch.nanmean(x_2, dim=0)
-        face_mean[torch.isnan(face_mean)] = 0
-
-        return (
-            torch.flatten(node_mean)
-            + torch.flatten(edge_mean)
-            + torch.flatten(face_mean)
-        )
+        return x_0, x_1, x_2
