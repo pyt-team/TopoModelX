@@ -28,7 +28,7 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float, use_norm: bool) -> None:
+    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float, use_norm=False) -> None:
         super().__init__()
 
         self.alpha = alpha
