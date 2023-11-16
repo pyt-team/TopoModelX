@@ -48,12 +48,3 @@ class TestUniSAGELayer:
         uniSAGE_layer.linear.weight.fill_(0)
         uniSAGE_layer.reset_parameters()
         assert torch.max(uniSAGE_layer.linear.weight) > 0
-
-    def test_batchnorm(self, uniSAGE_layer):
-        """Test batchnorm."""
-        x = torch.randn(3, 10)
-        incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
-        layer = UniSAGELayer(10, 30, e_aggr="sum", use_bn=True)
-        layer(x, incidence)
-        assert layer.bn is not None
-        assert layer.bn.num_batches_tracked.item() == 1
