@@ -3,6 +3,7 @@ import torch
 
 from topomodelx.base.conv import Conv
 
+
 class UniGINLayer(torch.nn.Module):
     """Layer of UniGIN.
 
@@ -50,18 +51,18 @@ class UniGINLayer(torch.nn.Module):
             self.register_buffer("eps", torch.Tensor([eps]))
 
         self.linear = torch.nn.Linear(in_channels, in_channels)
-        
+
         self.use_norm = use_norm
 
         self.vertex2edge = Conv(
-            in_channels = in_channels,
-            out_channels = in_channels,
-            with_linear_transform = False,
+            in_channels=in_channels,
+            out_channels=in_channels,
+            with_linear_transform=False,
         )
         self.edge2vertex = Conv(
-            in_channels = in_channels,
-            out_channels = in_channels,
-            with_linear_transform = False,
+            in_channels=in_channels,
+            out_channels=in_channels,
+            with_linear_transform=False,
         )
 
     def forward(self, x_0, incidence_1):
@@ -116,11 +117,11 @@ class UniGINLayer(torch.nn.Module):
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         # Update node features using GIN update equation
         x_0 = self.linear((1 + self.eps) * x_0 + m_1_0)
-        
+
         if self.use_norm:
             rownorm = x_0.detach().norm(dim=1, keepdim=True)
             scale = rownorm.pow(-1)
-            scale[torch.isinf(scale)] = 0.
+            scale[torch.isinf(scale)] = 0.0
             x_0 = x_0 * scale
-            
+
         return x_0, x_1

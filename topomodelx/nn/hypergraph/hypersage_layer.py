@@ -196,9 +196,9 @@ class HyperSAGELayer(MessagePassing):
                 .indices()[0]
                 .to(self.device)
             )
-            if len(messages)<=self.alpha or self.alpha==-1:
+            if len(messages) <= self.alpha or self.alpha == -1:
                 return messages
-            return messages[torch.randperm(len(messages))[:self.alpha]]
+            return messages[torch.randperm(len(messages))[: self.alpha]]
 
         def edges_per_node(v):
             return (

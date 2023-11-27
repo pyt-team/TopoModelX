@@ -141,11 +141,11 @@ class UniSAGELayer(torch.nn.Module):
         x_1 = self.vertex2edge(x_0, incidence_1.transpose(1, 0))
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = x_0 + m_1_0
-        
+
         if self.use_norm:
             rownorm = x_0.detach().norm(dim=1, keepdim=True)
             scale = rownorm.pow(-1)
-            scale[torch.isinf(scale)] = 0.
+            scale[torch.isinf(scale)] = 0.0
             x_0 = x_0 * scale
 
         return x_0, x_1

@@ -29,7 +29,9 @@ class HNHN(torch.nn.Module):
         https://grlplus.github.io/papers/40.pdf
     """
 
-    def __init__(self, in_channels, hidden_channels, incidence_1, n_layers=2, layer_drop=0.2):
+    def __init__(
+        self, in_channels, hidden_channels, incidence_1, n_layers=2, layer_drop=0.2
+    ):
         super().__init__()
 
         layers = []

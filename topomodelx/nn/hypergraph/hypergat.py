@@ -67,6 +67,5 @@ class HyperGAT(torch.nn.Module):
         for layer in self.layers:
             x_0, x_1 = layer.forward(x_0, incidence_1)
             x_0 = self.layer_drop(x_0)
-            
 
         return x_0, x_1

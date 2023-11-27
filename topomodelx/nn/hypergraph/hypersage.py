@@ -17,7 +17,8 @@ class HyperSAGE(torch.nn.Module):
     n_layer : int, default = 2
         Amount of message passing layers.
     alpha : int, default = -1
-        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.
+        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.ù
+
     References
     ----------
     .. [1] Arya, Gupta, Rudinac and Worring.
@@ -30,13 +31,19 @@ class HyperSAGE(torch.nn.Module):
         layers = []
         layers.append(
             HyperSAGELayer(
-                in_channels=in_channels, out_channels=hidden_channels, alpha=alpha, **kwargs
+                in_channels=in_channels,
+                out_channels=hidden_channels,
+                alpha=alpha,
+                **kwargs,
             )
         )
         for _ in range(1, n_layers):
             layers.append(
                 HyperSAGELayer(
-                    in_channels=hidden_channels, out_channels=hidden_channels, alpha=alpha, **kwargs
+                    in_channels=hidden_channels,
+                    out_channels=hidden_channels,
+                    alpha=alpha,
+                    **kwargs,
                 )
             )
         self.layers = torch.nn.ModuleList(layers)

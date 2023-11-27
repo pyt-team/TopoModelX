@@ -62,7 +62,7 @@ class HNHNLayer(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        incidence_1 = None,
+        incidence_1=None,
         use_bias: bool = True,
         use_normalized_incidence: bool = True,
         alpha: float = -1.5,

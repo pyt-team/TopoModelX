@@ -46,7 +46,7 @@ class UniGCNII(torch.nn.Module):
         beta=0.5,
         input_drop=0.2,
         layer_drop=0.2,
-        use_norm=False
+        use_norm=False,
     ):
         super().__init__()
         layers = []
