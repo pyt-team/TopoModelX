@@ -75,8 +75,8 @@ class HNHNLayer(torch.nn.Module):
         self.bias_init = bias_init
         self.bias_gain = bias_gain
         self.use_normalized_incidence = use_normalized_incidence
+        self.incidence_1 = incidence_1
         if incidence_1 is not None:
-            self.incidence_1 = incidence_1
             self.incidence_1_transpose = incidence_1.transpose(1, 0)
 
         self.conv_0_to_1 = Conv(
