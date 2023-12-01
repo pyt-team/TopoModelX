@@ -15,14 +15,24 @@ class TestHyperSAGELayer:
         out_channels = 30
         return HyperSAGELayer(in_channels, out_channels)
 
-    def test_forward(self, hypersage_layer):
+    @pytest.fixture
+    def hypersage_layer_alpha(self):
+        """Return a HyperSAGE layer."""
+        in_channels = 10
+        out_channels = 30
+        return HyperSAGELayer(in_channels, out_channels, alpha=1)
+
+    def test_forward(self, hypersage_layer, hypersage_layer_alpha):
         """Test the forward pass of the HyperSAGE layer."""
         x_2 = torch.randn(3, 10)
         incidence_2 = torch.tensor(
             [[1, 0], [0, 1], [1, 1]], dtype=torch.float32
         ).to_sparse()
         output = hypersage_layer.forward(x_2, incidence_2)
+        output2 = hypersage_layer_alpha.forward(x_2, incidence_2)
+
         assert output.shape == (3, 30)
+        assert output2.shape == (3, 30)
 
     def test_forward_with_invalid_input(self, hypersage_layer):
         """Test the forward pass of the HyperSAGE layer with invalid input."""
@@ -64,6 +74,13 @@ class TestHyperSAGELayer:
         updated = hypersage_layer.update(inputs)
         assert torch.is_tensor(updated)
         assert updated.shape == (10, 20)
+
+    def test_update_invalid(self, hypersage_layer):
+        """Test the update function with update_func = "invalid"."""
+        hypersage_layer.update_func = "invalid"
+        inputs = torch.randn(10, 20)
+        with pytest.raises(RuntimeError):
+            hypersage_layer.update(inputs)
 
     def test_aggregation_invald(self, hypersage_layer):
         """Test the aggregation function with invalid mode."""

@@ -15,11 +15,21 @@ class TestUniSAGELayer:
         out_channels = 30
         return UniSAGELayer(in_channels, out_channels)
 
-    def test_forward(self, uniSAGE_layer):
+    @pytest.fixture
+    def uniSAGE_layer2(self):
+        """Fixture for uniSAGE layer."""
+        in_channels = 10
+        out_channels = 30
+        return UniSAGELayer(in_channels, out_channels, use_norm=True)
+
+    def test_forward(self, uniSAGE_layer, uniSAGE_layer2):
         """Test forward pass."""
         x = torch.randn(3, 10)
         incidence = torch.tensor([[1, 1, 0], [1, 1, 1], [0, 1, 1]], dtype=torch.float32)
         x_0, x_1 = uniSAGE_layer.forward(x, incidence)
+        assert x_0.shape == torch.Size([3, 30])
+        assert x_1.shape == torch.Size([3, 30])
+        x_0, x_1 = uniSAGE_layer2.forward(x, incidence)
         assert x_0.shape == torch.Size([3, 30])
         assert x_1.shape == torch.Size([3, 30])
 

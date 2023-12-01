@@ -23,12 +23,34 @@ class TestHNHNLayer:
             incidence_1=incidence_1,
         )
 
-    def test_forward(self, template_layer):
+    @pytest.fixture
+    def template_layer2(self):
+        """Initialize and return an HNHN layer."""
+        self.in_channels = 5
+        self.hidden_channels = 8
+
+        return HNHNLayer(
+            in_channels=self.in_channels,
+            hidden_channels=self.hidden_channels,
+            incidence_1=None,
+            bias_init="xavier_normal",
+        )
+
+    def test_forward(self, template_layer, template_layer2):
         """Test the forward pass of the HNHN layer."""
         n_nodes, n_edges = template_layer.incidence_1.shape
 
         x_0 = torch.randn(n_nodes, self.in_channels)
         x_0_out, x_1_out = template_layer.forward(x_0)
+
+        assert x_0_out.shape == (n_nodes, self.hidden_channels)
+        assert x_1_out.shape == (n_edges, self.hidden_channels)
+
+        n_nodes = 10
+        n_edges = 20
+        incidence_1 = torch.randint(0, 2, (n_nodes, n_edges)).float()
+
+        x_0_out, x_1_out = template_layer2.forward(x_0, incidence_1)
 
         assert x_0_out.shape == (n_nodes, self.hidden_channels)
         assert x_1_out.shape == (n_edges, self.hidden_channels)
