@@ -1,4 +1,5 @@
-[![Test](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/test.yml)
+[![Test Codebase](https://github.com/pyt-team/torch_topo/actions/workflows/test_codebase.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/test_codebase.yml)
+[![Test Tutorials](https://github.com/pyt-team/torch_topo/actions/workflows/test_tutorials.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/test_tutorials.yml)
 [![Lint](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml/badge.svg)](https://github.com/pyt-team/torch_topo/actions/workflows/lint.yml)
 [![Codecov](https://codecov.io/gh/pyt-team/TopoModelX/branch/main/graph/badge.svg)](https://app.codecov.io/gh/pyt-team/TopoModelX)
 [![Python](https://img.shields.io/badge/python-3.10+-blue?logo=python)](https://www.python.org/)
