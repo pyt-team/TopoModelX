@@ -18,7 +18,7 @@ class HNHN(torch.nn.Module):
         Incidence matrix mapping edges to nodes (B_1).
     n_layers : int, default = 2
         Number of HNHN message passing layers.
-    layer_drop: float, default = 0.2
+    layer_drop : float, default = 0.2
         Dropout rate for the hidden features.
 
     References

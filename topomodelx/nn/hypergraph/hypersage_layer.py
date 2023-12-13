@@ -51,7 +51,7 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
-    alpha: int, default=-1
+    alpha : int, default=-1
         Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.
     aggr_func_intra : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
