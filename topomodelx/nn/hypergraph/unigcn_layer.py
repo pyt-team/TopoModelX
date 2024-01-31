@@ -44,7 +44,7 @@ class UniGCNLayer(torch.nn.Module):
     ) -> None:
         super().__init__()
 
-        with_linear_transform = False if in_channels == hidden_channels else True
+        with_linear_transform = in_channels != hidden_channels
         self.conv_level1_0_to_1 = Conv(
             in_channels=in_channels,
             out_channels=hidden_channels,

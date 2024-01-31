@@ -76,14 +76,14 @@ class UniSAGELayer(torch.nn.Module):
         self.vertex2edge = Conv(
             in_channels=hidden_channels,
             out_channels=hidden_channels,
-            aggr_norm=False if self.e_aggr == "sum" else True,
+            aggr_norm=self.e_aggr != "sum",
             with_linear_transform=False,
         )
 
         self.edge2vertex = Conv(
             in_channels=hidden_channels,
             out_channels=hidden_channels,
-            aggr_norm=False if self.v_aggr == "sum" else True,
+            aggr_norm=self.v_aggr != "sum",
             with_linear_transform=False,
         )
 

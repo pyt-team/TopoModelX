@@ -40,6 +40,7 @@ dependencies=[
 
 [project.optional-dependencies]
 doc = [
+    "hypernetx",
     "jupyter",
     "nbsphinx",
     "nbsphinx_link",
@@ -49,13 +50,8 @@ doc = [
     "pydata-sphinx-theme"
 ]
 lint = [
-    "black < 24.0",
-    "black[jupyter]",
-    "flake8",
-    "flake8-docstrings",
-    "Flake8-pyproject",
-    "isort",
-    "pre-commit"
+    "pre-commit",
+    "ruff"
 ]
 test = [
     "pytest",
@@ -73,6 +69,30 @@ all = ["TopoModelX[dev, doc]"]
 [project.urls]
 homepage="https://github.com/pyt-team/TopoModelX"
 repository="https://github.com/pyt-team/TopoModelX"
+
+[tool.ruff]
+target-version = "py310"
+extend-include = ["*.ipynb"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "F", # pyflakes errors
+    "E", # code style
+    "W", # warnings
+    "I", # import order
+    "UP", # pyupgrade rules
+    "SIM", # code simplifications
+]
+ignore = ["E501"] # line too long
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F403"]
 
 [tool.setuptools.dynamic]
 version = {attr = "topomodelx.__version__"}
@@ -98,26 +118,11 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 addopts = "--capture=no"
 
-[tool.black]
-line-length = 88
-
-[tool.isort]
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
-skip = [".gitignore", "__init__.py"]
-
-[tool.flake8]
-max-line-length = 88
-application_import_names = "topomodelx"
-docstring-convention = "numpy"
-exclude = [
-    "topomodelx/__init__.py",
-    "docs/conf.py"
-]
-
-import_order_style = "smarkets"
-extend-ignore = ["E501", "E203"]
-per-file-ignores = [
-    "*/__init__.py: D104, F401",
+[tool.numpydoc_validation]
+checks = [
+    "all",
+    "GL01",
+    "ES01",
+    "EX01",
+    "SA01"
 ]

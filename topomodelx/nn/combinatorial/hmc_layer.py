@@ -809,7 +809,7 @@ class HMCLayer(torch.nn.Module):
         update_func_aggregation=None,
         initialization="xavier_uniform",
     ):
-        super(HMCLayer, self).__init__()
+        super().__init__()
         super().__init__()
 
         assert (
