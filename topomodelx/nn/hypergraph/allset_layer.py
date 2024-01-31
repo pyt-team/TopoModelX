@@ -215,7 +215,7 @@ class AllSetBlock(nn.Module):
         mlp_dropout: float = 0.0,
         mlp_norm=None,
     ) -> None:
-        super(AllSetBlock, self).__init__()
+        super().__init__()
 
         self.dropout = dropout
         if mlp_num_layers > 0:

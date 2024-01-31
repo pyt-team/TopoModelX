@@ -1,12 +1,12 @@
 """Cell Attention Network layer."""
 
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import torch
 from torch import nn, topk
-from torch.nn import Linear, Parameter
+from torch.nn import Linear, Parameter, init
 from torch.nn import functional as F
-from torch.nn import init
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.message_passing import MessagePassing
@@ -112,7 +112,7 @@ class LiftLayer(MessagePassing):
         signal_lift_activation: Callable,
         signal_lift_dropout: float,
     ) -> None:
-        super(LiftLayer, self).__init__()
+        super().__init__()
 
         self.in_channels_0 = in_channels_0
         self.att_parameter = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
@@ -201,7 +201,7 @@ class MultiHeadLiftLayer(nn.Module):
         signal_lift_dropout: float = 0.0,
         signal_lift_readout: str = "cat",
     ) -> None:
-        super(MultiHeadLiftLayer, self).__init__()
+        super().__init__()
 
         assert heads > 0, ValueError("Number of heads must be > 0")
         assert signal_lift_readout in [
@@ -305,7 +305,7 @@ class PoolLayer(MessagePassing):
         signal_pool_activation: Callable,
         readout: bool = True,
     ) -> None:
-        super(PoolLayer, self).__init__()
+        super().__init__()
 
         self.k_pool = k_pool
         self.in_channels_0 = in_channels_0
@@ -322,7 +322,9 @@ class PoolLayer(MessagePassing):
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
-    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]
+    def forward(  # type: ignore[override]
+        self, x_0, lower_neighborhood, upper_neighborhood
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         r"""Forward pass.
 
         Parameters
