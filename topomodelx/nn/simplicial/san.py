@@ -5,7 +5,7 @@ from topomodelx.nn.simplicial.san_layer import SANLayer
 
 
 class SAN(torch.nn.Module):
-    r"""Simplicial Attention Network (SAN) implementation for binary edge classification.
+    """Simplicial Attention Network (SAN) implementation for binary edge classification.
 
     Parameters
     ----------
@@ -36,6 +36,7 @@ class SAN(torch.nn.Module):
         n_layers=2,
     ):
         super().__init__()
+
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
         self.out_channels = (
@@ -46,7 +47,7 @@ class SAN(torch.nn.Module):
         self.epsilon_harmonic = epsilon_harmonic
 
         if n_layers == 1:
-            self.layers = [
+            layers = [
                 SANLayer(
                     in_channels=self.in_channels,
                     out_channels=self.out_channels,
@@ -54,7 +55,7 @@ class SAN(torch.nn.Module):
                 )
             ]
         else:
-            self.layers = [
+            layers = [
                 SANLayer(
                     in_channels=self.in_channels,
                     out_channels=self.hidden_channels,
@@ -62,20 +63,21 @@ class SAN(torch.nn.Module):
                 )
             ]
             for _ in range(n_layers - 2):
-                self.layers.append(
+                layers.append(
                     SANLayer(
                         in_channels=self.hidden_channels,
                         out_channels=self.hidden_channels,
                         n_filters=self.n_filters,
                     )
                 )
-            self.layers.append(
+            layers.append(
                 SANLayer(
                     in_channels=self.hidden_channels,
                     out_channels=self.out_channels,
                     n_filters=self.n_filters,
                 )
             )
+        self.layers = torch.nn.ModuleList(layers)
 
     def compute_projection_matrix(self, laplacian):
         """Compute the projection matrix.

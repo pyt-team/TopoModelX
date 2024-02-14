@@ -121,3 +121,8 @@ checks = [
     "EX01",
     "SA01"
 ]
+exclude = [
+    '\.undocumented_method$',
+    '\.__repr__$',
+    '\.__init__$',
+]
