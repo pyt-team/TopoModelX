@@ -94,9 +94,8 @@ class SAN(torch.nn.Module):
         torch.Tensor, shape = (n_edges, n_edges)
             Projection matrix.
         """
-        projection_mat = (
-            torch.eye(laplacian.shape[0]) - self.epsilon_harmonic * laplacian
-        )
+        eye = torch.eye(laplacian.shape[0]).to(laplacian.device)
+        projection_mat = eye - self.epsilon_harmonic * laplacian
         projection_mat = torch.linalg.matrix_power(projection_mat, self.order_harmonic)
         return projection_mat
 
