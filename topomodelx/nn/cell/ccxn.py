@@ -70,7 +70,7 @@ class CCXN(torch.nn.Module):
             Final hidden states of the nodes (0-cells).
         x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Final hidden states the edges (1-cells).
-        x_2 : torch.Tensor, shape = (n_edges, in_channels_2)
+        x_2 : torch.Tensor, shape = (n_faces, in_channels_2)
             Final hidden states of the faces (2-cells).
         """
         for layer in self.layers:

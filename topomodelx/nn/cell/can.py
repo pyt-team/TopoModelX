@@ -127,8 +127,8 @@ class CAN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
-            Final hidden representations of pooled nodes.
+        x_1: torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
+            Final hidden representations of pooled edges.
         """
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)

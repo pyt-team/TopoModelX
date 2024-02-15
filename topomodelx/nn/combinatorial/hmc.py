@@ -18,22 +18,24 @@ class HMC(torch.nn.Module):
         for each input signal (nodes, edges, and faces) for the k-th layer. The second list
         contains the number of intermediate channels for each input signal (nodes, edges, and
         faces) for the k-th layer. Finally, the third list contains the number of output channels for
-        each input signal (nodes, edges, and faces) for the k-th layer .
-    num_classes : int
-        Number of classes.
+        each input signal (nodes, edges, and faces) for the k-th layer.
     negative_slope : float
         Negative slope for the LeakyReLU activation.
+    update_func_attention : str
+        Update function for the attention mechanism. Default is "relu".
+    update_func_aggregation : str
+        Update function for the aggregation mechanism. Default is "relu".
     """
 
     def __init__(
         self,
         channels_per_layer,
-        num_classes,
         negative_slope=0.2,
         update_func_attention="relu",
         update_func_aggregation="relu",
     ) -> None:
         def check_channels_consistency():
+            """Check that the number of input, intermediate, and output channels is consistent."""
             assert len(channels_per_layer) > 0
             for i in range(len(channels_per_layer) - 1):
                 assert channels_per_layer[i][2][0] == channels_per_layer[i + 1][0][0]
@@ -41,7 +43,6 @@ class HMC(torch.nn.Module):
                 assert channels_per_layer[i][2][2] == channels_per_layer[i + 1][0][2]
 
         super().__init__()
-        self.num_classes = num_classes
         check_channels_consistency()
         self.layers = torch.nn.ModuleList(
             [
@@ -57,10 +58,6 @@ class HMC(torch.nn.Module):
                 for in_channels, intermediate_channels, out_channels in channels_per_layer
             ]
         )
-
-        self.l0 = torch.nn.Linear(channels_per_layer[-1][2][0], num_classes)
-        self.l1 = torch.nn.Linear(channels_per_layer[-1][2][1], num_classes)
-        self.l2 = torch.nn.Linear(channels_per_layer[-1][2][2], num_classes)
 
     def forward(
         self,
@@ -96,8 +93,12 @@ class HMC(torch.nn.Module):
 
         Returns
         -------
-        y_hat : torch.Tensor, shape=[num_classes]
-            Vector embedding that represents the probability of the input mesh to belong to each class.
+        x_0 : torch.Tensor, shape = (n_nodes, out_channels_0)
+            Final hidden states of the nodes (0-cells).
+        x_1 : torch.Tensor, shape = (n_edges, out_channels_1)
+            Final hidden states the edges (1-cells).
+        x_2 : torch.Tensor, shape = (n_faces, out_channels_2)
+            Final hidden states of the faces (2-cells).
         """
         for layer in self.layers:
             x_0, x_1, x_2 = layer(
@@ -111,13 +112,4 @@ class HMC(torch.nn.Module):
                 neighborhood_1_to_2,
             )
 
-        x_0 = self.l0(x_0)
-        x_1 = self.l1(x_1)
-        x_2 = self.l2(x_2)
-
-        # Sum all the elements in the dimension zero
-        x_0 = torch.nanmean(x_0, dim=0)
-        x_1 = torch.nanmean(x_1, dim=0)
-        x_2 = torch.nanmean(x_2, dim=0)
-
-        return x_0 + x_1 + x_2
+        return x_0, x_1, x_2
