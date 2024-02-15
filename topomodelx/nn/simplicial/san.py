@@ -47,7 +47,7 @@ class SAN(torch.nn.Module):
         self.epsilon_harmonic = epsilon_harmonic
 
         if n_layers == 1:
-            layers = [
+            self.layers = [
                 SANLayer(
                     in_channels=self.in_channels,
                     out_channels=self.out_channels,
@@ -55,7 +55,7 @@ class SAN(torch.nn.Module):
                 )
             ]
         else:
-            layers = [
+            self.layers = [
                 SANLayer(
                     in_channels=self.in_channels,
                     out_channels=self.hidden_channels,
@@ -63,21 +63,21 @@ class SAN(torch.nn.Module):
                 )
             ]
             for _ in range(n_layers - 2):
-                layers.append(
+                self.layers.append(
                     SANLayer(
                         in_channels=self.hidden_channels,
                         out_channels=self.hidden_channels,
                         n_filters=self.n_filters,
                     )
                 )
-            layers.append(
+            self.layers.append(
                 SANLayer(
                     in_channels=self.hidden_channels,
                     out_channels=self.out_channels,
                     n_filters=self.n_filters,
                 )
             )
-        self.layers = torch.nn.ModuleList(layers)
+        self.layers = torch.nn.ModuleList(self.layers)
 
     def compute_projection_matrix(self, laplacian):
         """Compute the projection matrix.
