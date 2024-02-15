@@ -33,7 +33,7 @@ class HMC(torch.nn.Module):
         negative_slope=0.2,
         update_func_attention="relu",
         update_func_aggregation="relu",
-    ) -> None:
+    ):
         def check_channels_consistency():
             """Check that the number of input, intermediate, and output channels is consistent."""
             assert len(channels_per_layer) > 0
@@ -69,7 +69,7 @@ class HMC(torch.nn.Module):
         neighborhood_2_to_2,
         neighborhood_0_to_1,
         neighborhood_1_to_2,
-    ) -> torch.Tensor:
+    ):
         """Forward pass.
 
         Parameters
@@ -93,11 +93,11 @@ class HMC(torch.nn.Module):
 
         Returns
         -------
-        x_0 : torch.Tensor, shape = (n_nodes, out_channels_0)
+        torch.Tensor, shape = (n_nodes, out_channels_0)
             Final hidden states of the nodes (0-cells).
-        x_1 : torch.Tensor, shape = (n_edges, out_channels_1)
+        torch.Tensor, shape = (n_edges, out_channels_1)
             Final hidden states the edges (1-cells).
-        x_2 : torch.Tensor, shape = (n_faces, out_channels_2)
+        torch.Tensor, shape = (n_faces, out_channels_2)
             Final hidden states of the faces (2-cells).
         """
         for layer in self.layers:

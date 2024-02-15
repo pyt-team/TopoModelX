@@ -75,4 +75,4 @@ class CCXN(torch.nn.Module):
         """
         for layer in self.layers:
             x_0, x_1, x_2 = layer(x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2)
-        return x_0, x_1, x_2
+        return (x_0, x_1, x_2)
