@@ -17,8 +17,6 @@ class CAN(torch.nn.Module):
         Number of input channels for the edge-level input.
     out_channels : int
         Number of output channels.
-    num_classes : int
-        Number of output classes.
     dropout : float, optional
         Dropout probability. Default is 0.5.
     heads : int, optional
@@ -49,7 +47,6 @@ class CAN(torch.nn.Module):
         in_channels_0,
         in_channels_1,
         out_channels,
-        num_classes,
         dropout=0.5,
         heads=2,
         concat=True,
