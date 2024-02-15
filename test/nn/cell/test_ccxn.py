@@ -15,7 +15,6 @@ class TestCCXN:
             in_channels_0=2,
             in_channels_1=2,
             in_channels_2=2,
-            num_classes=1,
             n_layers=2,
             att=False,
         ).to(device)
@@ -33,5 +32,7 @@ class TestCCXN:
         adjacency_1 = adjacency_1.float().to(device)
         incidence_2 = incidence_2.float().to(device)
 
-        y = model(x_0, x_1, adjacency_1, incidence_2)
-        assert y.shape == torch.Size([1])
+        x_0, x_1, x_2 = model(x_0, x_1, adjacency_1, incidence_2)
+        assert x_0.shape == torch.Size([2, 2])
+        assert x_1.shape == torch.Size([2, 2])
+        assert x_2.shape == torch.Size([2, 2])
