@@ -18,6 +18,7 @@ __pycache__/
 docs/build/
 data/
 venv_*/
+.DS*
 
 TopoNetX/
 topomodelx/nn/cell/attcxn_layer.py
