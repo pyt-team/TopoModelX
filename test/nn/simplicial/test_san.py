@@ -42,7 +42,7 @@ class TestSAN:
             in_channels=in_channels,
             hidden_channels=hidden_channels,
             out_channels=out_channels,
-            n_layers=1,
+            n_layers=3,
         )
         laplacian_down_1 = from_sparse(simplicial_complex.down_laplacian_matrix(rank=1))
         laplacian_up_1 = from_sparse(simplicial_complex.up_laplacian_matrix(rank=1))
