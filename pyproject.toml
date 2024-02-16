@@ -123,6 +123,5 @@ checks = [
 ]
 exclude = [
     '\.undocumented_method$',
-    '\.__repr__$',
     '\.__init__$',
 ]

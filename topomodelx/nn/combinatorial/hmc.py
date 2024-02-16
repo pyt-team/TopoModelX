@@ -33,7 +33,7 @@ class HMC(torch.nn.Module):
         negative_slope=0.2,
         update_func_attention="relu",
         update_func_aggregation="relu",
-    ):
+    ) -> None:
         def check_channels_consistency():
             """Check that the number of input, intermediate, and output channels is consistent."""
             assert len(channels_per_layer) > 0
@@ -69,7 +69,7 @@ class HMC(torch.nn.Module):
         neighborhood_2_to_2,
         neighborhood_0_to_1,
         neighborhood_1_to_2,
-    ):
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Forward pass.
 
         Parameters

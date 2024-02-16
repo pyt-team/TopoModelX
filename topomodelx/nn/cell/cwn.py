@@ -104,4 +104,4 @@ class CWN(torch.nn.Module):
                 neighborhood_0_to_1,
             )
 
-        return (x_0, x_1, x_2)
+        return x_0, x_1, x_2

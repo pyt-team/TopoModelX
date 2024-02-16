@@ -20,7 +20,7 @@ class CAN(torch.nn.Module):
     dropout : float, optional
         Dropout probability. Default is 0.5.
     heads : int, optional
-        Number of attention heads. Default is 3.
+        Number of attention heads. Default is 2.
     concat : bool, optional
         Whether to concatenate the output channels of attention heads. Default is True.
     skip_connection : bool, optional
@@ -127,7 +127,7 @@ class CAN(torch.nn.Module):
 
         Returns
         -------
-        x_1: torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
+        torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
             Final hidden representations of pooled edges.
         """
         if hasattr(self, "lift_layer"):
