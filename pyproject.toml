@@ -90,6 +90,7 @@ select = [
     "RET", # return rules
     "SIM", # code simplifications
     "PERF", # performance rules
+    "RUF", # miscellaneous rules
 ]
 ignore = ["E501"] # line too long
 
