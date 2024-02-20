@@ -41,17 +41,16 @@ class CCXN(torch.nn.Module):
         att=False,
     ):
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                CCXNLayer(
-                    in_channels_0=in_channels_0,
-                    in_channels_1=in_channels_1,
-                    in_channels_2=in_channels_2,
-                    att=att,
-                )
+
+        self.layers = torch.nn.ModuleList(
+            CCXNLayer(
+                in_channels_0=in_channels_0,
+                in_channels_1=in_channels_1,
+                in_channels_2=in_channels_2,
+                att=att,
             )
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
         self.lin_0 = torch.nn.Linear(in_channels_0, num_classes)
         self.lin_1 = torch.nn.Linear(in_channels_1, num_classes)
         self.lin_2 = torch.nn.Linear(in_channels_2, num_classes)

@@ -87,6 +87,7 @@ select = [
     "Q", # quote rules
     "RET", # return rules
     "SIM", # code simplifications
+    "PERF", # performance rules
 ]
 ignore = ["E501"] # line too long
 

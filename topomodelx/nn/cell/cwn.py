@@ -42,21 +42,20 @@ class CWN(torch.nn.Module):
         n_layers,
     ):
         super().__init__()
+
         self.proj_0 = torch.nn.Linear(in_channels_0, hid_channels)
         self.proj_1 = torch.nn.Linear(in_channels_1, hid_channels)
         self.proj_2 = torch.nn.Linear(in_channels_2, hid_channels)
 
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                CWNLayer(
-                    in_channels_0=hid_channels,
-                    in_channels_1=hid_channels,
-                    in_channels_2=hid_channels,
-                    out_channels=hid_channels,
-                )
+        self.layers = torch.nn.ModuleList(
+            CWNLayer(
+                in_channels_0=hid_channels,
+                in_channels_1=hid_channels,
+                in_channels_2=hid_channels,
+                out_channels=hid_channels,
             )
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
         self.lin_0 = torch.nn.Linear(hid_channels, num_classes)
         self.lin_1 = torch.nn.Linear(hid_channels, num_classes)

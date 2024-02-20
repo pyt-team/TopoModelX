@@ -46,29 +46,18 @@ class AllSetTransformer(torch.nn.Module):
         mlp_dropout=0.2,
     ):
         super().__init__()
-        layers = [
+
+        self.layers = torch.nn.ModuleList(
             AllSetTransformerLayer(
-                in_channels=in_channels,
+                in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
                 dropout=dropout,
                 heads=heads,
                 mlp_num_layers=mlp_num_layers,
                 mlp_dropout=mlp_dropout,
             )
-        ]
-
-        for _ in range(n_layers - 1):
-            layers.append(
-                AllSetTransformerLayer(
-                    in_channels=hidden_channels,
-                    hidden_channels=hidden_channels,
-                    dropout=dropout,
-                    heads=heads,
-                    mlp_num_layers=mlp_num_layers,
-                    mlp_dropout=mlp_dropout,
-                )
-            )
-        self.layers = torch.nn.ModuleList(layers)
+            for i in range(n_layers)
+        )
 
     def forward(self, x_0, incidence_1):
         """

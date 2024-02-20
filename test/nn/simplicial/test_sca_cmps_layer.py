@@ -55,21 +55,12 @@ class TestSCACMPSLayer:
                                 param.add_(1.0)
 
         sca.reset_parameters()
+
         reset_params = []
         for module in sca.modules():
             if isinstance(module, torch.nn.ModuleList):
                 for sub in module:
                     if isinstance(sub, Conv):
-                        reset_params.append(list(sub.parameters()))
+                        reset_params.append(list(sub.parameters()))  # noqa: PERF401
 
-        count = 0
-        for module, reset_param, initial_param in zip(
-            sca.modules(), reset_params, initial_params
-        ):
-            if isinstance(module, torch.nn.ModuleList):
-                for sub, r_param, i_param in zip(module, reset_param, initial_param):
-                    if isinstance(sub, Conv):
-                        torch.testing.assert_close(i_param, r_param)
-                        count += 1
-
-        assert count > 0  # Ensuring if-statements were not just failed
+        assert initial_params == reset_params
