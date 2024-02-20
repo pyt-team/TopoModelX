@@ -824,7 +824,7 @@ class CANLayer(torch.nn.Module):
         dropout: float = 0.0,
         concat: bool = True,
         skip_connection: bool = True,
-        att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
+        att_activation: torch.nn.Module | None = None,
         add_self_loops: bool = False,
         aggr_func: Literal["mean", "sum"] = "sum",
         update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
@@ -832,6 +832,9 @@ class CANLayer(torch.nn.Module):
         share_weights: bool = False,
     ) -> None:
         super().__init__()
+
+        if att_activation is None:
+            att_activation = torch.nn.LeakyReLU()
 
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")

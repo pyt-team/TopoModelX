@@ -574,7 +574,7 @@ class HBS(torch.nn.Module):
                     "Should be either xavier_uniform or xavier_normal."
                 )
 
-        for w, a in zip(self.weight, self.att_weight):
+        for w, a in zip(self.weight, self.att_weight, strict=True):
             reset_p_hop_parameters(w, a)
 
     def update(self, message: torch.Tensor) -> torch.Tensor:
@@ -682,7 +682,9 @@ class HBS(torch.nn.Module):
 
         att = [
             self.attention(m_p, A_p, a_p)
-            for m_p, A_p, a_p in zip(message, m_hop_matrices, self.att_weight)
+            for m_p, A_p, a_p in zip(
+                message, m_hop_matrices, self.att_weight, strict=True
+            )
         ]
 
         def sparse_hadamard(A_p, att_p):
@@ -694,10 +696,14 @@ class HBS(torch.nn.Module):
             )
 
         att_m_hop_matrices = [
-            sparse_hadamard(A_p, att_p) for A_p, att_p in zip(m_hop_matrices, att)
+            sparse_hadamard(A_p, att_p)
+            for A_p, att_p in zip(m_hop_matrices, att, strict=True)
         ]
 
-        message = [torch.mm(n_p, m_p) for n_p, m_p in zip(att_m_hop_matrices, message)]
+        message = [
+            torch.mm(n_p, m_p)
+            for n_p, m_p in zip(att_m_hop_matrices, message, strict=True)
+        ]
         result = torch.zeros_like(message[0])
 
         for m_p in message:

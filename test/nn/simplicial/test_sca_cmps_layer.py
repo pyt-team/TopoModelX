@@ -24,7 +24,7 @@ class TestSCACMPSLayer:
             incidence_t_list.append(incidence_transpose)
 
         x_list = []
-        for chan, n in zip(channels_list, n_chains_list):
+        for chan, n in zip(channels_list, n_chains_list, strict=False):
             x = torch.randn(n, chan)
             x_list.append(x)
 
@@ -34,7 +34,7 @@ class TestSCACMPSLayer:
         )
         output = sca_cmps.forward(x_list, down_lap_list, incidence_t_list)
 
-        for x, n, chan in zip(output, n_chains_list, channels_list):
+        for x, n, chan in zip(output, n_chains_list, channels_list, strict=False):
             assert x.shape == (n, chan)
 
     def test_reset_parameters(self):

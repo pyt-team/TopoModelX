@@ -52,11 +52,14 @@ class CAN(torch.nn.Module):
         heads=3,
         concat=True,
         skip_connection=True,
-        att_activation=torch.nn.LeakyReLU(0.2),
+        att_activation=None,
         n_layers=2,
         att_lift=True,
     ):
         super().__init__()
+
+        if att_activation is None:
+            att_activation = torch.nn.LeakyReLU(0.2)
 
         if att_lift:
             self.lift_layer = MultiHeadLiftLayer(

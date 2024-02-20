@@ -124,7 +124,9 @@ class DHGCNLayer(torch.nn.Module):
             [
                 cluster.tile(element_indices.size(0))
                 for cluster, element_indices in zip(
-                    torch.arange(k, device=device), element_indices_by_cluster
+                    torch.arange(k, device=device),
+                    element_indices_by_cluster,
+                    strict=True,
                 )
             ]
         )

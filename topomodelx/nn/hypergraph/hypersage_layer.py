@@ -77,8 +77,8 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
-        aggr_func_intra: Aggregation = GeneralizedMean(power=2, update_func=None),
-        aggr_func_inter: Aggregation = GeneralizedMean(power=2, update_func=None),
+        aggr_func_intra: Aggregation | None = None,
+        aggr_func_inter: Aggregation | None = None,
         update_func: Literal["relu", "sigmoid"] = "relu",
         initialization: Literal[
             "uniform", "xavier_uniform", "xavier_normal"
@@ -88,6 +88,11 @@ class HyperSAGELayer(MessagePassing):
         super().__init__(
             initialization=initialization,
         )
+
+        if aggr_func_intra is None:
+            aggr_func_intra = GeneralizedMean(power=2, update_func=None)
+        if aggr_func_inter is None:
+            aggr_func_inter = GeneralizedMean(power=2, update_func=None)
 
         self.in_channels = in_channels
         self.out_channels = out_channels

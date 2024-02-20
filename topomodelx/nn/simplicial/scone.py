@@ -146,7 +146,7 @@ class SCoNe(nn.Module):
         self.layers = nn.ModuleList(
             [SCoNeLayer(self.in_channels, self.hidden_channels)]
         )
-        for i in range(self.n_layers - 1):
+        for _ in range(self.n_layers - 1):
             self.layers.append(SCoNeLayer(self.hidden_channels, self.hidden_channels))
 
         # Initialize parameters

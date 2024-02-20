@@ -409,7 +409,7 @@ class TestHBS:
 
     def set_weights_to_one(self):
         """Set the weights to constant values."""
-        for w, a in zip(self.hbs.weight, self.hbs.att_weight):
+        for w, a in zip(self.hbs.weight, self.hbs.att_weight, strict=False):
             torch.nn.init.constant_(w, 1.0)
             torch.nn.init.constant_(a, 1.0)
 
