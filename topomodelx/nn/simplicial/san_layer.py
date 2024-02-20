@@ -126,9 +126,7 @@ class SANConv(Conv):
 
         # When computing the final message on targets, we multiply the message by each power
         # of the attention laplacian and sum the results
-        x_message_on_target = torch.matmul(att_laplacian_power, x_message).sum(dim=0)
-
-        return x_message_on_target
+        return torch.matmul(att_laplacian_power, x_message).sum(dim=0)
 
 
 class SANLayer(torch.nn.Module):
@@ -218,5 +216,4 @@ class SANLayer(torch.nn.Module):
         z_har = self.conv_harmonic(x, projection_mat)
 
         # final output
-        x = z_down + z_up + z_har
-        return x
+        return z_down + z_up + z_har

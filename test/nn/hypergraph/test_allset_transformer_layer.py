@@ -17,7 +17,7 @@ class TestAllSetTransformerLayer:
         in_dim = 10
         hid_dim = 64
         heads = 4
-        layer = AllSetTransformerLayer(
+        return AllSetTransformerLayer(
             in_channels=in_dim,
             hidden_channels=hid_dim,
             heads=heads,
@@ -28,7 +28,6 @@ class TestAllSetTransformerLayer:
             mlp_dropout=0.0,
             mlp_norm=None,
         )
-        return layer
 
     def test_forward(self, allset_transformer_layer):
         """Test the forward pass of the allsettransformer layer."""

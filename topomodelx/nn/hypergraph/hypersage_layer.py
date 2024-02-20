@@ -37,9 +37,7 @@ class GeneralizedMean(Aggregation):
         """
         n = x.size()[-2]
         x = torch.sum(torch.pow(x, self.power), -2) / n
-        x = torch.pow(x, 1 / self.power)
-
-        return x
+        return torch.pow(x, 1 / self.power)
 
 
 class HyperSAGELayer(MessagePassing):
@@ -152,10 +150,10 @@ class HyperSAGELayer(MessagePassing):
             return self.aggr_func_intra(x_messages)
         if mode == "inter":
             return self.aggr_func_inter(x_messages)
-        else:
-            raise ValueError(
-                "Aggregation mode not recognized.\nShould be either intra or inter."
-            )
+
+        raise ValueError(
+            "Aggregation mode not recognized. Should be either intra or inter."
+        )
 
     def forward(self, x: torch.Tensor, incidence: torch.Tensor):  # type: ignore[override]
         r"""Forward pass ([2]_ and [3]_).
@@ -229,5 +227,4 @@ class HyperSAGELayer(MessagePassing):
         )
 
         x_message = x + inter_edge_aggregation
-        x_0 = self.update(x_message / x_message.norm(p=2) @ self.weight)
-        return x_0
+        return self.update(x_message / x_message.norm(p=2) @ self.weight)

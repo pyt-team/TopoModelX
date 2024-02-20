@@ -598,11 +598,10 @@ class HBS(torch.nn.Module):
             return torch.nn.functional.relu(message)
         if self.update_func == "tanh":
             return torch.nn.functional.tanh(message)
-        else:
-            raise RuntimeError(
-                "Update function not recognized. Should be either sigmoid, "
-                "relu or tanh."
-            )
+
+        raise RuntimeError(
+            "Update function not recognized. Should be either sigmoid, relu or tanh."
+        )
 
     def attention(
         self, message: torch.Tensor, A_p: torch.Tensor, a_p: torch.Tensor
@@ -637,11 +636,9 @@ class HBS(torch.nn.Module):
             size=(n_messages, n_messages),
             device=self.get_device(),
         )
-        att_p = (
+        return (
             torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
         )
-
-        return att_p
 
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor

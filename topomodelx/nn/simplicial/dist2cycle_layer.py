@@ -69,5 +69,4 @@ class Dist2CycleLayer(torch.nn.Module):
         """
         x_e = adjacency * Linv
         x_e = self.aggr_on_edges([x_e])
-        rst = self.fc_neigh(x_e)
-        return rst
+        return self.fc_neigh(x_e)

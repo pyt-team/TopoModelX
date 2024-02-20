@@ -70,8 +70,7 @@ class TestSCNN:
             for _, v in dataset.get_simplex_attributes(which_feat).items():
                 x.append(v)
 
-            x = torch.tensor(np.stack(x))
-            return x
+            return torch.tensor(np.stack(x))
 
         model = SCNN(
             in_channels=in_channels,

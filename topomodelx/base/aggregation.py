@@ -43,6 +43,7 @@ class Aggregation(torch.nn.Module):
             return torch.nn.functional.relu(inputs)
         if self.update_func == "tanh":
             return torch.tanh(inputs)
+        return None
 
     def forward(self, x):
         """Forward pass.

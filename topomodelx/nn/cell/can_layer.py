@@ -486,8 +486,7 @@ class MultiHeadCellAttention(MessagePassing):
         )  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source, x_target):
         """Compute attention weights for messages.
@@ -521,9 +520,7 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -699,9 +696,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = self.attention(x_message)  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source):
         """Compute attention weights for messages.
@@ -728,9 +723,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -959,10 +952,8 @@ class CANLayer(torch.nn.Module):
             w_x = self.lin(x) * self.eps
 
         # between-neighborhood aggregation and update
-        out = (
+        return (
             self.aggregation([lower_x, upper_x, w_x])
             if hasattr(self, "lin")
             else self.aggregation([lower_x, upper_x])
         )
-
-        return out

@@ -110,8 +110,7 @@ class SCACMPSLayer(torch.nn.Module):
         x_weight = self.aggr(x_list)
         x_weight = torch.matmul(torch.relu(x_weight), x.transpose(1, 0))
         x_weight = self.weight_func(x_weight)
-        x = x_weight.transpose(1, 0) * x
-        return x
+        return x_weight.transpose(1, 0) * x
 
     def forward(self, x_list, down_lap_list, incidencet_list):
         r"""Forward pass.

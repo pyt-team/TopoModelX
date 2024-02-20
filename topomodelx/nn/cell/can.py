@@ -148,6 +148,4 @@ class CAN(torch.nn.Module):
         x = x_1.max(dim=0)[0]
 
         # Feed-Foward Neural Network to predict the graph label
-        out = self.lin_1(torch.nn.functional.relu(self.lin_0(x)))
-
-        return out
+        return self.lin_1(torch.nn.functional.relu(self.lin_0(x)))
