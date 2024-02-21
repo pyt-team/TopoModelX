@@ -17,12 +17,10 @@ class CAN(torch.nn.Module):
         Number of input channels for the edge-level input.
     out_channels : int
         Number of output channels.
-    num_classes : int
-        Number of output classes.
     dropout : float, optional
         Dropout probability. Default is 0.5.
     heads : int, optional
-        Number of attention heads. Default is 3.
+        Number of attention heads. Default is 2.
     concat : bool, optional
         Whether to concatenate the output channels of attention heads. Default is True.
     skip_connection : bool, optional
@@ -33,6 +31,8 @@ class CAN(torch.nn.Module):
         Number of CAN layers.
     att_lift : bool, default=True
         Whether to apply a lift the signal from node-level to edge-level input.
+    k_pool : float, default=0.5
+        The pooling ratio i.e, the fraction of r-cells to keep after the pooling operation.
 
     References
     ----------
@@ -47,14 +47,14 @@ class CAN(torch.nn.Module):
         in_channels_0,
         in_channels_1,
         out_channels,
-        num_classes,
         dropout=0.5,
-        heads=3,
+        heads=2,
         concat=True,
         skip_connection=True,
         att_activation=None,
         n_layers=2,
         att_lift=True,
+        k_pool=0.5,
     ):
         super().__init__()
 
@@ -101,7 +101,7 @@ class CAN(torch.nn.Module):
 
             layers.append(
                 PoolLayer(
-                    k_pool=0.5,
+                    k_pool=k_pool,
                     in_channels_0=out_channels * heads,
                     signal_pool_activation=torch.nn.Sigmoid(),
                     readout=True,
@@ -109,8 +109,6 @@ class CAN(torch.nn.Module):
             )
 
         self.layers = torch.nn.ModuleList(layers)
-        self.lin_0 = torch.nn.Linear(heads * out_channels, 128)
-        self.lin_1 = torch.nn.Linear(128, num_classes)
 
     def forward(
         self, x_0, x_1, neighborhood_0_to_0, lower_neighborhood, upper_neighborhood
@@ -132,8 +130,8 @@ class CAN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor
-            Output prediction for the cell complex.
+        torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
+            Final hidden representations of pooled edges.
         """
         if hasattr(self, "lift_layer"):
             x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)
@@ -147,8 +145,4 @@ class CAN(torch.nn.Module):
                 x_1 = layer(x_1, lower_neighborhood, upper_neighborhood)
                 x_1 = F.dropout(x_1, p=0.5, training=self.training)
 
-        # max pooling over all nodes in each graph
-        x = x_1.max(dim=0)[0]
-
-        # Feed-Foward Neural Network to predict the graph label
-        return self.lin_1(torch.nn.functional.relu(self.lin_0(x)))
+        return x_1

@@ -42,7 +42,7 @@ class TestSAN:
             in_channels=in_channels,
             hidden_channels=hidden_channels,
             out_channels=out_channels,
-            n_layers=1,
+            n_layers=3,
         )
         laplacian_down_1 = from_sparse(simplicial_complex.down_laplacian_matrix(rank=1))
         laplacian_up_1 = from_sparse(simplicial_complex.up_laplacian_matrix(rank=1))
@@ -50,7 +50,7 @@ class TestSAN:
         assert torch.any(
             torch.isclose(
                 model(x, laplacian_up_1, laplacian_down_1)[0],
-                torch.tensor([2.8254, -0.9797]),
+                torch.tensor([-2.5604, -3.5924]),
                 rtol=1e-02,
             )
         )

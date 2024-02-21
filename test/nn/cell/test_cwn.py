@@ -16,7 +16,6 @@ class TestCWN:
             in_channels_1=2,
             in_channels_2=2,
             hid_channels=16,
-            num_classes=1,
             n_layers=2,
         ).to(device)
 
@@ -36,5 +35,7 @@ class TestCWN:
         incidence_2 = incidence_2.float().to(device)
         incidence_1_t = incidence_1_t.float().to(device)
 
-        y = model(x_0, x_1, x_2, adjacency_1, incidence_2, incidence_1_t)
-        assert y.shape == torch.Size([1])
+        x_0, x_1, x_2 = model(x_0, x_1, x_2, adjacency_1, incidence_2, incidence_1_t)
+        assert x_0.shape == torch.Size([2, 16])
+        assert x_1.shape == torch.Size([2, 16])
+        assert x_2.shape == torch.Size([2, 16])

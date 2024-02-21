@@ -128,3 +128,6 @@ checks = [
     "EX01",
     "SA01"
 ]
+exclude = [
+    '\.undocumented_method$',
+]
