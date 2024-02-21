@@ -26,7 +26,9 @@ class TestCAN:
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)
 
-        adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        adjacency_1 = torch.from_numpy(
+            np.random.default_rng().random((2, 2))
+        ).to_sparse()
 
         x_0, x_1 = (
             torch.tensor(x_0).float().to(device),

@@ -18,11 +18,10 @@ class TestScone:
 
     def test_forward(self):
         """Test the forward method of Scone."""
-        np.random.seed(42)
         torch.manual_seed(42)
         random.seed(42)
         N = 150
-        sc, coords = generate_complex(N)
+        sc, coords = generate_complex(N, rng=np.random.default_rng(42))
         incidence_1 = torch.Tensor(sc.incidence_matrix(1).toarray())
         incidence_2 = torch.Tensor(sc.incidence_matrix(2).toarray())
 

@@ -89,6 +89,7 @@ select = [
     "Q", # quote rules
     "RET", # return rules
     "SIM", # code simplifications
+    "NPY", # numpy rules
     "PERF", # performance rules
     "RUF", # miscellaneous rules
 ]

@@ -13,14 +13,25 @@ from torch.utils.data.dataset import Dataset
 from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 
-def generate_complex(N: int = 100) -> tuple[SimplicialComplex, np.ndarray]:
+def generate_complex(
+    N: int = 100, *, rng: np.random.Generator | None = None
+) -> tuple[SimplicialComplex, np.ndarray]:
     """Generate a simplicial complex as described.
 
     Generate a simplicial complex of dimension 2 as follows:
         1. Uniformly sample N random points form the unit square and build the Delaunay triangulation.
         2. Delete triangles contained in some pre-defined disks.
+
+    Parameters
+    ----------
+    N : int
+        Number of vertices in the simplicial complex.
+    rng : np.random.Generator, optional
+        The random number generator to use, defaults to NumPy's default generator.
     """
-    points = np.random.uniform(0, 1, size=(N, 2))
+    if rng is None:
+        rng = np.random.default_rng()
+    points = rng.uniform(0, 1, size=(N, 2))
 
     # Sort points by the sum of their coordinates
     c = np.sum(points, axis=1)
