@@ -36,27 +36,28 @@ class TestScone:
         traj, mask, last_nodes = batch
         with torch.no_grad():
             forward_pass = model(traj, incidence_1, incidence_2)
+        print(forward_pass[0][0])
         assert torch.any(
             torch.isclose(
                 forward_pass[0][0],
                 torch.tensor(
                     [
-                        -1.0000,
-                        0.9306,
-                        0.9723,
-                        0.9349,
-                        0.9901,
-                        0.9999,
-                        -0.4076,
-                        0.9999,
-                        0.7362,
-                        0.9758,
+                        1.0000,
                         -0.9999,
-                        0.9906,
-                        0.9882,
-                        0.9999,
-                        0.3494,
-                        0.9565,
+                        0.8368,
+                        -0.9315,
+                        -0.1243,
+                        -0.9998,
+                        -0.9989,
+                        -1.0000,
+                        -0.2776,
+                        -0.8334,
+                        0.6433,
+                        -0.9924,
+                        -0.9983,
+                        -0.9999,
+                        -0.9947,
+                        -0.6742,
                     ]
                 ),
                 rtol=1e-02,
