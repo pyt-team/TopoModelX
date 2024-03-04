@@ -21,16 +21,15 @@ class SCCN(torch.nn.Module):
 
     def __init__(self, channels, max_rank, n_layers=2, update_func="sigmoid"):
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                SCCNLayer(
-                    channels=channels,
-                    max_rank=max_rank,
-                    update_func=update_func,
-                )
+
+        self.layers = torch.nn.ModuleList(
+            SCCNLayer(
+                channels=channels,
+                max_rank=max_rank,
+                update_func=update_func,
             )
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
     def forward(self, features, incidences, adjacencies):
         """Forward computation.

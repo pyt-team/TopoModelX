@@ -13,14 +13,25 @@ from torch.utils.data.dataset import Dataset
 from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 
-def generate_complex(N: int = 100) -> tuple[SimplicialComplex, np.ndarray]:
+def generate_complex(
+    N: int = 100, *, rng: np.random.Generator | None = None
+) -> tuple[SimplicialComplex, np.ndarray]:
     """Generate a simplicial complex as described.
 
     Generate a simplicial complex of dimension 2 as follows:
         1. Uniformly sample N random points form the unit square and build the Delaunay triangulation.
         2. Delete triangles contained in some pre-defined disks.
+
+    Parameters
+    ----------
+    N : int
+        Number of vertices in the simplicial complex.
+    rng : np.random.Generator, optional
+        The random number generator to use, defaults to NumPy's default generator.
     """
-    points = np.random.uniform(0, 1, size=(N, 2))
+    if rng is None:
+        rng = np.random.default_rng()
+    points = rng.uniform(0, 1, size=(N, 2))
 
     # Sort points by the sum of their coordinates
     c = np.sum(points, axis=1)
@@ -58,7 +69,7 @@ def generate_trajectories(
     """Generate trajectories from nodes in the lower left corner to the upper right corner connected through a node in the middle."""
     # Get indices for start points in the lower left corner, mid points in the center region and end points in the upper right corner.
     N = len(sc)
-    start_nodes = list(range(0, int(0.2 * N)))
+    start_nodes = list(range(int(0.2 * N)))
     mid_nodes = list(range(int(0.4 * N), int(0.5 * N)))
     end_nodes = list(range(int(0.8 * N), N))
     all_triplets = list(product(start_nodes, mid_nodes, end_nodes))
@@ -125,7 +136,7 @@ class TrajectoriesDataset(Dataset):
         # Create a vector representation of a trajectory.
         m = len(self.sc.skeleton(1))
         c0 = torch.zeros((m, 1))
-        for j in range(0, len(path) - 1):
+        for j in range(len(path) - 1):
             edge = (path[j], path[j + 1])
             sign, i = self.edge_lookup_table[edge]
             c0[i] = sign
@@ -146,7 +157,7 @@ class SCoNe(nn.Module):
         self.layers = nn.ModuleList(
             [SCoNeLayer(self.in_channels, self.hidden_channels)]
         )
-        for i in range(self.n_layers - 1):
+        for _ in range(self.n_layers - 1):
             self.layers.append(SCoNeLayer(self.hidden_channels, self.hidden_channels))
 
         # Initialize parameters

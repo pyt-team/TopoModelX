@@ -13,7 +13,7 @@ class TestAllSetLayer:
         """Return a AllSet layer."""
         in_dim = 10
         hid_dim = 64
-        layer = AllSetLayer(
+        return AllSetLayer(
             in_channels=in_dim,
             hidden_channels=hid_dim,
             dropout=0.0,
@@ -22,7 +22,6 @@ class TestAllSetLayer:
             mlp_dropout=0.0,
             mlp_norm=None,
         )
-        return layer
 
     def test_forward(self, allset_layer):
         """Test the forward pass of the AllSet layer."""

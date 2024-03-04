@@ -49,9 +49,10 @@ class AllSet(torch.nn.Module):
         mlp_norm=None,
     ):
         super().__init__()
-        layers = [
+
+        self.layers = torch.nn.ModuleList(
             AllSetLayer(
-                in_channels=in_channels,
+                in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
                 dropout=layer_dropout,
                 mlp_num_layers=mlp_num_layers,
@@ -59,21 +60,8 @@ class AllSet(torch.nn.Module):
                 mlp_dropout=mlp_dropout,
                 mlp_norm=mlp_norm,
             )
-        ]
-
-        for _ in range(n_layers - 1):
-            layers.append(
-                AllSetLayer(
-                    in_channels=hidden_channels,
-                    hidden_channels=hidden_channels,
-                    dropout=layer_dropout,
-                    mlp_num_layers=mlp_num_layers,
-                    mlp_activation=mlp_activation,
-                    mlp_dropout=mlp_dropout,
-                    mlp_norm=mlp_norm,
-                )
-            )
-        self.layers = torch.nn.ModuleList(layers)
+            for i in range(n_layers)
+        )
 
     def forward(self, x_0, incidence_1):
         """Forward computation.

@@ -114,5 +114,4 @@ class HSNLayer(torch.nn.Module):
         x_0_level2 = self.conv_level2_0_to_0(x_0_level1, adjacency_0)
         x_1_level2 = self.conv_level2_1_to_0(x_1_level1, incidence_1)
 
-        x_0 = self.aggr_on_nodes([x_0_level2, x_1_level2])
-        return x_0
+        return self.aggr_on_nodes([x_0_level2, x_1_level2])

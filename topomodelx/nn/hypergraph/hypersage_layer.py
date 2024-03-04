@@ -37,9 +37,7 @@ class GeneralizedMean(Aggregation):
         """
         n = x.size()[-2]
         x = torch.sum(torch.pow(x, self.power), -2) / n
-        x = torch.pow(x, 1 / self.power)
-
-        return x
+        return torch.pow(x, 1 / self.power)
 
 
 class HyperSAGELayer(MessagePassing):
@@ -79,8 +77,8 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
-        aggr_func_intra: Aggregation = GeneralizedMean(power=2, update_func=None),
-        aggr_func_inter: Aggregation = GeneralizedMean(power=2, update_func=None),
+        aggr_func_intra: Aggregation | None = None,
+        aggr_func_inter: Aggregation | None = None,
         update_func: Literal["relu", "sigmoid"] = "relu",
         initialization: Literal[
             "uniform", "xavier_uniform", "xavier_normal"
@@ -90,6 +88,11 @@ class HyperSAGELayer(MessagePassing):
         super().__init__(
             initialization=initialization,
         )
+
+        if aggr_func_intra is None:
+            aggr_func_intra = GeneralizedMean(power=2, update_func=None)
+        if aggr_func_inter is None:
+            aggr_func_inter = GeneralizedMean(power=2, update_func=None)
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -152,10 +155,10 @@ class HyperSAGELayer(MessagePassing):
             return self.aggr_func_intra(x_messages)
         if mode == "inter":
             return self.aggr_func_inter(x_messages)
-        else:
-            raise ValueError(
-                "Aggregation mode not recognized.\nShould be either intra or inter."
-            )
+
+        raise ValueError(
+            "Aggregation mode not recognized. Should be either intra or inter."
+        )
 
     def forward(self, x: torch.Tensor, incidence: torch.Tensor):  # type: ignore[override]
         r"""Forward pass ([2]_ and [3]_).
@@ -229,5 +232,4 @@ class HyperSAGELayer(MessagePassing):
         )
 
         x_message = x + inter_edge_aggregation
-        x_0 = self.update(x_message / x_message.norm(p=2) @ self.weight)
-        return x_0
+        return self.update(x_message / x_message.norm(p=2) @ self.weight)

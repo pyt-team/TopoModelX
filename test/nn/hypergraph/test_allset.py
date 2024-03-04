@@ -20,7 +20,9 @@ class TestAllSet:
         ).to(device)
 
         x_0 = torch.rand(4, 4)
-        incidence_1 = torch.from_numpy(np.random.rand(4, 4)).to_sparse()
+        incidence_1 = torch.from_numpy(
+            np.random.default_rng().random((4, 4))
+        ).to_sparse()
 
         x_0 = x_0.float().to(device)
         incidence_1 = incidence_1.float().to(device)

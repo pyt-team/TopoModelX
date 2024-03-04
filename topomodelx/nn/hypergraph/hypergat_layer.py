@@ -150,6 +150,7 @@ class HyperGATLayer(MessagePassing):
             return torch.sigmoid(x_message_on_target)
         if self.update_func == "relu":
             return torch.nn.functional.relu(x_message_on_target)
+        return None
 
     def forward(self, x_source, incidence):
         r"""Forward pass.

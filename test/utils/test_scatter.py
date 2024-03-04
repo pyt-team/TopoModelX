@@ -35,7 +35,7 @@ class TestScatter:
         ]
         for scat in ["add", "sum", "mean"]:
             sc = scatter(scat)
-            for i in range(0, len(tests)):
+            for i in range(len(tests)):
                 computed = sc(
                     torch.tensor(tests[i]["src"]),
                     torch.tensor(tests[i]["index"]),

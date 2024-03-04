@@ -71,10 +71,10 @@ class TestCANLayer:
 
         # Test if there are no non-zero values in the neighborhood
         heads = 1
-        concat = [True, False]
+        concat_list = [True, False]
         skip_connection = True
 
-        for concat in concat:
+        for concat in concat_list:
             for version in ["v1", "v2"]:
                 can_layer = CANLayer(
                     in_channels=in_channels,

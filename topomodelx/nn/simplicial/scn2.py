@@ -22,16 +22,15 @@ class SCN2(torch.nn.Module):
 
     def __init__(self, in_channels_0, in_channels_1, in_channels_2, n_layers=2):
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                SCN2Layer(
-                    in_channels_0=in_channels_0,
-                    in_channels_1=in_channels_1,
-                    in_channels_2=in_channels_2,
-                )
+
+        self.layers = torch.nn.ModuleList(
+            SCN2Layer(
+                in_channels_0=in_channels_0,
+                in_channels_1=in_channels_1,
+                in_channels_2=in_channels_2,
             )
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
     def forward(self, x_0, x_1, x_2, laplacian_0, laplacian_1, laplacian_2):
         """Forward computation.

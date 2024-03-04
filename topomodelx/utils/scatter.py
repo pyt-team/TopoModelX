@@ -12,12 +12,11 @@ def broadcast(src: torch.Tensor, other: torch.Tensor, dim: int) -> torch.Tensor:
     if dim < 0:
         dim = other.dim() + dim
     if src.dim() == 1:
-        for _ in range(0, dim):
+        for _ in range(dim):
             src = src.unsqueeze(0)
     for _ in range(src.dim(), other.dim()):
         src = src.unsqueeze(-1)
-    src = src.expand(other.size())
-    return src
+    return src.expand(other.size())
 
 
 def scatter_sum(
@@ -39,8 +38,8 @@ def scatter_sum(
             size[dim] = int(index.max()) + 1
         out = torch.zeros(size, dtype=src.dtype, device=src.device)
         return out.scatter_add_(dim, index, src)
-    else:
-        return out.scatter_add_(dim, index, src)
+
+    return out.scatter_add_(dim, index, src)
 
 
 def scatter_add(
@@ -87,9 +86,7 @@ SCATTER_DICT = {"sum": scatter_sum, "mean": scatter_mean, "add": scatter_sum}
 
 def scatter(scatter: str):
     """Return the scatter function."""
-    if isinstance(scatter, str) and scatter in SCATTER_DICT:
-        return SCATTER_DICT[scatter]
-    else:
-        raise ValueError(
-            f"scatter must be callable or string: {list(SCATTER_DICT.keys())}"
-        )
+    if scatter not in SCATTER_DICT:
+        raise ValueError(f"scatter must be string: {list(SCATTER_DICT.keys())}")
+
+    return SCATTER_DICT[scatter]

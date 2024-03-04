@@ -10,7 +10,7 @@ from topomodelx.utils.sparse import from_sparse
 def test_from_sparse():
     """Tests from_sparse matches sparse -> dense -> sparse."""
     # test values matche
-    test_matrix = sparse._csc.csc_matrix(np.random.rand(100, 100))
+    test_matrix = sparse._csc.csc_matrix(np.random.default_rng().random((100, 100)))
     a = torch.from_numpy(test_matrix.todense()).to_sparse()
     b = from_sparse(test_matrix)
 

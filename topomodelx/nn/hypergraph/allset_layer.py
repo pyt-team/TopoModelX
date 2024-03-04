@@ -274,6 +274,4 @@ class AllSetBlock(nn.Module):
         x = F.relu(self.encoder(x))
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.conv(x, incidence)
-        x = F.relu(self.decoder(x))
-
-        return x
+        return F.relu(self.decoder(x))

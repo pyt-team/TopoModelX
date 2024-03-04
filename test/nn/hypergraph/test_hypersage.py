@@ -13,7 +13,7 @@ class TestHyperSAGE:
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        incidence = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        incidence = torch.from_numpy(np.random.default_rng().random((2, 2))).to_sparse()
         incidence = incidence.float().to(device)
         model = HyperSAGE(
             in_channels=2,

@@ -21,7 +21,9 @@ class TestAllSetTransfomer:
         ).to(device)
 
         x_0 = torch.rand(2, 2)
-        incidence_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        incidence_1 = torch.from_numpy(
+            np.random.default_rng().random((2, 2))
+        ).to_sparse()
 
         x_0 = x_0.float().to(device)
         incidence_1 = incidence_1.float().to(device)

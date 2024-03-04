@@ -96,8 +96,7 @@ class SAN(torch.nn.Module):
         """
         eye = torch.eye(laplacian.shape[0]).to(laplacian.device)
         projection_mat = eye - self.epsilon_harmonic * laplacian
-        projection_mat = torch.linalg.matrix_power(projection_mat, self.order_harmonic)
-        return projection_mat
+        return torch.linalg.matrix_power(projection_mat, self.order_harmonic)
 
     def forward(self, x, laplacian_up, laplacian_down):
         """Forward computation.

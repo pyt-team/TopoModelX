@@ -17,14 +17,10 @@ class HSN(torch.nn.Module):
 
     def __init__(self, channels, n_layers=2):
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                HSNLayer(
-                    channels=channels,
-                )
-            )
-        self.layers = layers
+
+        self.layers = torch.nn.ModuleList(
+            HSNLayer(channels=channels) for _ in range(n_layers)
+        )
 
     def forward(self, x_0, incidence_1, adjacency_0):
         """Forward computation.

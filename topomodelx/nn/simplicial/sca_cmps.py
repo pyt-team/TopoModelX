@@ -30,11 +30,9 @@ class SCACMPS(torch.nn.Module):
         self.n_layers = n_layers
         self.in_channels_all = in_channels_all
 
-        layers = []
-        for _ in range(n_layers):
-            layers.append(SCACMPSLayer(in_channels_all, complex_dim, att))
-
-        self.layers = torch.nn.ModuleList(layers)
+        self.layers = torch.nn.ModuleList(
+            SCACMPSLayer(in_channels_all, complex_dim, att) for _ in range(n_layers)
+        )
 
     def forward(self, x, laplacian_down_list, incidence_t_list):
         """Forward computation through layers, then linear layers, then avg pooling.

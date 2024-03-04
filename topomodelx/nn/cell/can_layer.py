@@ -484,8 +484,7 @@ class MultiHeadCellAttention(MessagePassing):
         )  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source, x_target):
         """Compute attention weights for messages.
@@ -519,9 +518,7 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -697,9 +694,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = self.attention(x_message)  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source):
         """Compute attention weights for messages.
@@ -726,9 +721,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -829,7 +822,7 @@ class CANLayer(torch.nn.Module):
         dropout: float = 0.0,
         concat: bool = True,
         skip_connection: bool = True,
-        att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
+        att_activation: torch.nn.Module | None = None,
         add_self_loops: bool = False,
         aggr_func: Literal["mean", "sum"] = "sum",
         update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
@@ -837,6 +830,9 @@ class CANLayer(torch.nn.Module):
         share_weights: bool = False,
     ) -> None:
         super().__init__()
+
+        if att_activation is None:
+            att_activation = torch.nn.LeakyReLU()
 
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
@@ -957,10 +953,8 @@ class CANLayer(torch.nn.Module):
             w_x = self.lin(x) * self.eps
 
         # between-neighborhood aggregation and update
-        out = (
+        return (
             self.aggregation([lower_x, upper_x, w_x])
             if hasattr(self, "lin")
             else self.aggregation([lower_x, upper_x])
         )
-
-        return out
