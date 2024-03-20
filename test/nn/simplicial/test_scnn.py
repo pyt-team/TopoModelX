@@ -66,12 +66,8 @@ class TestSCNN:
                     "input dimension must be 0, 1 or 2, because features are supported on nodes, edges and faces"
                 )
 
-            x = []
-            for _, v in dataset.get_simplex_attributes(which_feat).items():
-                x.append(v)
-
-            x = torch.tensor(np.stack(x))
-            return x
+            x = list(dataset.get_simplex_attributes(which_feat).values())
+            return torch.tensor(np.stack(x))
 
         model = SCNN(
             in_channels=in_channels,

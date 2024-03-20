@@ -34,17 +34,14 @@ class HyperGAT(torch.nn.Module):
         layer_drop=0.2,
     ):
         super().__init__()
-        layers = []
-        layers.append(
-            HyperGATLayer(in_channels=in_channels, hidden_channels=hidden_channels)
-        )
-        for _ in range(1, n_layers):
-            layers.append(
-                HyperGATLayer(
-                    in_channels=hidden_channels, hidden_channels=hidden_channels
-                )
+
+        self.layers = torch.nn.ModuleList(
+            HyperGATLayer(
+                in_channels=in_channels if i == 0 else hidden_channels,
+                hidden_channels=hidden_channels,
             )
-        self.layers = torch.nn.ModuleList(layers)
+            for i in range(n_layers)
+        )
         self.layer_drop = torch.nn.Dropout(layer_drop)
 
     def forward(self, x_0, incidence_1):

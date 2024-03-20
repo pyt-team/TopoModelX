@@ -1,36 +1,14 @@
-name: "Lint"
+name: Linting
 
 on:
   push:
-    branches: [main,github-actions-test]
+    branches: [ main,github-actions-test ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
-  black-isort-flake8:
-
-    runs-on: ${{matrix.os}}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.11.3]
-      fail-fast: false
-
+  ruff:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Linting
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{matrix.python-version}}
-          cache: "pip"
-          cache-dependency-path: "pyproject.toml"
-
-      - name: Install main package [pip]
-        run:  |
-          pip install -e .[dev]
-      - name : linting [black, isort, flake8]
-        run: |
-          black . --check
-          isort --profile black --check .
-          flake8 .
-
+      - uses: chartboost/ruff-action@v1

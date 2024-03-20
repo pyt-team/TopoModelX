@@ -46,20 +46,17 @@ class SCCNN(torch.nn.Module):
         self.in_linear_1 = torch.nn.Linear(in_channels_all[1], hidden_channels_all[1])
         self.in_linear_2 = torch.nn.Linear(in_channels_all[2], hidden_channels_all[2])
 
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                SCCNNLayer(
-                    in_channels=hidden_channels_all,
-                    out_channels=hidden_channels_all,
-                    conv_order=conv_order,
-                    sc_order=sc_order,
-                    aggr_norm=aggr_norm,
-                    update_func=update_func,
-                )
+        self.layers = torch.nn.ModuleList(
+            SCCNNLayer(
+                in_channels=hidden_channels_all,
+                out_channels=hidden_channels_all,
+                conv_order=conv_order,
+                sc_order=sc_order,
+                aggr_norm=aggr_norm,
+                update_func=update_func,
             )
-
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
     def forward(self, x_all, laplacian_all, incidence_all):
         """Forward computation.

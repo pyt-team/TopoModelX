@@ -103,5 +103,4 @@ class SCoNeLayer(torch.nn.Module):
         z1 = incidence_2 @ incidence_2.T @ x @ self.weight_2
         z2 = x @ self.weight_1
         z3 = incidence_1.T @ incidence_1 @ x @ self.weight_0
-        out = self.aggr_on_edges([z1, z2, z3])
-        return out
+        return self.aggr_on_edges([z1, z2, z3])

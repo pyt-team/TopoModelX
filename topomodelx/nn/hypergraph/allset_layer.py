@@ -215,7 +215,7 @@ class AllSetBlock(nn.Module):
         mlp_dropout: float = 0.0,
         mlp_norm=None,
     ) -> None:
-        super(AllSetBlock, self).__init__()
+        super().__init__()
 
         self.dropout = dropout
         if mlp_num_layers > 0:
@@ -274,6 +274,4 @@ class AllSetBlock(nn.Module):
         x = F.relu(self.encoder(x))
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.conv(x, incidence)
-        x = F.relu(self.decoder(x))
-
-        return x
+        return F.relu(self.decoder(x))

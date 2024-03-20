@@ -105,7 +105,7 @@ def copy_thumbnails():
         if len(c) == 0:
             all_directories = b
             continue
-        elif len(b) != 0:
+        if len(b) != 0:
             raise NotImplementedError(
                 "Not yet implemented for the case with more than one nested directory."
             )

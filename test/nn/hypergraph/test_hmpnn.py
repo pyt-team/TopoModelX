@@ -23,7 +23,9 @@ class TestHMPNN:
         x_0 = torch.rand(n_nodes, in_channels).float().to(device)
         x_1 = torch.rand(n_edges, in_channels).float().to(device)
 
-        adjacency_1 = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
+        adjacency_1 = torch.from_numpy(
+            np.random.default_rng().random((n_nodes, n_edges))
+        ).to_sparse()
         adjacency_1 = adjacency_1.float().to(device)
 
         x_0, x_1 = model(x_0, x_1, adjacency_1)

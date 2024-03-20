@@ -19,8 +19,6 @@ class CWN(torch.nn.Module):
         Dimension of input features on faces (2-cells).
     hid_channels : int
         Dimension of hidden features.
-    num_classes : int
-        Number of classes.
     n_layers : int
         Number of CWN layers.
 
@@ -38,29 +36,23 @@ class CWN(torch.nn.Module):
         in_channels_1,
         in_channels_2,
         hid_channels,
-        num_classes,
         n_layers,
     ):
         super().__init__()
+
         self.proj_0 = torch.nn.Linear(in_channels_0, hid_channels)
         self.proj_1 = torch.nn.Linear(in_channels_1, hid_channels)
         self.proj_2 = torch.nn.Linear(in_channels_2, hid_channels)
 
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                CWNLayer(
-                    in_channels_0=hid_channels,
-                    in_channels_1=hid_channels,
-                    in_channels_2=hid_channels,
-                    out_channels=hid_channels,
-                )
+        self.layers = torch.nn.ModuleList(
+            CWNLayer(
+                in_channels_0=hid_channels,
+                in_channels_1=hid_channels,
+                in_channels_2=hid_channels,
+                out_channels=hid_channels,
             )
-        self.layers = torch.nn.ModuleList(layers)
-
-        self.lin_0 = torch.nn.Linear(hid_channels, num_classes)
-        self.lin_1 = torch.nn.Linear(hid_channels, num_classes)
-        self.lin_2 = torch.nn.Linear(hid_channels, num_classes)
+            for _ in range(n_layers)
+        )
 
     def forward(
         self,
@@ -90,8 +82,12 @@ class CWN(torch.nn.Module):
 
         Returns
         -------
-        torch.Tensor, shape = (1)
-            Label assigned to whole complex.
+        x_0 : torch.Tensor, shape = (n_nodes, in_channels_0)
+            Final hidden states of the nodes (0-cells).
+        x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
+            Final hidden states the edges (1-cells).
+        x_2 : torch.Tensor, shape = (n_edges, in_channels_2)
+            Final hidden states of the faces (2-cells).
         """
         x_0 = F.elu(self.proj_0(x_0))
         x_1 = F.elu(self.proj_1(x_1))
@@ -107,23 +103,4 @@ class CWN(torch.nn.Module):
                 neighborhood_0_to_1,
             )
 
-        x_0 = self.lin_0(x_0)
-        x_1 = self.lin_1(x_1)
-        x_2 = self.lin_2(x_2)
-
-        # Take the average of the 2D, 1D, and 0D cell features. If they are NaN, convert them to 0.
-        two_dimensional_cells_mean = torch.nanmean(x_2, dim=0)
-        two_dimensional_cells_mean[torch.isnan(two_dimensional_cells_mean)] = 0
-
-        one_dimensional_cells_mean = torch.nanmean(x_1, dim=0)
-        one_dimensional_cells_mean[torch.isnan(one_dimensional_cells_mean)] = 0
-
-        zero_dimensional_cells_mean = torch.nanmean(x_0, dim=0)
-        zero_dimensional_cells_mean[torch.isnan(zero_dimensional_cells_mean)] = 0
-
-        # Return the sum of the averages
-        return (
-            two_dimensional_cells_mean
-            + one_dimensional_cells_mean
-            + zero_dimensional_cells_mean
-        )
+        return x_0, x_1, x_2

@@ -17,14 +17,10 @@ class Dist2Cycle(torch.nn.Module):
 
     def __init__(self, channels, n_layers=2):
         super().__init__()
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                Dist2CycleLayer(
-                    channels=channels,
-                )
-            )
-        self.layers = layers
+
+        self.layers = torch.nn.ModuleList(
+            Dist2CycleLayer(channels=channels) for _ in range(n_layers)
+        )
 
     def forward(self, x_1e, Linv, adjacency):
         """Forward computation.

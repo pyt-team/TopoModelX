@@ -186,9 +186,7 @@ class CWNLayer(nn.Module):
         x_convolved_0_to_1 = self.conv_0_to_1(x_0, x_1, neighborhood_0_to_1)
 
         x_aggregated = self.aggregate_fn(x_convolved_1_to_1, x_convolved_0_to_1)
-        x_updated = self.update_fn(x_aggregated, x_1)
-
-        return x_updated
+        return self.update_fn(x_aggregated, x_1)
 
 
 class _CWNDefaultFirstConv(nn.Module):
@@ -263,8 +261,7 @@ class _CWNDefaultSecondConv(nn.Module):
         torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
-        x_boundary = F.elu(self.conv_0_to_1(x_0, neighborhood_0_to_1))
-        return x_boundary
+        return F.elu(self.conv_0_to_1(x_0, neighborhood_0_to_1))
 
 
 class _CWNDefaultAggregate(nn.Module):
@@ -318,5 +315,4 @@ class _CWNDefaultUpdate(nn.Module):
         torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
-        x_updated = F.elu(self.transform(x))
-        return x_updated
+        return F.elu(self.transform(x))

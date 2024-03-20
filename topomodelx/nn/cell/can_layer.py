@@ -1,12 +1,12 @@
 """Cell Attention Network layer."""
 
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import torch
 from torch import nn, topk
-from torch.nn import Linear, Parameter
+from torch.nn import Linear, Parameter, init
 from torch.nn import functional as F
-from torch.nn import init
 
 from topomodelx.base.aggregation import Aggregation
 from topomodelx.base.message_passing import MessagePassing
@@ -112,7 +112,7 @@ class LiftLayer(MessagePassing):
         signal_lift_activation: Callable,
         signal_lift_dropout: float,
     ) -> None:
-        super(LiftLayer, self).__init__()
+        super().__init__()
 
         self.in_channels_0 = in_channels_0
         self.att_parameter = nn.Parameter(torch.empty(size=(2 * in_channels_0, heads)))
@@ -201,7 +201,7 @@ class MultiHeadLiftLayer(nn.Module):
         signal_lift_dropout: float = 0.0,
         signal_lift_readout: str = "cat",
     ) -> None:
-        super(MultiHeadLiftLayer, self).__init__()
+        super().__init__()
 
         assert heads > 0, ValueError("Number of heads must be > 0")
         assert signal_lift_readout in [
@@ -289,7 +289,7 @@ class PoolLayer(MessagePassing):
     Parameters
     ----------
     k_pool : float in (0, 1]
-        The pooling ratio i.e, the fraction of edges to keep after the pooling operation.
+        The pooling ratio i.e, the fraction of r-cells to keep after the pooling operation.
     in_channels_0 : int
         Number of input channels of the input signal.
     signal_pool_activation : Callable
@@ -305,7 +305,7 @@ class PoolLayer(MessagePassing):
         signal_pool_activation: Callable,
         readout: bool = True,
     ) -> None:
-        super(PoolLayer, self).__init__()
+        super().__init__()
 
         self.k_pool = k_pool
         self.in_channels_0 = in_channels_0
@@ -322,13 +322,15 @@ class PoolLayer(MessagePassing):
         gain = init.calculate_gain("relu")
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
-    def forward(self, x_0, lower_neighborhood, upper_neighborhood) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:  # type: ignore[override]
+    def forward(  # type: ignore[override]
+        self, x, lower_neighborhood, upper_neighborhood
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         r"""Forward pass.
 
         Parameters
         ----------
-        x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
-            Node signal.
+        x : torch.Tensor, shape = (n_r_cells, in_channels_r)
+            Input r-cell signal.
         lower_neighborhood : torch.Tensor
             Lower neighborhood matrix.
         upper_neighborhood : torch.Tensor
@@ -337,7 +339,7 @@ class PoolLayer(MessagePassing):
         Returns
         -------
         torch.Tensor
-            Pooled node signal of shape (num_pooled_nodes, in_channels_0).
+            Pooled r_cell signal of shape (n_r_cells, in_channels_r).
 
         Notes
         -----
@@ -349,21 +351,19 @@ class PoolLayer(MessagePassing):
                 = \phi^t(h_x^t, m_{x}^{(r)}), \forall x\in \mathcal C_r^{t+1}
             \end{align*}
         """
-        # Compute the output edge signal by applying the activation function
-        Zp = torch.einsum("nc,ce->ne", x_0, self.att_pool)
-        # Apply top-k pooling to the edge signal
+        # Compute the output r-cell signal by applying the activation function
+        Zp = torch.einsum("nc,ce->ne", x, self.att_pool)
+        # Apply top-k pooling to the r-cell signal
         _, top_indices = topk(Zp.view(-1), int(self.k_pool * Zp.size(0)))
         # Rescale the pooled signal
         Zp = self.signal_pool_activation(Zp)
-        out = x_0[top_indices] * Zp[top_indices]
+        out = x[top_indices] * Zp[top_indices]
 
         # Readout operation
         if self.readout:
-            out = scatter_add(out, top_indices, dim=0, dim_size=x_0.size(0))[
-                top_indices
-            ]
+            out = scatter_add(out, top_indices, dim=0, dim_size=x.size(0))[top_indices]
 
-        # Update lower and upper neighborhood matrices with the top-k pooled edges
+        # Update lower and upper neighborhood matrices with the top-k pooled r-cells
         lower_neighborhood_modified = torch.index_select(
             lower_neighborhood, 0, top_indices
         )
@@ -484,8 +484,7 @@ class MultiHeadCellAttention(MessagePassing):
         )  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source, x_target):
         """Compute attention weights for messages.
@@ -519,9 +518,7 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -697,9 +694,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = self.attention(x_message)  # (|n_k_cells|, H)
 
         # for each head, Aggregate the messages
-        message = x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
-
-        return message
+        return x_source_per_message * alpha[:, :, None]  # (|n_k_cells|, H, C)
 
     def attention(self, x_source):
         """Compute attention weights for messages.
@@ -726,9 +721,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
 
         # Apply dropout
-        alpha = F.dropout(alpha, p=self.dropout, training=self.training)
-
-        return alpha  # (|n_k_cells|, H)
+        return F.dropout(alpha, p=self.dropout, training=self.training)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -829,7 +822,7 @@ class CANLayer(torch.nn.Module):
         dropout: float = 0.0,
         concat: bool = True,
         skip_connection: bool = True,
-        att_activation: torch.nn.Module = torch.nn.LeakyReLU(),
+        att_activation: torch.nn.Module | None = None,
         add_self_loops: bool = False,
         aggr_func: Literal["mean", "sum"] = "sum",
         update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
@@ -837,6 +830,9 @@ class CANLayer(torch.nn.Module):
         share_weights: bool = False,
     ) -> None:
         super().__init__()
+
+        if att_activation is None:
+            att_activation = torch.nn.LeakyReLU()
 
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
@@ -957,10 +953,8 @@ class CANLayer(torch.nn.Module):
             w_x = self.lin(x) * self.eps
 
         # between-neighborhood aggregation and update
-        out = (
+        return (
             self.aggregation([lower_x, upper_x, w_x])
             if hasattr(self, "lin")
             else self.aggregation([lower_x, upper_x])
         )
-
-        return out

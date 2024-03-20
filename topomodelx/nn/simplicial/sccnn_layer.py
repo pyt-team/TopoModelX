@@ -206,6 +206,7 @@ class SCCNNLayer(torch.nn.Module):
             return torch.sigmoid(x)
         if self.update_func == "relu":
             return torch.nn.functional.relu(x)
+        return None
 
     def chebyshev_conv(self, conv_operator, conv_order, x):
         r"""Perform Chebyshev convolution.

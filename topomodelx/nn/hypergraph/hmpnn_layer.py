@@ -76,10 +76,7 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
         neighborhood = self.apply_dropout(neighborhood, self.adjacency_dropout)
         self.target_index_i, source_index_j = neighborhood.indices()
 
-        x_message_aggregated = self.aggregate(
-            x_message.index_select(-2, source_index_j)
-        )
-        return x_message_aggregated
+        return self.aggregate(x_message.index_select(-2, source_index_j))
 
 
 class _DefaultHyperedgeToNodeMessagingFunc(nn.Module):

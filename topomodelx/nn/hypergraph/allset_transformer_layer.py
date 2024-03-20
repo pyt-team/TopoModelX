@@ -379,10 +379,7 @@ class MultiHeadAttention(MessagePassing):
                 alpha.shape[0],
             ],
         )
-        alpha_soft = (
-            torch.sparse.softmax(expanded_alpha, dim=1).to_dense().transpose(1, 3)
-        )
-        return alpha_soft
+        return torch.sparse.softmax(expanded_alpha, dim=1).to_dense().transpose(1, 3)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -410,9 +407,7 @@ class MultiHeadAttention(MessagePassing):
         attention_values = self.attention(x_source, neighborhood)
 
         x_message = torch.matmul(x_source, self.V_weight)
-        x_message_on_target = torch.matmul(attention_values, x_message)
-
-        return x_message_on_target
+        return torch.matmul(attention_values, x_message)
 
 
 class MLP(nn.Sequential):

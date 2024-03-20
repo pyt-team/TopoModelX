@@ -60,24 +60,16 @@ class UniSAGE(torch.nn.Module):
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
 
-        layers = []
-        layers.append(
+        self.layers = torch.nn.ModuleList(
             UniSAGELayer(
-                in_channels=in_channels,
+                in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
                 e_aggr=e_aggr,
                 v_aggr=v_aggr,
                 use_norm=use_norm,
             )
+            for i in range(n_layers)
         )
-        for _ in range(n_layers - 1):
-            layers.append(
-                UniSAGELayer(
-                    in_channels=hidden_channels,
-                    hidden_channels=hidden_channels,
-                )
-            )
-        self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.

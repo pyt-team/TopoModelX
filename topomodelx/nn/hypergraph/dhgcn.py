@@ -33,23 +33,15 @@ class DHGCN(torch.nn.Module):
         n_layers=1,
     ):
         super().__init__()
-        layers = []
-        layers.append(
+
+        self.layers = torch.nn.ModuleList(
             DHGCNLayer(
-                in_channels=in_channels,
+                in_channels=in_channels if i == 0 else hidden_channels,
                 intermediate_channels=hidden_channels,
                 out_channels=hidden_channels,
             )
+            for i in range(n_layers)
         )
-        for _ in range(n_layers - 1):
-            layers.append(
-                DHGCNLayer(
-                    in_channels=hidden_channels,
-                    intermediate_channels=hidden_channels,
-                    out_channels=hidden_channels,
-                )
-            )
-        self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, x_0):
         """Forward computation through layers, then global average pooling, then linear layer.

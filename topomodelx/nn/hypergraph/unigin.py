@@ -48,24 +48,21 @@ class UniGIN(torch.nn.Module):
         use_norm=False,
     ):
         super().__init__()
-        layers = []
 
         self.input_drop = torch.nn.Dropout(input_drop)
         self.layer_drop = torch.nn.Dropout(layer_drop)
 
         self.initial_linear_layer = torch.nn.Linear(in_channels, hidden_channels)
 
-        for _ in range(n_layers):
-            layers.append(
-                UniGINLayer(
-                    in_channels=hidden_channels,
-                    eps=eps,
-                    train_eps=train_eps,
-                    use_norm=use_norm,
-                )
+        self.layers = torch.nn.ModuleList(
+            UniGINLayer(
+                in_channels=hidden_channels,
+                eps=eps,
+                train_eps=train_eps,
+                use_norm=use_norm,
             )
-
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
     def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.

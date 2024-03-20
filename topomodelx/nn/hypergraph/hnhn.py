@@ -34,23 +34,14 @@ class HNHN(torch.nn.Module):
     ):
         super().__init__()
 
-        layers = []
-        layers.append(
+        self.layers = torch.nn.ModuleList(
             HNHNLayer(
-                in_channels=in_channels,
+                in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
                 incidence_1=incidence_1,
             )
+            for i in range(n_layers)
         )
-        for _ in range(n_layers - 1):
-            layers.append(
-                HNHNLayer(
-                    in_channels=hidden_channels,
-                    hidden_channels=hidden_channels,
-                    incidence_1=incidence_1,
-                )
-            )
-        self.layers = torch.nn.ModuleList(layers)
         self.layer_drop = torch.nn.Dropout(layer_drop)
 
     def forward(self, x_0, incidence_1=None):

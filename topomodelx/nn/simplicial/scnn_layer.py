@@ -128,8 +128,9 @@ class SCNNLayer(torch.nn.Module):
         """
         if self.update_func == "sigmoid":
             return torch.sigmoid(x)
-        elif self.update_func == "relu":
+        if self.update_func == "relu":
             return torch.nn.functional.relu(x)
+        return None
 
     def chebyshev_conv(self, conv_operator, conv_order, x):
         r"""Perform Chebyshev convolution.

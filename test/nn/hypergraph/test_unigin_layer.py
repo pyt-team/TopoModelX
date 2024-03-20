@@ -24,7 +24,9 @@ class TestUniGINLayer:
     def test_forward(self, unigin_layer, unigin_layer2):
         """Test the forward pass of the UniGIN layer."""
         n_nodes, n_edges = 2, 3
-        incidence = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
+        incidence = torch.from_numpy(
+            np.random.default_rng().random((n_nodes, n_edges))
+        ).to_sparse()
         incidence = incidence.float()
         x_0 = torch.rand(n_nodes, self.in_channels).float()
         x_0, x_1 = unigin_layer.forward(x_0, incidence)

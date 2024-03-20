@@ -18,7 +18,6 @@ class TestCAN:
             out_channels=2,
             dropout=0.5,
             heads=1,
-            num_classes=1,
             n_layers=2,
             att_lift=False,
         ).to(device)
@@ -26,7 +25,9 @@ class TestCAN:
         x_0 = torch.rand(2, 2)
         x_1 = torch.rand(2, 2)
 
-        adjacency_1 = torch.from_numpy(np.random.rand(2, 2)).to_sparse()
+        adjacency_1 = torch.from_numpy(
+            np.random.default_rng().random((2, 2))
+        ).to_sparse()
 
         x_0, x_1 = (
             torch.tensor(x_0).float().to(device),
@@ -36,5 +37,5 @@ class TestCAN:
         adjacency_2 = adjacency_1.float().to(device)
         incidence_2 = adjacency_1.float().to(device)
 
-        y = model(x_0, x_1, adjacency_1, adjacency_2, incidence_2)
-        assert y.shape == torch.Size([1])
+        x_1 = model(x_0, x_1, adjacency_1, adjacency_2, incidence_2)
+        assert x_1.shape == torch.Size([1, 2])

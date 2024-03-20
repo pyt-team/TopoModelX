@@ -41,17 +41,19 @@ class SCNN(torch.nn.Module):
     ):
         super().__init__()
         # First layer -- initial layer has the in_channels as input, and inter_channels as the output
-        layers = [
-            SCNNLayer(
-                in_channels=in_channels,
-                out_channels=hidden_channels,
-                conv_order_down=conv_order_down,
-                conv_order_up=conv_order_up,
-            )
-        ]
+        self.layers = torch.nn.ModuleList(
+            [
+                SCNNLayer(
+                    in_channels=in_channels,
+                    out_channels=hidden_channels,
+                    conv_order_down=conv_order_down,
+                    conv_order_up=conv_order_up,
+                )
+            ]
+        )
 
         for _ in range(n_layers - 1):
-            layers.append(
+            self.layers.append(
                 SCNNLayer(
                     in_channels=hidden_channels,
                     out_channels=hidden_channels,
@@ -61,7 +63,6 @@ class SCNN(torch.nn.Module):
                     update_func=update_func,
                 )
             )
-        self.layers = torch.nn.ModuleList(layers)
 
     def forward(self, x, laplacian_down, laplacian_up):
         """Forward computation.

@@ -33,17 +33,14 @@ class SCConv(torch.nn.Module):
         self.face_channels = node_channels if face_channels is None else face_channels
         self.n_layers = n_layers
 
-        layers = []
-        for _ in range(n_layers):
-            layers.append(
-                SCConvLayer(
-                    node_channels=self.node_channels,
-                    edge_channels=self.edge_channels,
-                    face_channels=self.face_channels,
-                )
+        self.layers = torch.nn.ModuleList(
+            SCConvLayer(
+                node_channels=self.node_channels,
+                edge_channels=self.edge_channels,
+                face_channels=self.face_channels,
             )
-
-        self.layers = torch.nn.ModuleList(layers)
+            for _ in range(n_layers)
+        )
 
     def forward(
         self,

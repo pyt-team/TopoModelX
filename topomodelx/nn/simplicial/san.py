@@ -5,7 +5,7 @@ from topomodelx.nn.simplicial.san_layer import SANLayer
 
 
 class SAN(torch.nn.Module):
-    r"""Simplicial Attention Network (SAN) implementation for binary edge classification.
+    """Simplicial Attention Network (SAN) implementation for binary edge classification.
 
     Parameters
     ----------
@@ -36,6 +36,7 @@ class SAN(torch.nn.Module):
         n_layers=2,
     ):
         super().__init__()
+
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
         self.out_channels = (
@@ -76,6 +77,7 @@ class SAN(torch.nn.Module):
                     n_filters=self.n_filters,
                 )
             )
+        self.layers = torch.nn.ModuleList(self.layers)
 
     def compute_projection_matrix(self, laplacian):
         """Compute the projection matrix.
@@ -92,11 +94,9 @@ class SAN(torch.nn.Module):
         torch.Tensor, shape = (n_edges, n_edges)
             Projection matrix.
         """
-        projection_mat = (
-            torch.eye(laplacian.shape[0]) - self.epsilon_harmonic * laplacian
-        )
-        projection_mat = torch.linalg.matrix_power(projection_mat, self.order_harmonic)
-        return projection_mat
+        eye = torch.eye(laplacian.shape[0]).to(laplacian.device)
+        projection_mat = eye - self.epsilon_harmonic * laplacian
+        return torch.linalg.matrix_power(projection_mat, self.order_harmonic)
 
     def forward(self, x, laplacian_up, laplacian_down):
         """Forward computation.

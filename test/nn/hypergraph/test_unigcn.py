@@ -13,7 +13,9 @@ class TestUniGCN:
         """Test forward method."""
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         n_nodes, n_edges = 2, 5
-        incidence = torch.from_numpy(np.random.rand(n_nodes, n_edges)).to_sparse()
+        incidence = torch.from_numpy(
+            np.random.default_rng().random((n_nodes, n_edges))
+        ).to_sparse()
         incidence = incidence.float().to(device)
         in_channels, hidden_channels = 2, 10
         model = UniGCN(

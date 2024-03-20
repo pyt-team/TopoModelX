@@ -574,7 +574,7 @@ class HBS(torch.nn.Module):
                     "Should be either xavier_uniform or xavier_normal."
                 )
 
-        for w, a in zip(self.weight, self.att_weight):
+        for w, a in zip(self.weight, self.att_weight, strict=True):
             reset_p_hop_parameters(w, a)
 
     def update(self, message: torch.Tensor) -> torch.Tensor:
@@ -598,11 +598,10 @@ class HBS(torch.nn.Module):
             return torch.nn.functional.relu(message)
         if self.update_func == "tanh":
             return torch.nn.functional.tanh(message)
-        else:
-            raise RuntimeError(
-                "Update function not recognized. Should be either sigmoid, "
-                "relu or tanh."
-            )
+
+        raise RuntimeError(
+            "Update function not recognized. Should be either sigmoid, relu or tanh."
+        )
 
     def attention(
         self, message: torch.Tensor, A_p: torch.Tensor, a_p: torch.Tensor
@@ -637,11 +636,9 @@ class HBS(torch.nn.Module):
             size=(n_messages, n_messages),
             device=self.get_device(),
         )
-        att_p = (
+        return (
             torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
         )
-
-        return att_p
 
     def forward(
         self, x_source: torch.Tensor, neighborhood: torch.Tensor
@@ -685,7 +682,9 @@ class HBS(torch.nn.Module):
 
         att = [
             self.attention(m_p, A_p, a_p)
-            for m_p, A_p, a_p in zip(message, m_hop_matrices, self.att_weight)
+            for m_p, A_p, a_p in zip(
+                message, m_hop_matrices, self.att_weight, strict=True
+            )
         ]
 
         def sparse_hadamard(A_p, att_p):
@@ -697,10 +696,14 @@ class HBS(torch.nn.Module):
             )
 
         att_m_hop_matrices = [
-            sparse_hadamard(A_p, att_p) for A_p, att_p in zip(m_hop_matrices, att)
+            sparse_hadamard(A_p, att_p)
+            for A_p, att_p in zip(m_hop_matrices, att, strict=True)
         ]
 
-        message = [torch.mm(n_p, m_p) for n_p, m_p in zip(att_m_hop_matrices, message)]
+        message = [
+            torch.mm(n_p, m_p)
+            for n_p, m_p in zip(att_m_hop_matrices, message, strict=True)
+        ]
         result = torch.zeros_like(message[0])
 
         for m_p in message:
@@ -809,7 +812,7 @@ class HMCLayer(torch.nn.Module):
         update_func_aggregation=None,
         initialization="xavier_uniform",
     ):
-        super(HMCLayer, self).__init__()
+        super().__init__()
         super().__init__()
 
         assert (
