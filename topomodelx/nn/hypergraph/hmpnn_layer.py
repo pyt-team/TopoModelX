@@ -122,10 +122,10 @@ class HMPNNLayer(nn.Module):
     ----------
     in_channels : int
         Dimension of input features.
-    node_to_hyperedge_messaging_func: None
+    node_to_hyperedge_messaging_func : None
         Node messaging function as a callable or nn.Module object. If not given, a linear plus sigmoid
         function is used, according to the paper.
-    hyperedge_to_node_messaging_func: None
+    hyperedge_to_node_messaging_func : None
         Hyperedge messaging function as a callable or nn.Module object. It gets hyperedge input features
         and aggregated messages of nodes as input and returns hyperedge messages. If not given, two inputs
         are concatenated and a linear layer reducing back to in_channels plus sigmoid is applied, according

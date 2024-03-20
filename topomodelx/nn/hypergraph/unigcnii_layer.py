@@ -1,6 +1,8 @@
 """UniGCNII layer implementation."""
 import torch
 
+from topomodelx.base.conv import Conv
+
 
 class UniGCNIILayer(torch.nn.Module):
     r"""
@@ -16,6 +18,8 @@ class UniGCNIILayer(torch.nn.Module):
         The alpha parameter determining the importance of the self-loop (\theta_2).
     beta : float
         The beta parameter determining the importance of the learned matrix (\theta_1).
+    use_norm : bool, default=False
+        Whether to apply row normalization after the layer.
 
     References
     ----------
@@ -25,12 +29,20 @@ class UniGCNIILayer(torch.nn.Module):
         https://arxiv.org/pdf/2105.00956.pdf
     """
 
-    def __init__(self, in_channels, hidden_channels, alpha: float, beta: float) -> None:
+    def __init__(
+        self, in_channels, hidden_channels, alpha: float, beta: float, use_norm=False
+    ) -> None:
         super().__init__()
 
         self.alpha = alpha
         self.beta = beta
         self.linear = torch.nn.Linear(in_channels, hidden_channels, bias=False)
+        self.conv = Conv(
+            in_channels=in_channels,
+            out_channels=in_channels,
+            with_linear_transform=False,
+        )
+        self.use_norm = use_norm
 
     def reset_parameters(self) -> None:
         """Reset the parameters of the layer."""
@@ -90,7 +102,7 @@ class UniGCNIILayer(torch.nn.Module):
         incidence_1_transpose = incidence_1.transpose(0, 1)
 
         # First message without any learning or parameters
-        x_1 = torch.sparse.mm(incidence_1_transpose, x_0)
+        x_1 = self.conv(x_0, incidence_1_transpose)
 
         # Compute node and edge degrees for normalization.
         node_degree = torch.sum(incidence_1.to_dense(), dim=1)
@@ -108,11 +120,18 @@ class UniGCNIILayer(torch.nn.Module):
         edge_degree = edge_degree / torch.sum(incidence_1.to_dense(), dim=0)
 
         # Second message normalized with node and edge degrees (using broadcasting)
-        x_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * torch.sparse.mm(
-            incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree)), x_1
+        x_0 = (1 / torch.sqrt(node_degree).unsqueeze(-1)) * self.conv(
+            x_1, incidence_1 @ torch.diag(1 / torch.sqrt(edge_degree))
         )
 
         # Introduce skip connections with hyperparameter alpha and beta
         x_combined = ((1 - self.alpha) * x_0) + (self.alpha * x_skip)
         x_0 = ((1 - self.beta) * x_combined) + self.beta * self.linear(x_combined)
+
+        if self.use_norm:
+            rownorm = x_0.detach().norm(dim=1, keepdim=True)
+            scale = rownorm.pow(-1)
+            scale[torch.isinf(scale)] = 0.0
+            x_0 = x_0 * scale
+
         return x_0, x_1

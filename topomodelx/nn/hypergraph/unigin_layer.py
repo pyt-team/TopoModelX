@@ -1,6 +1,8 @@
 """Implementation of UniGIN layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
 import torch
 
+from topomodelx.base.conv import Conv
+
 
 class UniGINLayer(torch.nn.Module):
     """Layer of UniGIN.
@@ -13,8 +15,11 @@ class UniGINLayer(torch.nn.Module):
         Dimension of input features.
     eps : float, default=0.0
         Constant in GIN Update equation.
-    train_eps : boolm, default=False
+    train_eps : bool, default=False
         Whether to make eps a trainable parameter.
+    use_norm : bool, default=False
+        Whether to apply row normalization after the layer.
+
 
     References
     ----------
@@ -35,6 +40,7 @@ class UniGINLayer(torch.nn.Module):
         in_channels,
         eps: float = 0.0,
         train_eps: bool = False,
+        use_norm: bool = False,
     ) -> None:
         super().__init__()
 
@@ -45,6 +51,19 @@ class UniGINLayer(torch.nn.Module):
             self.register_buffer("eps", torch.Tensor([eps]))
 
         self.linear = torch.nn.Linear(in_channels, in_channels)
+
+        self.use_norm = use_norm
+
+        self.vertex2edge = Conv(
+            in_channels=in_channels,
+            out_channels=in_channels,
+            with_linear_transform=False,
+        )
+        self.edge2vertex = Conv(
+            in_channels=in_channels,
+            out_channels=in_channels,
+            with_linear_transform=False,
+        )
 
     def forward(self, x_0, incidence_1):
         r"""[1]_ initially proposed the forward pass.
@@ -93,9 +112,16 @@ class UniGINLayer(torch.nn.Module):
         """
         incidence_1_transpose = incidence_1.to_dense().T.to_sparse()
         # First pass fills in features of edges by adding features of constituent nodes
-        x_1 = torch.sparse.mm(incidence_1_transpose.float(), x_0)
+        x_1 = self.vertex2edge(x_0, incidence_1_transpose)
         # Second pass fills in features of nodes by adding features of the incident edges
-        m_1_0 = torch.sparse.mm(incidence_1.float(), x_1)
+        m_1_0 = self.edge2vertex(x_1, incidence_1)
         # Update node features using GIN update equation
         x_0 = self.linear((1 + self.eps) * x_0 + m_1_0)
+
+        if self.use_norm:
+            rownorm = x_0.detach().norm(dim=1, keepdim=True)
+            scale = rownorm.pow(-1)
+            scale[torch.isinf(scale)] = 0.0
+            x_0 = x_0 * scale
+
         return x_0, x_1

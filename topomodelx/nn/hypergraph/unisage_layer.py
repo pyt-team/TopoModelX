@@ -20,8 +20,8 @@ class UniSAGELayer(torch.nn.Module):
         Aggregator function for hyperedges.
     v_aggr : Literal["sum", "mean",], default="mean"
         Aggregator function for nodes.
-    use_bn : boolean
-        Whether to use bathnorm after the linear transformation.
+    use_norm : boolean
+        Whether to apply row normalization after every layer.
 
     References
     ----------
@@ -58,12 +58,12 @@ class UniSAGELayer(torch.nn.Module):
             "sum",
             "mean",
         ] = "mean",
-        use_bn: bool = False,
+        use_norm: bool = False,
     ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
-        self.bn = torch.nn.BatchNorm1d(hidden_channels) if use_bn else None
+        self.use_norm = use_norm
 
         self.linear = torch.nn.Linear(in_channels, hidden_channels)
 
@@ -90,8 +90,6 @@ class UniSAGELayer(torch.nn.Module):
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
         self.linear.reset_parameters()
-        if self.bn is not None:
-            self.bn.reset_parameters()
 
     def forward(self, x_0, incidence_1):
         r"""[1]_ initially proposed the forward pass.
@@ -139,11 +137,15 @@ class UniSAGELayer(torch.nn.Module):
             Output hyperedge features.
         """
         x_0 = self.linear(x_0)
-        if self.bn is not None:
-            x_0 = self.bn(x_0)
 
         x_1 = self.vertex2edge(x_0, incidence_1.transpose(1, 0))
         m_1_0 = self.edge2vertex(x_1, incidence_1)
         x_0 = x_0 + m_1_0
+
+        if self.use_norm:
+            rownorm = x_0.detach().norm(dim=1, keepdim=True)
+            scale = rownorm.pow(-1)
+            scale[torch.isinf(scale)] = 0.0
+            x_0 = x_0 * scale
 
         return x_0, x_1

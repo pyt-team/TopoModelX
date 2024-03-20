@@ -49,6 +49,8 @@ class HyperSAGELayer(MessagePassing):
         Dimension of the input features.
     out_channels : int
         Dimension of the output features.
+    alpha : int, default=-1
+        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.
     aggr_func_intra : callable, default=GeneralizedMean(p=2)
         Aggregation function. Default is GeneralizedMean(p=2).
     aggr_func_inter : callable, default=GeneralizedMean(p=2)
@@ -77,6 +79,7 @@ class HyperSAGELayer(MessagePassing):
         self,
         in_channels: int,
         out_channels: int,
+        alpha: int = -1,
         aggr_func_intra: Aggregation | None = None,
         aggr_func_inter: Aggregation | None = None,
         update_func: Literal["relu", "sigmoid"] = "relu",
@@ -96,6 +99,7 @@ class HyperSAGELayer(MessagePassing):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.alpha = alpha
         self.aggr_func_intra = aggr_func_intra
         self.aggr_func_inter = aggr_func_inter
         self.update_func = update_func
@@ -187,7 +191,7 @@ class HyperSAGELayer(MessagePassing):
         """
 
         def nodes_per_edge(e):
-            return (
+            messages = (
                 torch.index_select(
                     input=incidence.to("cpu"), dim=1, index=torch.LongTensor([e])
                 )
@@ -195,6 +199,9 @@ class HyperSAGELayer(MessagePassing):
                 .indices()[0]
                 .to(self.device)
             )
+            if len(messages) <= self.alpha or self.alpha == -1:
+                return messages
+            return messages[torch.randperm(len(messages))[: self.alpha]]
 
         def edges_per_node(v):
             return (

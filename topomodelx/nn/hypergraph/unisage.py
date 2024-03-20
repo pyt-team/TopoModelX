@@ -1,5 +1,7 @@
 """UniSAGE class."""
 
+from typing import Literal
+
 import torch
 
 from topomodelx.nn.hypergraph.unisage_layer import UniSAGELayer
@@ -20,6 +22,13 @@ class UniSAGE(torch.nn.Module):
         Dropout rate for the hidden features.
     n_layers : int, default = 2
         Amount of message passing layers.
+    e_aggr : Literal["sum", "mean",], default="sum"
+        Aggregator function for hyperedges.
+    v_aggr : Literal["sum", "mean",], default="mean"
+        Aggregator function for nodes.
+    use_norm : boolean
+        Whether to apply row normalization after every layer.
+
 
     References
     ----------
@@ -36,6 +45,15 @@ class UniSAGE(torch.nn.Module):
         input_drop=0.2,
         layer_drop=0.2,
         n_layers=2,
+        e_aggr: Literal[
+            "sum",
+            "mean",
+        ] = "sum",
+        v_aggr: Literal[
+            "sum",
+            "mean",
+        ] = "mean",
+        use_norm: bool = False,
     ):
         super().__init__()
 
@@ -46,6 +64,9 @@ class UniSAGE(torch.nn.Module):
             UniSAGELayer(
                 in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
+                e_aggr=e_aggr,
+                v_aggr=v_aggr,
+                use_norm=use_norm,
             )
             for i in range(n_layers)
         )

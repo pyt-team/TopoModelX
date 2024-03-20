@@ -18,6 +18,8 @@ class HNHN(torch.nn.Module):
         Incidence matrix mapping edges to nodes (B_1).
     n_layers : int, default = 2
         Number of HNHN message passing layers.
+    layer_drop : float, default = 0.2
+        Dropout rate for the hidden features.
 
     References
     ----------
@@ -27,7 +29,9 @@ class HNHN(torch.nn.Module):
         https://grlplus.github.io/papers/40.pdf
     """
 
-    def __init__(self, in_channels, hidden_channels, incidence_1, n_layers=2):
+    def __init__(
+        self, in_channels, hidden_channels, incidence_1, n_layers=2, layer_drop=0.2
+    ):
         super().__init__()
 
         self.layers = torch.nn.ModuleList(
@@ -38,8 +42,9 @@ class HNHN(torch.nn.Module):
             )
             for i in range(n_layers)
         )
+        self.layer_drop = torch.nn.Dropout(layer_drop)
 
-    def forward(self, x_0):
+    def forward(self, x_0, incidence_1=None):
         """Forward computation.
 
         Parameters
@@ -58,6 +63,7 @@ class HNHN(torch.nn.Module):
             Output hyperedge features.
         """
         for layer in self.layers:
-            x_0, x_1 = layer(x_0)
+            x_0, x_1 = layer(x_0, incidence_1)
+            x_0 = self.layer_drop(x_0)
 
         return x_0, x_1

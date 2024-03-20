@@ -62,7 +62,7 @@ class HNHNLayer(torch.nn.Module):
         self,
         in_channels,
         hidden_channels,
-        incidence_1,
+        incidence_1=None,
         use_bias: bool = True,
         use_normalized_incidence: bool = True,
         alpha: float = -1.5,
@@ -76,7 +76,8 @@ class HNHNLayer(torch.nn.Module):
         self.bias_gain = bias_gain
         self.use_normalized_incidence = use_normalized_incidence
         self.incidence_1 = incidence_1
-        self.incidence_1_transpose = incidence_1.transpose(1, 0)
+        if incidence_1 is not None:
+            self.incidence_1_transpose = incidence_1.transpose(1, 0)
 
         self.conv_0_to_1 = Conv(
             in_channels=in_channels,
@@ -98,9 +99,10 @@ class HNHNLayer(torch.nn.Module):
         if self.use_normalized_incidence:
             self.alpha = alpha
             self.beta = beta
-            self.n_nodes, self.n_edges = self.incidence_1.shape
-            self.compute_normalization_matrices()
-            self.normalize_incidence_matrices()
+            if incidence_1 is not None:
+                self.n_nodes, self.n_edges = self.incidence_1.shape
+                self.compute_normalization_matrices()
+                self.normalize_incidence_matrices()
 
     def compute_normalization_matrices(self) -> None:
         """Compute the normalization matrices for the incidence matrices."""
@@ -158,7 +160,7 @@ class HNHNLayer(torch.nn.Module):
         if self.use_bias:
             self.init_biases()
 
-    def forward(self, x_0):
+    def forward(self, x_0, incidence_1=None):
         r"""Forward computation.
 
         The forward pass was initially proposed in [1]_.
@@ -182,8 +184,8 @@ class HNHNLayer(torch.nn.Module):
         ----------
         x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Input features on the hypernodes.
-        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
-            Input features on the hyperedges.
+        incidence_1: torch.Tensor, shape = (n_nodes, n_edges)
+            Incidence matrix mapping edges to nodes (B_1).
 
         Returns
         -------
@@ -192,6 +194,13 @@ class HNHNLayer(torch.nn.Module):
         x_1 : torch.Tensor, shape = (n_edges, channels_edge)
             Output features on the hyperedges.
         """
+        if incidence_1 is not None:
+            self.incidence_1 = incidence_1
+            self.incidence_1_transpose = incidence_1.transpose(1, 0)
+            if self.use_normalized_incidence:
+                self.n_nodes, self.n_edges = incidence_1.shape
+                self.compute_normalization_matrices()
+                self.normalize_incidence_matrices()
         # Move incidence matrices to device
         self.incidence_1 = self.incidence_1.to(x_0.device)
         self.incidence_1_transpose = self.incidence_1_transpose.to(x_0.device)
