@@ -56,9 +56,8 @@ class CWNLayer(nn.Module):
         If None is passed, a default implementation of this module is used
         (check the docstring of _CWNDefaultUpdate for more detail).
 
-    Notes
-    -----
-    This is the architecture proposed for entire complex classification.
+    **kwargs : optional
+        Additional arguments for the modules of the CWN layer.
 
     References
     ----------
@@ -78,6 +77,7 @@ class CWNLayer(nn.Module):
         conv_0_to_1=None,
         aggregate_fn=None,
         update_fn=None,
+        **kwargs,
     ) -> None:
         super().__init__()
         self.conv_1_to_1 = (
@@ -104,9 +104,9 @@ class CWNLayer(nn.Module):
         x_0,
         x_1,
         x_2,
-        neighborhood_1_to_1,
-        neighborhood_2_to_1,
-        neighborhood_0_to_1,
+        adjacency_0,
+        incidence_2,
+        incidence_1_t,
     ):
         r"""Forward pass.
 
@@ -159,11 +159,11 @@ class CWNLayer(nn.Module):
             Input features on the r-cells.
         x_2 : torch.Tensor, shape = (n_{r+1}_cells, in_channels_{r+1})
             Input features on the (r+1)-cells.
-        neighborhood_1_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
+        adjacency_0 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
+        incidence_2 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
-        neighborhood_0_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
+        incidence_1_t : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns
@@ -180,10 +180,8 @@ class CWNLayer(nn.Module):
             Architectures of topological deep learning: a survey on topological neural networks (2023).
             https://arxiv.org/abs/2304.10031.
         """
-        x_convolved_1_to_1 = self.conv_1_to_1(
-            x_1, x_2, neighborhood_1_to_1, neighborhood_2_to_1
-        )
-        x_convolved_0_to_1 = self.conv_0_to_1(x_0, x_1, neighborhood_0_to_1)
+        x_convolved_1_to_1 = self.conv_1_to_1(x_1, x_2, adjacency_0, incidence_2)
+        x_convolved_0_to_1 = self.conv_0_to_1(x_0, x_1, incidence_1_t)
 
         x_aggregated = self.aggregate_fn(x_convolved_1_to_1, x_convolved_0_to_1)
         return self.update_fn(x_aggregated, x_1)
@@ -195,6 +193,15 @@ class _CWNDefaultFirstConv(nn.Module):
 
     The self.forward method of this module must be treated as
     a protocol for the first convolutional step in CWN layer.
+
+    Parameters
+    ----------
+    in_channels_1 : int
+        Dimension of input features on r-cells (edges in case r = 1).
+    in_channels_2 : int
+        Dimension of input features on (r+1)-cells (faces in case r = 1).
+    out_channels : int
+        Dimension of output features on r-cells.
     """
 
     def __init__(self, in_channels_1, in_channels_2, out_channels) -> None:
@@ -206,7 +213,7 @@ class _CWNDefaultFirstConv(nn.Module):
             in_channels_2, out_channels, aggr_norm=False, update_func=None
         )
 
-    def forward(self, x_1, x_2, neighborhood_1_to_1, neighborhood_2_to_1):
+    def forward(self, x_1, x_2, adjacency_0, incidence_2):
         r"""Forward pass.
 
         Parameters
@@ -215,9 +222,9 @@ class _CWNDefaultFirstConv(nn.Module):
             Input features on the (r-1)-cells.
         x_2 : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Input features on the r-cells.
-        neighborhood_1_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
+        adjacency_0 : torch.sparse, shape = (n_{r}_cells, n_{r}_cells)
             Neighborhood matrix mapping r-cells to r-cells (A_{up,r}).
-        neighborhood_2_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
+        incidence_2 : torch.sparse, shape = (n_{r}_cells, n_{r+1}_cells)
             Neighborhood matrix mapping (r+1)-cells to r-cells (B_{r+1}).
 
         Returns
@@ -225,8 +232,8 @@ class _CWNDefaultFirstConv(nn.Module):
         torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
-        x_up = F.elu(self.conv_1_to_1(x_1, neighborhood_1_to_1))
-        x_coboundary = F.elu(self.conv_2_to_1(x_2, neighborhood_2_to_1))
+        x_up = F.elu(self.conv_1_to_1(x_1, adjacency_0))
+        x_coboundary = F.elu(self.conv_2_to_1(x_2, incidence_2))
         return x_up + x_coboundary
 
 
@@ -236,6 +243,15 @@ class _CWNDefaultSecondConv(nn.Module):
 
     The self.forward method of this module must be treated as
     a protocol for the second convolutional step in CWN layer.
+
+    Parameters
+    ----------
+    in_channels_0 : int
+        Dimension of input features on (r-1)-cells (nodes in case r = 1).
+    in_channels_1 : int
+        Dimension of input features on r-cells (edges in case r = 1).
+    out_channels : int
+        Dimension of output features on r-cells.
     """
 
     def __init__(self, in_channels_0, in_channels_1, out_channels) -> None:
@@ -244,7 +260,7 @@ class _CWNDefaultSecondConv(nn.Module):
             in_channels_0, out_channels, aggr_norm=False, update_func=None
         )
 
-    def forward(self, x_0, x_1, neighborhood_0_to_1):
+    def forward(self, x_0, x_1, incidence_1_t):
         r"""Forward pass.
 
         Parameters
@@ -253,7 +269,7 @@ class _CWNDefaultSecondConv(nn.Module):
             Input features on the (r-1)-cells.
         x_1 : torch.Tensor, shape = (n_{r}_cells, in_channels_{r})
             Input features on the r-cells.
-        neighborhood_0_to_1 : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
+        incidence_1_t : torch.sparse, shape = (n_{r}_cells, n_{r-1}_cells)
             Neighborhood matrix mapping (r-1)-cells to r-cells (B^T_r).
 
         Returns
@@ -261,7 +277,7 @@ class _CWNDefaultSecondConv(nn.Module):
         torch.Tensor, shape = (n_{r}_cells, out_channels)
             Updated representations on the r-cells.
         """
-        return F.elu(self.conv_0_to_1(x_0, neighborhood_0_to_1))
+        return F.elu(self.conv_0_to_1(x_0, incidence_1_t))
 
 
 class _CWNDefaultAggregate(nn.Module):
@@ -294,7 +310,15 @@ class _CWNDefaultAggregate(nn.Module):
 
 
 class _CWNDefaultUpdate(nn.Module):
-    r"""Default implementation of an update step in CWNLayer."""
+    r"""Default implementation of an update step in CWNLayer.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of input features.
+    out_channels : int
+        Dimension of output features.
+    """
 
     def __init__(self, in_channels, out_channels) -> None:
         super().__init__()
