@@ -31,8 +31,12 @@ class CAN(torch.nn.Module):
         Number of CAN layers.
     att_lift : bool, default=True
         Whether to apply a lift the signal from node-level to edge-level input.
+    pooling : bool, default=False
+        Whether to apply pooling operation.
     k_pool : float, default=0.5
         The pooling ratio i.e, the fraction of r-cells to keep after the pooling operation.
+    **kwargs : optional
+        Additional arguments CANLayer.
 
     References
     ----------
@@ -54,7 +58,9 @@ class CAN(torch.nn.Module):
         att_activation=None,
         n_layers=2,
         att_lift=True,
+        pooling=False,
         k_pool=0.5,
+        **kwargs,
     ):
         super().__init__()
 
@@ -81,6 +87,7 @@ class CAN(torch.nn.Module):
                 att_activation=att_activation,
                 aggr_func="sum",
                 update_func="relu",
+                **kwargs,
             )
         )
 
@@ -96,23 +103,23 @@ class CAN(torch.nn.Module):
                     att_activation=att_activation,
                     aggr_func="sum",
                     update_func="relu",
+                    **kwargs,
                 )
             )
-
-            layers.append(
-                PoolLayer(
-                    k_pool=k_pool,
-                    in_channels_0=out_channels * heads,
-                    signal_pool_activation=torch.nn.Sigmoid(),
-                    readout=True,
+            if pooling:
+                layers.append(
+                    PoolLayer(
+                        k_pool=k_pool,
+                        in_channels_0=out_channels * heads,
+                        signal_pool_activation=torch.nn.Sigmoid(),
+                        readout=True,
+                        **kwargs,
+                    )
                 )
-            )
 
         self.layers = torch.nn.ModuleList(layers)
 
-    def forward(
-        self, x_0, x_1, neighborhood_0_to_0, lower_neighborhood, upper_neighborhood
-    ):
+    def forward(self, x_0, x_1, adjacency_0, down_laplacian_1, up_laplacian_1):
         """Forward pass.
 
         Parameters
@@ -121,11 +128,11 @@ class CAN(torch.nn.Module):
             Input features on the nodes (0-cells).
         x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
-        neighborhood_0_to_0 : torch.Tensor, shape = (n_nodes, n_nodes)
+        adjacency_0 : torch.Tensor, shape = (n_nodes, n_nodes)
             Neighborhood matrix from nodes to nodes.
-        lower_neighborhood : torch.Tensor, shape = (-, -)
+        down_laplacian_1 : torch.Tensor, shape = (-, -)
             Lower Neighbourhood matrix.
-        upper_neighborhood : torch.Tensor, shape = (-, -)
+        up_laplacian_1 : torch.Tensor, shape = (-, -)
             Upper neighbourhood matrix.
 
         Returns
@@ -133,16 +140,19 @@ class CAN(torch.nn.Module):
         torch.Tensor, shape = (num_pooled_edges, heads * out_channels)
             Final hidden representations of pooled edges.
         """
+        adjacency_0 = adjacency_0.coalesce()
+        down_laplacian_1 = down_laplacian_1.coalesce()
+        up_laplacian_1 = up_laplacian_1.coalesce()
         if hasattr(self, "lift_layer"):
-            x_1 = self.lift_layer(x_0, neighborhood_0_to_0, x_1)
+            x_1 = self.lift_layer(x_0, adjacency_0.coalesce(), x_1)
 
         for layer in self.layers:
             if isinstance(layer, PoolLayer):
-                x_1, lower_neighborhood, upper_neighborhood = layer(
-                    x_1, lower_neighborhood, upper_neighborhood
+                x_1, down_laplacian_1, up_laplacian_1 = layer(
+                    x_1, down_laplacian_1, up_laplacian_1
                 )
             else:
-                x_1 = layer(x_1, lower_neighborhood, upper_neighborhood)
+                x_1 = layer(x_1, down_laplacian_1, up_laplacian_1)
                 x_1 = F.dropout(x_1, p=0.5, training=self.training)
 
         return x_1

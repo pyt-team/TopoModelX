@@ -148,14 +148,14 @@ class LiftLayer(MessagePassing):
         )  # (num_edges, heads)
         return self.signal_lift_activation(edge_signal)
 
-    def forward(self, x_0, neighborhood_0_to_0) -> torch.Tensor:  # type: ignore[override]
+    def forward(self, x_0, adjacency_0) -> torch.Tensor:  # type: ignore[override]
         """Forward pass.
 
         Parameters
         ----------
         x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
             Node signal.
-        neighborhood_0_to_0 : torch.Tensor, shape = (num_nodes, num_nodes)
+        adjacency_0 : torch.Tensor, shape = (num_nodes, num_nodes)
             Sparse neighborhood matrix.
 
         Returns
@@ -164,7 +164,7 @@ class LiftLayer(MessagePassing):
             Edge signal.
         """
         # Extract source and target nodes from the graph's edge index
-        source, target = neighborhood_0_to_0.indices()  # (num_edges,)
+        source, target = adjacency_0.indices()  # (num_edges,)
 
         # Extract the node signal of the source and target nodes
         x_source = x_0[source]  # (num_edges, in_channels_0)
@@ -228,14 +228,14 @@ class MultiHeadLiftLayer(nn.Module):
         """Reinitialize learnable parameters using Xavier uniform initialization."""
         self.lifts.reset_parameters()
 
-    def forward(self, x_0, neighborhood_0_to_0, x_1=None) -> torch.Tensor:
+    def forward(self, x_0, adjacency_0, x_1=None) -> torch.Tensor:
         r"""Forward pass.
 
         Parameters
         ----------
         x_0 : torch.Tensor, shape = (num_nodes, in_channels_0)
             Node signal.
-        neighborhood_0_to_0 : torch.Tensor, shape = (2, num_edges)
+        adjacency_0 : torch.Tensor, shape = (2, num_edges)
             Edge index.
         x_1 : torch.Tensor, shape = (num_edges, in_channels_1), optional
             Edge signal.
@@ -256,7 +256,7 @@ class MultiHeadLiftLayer(nn.Module):
             \end{align*}
         """
         # Lift the node signal for each attention head
-        attention_heads_x_1 = self.lifts(x_0, neighborhood_0_to_0)
+        attention_heads_x_1 = self.lifts(x_0, adjacency_0)
 
         # Combine the output edge signals using the specified readout strategy
         readout_methods = {
@@ -323,7 +323,7 @@ class PoolLayer(MessagePassing):
         init.xavier_uniform_(self.att_pool.data, gain=gain)
 
     def forward(  # type: ignore[override]
-        self, x, lower_neighborhood, upper_neighborhood
+        self, x, down_laplacian_1, up_laplacian_1
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         r"""Forward pass.
 
@@ -331,9 +331,9 @@ class PoolLayer(MessagePassing):
         ----------
         x : torch.Tensor, shape = (n_r_cells, in_channels_r)
             Input r-cell signal.
-        lower_neighborhood : torch.Tensor
+        down_laplacian_1 : torch.Tensor
             Lower neighborhood matrix.
-        upper_neighborhood : torch.Tensor
+        up_laplacian_1 : torch.Tensor
             Upper neighbourhood matrix.
 
         Returns
@@ -364,23 +364,19 @@ class PoolLayer(MessagePassing):
             out = scatter_add(out, top_indices, dim=0, dim_size=x.size(0))[top_indices]
 
         # Update lower and upper neighborhood matrices with the top-k pooled r-cells
-        lower_neighborhood_modified = torch.index_select(
-            lower_neighborhood, 0, top_indices
+        down_laplacian_1_modified = torch.index_select(down_laplacian_1, 0, top_indices)
+        down_laplacian_1_modified = torch.index_select(
+            down_laplacian_1_modified, 1, top_indices
         )
-        lower_neighborhood_modified = torch.index_select(
-            lower_neighborhood_modified, 1, top_indices
-        )
-        upper_neighborhood_modified = torch.index_select(
-            upper_neighborhood, 0, top_indices
-        )
-        upper_neighborhood_modified = torch.index_select(
-            upper_neighborhood_modified, 1, top_indices
+        up_laplacian_1_modified = torch.index_select(up_laplacian_1, 0, top_indices)
+        up_laplacian_1_modified = torch.index_select(
+            up_laplacian_1_modified, 1, top_indices
         )
         # return sparse matrices of neighborhood
         return (
             out,
-            lower_neighborhood_modified.to_sparse().float().coalesce(),
-            upper_neighborhood_modified.to_sparse().float().coalesce(),
+            down_laplacian_1_modified.to_sparse().float().coalesce(),
+            up_laplacian_1_modified.to_sparse().float().coalesce(),
         )
 
 
@@ -805,6 +801,8 @@ class CANLayer(torch.nn.Module):
         Version of the layer, by default "v1" which is the same as the original CAN layer. While "v2" has the same attetion mechanism as the GATv2 layer.
     share_weights : bool, default=False
         This option is valid only for "v2". If True, the weights of the linear transformation applied to the source and target features are shared, by default False.
+    **kwargs : optional
+        Additional arguments of CAN layer.
 
     Notes
     -----
@@ -823,11 +821,12 @@ class CANLayer(torch.nn.Module):
         concat: bool = True,
         skip_connection: bool = True,
         att_activation: torch.nn.Module | None = None,
-        add_self_loops: bool = False,
+        add_self_loops: bool = True,
         aggr_func: Literal["mean", "sum"] = "sum",
         update_func: Literal["relu", "sigmoid", "tanh"] | None = "relu",
         version: Literal["v1", "v2"] = "v1",
         share_weights: bool = False,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -910,16 +909,16 @@ class CANLayer(torch.nn.Module):
         if hasattr(self, "lin"):
             self.lin.reset_parameters()
 
-    def forward(self, x, lower_neighborhood, upper_neighborhood) -> torch.Tensor:
+    def forward(self, x, down_laplacian_1, up_laplacian_1) -> torch.Tensor:
         r"""Forward pass.
 
         Parameters
         ----------
         x : torch.Tensor, shape = (n_k_cells, channels)
             Input features on the r-cell of the cell complex.
-        lower_neighborhood : torch.sparse, shape = (n_k_cells, n_k_cells)
+        down_laplacian_1 : torch.sparse, shape = (n_k_cells, n_k_cells)
             Lower neighborhood matrix mapping r-cells to r-cells (A_k_low).
-        upper_neighborhood : torch.sparse, shape = (n_k_cells, n_k_cells)
+        up_laplacian_1 : torch.sparse, shape = (n_k_cells, n_k_cells)
             Upper neighborhood matrix mapping r-cells to r-cells (A_k_up).
 
         Returns
@@ -945,8 +944,8 @@ class CANLayer(torch.nn.Module):
             \end{align*}
         """
         # message and within-neighborhood aggregation
-        lower_x = self.lower_att(x, lower_neighborhood)
-        upper_x = self.upper_att(x, upper_neighborhood)
+        lower_x = self.lower_att(x, down_laplacian_1)
+        upper_x = self.upper_att(x, up_laplacian_1)
 
         # skip connection
         if hasattr(self, "lin"):
