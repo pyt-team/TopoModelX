@@ -20,6 +20,7 @@ class TestCAN:
             heads=1,
             n_layers=2,
             att_lift=False,
+            pooling=True,
         ).to(device)
 
         x_0 = torch.rand(2, 2)
