@@ -20,6 +20,8 @@ class CCXN(torch.nn.Module):
         Number of CCXN layers.
     att : bool
         Whether to use attention.
+    **kwargs : optional
+        Additional arguments CCXNLayer.
 
     References
     ----------
@@ -36,6 +38,7 @@ class CCXN(torch.nn.Module):
         in_channels_2,
         n_layers=2,
         att=False,
+        **kwargs,
     ):
         super().__init__()
 
@@ -45,11 +48,12 @@ class CCXN(torch.nn.Module):
                 in_channels_1=in_channels_1,
                 in_channels_2=in_channels_2,
                 att=att,
+                **kwargs,
             )
             for _ in range(n_layers)
         )
 
-    def forward(self, x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2):
+    def forward(self, x_0, x_1, adjacency_0, incidence_2_t):
         """Forward computation through layers.
 
         Parameters
@@ -58,9 +62,9 @@ class CCXN(torch.nn.Module):
             Input features on the nodes (0-cells).
         x_1 : torch.Tensor, shape = (n_edges, in_channels_1)
             Input features on the edges (1-cells).
-        neighborhood_0_to_0 : torch.Tensor, shape = (n_nodes, n_nodes)
+        adjacency_0 : torch.Tensor, shape = (n_nodes, n_nodes)
             Adjacency matrix of rank 0 (up).
-        neighborhood_1_to_2 : torch.Tensor, shape = (n_faces, n_edges)
+        incidence_2_t : torch.Tensor, shape = (n_faces, n_edges)
             Transpose of boundary matrix of rank 2.
 
         Returns
@@ -73,5 +77,5 @@ class CCXN(torch.nn.Module):
             Final hidden states of the faces (2-cells).
         """
         for layer in self.layers:
-            x_0, x_1, x_2 = layer(x_0, x_1, neighborhood_0_to_0, neighborhood_1_to_2)
+            x_0, x_1, x_2 = layer(x_0, x_1, adjacency_0, incidence_2_t)
         return (x_0, x_1, x_2)

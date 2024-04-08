@@ -21,6 +21,8 @@ class CWN(torch.nn.Module):
         Dimension of hidden features.
     n_layers : int
         Number of CWN layers.
+    **kwargs : optional
+        Additional arguments CWNLayer.
 
     References
     ----------
@@ -37,6 +39,7 @@ class CWN(torch.nn.Module):
         in_channels_2,
         hid_channels,
         n_layers,
+        **kwargs,
     ):
         super().__init__()
 
@@ -50,6 +53,7 @@ class CWN(torch.nn.Module):
                 in_channels_1=hid_channels,
                 in_channels_2=hid_channels,
                 out_channels=hid_channels,
+                **kwargs,
             )
             for _ in range(n_layers)
         )
@@ -59,9 +63,9 @@ class CWN(torch.nn.Module):
         x_0,
         x_1,
         x_2,
-        neighborhood_1_to_1,
-        neighborhood_2_to_1,
-        neighborhood_0_to_1,
+        adjacency_0,
+        incidence_2,
+        incidence_1_t,
     ):
         """Forward computation through projection, convolutions, linear layers and average pooling.
 
@@ -73,11 +77,11 @@ class CWN(torch.nn.Module):
             Input features on the edges (1-cells).
         x_2 : torch.Tensor, shape = (n_faces, in_channels_2)
             Input features on the faces (2-cells).
-        neighborhood_1_to_1 : torch.Tensor, shape = (n_edges, n_edges)
+        adjacency_0 : torch.Tensor, shape = (n_edges, n_edges)
             Upper-adjacency matrix of rank 1.
-        neighborhood_2_to_1 : torch.Tensor, shape = (n_edges, n_faces)
+        incidence_2 : torch.Tensor, shape = (n_edges, n_faces)
             Boundary matrix of rank 2.
-        neighborhood_0_to_1 : torch.Tensor, shape = (n_edges, n_nodes)
+        incidence_1_t : torch.Tensor, shape = (n_edges, n_nodes)
             Coboundary matrix of rank 1.
 
         Returns
@@ -98,9 +102,9 @@ class CWN(torch.nn.Module):
                 x_0,
                 x_1,
                 x_2,
-                neighborhood_1_to_1,
-                neighborhood_2_to_1,
-                neighborhood_0_to_1,
+                adjacency_0,
+                incidence_2,
+                incidence_1_t,
             )
 
         return x_0, x_1, x_2
