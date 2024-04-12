@@ -12,18 +12,18 @@ class HMPNN(torch.nn.Module):
     Parameters
     ----------
     in_channels : int
-        Dimension of input features
+        Dimension of input features.
     hidden_channels : Tuple[int]
         A tuple of hidden feature dimensions to gradually reduce node/hyperedge representations feature
         dimension from in_features to the last item in the tuple.
-    num_classes: int
-        Number of classes
     n_layers : int, default = 2
         Number of HMPNNLayer layers.
-    adjacency_dropout_rate: int, default = 0.7
+    adjacency_dropout_rate : int, default = 0.7
         Adjacency dropout rate.
     regular_dropout_rate : int, default = 0.5
         Regular dropout rate applied on features.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -40,6 +40,7 @@ class HMPNN(torch.nn.Module):
         n_layers=2,
         adjacency_dropout_rate=0.7,
         regular_dropout_rate=0.5,
+        **kwargs,
     ):
         super().__init__()
 
@@ -52,6 +53,7 @@ class HMPNN(torch.nn.Module):
                     hidden_channels,
                     adjacency_dropout=adjacency_dropout_rate,
                     updating_dropout=regular_dropout_rate,
+                    **kwargs,
                 )
                 for _ in range(n_layers)
             ]
@@ -66,7 +68,7 @@ class HMPNN(torch.nn.Module):
             Node features.
         x_1 : torch.Tensor, shape = (n_hyperedges, in_features)
             Hyperedge features.
-        incidence_1: torch.sparse.Tensor, shape = (n_nodes, n_hyperedges)
+        incidence_1 : torch.sparse.Tensor, shape = (n_nodes, n_hyperedges)
             Incidence matrix (B1).
 
         Returns

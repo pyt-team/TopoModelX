@@ -26,7 +26,8 @@ class UniGIN(torch.nn.Module):
         Whether to make eps a trainable parameter.
     use_norm : bool, default=False
         Whether to apply row normalization after every layer.
-
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -46,6 +47,7 @@ class UniGIN(torch.nn.Module):
         eps=0,
         train_eps=False,
         use_norm=False,
+        **kwargs,
     ):
         super().__init__()
 
@@ -60,6 +62,7 @@ class UniGIN(torch.nn.Module):
                 eps=eps,
                 train_eps=train_eps,
                 use_norm=use_norm,
+                **kwargs,
             )
             for _ in range(n_layers)
         )

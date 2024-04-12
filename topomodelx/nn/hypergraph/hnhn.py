@@ -20,6 +20,8 @@ class HNHN(torch.nn.Module):
         Number of HNHN message passing layers.
     layer_drop : float, default = 0.2
         Dropout rate for the hidden features.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -30,7 +32,13 @@ class HNHN(torch.nn.Module):
     """
 
     def __init__(
-        self, in_channels, hidden_channels, incidence_1, n_layers=2, layer_drop=0.2
+        self,
+        in_channels,
+        hidden_channels,
+        incidence_1,
+        n_layers=2,
+        layer_drop=0.2,
+        **kwargs,
     ):
         super().__init__()
 
@@ -39,6 +47,7 @@ class HNHN(torch.nn.Module):
                 in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
                 incidence_1=incidence_1,
+                **kwargs,
             )
             for i in range(n_layers)
         )

@@ -16,6 +16,8 @@ class UniGCN(torch.nn.Module):
         Dimension of the hidden features.
     n_layers : int, default = 2
         Amount of message passing layers.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -30,6 +32,7 @@ class UniGCN(torch.nn.Module):
         in_channels,
         hidden_channels,
         n_layers=2,
+        **kwargs,
     ):
         super().__init__()
 
@@ -37,6 +40,7 @@ class UniGCN(torch.nn.Module):
             UniGCNLayer(
                 in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
+                **kwargs,
             )
             for i in range(n_layers)
         )

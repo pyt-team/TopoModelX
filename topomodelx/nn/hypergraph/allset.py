@@ -16,18 +16,20 @@ class AllSet(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    n_layers : int, default: 2
+    n_layers : int, default = 2
         Number of AllSet layers in the network.
-    layer_dropout: float, default: 0.2
+    layer_dropout : float, default = 0.2
         Dropout probability for the AllSet layer.
-    mlp_num_layers : int, default: 2
+    mlp_num_layers : int, default = 2
         Number of layers in the MLP.
-    mlp_dropout : float, default: 0.0
-        Dropout probability for the MLP.
-    mlp_activation : torch.nn.Module, default: None
+    mlp_activation : torch.nn.Module, default = None
         Activation function in the MLP.
-    mlp_norm : bool, default: False
+    mlp_dropout : float, default = 0.0
+        Dropout probability for the MLP.
+    mlp_norm : bool, default = False
         Whether to apply input normalization in the MLP.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -47,6 +49,7 @@ class AllSet(torch.nn.Module):
         mlp_activation=None,
         mlp_dropout=0.0,
         mlp_norm=None,
+        **kwargs,
     ):
         super().__init__()
 
@@ -59,6 +62,7 @@ class AllSet(torch.nn.Module):
                 mlp_activation=mlp_activation,
                 mlp_dropout=mlp_dropout,
                 mlp_norm=mlp_norm,
+                **kwargs,
             )
             for i in range(n_layers)
         )

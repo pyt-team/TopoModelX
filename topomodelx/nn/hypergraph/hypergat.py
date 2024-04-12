@@ -16,8 +16,10 @@ class HyperGAT(torch.nn.Module):
         Dimension of the hidden features.
     n_layers : int, default = 2
         Amount of message passing layers.
-    layer_drop: float, default = 0.2
+    layer_drop : float, default = 0.2
         Dropout rate for the hidden features.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -32,6 +34,7 @@ class HyperGAT(torch.nn.Module):
         hidden_channels,
         n_layers=2,
         layer_drop=0.2,
+        **kwargs,
     ):
         super().__init__()
 
@@ -39,6 +42,7 @@ class HyperGAT(torch.nn.Module):
             HyperGATLayer(
                 in_channels=in_channels if i == 0 else hidden_channels,
                 hidden_channels=hidden_channels,
+                **kwargs,
             )
             for i in range(n_layers)
         )
@@ -49,8 +53,8 @@ class HyperGAT(torch.nn.Module):
 
         Parameters
         ----------
-        x_1 : torch.Tensor, shape = (n_edges, channels_edge)
-            Edge features.
+        x_0 : torch.Tensor, shape = (n_nodes, channels_nodes)
+            Node features.
         incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
