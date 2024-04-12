@@ -28,6 +28,8 @@ class UniGCNII(torch.nn.Module):
         Dropout rate for the hidden features.
     use_norm : bool, default=False
         Whether to apply row normalization after every layer.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -47,6 +49,7 @@ class UniGCNII(torch.nn.Module):
         input_drop=0.2,
         layer_drop=0.2,
         use_norm=False,
+        **kwargs,
     ):
         super().__init__()
         layers = []
@@ -65,6 +68,7 @@ class UniGCNII(torch.nn.Module):
                     alpha=alpha,
                     beta=beta,
                     use_norm=use_norm,
+                    **kwargs,
                 )
             )
 

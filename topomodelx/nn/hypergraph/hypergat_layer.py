@@ -21,6 +21,8 @@ class HyperGATLayer(MessagePassing):
         Initialization method.
     initialization_gain : float, default=1.414
         Gain for the initialization.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -36,6 +38,7 @@ class HyperGATLayer(MessagePassing):
         update_func: str = "relu",
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         initialization_gain: float = 1.414,
+        **kwargs,
     ) -> None:
         super().__init__(
             initialization=initialization, initialization_gain=initialization_gain
@@ -152,7 +155,7 @@ class HyperGATLayer(MessagePassing):
             return torch.nn.functional.relu(x_message_on_target)
         return None
 
-    def forward(self, x_source, incidence):
+    def forward(self, x_0, incidence_1):
         r"""Forward pass.
 
         .. math::
@@ -167,9 +170,9 @@ class HyperGATLayer(MessagePassing):
 
         Parameters
         ----------
-        x_source : torch.Tensor
+        x_0 : torch.Tensor
             Input features.
-        incidence : torch.sparse
+        incidence_1 : torch.sparse
             Incidence matrix between nodes and hyperedges.
 
         Returns
@@ -179,30 +182,30 @@ class HyperGATLayer(MessagePassing):
         x_1 : torch.Tensor
             Output hyperedge features.
         """
-        intra_aggregation = incidence.t() @ (x_source @ self.weight1)
+        intra_aggregation = incidence_1.t() @ (x_0 @ self.weight1)
 
-        self.target_index_i, self.source_index_j = incidence.indices()
+        self.target_index_i, self.source_index_j = incidence_1.indices()
 
         attention_values = self.attention(intra_aggregation).squeeze()
         incidence_with_attention = torch.sparse_coo_tensor(
-            indices=incidence.indices(),
-            values=incidence.values() * attention_values,
-            size=incidence.shape,
+            indices=incidence_1.indices(),
+            values=incidence_1.values() * attention_values,
+            size=incidence_1.shape,
         )
         intra_aggregation_with_attention = incidence_with_attention.t() @ (
-            x_source @ self.weight1
+            x_0 @ self.weight1
         )
         messages_on_edges = self.update(intra_aggregation_with_attention)
 
-        inter_aggregation = incidence @ (messages_on_edges @ self.weight2)
+        inter_aggregation = incidence_1 @ (messages_on_edges @ self.weight2)
 
         attention_values = self.attention(
             inter_aggregation, intra_aggregation
         ).squeeze()
         incidence_with_attention = torch.sparse_coo_tensor(
-            indices=incidence.indices(),
-            values=attention_values * incidence.values(),
-            size=incidence.shape,
+            indices=incidence_1.indices(),
+            values=attention_values * incidence_1.values(),
+            size=incidence_1.shape,
         )
         inter_aggregation_with_attention = incidence_with_attention @ (
             messages_on_edges @ self.weight2

@@ -20,8 +20,10 @@ class UniSAGELayer(torch.nn.Module):
         Aggregator function for hyperedges.
     v_aggr : Literal["sum", "mean",], default="mean"
         Aggregator function for nodes.
-    use_norm : boolean
+    use_norm : bool
         Whether to apply row normalization after every layer.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -38,6 +40,13 @@ class UniSAGELayer(torch.nn.Module):
     """
 
     def _validate_aggr(self, aggr):
+        r"""Validate aggregator.
+
+        Parameters
+        ----------
+        aggr : str
+            Aggregator function.
+        """
         if aggr not in {
             "sum",
             "mean",
@@ -59,6 +68,7 @@ class UniSAGELayer(torch.nn.Module):
             "mean",
         ] = "mean",
         use_norm: bool = False,
+        **kwargs,
     ) -> None:
         super().__init__()
         self.in_channels = in_channels

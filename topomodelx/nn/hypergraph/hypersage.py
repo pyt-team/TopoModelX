@@ -14,10 +14,12 @@ class HyperSAGE(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    n_layer : int, default = 2
+    n_layers : int, default = 2
         Amount of message passing layers.
     alpha : int, default = -1
-        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.ù
+        Max number of nodes in a neighborhood to consider. If -1 it considers all the nodes.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -39,14 +41,14 @@ class HyperSAGE(torch.nn.Module):
             for i in range(n_layers)
         )
 
-    def forward(self, x_0, incidence):
+    def forward(self, x_0, incidence_1):
         """Forward computation through layers, then linear layer, then global max pooling.
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_nodes, features_nodes)
+        x_0 : torch.Tensor, shape = (n_nodes, features_nodes)
             Edge features.
-        incidence : torch.Tensor, shape = (n_nodes, n_edges)
+        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Boundary matrix of rank 1.
 
         Returns
@@ -55,6 +57,6 @@ class HyperSAGE(torch.nn.Module):
             Label assigned to whole complex.
         """
         for layer in self.layers:
-            x_0 = layer.forward(x_0, incidence)
+            x_0 = layer.forward(x_0, incidence_1)
 
         return x_0

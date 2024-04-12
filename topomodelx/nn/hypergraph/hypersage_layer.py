@@ -61,6 +61,8 @@ class HyperSAGELayer(MessagePassing):
         Initialization method.
     device : str, default="cpu"
         Device name to train layer on.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -87,6 +89,7 @@ class HyperSAGELayer(MessagePassing):
             "uniform", "xavier_uniform", "xavier_normal"
         ] = "uniform",
         device: str = "cpu",
+        **kwargs,
     ) -> None:
         super().__init__(
             initialization=initialization,
@@ -191,6 +194,18 @@ class HyperSAGELayer(MessagePassing):
         """
 
         def nodes_per_edge(e):
+            r"""Get nodes per edge.
+
+            Parameters
+            ----------
+            e : int
+                Edge index.
+
+            Returns
+            -------
+            torch.Tensor
+                Nodes per edge.
+            """
             messages = (
                 torch.index_select(
                     input=incidence.to("cpu"), dim=1, index=torch.LongTensor([e])
@@ -204,6 +219,18 @@ class HyperSAGELayer(MessagePassing):
             return messages[torch.randperm(len(messages))[: self.alpha]]
 
         def edges_per_node(v):
+            r"""Get edges per node.
+
+            Parameters
+            ----------
+            v : int
+                Node index.
+
+            Returns
+            -------
+            torch.Tensor
+                Edges per node.
+            """
             return (
                 torch.index_select(
                     input=incidence.to("cpu"), dim=0, index=torch.LongTensor([v])

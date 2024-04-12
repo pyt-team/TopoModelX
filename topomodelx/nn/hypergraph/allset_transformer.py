@@ -26,6 +26,8 @@ class AllSetTransformer(torch.nn.Module):
         Number of layers in the MLP.
     mlp_dropout : float, default: 0.2
         Dropout probability in the MLP.
+    **kwargs : optional
+        Additional arguments for the inner layers.
 
     References
     ----------
@@ -44,6 +46,7 @@ class AllSetTransformer(torch.nn.Module):
         dropout=0.2,
         mlp_num_layers=2,
         mlp_dropout=0.2,
+        **kwargs,
     ):
         super().__init__()
 
@@ -55,6 +58,7 @@ class AllSetTransformer(torch.nn.Module):
                 heads=heads,
                 mlp_num_layers=mlp_num_layers,
                 mlp_dropout=mlp_dropout,
+                **kwargs,
             )
             for i in range(n_layers)
         )

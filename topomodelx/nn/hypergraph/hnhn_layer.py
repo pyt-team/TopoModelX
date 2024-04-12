@@ -39,6 +39,8 @@ class HNHNLayer(torch.nn.Module):
         Gain for the bias initialization.
     bias_init : Literal["xavier_uniform", "xavier_normal"], default="xavier_uniform"
         Controls the bias initialization method.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     Notes
     -----
@@ -69,6 +71,7 @@ class HNHNLayer(torch.nn.Module):
         beta: float = -0.5,
         bias_gain: float = 1.414,
         bias_init: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
+        **kwargs,
     ) -> None:
         super().__init__()
         self.use_bias = use_bias
@@ -184,7 +187,7 @@ class HNHNLayer(torch.nn.Module):
         ----------
         x_0 : torch.Tensor, shape = (n_nodes, channels_node)
             Input features on the hypernodes.
-        incidence_1: torch.Tensor, shape = (n_nodes, n_edges)
+        incidence_1 : torch.Tensor, shape = (n_nodes, n_edges)
             Incidence matrix mapping edges to nodes (B_1).
 
         Returns

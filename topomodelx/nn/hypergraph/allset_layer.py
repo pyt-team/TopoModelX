@@ -27,6 +27,8 @@ class AllSetLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -45,6 +47,7 @@ class AllSetLayer(nn.Module):
         mlp_activation=nn.ReLU,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -60,6 +63,7 @@ class AllSetLayer(nn.Module):
             mlp_activation=mlp_activation,
             mlp_dropout=mlp_dropout,
             mlp_norm=mlp_norm,
+            **kwargs,
         )
 
         self.edge2vertex = AllSetBlock(
@@ -70,6 +74,7 @@ class AllSetLayer(nn.Module):
             mlp_activation=mlp_activation,
             mlp_dropout=mlp_dropout,
             mlp_norm=mlp_norm,
+            **kwargs,
         )
 
     def reset_parameters(self) -> None:
@@ -103,7 +108,7 @@ class AllSetLayer(nn.Module):
 
         Parameters
         ----------
-        x : torch.Tensor, shape = (n_nodes, channels)
+        x_0 : torch.Tensor, shape = (n_nodes, channels)
             Node input features.
         incidence_1 : torch.sparse, shape = (n_nodes, n_hyperedges)
             Incidence matrix :math:`B_1` mapping hyperedges to nodes.
@@ -200,6 +205,8 @@ class AllSetBlock(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : callable or None, optional
         Type of layer normalization in the MLP.
+    **kwargs : optional
+        Additional arguments for the block modules.
     """
 
     encoder: MLP | nn.Identity
@@ -214,6 +221,7 @@ class AllSetBlock(nn.Module):
         mlp_activation=nn.ReLU,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -255,7 +263,7 @@ class AllSetBlock(nn.Module):
             self.decoder.reset_parameters()
         self.conv.reset_parameters()
 
-    def forward(self, x, incidence):
+    def forward(self, x_0, incidence_1):
         """
         Forward computation.
 
@@ -263,7 +271,7 @@ class AllSetBlock(nn.Module):
         ----------
         x_0 : torch.Tensor
             Input node features.
-        incidence : torch.sparse
+        incidence_1 : torch.sparse
             Incidence matrix between node/hyperedges.
 
         Returns
@@ -271,7 +279,7 @@ class AllSetBlock(nn.Module):
         torch.Tensor
             Output features.
         """
-        x = F.relu(self.encoder(x))
+        x = F.relu(self.encoder(x_0))
         x = F.dropout(x, p=self.dropout, training=self.training)
-        x = self.conv(x, incidence)
+        x = self.conv(x, incidence_1)
         return F.relu(self.decoder(x))

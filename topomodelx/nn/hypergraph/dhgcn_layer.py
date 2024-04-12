@@ -18,6 +18,14 @@ class DHGCNLayer(torch.nn.Module):
         Dimension of intermediate features.
     out_channels : int
         Dimension of output features.
+    k_neighbours : int, default=3
+        Number of neighbours to consider in the local topology.
+    k_centroids : int, default=4
+        Number of centroids to consider in the global topology.
+    device : str, default="cpu"
+        Device to store the tensors.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -40,6 +48,7 @@ class DHGCNLayer(torch.nn.Module):
         k_neighbours: int = 3,
         k_centroids: int = 4,
         device: str = "cpu",
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -69,7 +78,7 @@ class DHGCNLayer(torch.nn.Module):
         x : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
         k : int
-            Number of clusters/centroids
+            Number of clusters/centroids.
         flow : str
             If this parameter has value "source_to_target", the output will have the shape
             [n_nodes, n_hyperedges = k_centroids].
@@ -80,11 +89,9 @@ class DHGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
-            Indices of the on-zero values in the feature matrix of hypergraph
-            convolutional network.
-            The order of dimensions of the matrix is defined by the value of the flow
-            parameter.
+        torch.Tensor
+            Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
+            The order of dimensions of the matrix is defined by the value of the flow parameter.
         """
         assert flow in ["source_to_target", "target_to_source"]
         device = x.device
@@ -142,10 +149,12 @@ class DHGCNLayer(torch.nn.Module):
         ----------
         x_0 : torch.Tensor, shape = (n_nodes, node_features)
             Input features on the nodes of the simplicial complex.
+        k : int
+            Number of clusters/centroids.
 
         Returns
         -------
-        hyperedge_index : torch.Tensor, shape = (n_nodes, 2)
+        torch.Tensor
             Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
         """
         if k is None:
@@ -166,8 +175,8 @@ class DHGCNLayer(torch.nn.Module):
 
         Returns
         -------
-        hyperedge_incidence_matrix : torch.Tensor, shape = (n_nodes, n_nodes + k_centroids)
-            Incidence matrix mapping edges to nodes.
+        torch.Tensor
+            Incidence matrix mapping edges to nodes, shape = (n_nodes, n_nodes + k_centroids).
         """
         device = x_0_features.device
         n_nodes = x_0_features.size(0)

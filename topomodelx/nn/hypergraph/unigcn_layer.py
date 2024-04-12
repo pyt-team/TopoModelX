@@ -16,10 +16,12 @@ class UniGCNLayer(torch.nn.Module):
         Dimension of the input features.
     hidden_channels : int
         Dimension of the hidden features.
-    use_bn : bool, default=False
-        Whether to use bathnorm after the linear transformation.
     aggr_norm : bool, default=False
         Whether to normalize the aggregated message by the neighborhood size.
+    use_bn : bool, default=False
+        Whether to use bathnorm after the linear transformation.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -41,6 +43,7 @@ class UniGCNLayer(torch.nn.Module):
         hidden_channels,
         aggr_norm: bool = False,
         use_bn: bool = False,
+        **kwargs,
     ) -> None:
         super().__init__()
 
