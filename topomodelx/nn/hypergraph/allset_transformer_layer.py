@@ -32,6 +32,8 @@ class AllSetTransformerLayer(nn.Module):
         Dropout probability in the MLP.
     mlp_norm : str or None, optional
         Type of layer normalization in the MLP.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -52,6 +54,7 @@ class AllSetTransformerLayer(nn.Module):
         mlp_activation=nn.ReLU,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
+        **kwargs,
     ) -> None:
         super().__init__()
 

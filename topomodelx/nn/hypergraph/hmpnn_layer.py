@@ -10,9 +10,25 @@ from topomodelx.utils.scatter import scatter
 
 
 class _AdjacencyDropoutMixin:
+    r"""Mixin class for applying dropout to adjacency matrices."""
+
     training: bool
 
     def apply_dropout(self, neighborhood, dropout_rate: float):
+        r"""Apply dropout to the adjacency matrix.
+
+        Parameters
+        ----------
+        neighborhood : torch.sparse.Tensor
+            Sparse tensor representing the adjacency matrix.
+        dropout_rate : float
+            Dropout rate.
+
+        Returns
+        -------
+        torch.sparse.Tensor
+            Sparse tensor with dropout applied.
+        """
         neighborhood = neighborhood.coalesce()
         return torch.sparse_coo_tensor(
             neighborhood.indices(),
@@ -24,6 +40,18 @@ class _AdjacencyDropoutMixin:
 
 
 class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
+    r"""Node to Hyperedge Messenger class.
+
+    Parameters
+    ----------
+    messaging_func : callable
+        Function for messaging from nodes to hyperedges.
+    adjacency_dropout : float, default = 0.7
+        Dropout rate for the adjacency matrix.
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
+        Message aggregation function.
+    """
+
     def __init__(
         self,
         messaging_func,
@@ -35,9 +63,37 @@ class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
         self.adjacency_dropout = adjacency_dropout
 
     def message(self, x_source):
+        r"""Message function.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor
+            Source node features.
+
+        Returns
+        -------
+        torch.Tensor
+            Message passed from the source node to the hyperedge.
+        """
         return self.messaging_func(x_source)
 
     def forward(self, x_source, neighborhood):
+        r"""Forward computation.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor
+            Source node features.
+        neighborhood : torch.sparse.Tensor
+            Sparse tensor representing the adjacency matrix.
+
+        Returns
+        -------
+        x_message_aggregated : torch.Tensor
+            Aggregated messages passed from the nodes to the hyperedge.
+        x_message : torch.Tensor
+            Messages passed from the nodes to the hyperedge.
+        """
         neighborhood = self.apply_dropout(neighborhood, self.adjacency_dropout)
         source_index_j, self.target_index_i = neighborhood.indices()
 
@@ -49,6 +105,18 @@ class _NodeToHyperedgeMessenger(MessagePassing, _AdjacencyDropoutMixin):
 
 
 class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
+    r"""Hyperedge to Node Messenger class.
+
+    Parameters
+    ----------
+    messaging_func : callable
+        Function for messaging from hyperedges to nodes.
+    adjacency_dropout : float, default = 0.7
+        Dropout rate for the adjacency matrix.
+    aggr_func : Literal["sum", "mean", "add"], default="sum"
+        Message aggregation function.
+    """
+
     def __init__(
         self,
         messaging_func,
@@ -60,6 +128,22 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
         self.adjacency_dropout = adjacency_dropout
 
     def message(self, x_source, neighborhood, node_messages):
+        r"""Message function.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor
+            Source hyperedge features.
+        neighborhood : torch.sparse.Tensor
+            Sparse tensor representing the adjacency matrix.
+        node_messages : torch.Tensor
+            Messages passed from the nodes to the hyperedge.
+
+        Returns
+        -------
+        torch.Tensor
+            Message passed from the hyperedge to the nodes.
+        """
         hyperedge_neighborhood = self.apply_dropout(
             neighborhood, self.adjacency_dropout
         )
@@ -71,6 +155,22 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
         return self.messaging_func(x_source, node_messages_aggregated)
 
     def forward(self, x_source, neighborhood, node_messages):
+        r"""Forward computation.
+
+        Parameters
+        ----------
+        x_source : torch.Tensor
+            Source hyperedge features.
+        neighborhood : torch.sparse.Tensor
+            Sparse tensor representing the adjacency matrix.
+        node_messages : torch.Tensor
+            Messages passed from the nodes to the hyperedge.
+
+        Returns
+        -------
+        torch.Tensor
+            Aggregated messages passed from the hyperedge to the nodes.
+        """
         x_message = self.message(x_source, neighborhood, node_messages)
 
         neighborhood = self.apply_dropout(neighborhood, self.adjacency_dropout)
@@ -80,19 +180,63 @@ class _HyperedgeToNodeMessenger(MessagePassing, _AdjacencyDropoutMixin):
 
 
 class _DefaultHyperedgeToNodeMessagingFunc(nn.Module):
+    r"""Default hyperedge to node messaging function.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of the input features.
+    """
+
     def __init__(self, in_channels) -> None:
         super().__init__()
         self.linear = nn.Linear(2 * in_channels, in_channels)
 
     def forward(self, x_1, m_0):
+        r"""Forward computation.
+
+        Parameters
+        ----------
+        x_1 : torch.Tensor
+            Input hyperedge features.
+        m_0 : torch.Tensor
+            Aggregated messages from the nodes.
+
+        Returns
+        -------
+        torch.Tensor
+            Messages passed from the hyperedge to the nodes.
+        """
         return F.sigmoid(self.linear(torch.cat((x_1, m_0), dim=1)))
 
 
 class _DefaultUpdatingFunc(nn.Module):
+    r"""Default updating function.
+
+    Parameters
+    ----------
+    in_channels : int
+        Dimension of the input features.
+    """
+
     def __init__(self, in_channels) -> None:
         super().__init__()
 
     def forward(self, x, m):
+        r"""Forward computation.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input features.
+        m : torch.Tensor
+            Messages passed from the neighbors.
+
+        Returns
+        -------
+        torch.Tensor
+            Updated features.
+        """
         return F.sigmoid(x + m)
 
 
@@ -140,6 +284,8 @@ class HMPNNLayer(nn.Module):
         The final function or nn.Module object to be called on node and hyperedge features to retrieve
         their new representation. If not given, a linear layer is applied, received message is added
         and sigmoid is called.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -158,6 +304,7 @@ class HMPNNLayer(nn.Module):
         aggr_func: Literal["sum", "mean", "add"] = "sum",
         updating_dropout: float = 0.5,
         updating_func=None,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -188,6 +335,16 @@ class HMPNNLayer(nn.Module):
 
         Unmasked features in a vector are scaled by d+k / d in which k is the number of
         masked features in the vector and d is the total number of features.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input features.
+
+        Returns
+        -------
+        torch.Tensor
+            Output features.
         """
         if self.training:
             mask = self.dropout.sample(x.shape).to(dtype=torch.float, device=x.device)

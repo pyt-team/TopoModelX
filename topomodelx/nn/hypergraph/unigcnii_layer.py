@@ -20,6 +20,8 @@ class UniGCNIILayer(torch.nn.Module):
         The beta parameter determining the importance of the learned matrix (\theta_1).
     use_norm : bool, default=False
         Whether to apply row normalization after the layer.
+    **kwargs : optional
+        Additional arguments for the layer modules.
 
     References
     ----------
@@ -30,7 +32,13 @@ class UniGCNIILayer(torch.nn.Module):
     """
 
     def __init__(
-        self, in_channels, hidden_channels, alpha: float, beta: float, use_norm=False
+        self,
+        in_channels,
+        hidden_channels,
+        alpha: float,
+        beta: float,
+        use_norm=False,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -86,7 +94,7 @@ class UniGCNIILayer(torch.nn.Module):
         incidence_1 : torch.Tensor, shape = (num_nodes, num_edges)
             Incidence matrix of the hypergraph.
             It is expected that the incidence matrix contains self-loops for all nodes.
-        x_skip : torch.Tensor, shape = (num_nodes, in_channels), optional
+        x_skip : torch.Tensor, shape = (num_nodes, in_channels)
             Original node features of the hypergraph used for the skip connections.
             If not provided, the input to the layer is used as a skip connection.
 
@@ -96,7 +104,6 @@ class UniGCNIILayer(torch.nn.Module):
             Output node features.
         x_1 : torch.Tensor
             Output hyperedge features.
-
         """
         x_skip = x_0 if x_skip is None else x_skip
         incidence_1_transpose = incidence_1.transpose(0, 1)
