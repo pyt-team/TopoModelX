@@ -375,9 +375,7 @@ class MultiHeadAttention(MessagePassing):
         x_K = torch.matmul(x_source, self.K_weight).permute(1, 0, 2)
         alpha = (x_K * self.Q_weight.permute(1, 0, 2)).sum(-1)
         alpha = F.leaky_relu(alpha, 0.2)
-        alpha_soft = softmax(alpha[self.source_index_j], index=self.target_index_i)
-
-        return alpha_soft
+        return softmax(alpha[self.source_index_j], index=self.target_index_i)
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -409,10 +407,7 @@ class MultiHeadAttention(MessagePassing):
         x_message = x_message.permute(1, 0, 2)[
             self.source_index_j
         ] * attention_values.unsqueeze(-1)
-        x_message = scatter(x_message, self.target_index_i, dim=0, reduce="sum")
-
-        return x_message
-
+        return scatter(x_message, self.target_index_i, dim=0, reduce="sum")
 
 class MLP(nn.Sequential):
     """MLP Module.
