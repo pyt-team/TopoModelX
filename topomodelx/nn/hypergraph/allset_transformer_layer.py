@@ -4,6 +4,8 @@ from typing import Literal
 import torch
 import torch.nn.functional as F
 from torch import nn
+from torch_geometric.utils import softmax
+from torch_scatter import scatter
 
 from topomodelx.base.message_passing import MessagePassing
 
@@ -257,8 +259,10 @@ class AllSetTransformerBlock(nn.Module):
 
         # Obtain Y from Eq(8) in AllSet paper [1]
         # Skip-connection (broadcased)
-        x_message_on_target = x_message_on_target + self.multihead_att.Q_weight
-
+        x_message_on_target = x_message_on_target + self.multihead_att.Q_weight.permute(
+            1, 0, 2
+        )
+        x_message_on_target = x_message_on_target.unsqueeze(2)
         # Permute: n,h,q,c -> n,q,h,c
         x_message_on_target = x_message_on_target.permute(0, 2, 1, 3)
         x_message_on_target = self.ln0(
@@ -368,21 +372,12 @@ class MultiHeadAttention(MessagePassing):
         torch.Tensor, shape = (n_target_cells, heads, number_queries, n_source_cells)
             Attention weights: one scalar per message between a source and a target cell.
         """
-        x_K = torch.matmul(x_source, self.K_weight)
-        alpha = torch.matmul(self.Q_weight, x_K.transpose(1, 2))
-        expanded_alpha = torch.sparse_coo_tensor(
-            indices=neighborhood.indices(),
-            values=alpha.permute(*torch.arange(alpha.ndim - 1, -1, -1))[
-                self.source_index_j
-            ],
-            size=[
-                neighborhood.shape[0],
-                neighborhood.shape[1],
-                alpha.shape[1],
-                alpha.shape[0],
-            ],
-        )
-        return torch.sparse.softmax(expanded_alpha, dim=1).to_dense().transpose(1, 3)
+        x_K = torch.matmul(x_source, self.K_weight).permute(1, 0, 2)
+        alpha = (x_K * self.Q_weight.permute(1, 0, 2)).sum(-1)
+        alpha = F.leaky_relu(alpha, 0.2)
+        alpha_soft = softmax(alpha[self.source_index_j], index=self.target_index_i)
+
+        return alpha_soft
 
     def forward(self, x_source, neighborhood):
         """Forward pass.
@@ -410,7 +405,13 @@ class MultiHeadAttention(MessagePassing):
         attention_values = self.attention(x_source, neighborhood)
 
         x_message = torch.matmul(x_source, self.V_weight)
-        return torch.matmul(attention_values, x_message)
+
+        x_message = x_message.permute(1, 0, 2)[
+            self.source_index_j
+        ] * attention_values.unsqueeze(-1)
+        x_message = scatter(x_message, self.target_index_i, dim=0, reduce="sum")
+
+        return x_message
 
 
 class MLP(nn.Sequential):
