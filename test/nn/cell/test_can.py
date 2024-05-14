@@ -17,7 +17,7 @@ class TestCAN:
             in_channels_1=2,
             out_channels=2,
             dropout=0.5,
-            heads=1,
+            heads=2,
             n_layers=2,
             att_lift=False,
             pooling=True,
@@ -31,8 +31,8 @@ class TestCAN:
         ).to_sparse()
 
         x_0, x_1 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
+            x_0.clone().detach().float().to(device),
+            x_1.clone().detach().float().to(device),
         )
         adjacency_1 = adjacency_1.float().to(device)
         adjacency_2 = adjacency_1.float().to(device)

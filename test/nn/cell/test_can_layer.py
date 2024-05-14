@@ -13,7 +13,7 @@ class TestCANLayer:
     def test_forward(self):
         """Test the forward method of CANLayer."""
         in_channels = 7
-        out_channels = 64
+        out_channels = 66
         dropout_values = [0.5, 0.7]
         heads_values = [1, 3]
         concat_values = [True, False]
@@ -65,12 +65,12 @@ class TestCANLayer:
             )
             x_out = can_layer.forward(x_1, lower_neighborhood, upper_neighborhood)
             if concat:
-                assert x_out.shape == (n_cells, out_channels * heads)
-            else:
                 assert x_out.shape == (n_cells, out_channels)
+            else:
+                assert x_out.shape == (n_cells, out_channels // heads)
 
         # Test if there are no non-zero values in the neighborhood
-        heads = 1
+        heads = 3
         concat_list = [True, False]
         skip_connection = True
 
@@ -79,6 +79,7 @@ class TestCANLayer:
                 can_layer = CANLayer(
                     in_channels=in_channels,
                     out_channels=out_channels,
+                    heads=heads,
                     concat=concat,
                     skip_connection=skip_connection,
                     version=version,
@@ -89,9 +90,9 @@ class TestCANLayer:
                     torch.zeros_like(upper_neighborhood),
                 )
                 if concat:
-                    assert x_out.shape == (n_cells, out_channels * heads)
-                else:
                     assert x_out.shape == (n_cells, out_channels)
+                else:
+                    assert x_out.shape == (n_cells, out_channels // heads)
 
     def test_reset_parameters(self):
         """Test the reset_parameters method of CANLayer."""

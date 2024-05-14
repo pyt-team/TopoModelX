@@ -94,7 +94,7 @@ class CAN(torch.nn.Module):
         for _ in range(n_layers - 1):
             layers.append(
                 CANLayer(
-                    in_channels=out_channels * heads,
+                    in_channels=out_channels,
                     out_channels=out_channels,
                     dropout=dropout,
                     heads=heads,
@@ -110,7 +110,7 @@ class CAN(torch.nn.Module):
                 layers.append(
                     PoolLayer(
                         k_pool=k_pool,
-                        in_channels_0=out_channels * heads,
+                        in_channels_0=out_channels,
                         signal_pool_activation=torch.nn.Sigmoid(),
                         readout=True,
                         **kwargs,
