@@ -439,9 +439,9 @@ class MultiHeadCellAttention(MessagePassing):
         self.dropout = dropout
         self.add_self_loops = add_self_loops
 
-        self.lin = torch.nn.Linear(in_channels, heads * out_channels, bias=False)
-        self.att_weight_src = Parameter(torch.Tensor(1, heads, out_channels))
-        self.att_weight_dst = Parameter(torch.Tensor(1, heads, out_channels))
+        self.lin = torch.nn.Linear(in_channels, out_channels, bias=False)
+        self.att_weight_src = Parameter(torch.Tensor(1, heads, out_channels // heads))
+        self.att_weight_dst = Parameter(torch.Tensor(1, heads, out_channels // heads))
 
         self.reset_parameters()
 
@@ -468,7 +468,7 @@ class MultiHeadCellAttention(MessagePassing):
         """
         # Compute the linear transformation on the source features
         x_message = self.lin(x_source).view(
-            -1, self.heads, self.out_channels
+            -1, self.heads, self.out_channels // self.heads
         )  # (n_k_cells, H, C)
 
         # compute the source and target messages
@@ -534,12 +534,13 @@ class MultiHeadCellAttention(MessagePassing):
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
             return torch.zeros(
-                (x_source.shape[0], self.out_channels * self.heads),
+                (x_source.shape[0], self.out_channels),
                 device=x_source.device,
             )  # (n_k_cells, H * C)
         if not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
             return torch.zeros(
-                (x_source.shape[0], self.out_channels), device=x_source.device
+                (x_source.shape[0], self.out_channels // self.heads),
+                device=x_source.device,
             )  # (n_k_cells, C)
 
         # Add self-loops to the neighborhood matrix if necessary
@@ -559,9 +560,7 @@ class MultiHeadCellAttention(MessagePassing):
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
         if self.concat:
-            return aggregated_message.view(
-                -1, self.heads * self.out_channels
-            )  # (n_k_cells, H * C)
+            return aggregated_message.view(-1, self.out_channels)  # (n_k_cells, H * C)
 
         return aggregated_message.mean(dim=1)  # (n_k_cells, C)
 
@@ -613,7 +612,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         heads: int,
         concat: bool,
         att_activation: torch.nn.Module,
-        add_self_loops: bool = False,
+        add_self_loops: bool = True,
         aggr_func: Literal["sum", "mean", "add"] = "sum",
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
         share_weights: bool = False,
@@ -634,17 +633,13 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         if share_weights:
             self.lin_src = self.lin_dst = torch.nn.Linear(
-                in_channels, heads * out_channels, bias=False
+                in_channels, out_channels, bias=False
             )
         else:
-            self.lin_src = torch.nn.Linear(
-                in_channels, heads * out_channels, bias=False
-            )
-            self.lin_dst = torch.nn.Linear(
-                in_channels, heads * out_channels, bias=False
-            )
+            self.lin_src = torch.nn.Linear(in_channels, out_channels, bias=False)
+            self.lin_dst = torch.nn.Linear(in_channels, out_channels, bias=False)
 
-        self.att_weight = Parameter(torch.Tensor(1, heads, out_channels))
+        self.att_weight = Parameter(torch.Tensor(1, heads, out_channels // heads))
 
         self.reset_parameters()
 
@@ -671,12 +666,12 @@ class MultiHeadCellAttention_v2(MessagePassing):
         """
         # Compute the linear transformation on the source features
         x_src_message = self.lin_src(x_source).view(
-            -1, self.heads, self.out_channels
+            -1, self.heads, self.out_channels // self.heads
         )  # (n_k_cells, H, C)
 
         # Compute the linear transformation on the source features
         x_dst_message = self.lin_dst(x_source).view(
-            -1, self.heads, self.out_channels
+            -1, self.heads, self.out_channels // self.heads
         )  # (n_k_cells, H, C)
 
         # Get the source and target projections of the neighborhood
@@ -737,12 +732,13 @@ class MultiHeadCellAttention_v2(MessagePassing):
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
             return torch.zeros(
-                (x_source.shape[0], self.out_channels * self.heads),
+                (x_source.shape[0], self.out_channels),
                 device=x_source.device,
             )  # (n_k_cells, H * C)
         if not neighborhood.values().nonzero().size(0) > 0 and not self.concat:
             return torch.zeros(
-                (x_source.shape[0], self.out_channels), device=x_source.device
+                (x_source.shape[0], self.out_channels // self.heads),
+                device=x_source.device,
             )  # (n_k_cells, C)
 
         # Add self-loops to the neighborhood matrix if necessary
@@ -762,9 +758,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
 
         # if concat true, concatenate the messages for each head. Otherwise, average the messages for each head.
         if self.concat:
-            return aggregated_message.view(
-                -1, self.heads * self.out_channels
-            )  # (n_k_cells, H * C)
+            return aggregated_message.view(-1, self.out_channels)  # (n_k_cells, H * C)
 
         return aggregated_message.mean(dim=1)  # (n_k_cells, C)
 
@@ -836,6 +830,9 @@ class CANLayer(torch.nn.Module):
         assert in_channels > 0, ValueError("Number of input channels must be > 0")
         assert out_channels > 0, ValueError("Number of output channels must be > 0")
         assert heads > 0, ValueError("Number of heads must be > 0")
+        assert out_channels % heads == 0, ValueError(
+            "Number of output channels must be divisible by the number of heads"
+        )
         assert dropout >= 0.0 and dropout <= 1.0, ValueError("Dropout must be in [0,1]")
 
         # assert that shared weight is True only if version is v2
@@ -893,7 +890,7 @@ class CANLayer(torch.nn.Module):
 
         # linear transformation
         if skip_connection:
-            out_channels = out_channels * heads if concat else out_channels
+            out_channels = out_channels if concat else out_channels // heads
             self.lin = Linear(in_channels, out_channels, bias=False)
             self.eps = 1 + 1e-6
 
