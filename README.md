@@ -117,4 +117,4 @@ To learn more about the topological deep learning blueprint:
 
 Partially funded by the European Union (ERC, HIGH-HOPeS, 101039827). Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council Executive Agency. Neither the European Union nor the granting authority can be held responsible for them.
 
-Partially funded bythe National Science Foundation  (DMS-2134231,DMS-2134241).
+Partially funded by the National Science Foundation (DMS-2134231, DMS-2134241).
