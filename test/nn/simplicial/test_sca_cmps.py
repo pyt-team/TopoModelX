@@ -1,9 +1,10 @@
 """Unit tests for SCA Model."""
+
 import itertools
 import random
 
+import toponetx as tnx
 import torch
-from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.sca_cmps import SCACMPS
 from topomodelx.utils.sparse import from_sparse
@@ -28,7 +29,7 @@ class TestSCA:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = SimplicialComplex()
+        simplicial_complex = tnx.SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
 
