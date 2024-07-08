@@ -1,12 +1,13 @@
 """Neural network implementation of classification using SCoNe."""
+
 import random
 from itertools import product
 
 import networkx as nx
 import numpy as np
+import toponetx as tnx
 import torch
 from scipy.spatial import Delaunay, distance
-from toponetx.classes.simplicial_complex import SimplicialComplex
 from torch import nn
 from torch.utils.data.dataset import Dataset
 
@@ -15,7 +16,7 @@ from topomodelx.nn.simplicial.scone_layer import SCoNeLayer
 
 def generate_complex(
     N: int = 100, *, rng: np.random.Generator | None = None
-) -> tuple[SimplicialComplex, np.ndarray]:
+) -> tuple[tnx.SimplicialComplex, np.ndarray]:
     """Generate a simplicial complex as described.
 
     Generate a simplicial complex of dimension 2 as follows:
@@ -58,13 +59,13 @@ def generate_complex(
         for j in range(3):
             simplices[i][j] = idx_dict[simplices[i][j]]
 
-    sc = SimplicialComplex(simplices)
+    sc = tnx.SimplicialComplex(simplices)
     coords = points[list(indices_included)]
     return sc, coords
 
 
 def generate_trajectories(
-    sc: SimplicialComplex, coords: np.ndarray, n_max: int = 1000
+    sc: tnx.SimplicialComplex, coords: np.ndarray, n_max: int = 1000
 ) -> list[list[int]]:
     """Generate trajectories from nodes in the lower left corner to the upper right corner connected through a node in the middle."""
     # Get indices for start points in the lower left corner, mid points in the center region and end points in the upper right corner.
@@ -98,7 +99,9 @@ def generate_trajectories(
 class TrajectoriesDataset(Dataset):
     """Create a dataset of trajectories."""
 
-    def __init__(self, sc: SimplicialComplex, trajectories: list[list[int]]) -> None:
+    def __init__(
+        self, sc: tnx.SimplicialComplex, trajectories: list[list[int]]
+    ) -> None:
         self.trajectories = trajectories
         self.sc = sc
         self.adjacency = torch.Tensor(sc.adjacency_matrix(0).toarray())

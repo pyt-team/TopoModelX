@@ -1,9 +1,10 @@
 """Unit tests for SAN Model."""
+
 import itertools
 import random
 
+import toponetx as tnx
 import torch
-from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.san import SAN
 from topomodelx.utils.sparse import from_sparse
@@ -28,7 +29,7 @@ class TestSAN:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = SimplicialComplex()
+        simplicial_complex = tnx.SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
         x_1 = torch.randn(35, 2)
