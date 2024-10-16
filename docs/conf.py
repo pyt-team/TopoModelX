@@ -33,6 +33,8 @@ html_theme_options = {
    ]
 }
 
+html_show_sourcelink = False
+
 # Configure nbsphinx for notebook execution
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
