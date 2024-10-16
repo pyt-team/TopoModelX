@@ -22,6 +22,17 @@ extensions = [
     "sphinx_gallery.load_style",
 ]
 
+html_theme_options = {
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/pyt-team/TopoModelX",
+            "icon": "fa-brands fa-github",
+            "type": "fontawesome",
+        }
+   ]
+}
+
 # Configure nbsphinx for notebook execution
 nbsphinx_execute_arguments = [
     "--InlineBackend.figure_formats={'svg', 'pdf'}",
