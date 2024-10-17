@@ -135,6 +135,8 @@ html_theme_options = {
     "use_edit_page_button": True,
 }
 
+html_favicon = "_static/favicon-48.png"
+
 html_show_sourcelink = False
 
 # Exclude copy button from appearing over notebook cell numbers by using :not()
