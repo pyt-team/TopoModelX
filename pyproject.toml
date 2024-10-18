@@ -46,6 +46,7 @@ doc = [
     "nbsphinx_link",
     "numpydoc",
     "sphinx",
+    "sphinx-copybutton",
     "sphinx_gallery",
     "pydata-sphinx-theme"
 ]
