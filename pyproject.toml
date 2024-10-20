@@ -10,7 +10,7 @@ authors = [
 ]
 
 maintainers = [
-    {name = "Mustafa Hajij", email = "mustafahajij@gmail.com"}
+    {name = "Mustafa Hajij", email = "mustafahajij@gmail.com", Florian Frantzen}
 ]
 readme = "README.md"
 description = "Topological Deep Learning"

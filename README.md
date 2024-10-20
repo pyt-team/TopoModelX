@@ -135,7 +135,8 @@ Then:
 
 To learn more about the topological deep learning blueprint:
 
-- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub. [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
+- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub.  
+  [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606) (arXiv) • [Topological Deep Learning: A Book](https://tdlbook.org/)
 
 - TMX can reproduce and extend the topological neural networks (TNNs) surveyed in:
 
