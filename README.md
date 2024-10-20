@@ -77,6 +77,28 @@ model = Network(in_channels=x.shape[-1], hidden_channels=16, out_channels=2)
 y_hat_edge = model(x, laplacian_up=laplacian_up, laplacian_down=laplacian_down)
    ```
 
+## 🤖 Installing TopoModelX
+
+`TopoModelX` is available on PyPI and can be installed using `pip`. 
+
+
+### Install with pip
+
+To install `TopoModelX` and its dependencies, run the following command:
+
+```bash
+pip install topomodelx
+```
+Then install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
+
+      ```bash
+      pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
+      pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
+      pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
+      ```
+where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
+
+
 ## 🦾 Contributing to TMX
 
 To develop tmx on your machine, here are some tips.
