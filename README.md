@@ -133,18 +133,18 @@ Then:
 
 ## 🔍 References ##
 
-- TMX is a part of TopoX, a suite of Python packages for machine learning on topological domains. If you find TMX useful please consider citing our software paper:
+TMX is a part of TopoX, a suite of Python packages for machine learning on topological domains. If you find TMX useful please consider citing our software paper:
 
-Hajij et al. 2023. TopoX: a suite of Python packages for machine learning on topological domains
+- Hajij et al. 2023. TopoX: a suite of Python packages for machine learning on topological domains
 
-- To learn more about the blueprint topological deep learning that topomodelx follows :
+To learn more about the blueprint topological deep learning that topomodelx follows :
 
-Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub.  
+- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub.  
   [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606) (arXiv) • [Topological Deep Learning: A Book](https://tdlbook.org/)
 
-- TMX topological neural networks are surveyed in:
+TMX topological neural networks are surveyed in:
 
-Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
+- Papillon et al. 2023. Architectures of Topological Deep Learning: A Survey on Topological Neural Networks.
 
 ```
 @misc{hajij2023topological,
