@@ -93,7 +93,7 @@ select = [
     "PERF", # performance rules
     "RUF", # miscellaneous rules
 ]
-ignore = ["E501"] # line too long
+ignore = ["E501", "SIM115"] # line too long
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
