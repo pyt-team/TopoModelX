@@ -8,9 +8,12 @@ dynamic = ["version"]
 authors = [
     {name = "PyT-Team Authors", email = "mustafahajij@gmail.com"}
 ]
+maintainers = [
+    {name = "Mustafa Hajij", email = "mustafahajij@gmail.com"}
+]
 readme = "README.md"
 description = "Topological Deep Learning"
-license = {file = "LICENSE.txt"}
+license = {text = "MIT"}
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Development Status :: 4 - Beta",
@@ -23,10 +26,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11"
 ]
-requires-python = ">= 3.10"
-dependencies=[
+requires-python = ">=3.10"
+keywords = ["deep learning", "topology", "artificial intelligence"]
+
+dependencies = [
     "tqdm",
-    "numpy",
+    "numpy<2",
     "scipy",
     "requests",
     "scikit-learn",
@@ -34,7 +39,6 @@ dependencies=[
     "networkx",
     "gudhi",
     "pandas",
-    "pyg-nightly",
     "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
 ]
 
@@ -46,7 +50,7 @@ doc = [
     "nbsphinx_link",
     "numpydoc",
     "sphinx",
-    "sphinx_gallery",
+    "sphinx-gallery",
     "pydata-sphinx-theme"
 ]
 lint = [
@@ -60,15 +64,22 @@ test = [
     "jupyter",
     "mypy",
     "pytest-xdist",
-    "pytest-split"
+    "pytest-split",
+    "tox"
 ]
-
-dev = ["TopoModelX[test, lint]"]
-all = ["TopoModelX[dev, doc]"]
+dev = [
+    "TopoModelX[test, lint, doc]",
+    "tox",
+    "black",
+    "isort"
+]
+all = ["TopoModelX[dev]"]
 
 [project.urls]
-homepage="https://github.com/pyt-team/TopoModelX"
-repository="https://github.com/pyt-team/TopoModelX"
+homepage = "https://github.com/pyt-team/TopoModelX"
+repository = "https://github.com/pyt-team/TopoModelX"
+documentation = "https://pyt-team.github.io/TopoModelX"
+issues = "https://github.com/pyt-team/TopoModelX/issues"
 
 [tool.ruff]
 target-version = "py310"
@@ -79,21 +90,21 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = [
-    "F", # pyflakes errors
-    "E", # code style
-    "W", # warnings
-    "I", # import order
-    "UP", # pyupgrade rules
-    "B", # bugbear rules
+    "F",   # pyflakes errors
+    "E",   # code style
+    "W",   # warnings
+    "I",   # import order
+    "UP",  # pyupgrade rules
+    "B",   # bugbear rules
     "PIE", # pie rules
-    "Q", # quote rules
+    "Q",   # quote rules
     "RET", # return rules
     "SIM", # code simplifications
     "NPY", # numpy rules
     "PERF", # performance rules
     "RUF", # miscellaneous rules
 ]
-ignore = ["E501"] # line too long
+ignore = ["E501"]  # line too long
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -118,7 +129,9 @@ disable_error_code = ["import-untyped"]
 plugins = "numpy.typing.mypy_plugin"
 
 [tool.pytest.ini_options]
-addopts = "--capture=no"
+addopts = "--capture=no --cov=topomodelx --cov-report=html"
+minversion = "6.0"
+cache_dir = ".pytest_cache"
 
 [tool.numpydoc_validation]
 checks = [

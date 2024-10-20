@@ -42,6 +42,53 @@ See [our graphical literature review](https://github.com/pyt-team/TopoModelX/blo
 
 _**Note:** TMX is still under development._
 
+
+
+## Quick Tour for New Users
+
+In this quick tour, we highlight the ease of creating and training a TNN model with only a few lines of code.
+
+#Train your own TNN model
+
+Below is a minimal example of using TopoModelX to load a simplicial complex dataset, define a simplicial attention network (SAN), and perform a forward pass:
+
+
+```bash
+import numpy as np
+import torch
+from topomodelx.datasets.graph import karate_club
+from topomodelx.nn.simplicial.san import SAN
+from topomodelx.utils.sparse import from_sparse
+
+# Step 1: Load the Karate Club dataset
+dataset = karate_club(complex_type="simplicial")
+
+# Step 2: Prepare Laplacians and node/edge features
+laplacian_down = from_sparse(dataset.down_laplacian_matrix(rank=1))
+laplacian_up = from_sparse(dataset.up_laplacian_matrix(rank=1))
+incidence_0_1 = from_sparse(dataset.incidence_matrix(rank=1))
+
+x_0 = torch.tensor(np.stack(list(dataset.get_simplex_attributes("node_feat").values())))
+x_1 = torch.tensor(np.stack(list(dataset.get_simplex_attributes("edge_feat").values())))
+x = x_1 + torch.sparse.mm(incidence_0_1.T, x_0)
+
+# Step 3: Define the network
+class Network(torch.nn.Module):
+    def __init__(self, in_channels, hidden_channels, out_channels):
+        super().__init__()
+        self.base_model = SAN(in_channels, hidden_channels, n_layers=2)
+        self.linear = torch.nn.Linear(hidden_channels, out_channels)
+
+    def forward(self, x, laplacian_up, laplacian_down):
+        x = self.base_model(x, laplacian_up, laplacian_down)
+        return torch.sigmoid(self.linear(x))
+
+# Step 4: Initialize the network and perform a forward pass
+model = Network(in_channels=x.shape[-1], hidden_channels=16, out_channels=2)
+y_hat_edge = model(x, laplacian_up=laplacian_up, laplacian_down=laplacian_down)
+
+
+
 ## 🦾 Contributing to TMX
 
 To develop tmx on your machine, here are some tips.
@@ -98,9 +145,11 @@ Then:
 
 ## 🔍 References ##
 
+
 To learn more about the topological deep learning blueprint:
 
-- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub. [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606).
+- Mustafa Hajij, Ghada Zamzmi, Theodore Papamarkou, Nina Miolane, Aldo Guzmán-Sáenz, Karthikeyan Natesan Ramamurthy, Tolga Birdal, Tamal K. Dey, Soham Mukherjee, Shreyas N. Samaga, Neal Livesay, Robin Walters, Paul Rosen, Michael T. Schaub.  
+  [Topological Deep Learning: Going Beyond Graph Data](https://arxiv.org/abs/2206.00606) (arXiv) • [Topological Deep Learning: A Book](https://tdlbook.org/)
 ```
 @misc{hajij2023topological,
       title={Topological Deep Learning: Going Beyond Graph Data},
