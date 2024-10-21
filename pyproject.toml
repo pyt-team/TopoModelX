@@ -26,7 +26,7 @@ classifiers = [
 requires-python = ">= 3.10"
 dependencies=[
     "tqdm",
-    "numpy",
+    "numpy<2",
     "scipy",
     "requests",
     "scikit-learn",
@@ -67,8 +67,9 @@ dev = ["TopoModelX[test, lint]"]
 all = ["TopoModelX[dev, doc]"]
 
 [project.urls]
-homepage="https://github.com/pyt-team/TopoModelX"
-repository="https://github.com/pyt-team/TopoModelX"
+documentation = "https://pyt-team.github.io/TopoModelX"  
+source = "https://github.com/pyt-team/TopoModelX"  
+issues = "https://github.com/pyt-team/TopoModelX/issues"  
 
 [tool.ruff]
 target-version = "py310"

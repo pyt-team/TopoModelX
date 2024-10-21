@@ -9,20 +9,20 @@ import pytest
 
 def _exec_tutorial(path):
     """Execute a tutorial notebook."""
-    file_name = tempfile.NamedTemporaryFile(suffix=".ipynb").name
-    args = [
-        "jupyter",
-        "nbconvert",
-        "--to",
-        "notebook",
-        "--execute",
-        "--ExecutePreprocessor.timeout=1000",
-        "--ExecutePreprocessor.kernel_name=python3",
-        "--output",
-        file_name,
-        path,
-    ]
-    subprocess.check_call(args)
+    with tempfile.NamedTemporaryFile(suffix=".ipynb") as tmp_file:
+        args = [
+            "jupyter",
+            "nbconvert",
+            "--to",
+            "notebook",
+            "--execute",
+            "--ExecutePreprocessor.timeout=1000",
+            "--ExecutePreprocessor.kernel_name=python3",
+            "--output",
+            tmp_file.name,
+            path,
+        ]
+        subprocess.check_call(args)
 
 
 paths = sorted(glob.glob("tutorials/cell/*.ipynb"))
