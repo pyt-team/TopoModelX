@@ -50,7 +50,7 @@ from topomodelx.nn.simplicial.san import SAN
 from topomodelx.utils.sparse import from_sparse
 
 # Step 1: Load the Karate Club dataset
-dataset = tnx.karate_club(complex_type="simplicial")
+dataset = tnx.datasets.karate_club(complex_type="simplicial")
 
 # Step 2: Prepare Laplacians and node/edge features
 laplacian_down = from_sparse(dataset.down_laplacian_matrix(rank=1))
