@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -35,7 +35,7 @@ dependencies=[
     "gudhi",
     "pandas",
     "pyg-nightly",
-    "toponetx @ git+https://github.com/pyt-team/TopoNetX.git",
+    "toponetx",
 ]
 
 [project.optional-dependencies]
@@ -103,14 +103,12 @@ convention = "numpy"
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F403"]
 
-[tool.setuptools.dynamic]
-version = {attr = "topomodelx.__version__"}
-
 [tool.setuptools.packages.find]
-include = [
-    "topomodelx",
-    "topomodelx.*"
-]
+include = ["topomodelx"]
+
+[tool.setuptools_scm]
+local_scheme = "no-local-version"
+version_file = "topomodelx/_version.py"
 
 [tool.mypy]
 warn_redundant_casts = true
