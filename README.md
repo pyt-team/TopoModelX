@@ -44,13 +44,13 @@ Below is a minimal example of using TopoModelX to load a simplicial complex data
 
 ```bash
 import numpy as np
+import toponetx as tnx
 import torch
-from topomodelx.datasets.graph import karate_club
 from topomodelx.nn.simplicial.san import SAN
 from topomodelx.utils.sparse import from_sparse
 
 # Step 1: Load the Karate Club dataset
-dataset = karate_club(complex_type="simplicial")
+dataset = tnx.karate_club(complex_type="simplicial")
 
 # Step 2: Prepare Laplacians and node/edge features
 laplacian_down = from_sparse(dataset.down_laplacian_matrix(rank=1))
@@ -79,23 +79,19 @@ y_hat_edge = model(x, laplacian_up=laplacian_up, laplacian_down=laplacian_down)
 
 ## 🤖 Installing TopoModelX
 
-`TopoModelX` is available on PyPI and can be installed using `pip`. 
-
-
-### Install with pip
-
-To install `TopoModelX` and its dependencies, run the following command:
+`TopoModelX` is available on PyPI and can be installed using `pip`.
+Run the following command:
 
 ```bash
 pip install topomodelx
 ```
-Then install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
 
-      ```bash
-      pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
-      pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
-      pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
-      ```
+Then install torch, torch-scatter, torch-sparse with or without CUDA depending on your needs.
+```bash
+pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/${CUDA}
+pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.1+${CUDA}.html
+pip install torch-cluster -f https://data.pyg.org/whl/torch-2.0.0+${CUDA}.html
+```
 where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115` depending on your PyTorch installation (`torch.version.cuda`).
 
 
