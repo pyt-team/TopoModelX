@@ -1,7 +1,8 @@
 """Unit tests for Dist2Cycke Model."""
+
 import numpy as np
+import toponetx as tnx
 import torch
-from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.dist2cycle import Dist2Cycle
 
@@ -15,7 +16,7 @@ class TestDist2Cycle:
         face_set = [[2, 3, 4], [2, 4, 5]]
 
         torch.manual_seed(42)
-        simplicial_complex = SimplicialComplex(edge_set + face_set)
+        simplicial_complex = tnx.SimplicialComplex(edge_set + face_set)
         laplacian_down_1 = simplicial_complex.down_laplacian_matrix(rank=1).todense()
         adjacency_1 = simplicial_complex.adjacency_matrix(rank=1).todense()
         laplacian_down_1_inv = np.linalg.pinv(

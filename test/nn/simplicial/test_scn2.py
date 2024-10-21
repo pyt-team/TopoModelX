@@ -1,9 +1,10 @@
 """Unit tests for SCN2 Model."""
+
 import itertools
 import random
 
+import toponetx as tnx
 import torch
-from toponetx.classes import SimplicialComplex
 
 from topomodelx.nn.simplicial.scn2 import SCN2
 from topomodelx.utils.sparse import from_sparse
@@ -28,7 +29,7 @@ class TestSCN2:
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]
-        simplicial_complex = SimplicialComplex()
+        simplicial_complex = tnx.SimplicialComplex()
         for simplex in selected_combinations:
             simplicial_complex.add_simplex(simplex)
 
