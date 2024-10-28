@@ -29,7 +29,7 @@
 
 ![tnns_network_with_layers](https://user-images.githubusercontent.com/8267869/234084036-f7d6585e-b7c2-4156-a825-cfa5b9658d71.png)
 
-`TopoModelX` (TMX) is a Python module for topological deep learning. It offers simple and efficient tools to implement topological neural networks for science and engineering.
+`TopoModelX` (TMX) is a Python module for topological deep learning. It offers simple and efficient tools to implement topological neural networks for science and engineering. `TopoModelX` is a part of [TopoX](https://pyt-team.github.io/).
 
 _**Note:** TMX is still under development._
 
