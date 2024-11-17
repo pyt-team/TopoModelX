@@ -1,5 +1,7 @@
 __version__ = "0.0.1"
 
-from .base import *
-from .nn import *
-from .utils import *
+from topomodelx.base import *
+from topomodelx.nn import *
+from topomodelx.utils import *
+
+
