@@ -59,7 +59,7 @@ jobs:
         run: |
           pytest -n 2 --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
       - name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.xml
