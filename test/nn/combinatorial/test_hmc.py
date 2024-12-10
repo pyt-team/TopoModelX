@@ -1,4 +1,5 @@
 """Tests for the HMC class."""
+
 import numpy as np
 import torch
 
@@ -17,18 +18,13 @@ class TestHMC:
         channels_per_layer = [[in_channels, intermediate_channels, final_channels]]
         model = HMC(channels_per_layer, negative_slope=0.2).to(device)
 
-        x_0 = torch.rand(2, 2)
-        x_1 = torch.rand(2, 2)
-        x_2 = torch.rand(2, 2)
+        x_0 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        x_1 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        x_2 = torch.rand(2, 2, dtype=torch.float32, device=device)
         adjacency_0 = torch.from_numpy(
             np.random.default_rng().random((2, 2))
         ).to_sparse()
 
-        x_0, x_1, x_2 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
-            torch.tensor(x_2).float().to(device),
-        )
         adjacency_0 = adjacency_0.float().to(device)
 
         x_0, x_1, x_2 = model(

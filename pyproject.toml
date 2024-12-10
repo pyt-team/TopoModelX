@@ -100,7 +100,7 @@ ignore = ["E501"] # line too long
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F403"]
 
 [tool.setuptools.packages.find]
@@ -118,7 +118,16 @@ disable_error_code = ["import-untyped"]
 plugins = "numpy.typing.mypy_plugin"
 
 [tool.pytest.ini_options]
-addopts = "--capture=no"
+minversion = "7.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = [
+    "error",
+    "ignore::scipy.sparse._base.SparseEfficiencyWarning",
+    "ignore:Sparse CSR tensor support is in beta state:UserWarning",
+]
+log_cli_level = "info"
+testpaths = ["test"]
 
 [tool.numpydoc_validation]
 checks = [

@@ -19,21 +19,12 @@ class TestCWN:
             n_layers=2,
         ).to(device)
 
-        x_0 = torch.rand(2, 2)
-        x_1 = torch.rand(2, 2)
-        x_2 = torch.rand(2, 2)
-        adjacency_1 = torch.rand(2, 2)
-        incidence_2 = torch.rand(2, 2)
-        incidence_1_t = torch.rand(2, 2)
-
-        x_0, x_1, x_2 = (
-            torch.tensor(x_0).float().to(device),
-            torch.tensor(x_1).float().to(device),
-            torch.tensor(x_2).float().to(device),
-        )
-        adjacency_1 = adjacency_1.float().to(device)
-        incidence_2 = incidence_2.float().to(device)
-        incidence_1_t = incidence_1_t.float().to(device)
+        x_0 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        x_1 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        x_2 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        adjacency_1 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        incidence_2 = torch.rand(2, 2, dtype=torch.float32, device=device)
+        incidence_1_t = torch.rand(2, 2, dtype=torch.float32, device=device)
 
         x_0, x_1, x_2 = model(x_0, x_1, x_2, adjacency_1, incidence_2, incidence_1_t)
         assert x_0.shape == torch.Size([2, 16])
