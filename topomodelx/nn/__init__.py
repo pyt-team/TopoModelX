@@ -16,16 +16,16 @@ from .cell.cwn_layer import (
 )
 
 __all__ = [
-    "LiftLayer",
-    "MultiHeadLiftLayer",
-    "PoolLayer",
-    "MultiHeadCellAttention",
-    "MultiHeadCellAttention_v2",
     "CANLayer",
     "CCXNLayer",
     "CWNLayer",
+    "LiftLayer",
+    "MultiHeadCellAttention",
+    "MultiHeadCellAttention_v2",
+    "MultiHeadLiftLayer",
+    "PoolLayer",
+    "_CWNDefaultAggregate",
     "_CWNDefaultFirstConv",
     "_CWNDefaultSecondConv",
-    "_CWNDefaultAggregate",
     "_CWNDefaultUpdate",
 ]
