@@ -19,7 +19,7 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.14
+    rev: v0.8.2
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
