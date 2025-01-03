@@ -109,6 +109,7 @@ class TrajectoriesDataset(Dataset):
         # Lookup table used to speed up vectorizing of trajectories
         self.edge_lookup_table = {}
         for i, edge in enumerate(self.sc.skeleton(1)):
+            edge = tuple(edge)
             self.edge_lookup_table[edge] = (1, i)
             self.edge_lookup_table[edge[::-1]] = (-1, i)
 
