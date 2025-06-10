@@ -200,7 +200,7 @@ class HyperGATLayer(MessagePassing):
         inter_aggregation = incidence_1 @ (messages_on_edges @ self.weight2)
 
         attention_values = self.attention(
-            inter_aggregation, intra_aggregation
+            inter_aggregation, intra_aggregation, "edge-level"
         ).squeeze()
         incidence_with_attention = torch.sparse_coo_tensor(
             indices=incidence_1.indices(),
