@@ -6,7 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "TopoModelX"
 dynamic = ["version"]
 authors = [
-    {name = "PyT-Team Authors", email = "mustafahajij@gmail.com"}
+    {name = "Mustafa Hajij", email = "mhajij@usfca.edu"},
+    {name = "Mathilde Papillon", email = "papillon@ucsb.edu"},
+    {name = "Florian Frantzen", email = "frantzen@netsci.rwth-aachen.de"}
 ]
 readme = "README.md"
 description = "Topological Deep Learning"
