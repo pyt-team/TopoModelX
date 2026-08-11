@@ -28,7 +28,7 @@ classifiers = [
 requires-python = ">= 3.10"
 dependencies=[
     "tqdm",
-    "numpy<2",
+    "numpy<3",
     "scipy",
     "requests",
     "scikit-learn",
