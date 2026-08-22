@@ -36,7 +36,8 @@ dependencies=[
     "networkx",
     "gudhi",
     "pandas",
-    "pyg-nightly",
+    "torch_geometric",
+    "torch>=2.8.0",
     "toponetx",
 ]
 
@@ -154,6 +155,7 @@ filterwarnings = [
     "error",
     "ignore::scipy.sparse._base.SparseEfficiencyWarning",
     "ignore:Sparse CSR tensor support is in beta state:UserWarning",
+    "ignore:`torch.jit.script` is deprecated",
 ]
 log_cli_level = "info"
 testpaths = ["test"]

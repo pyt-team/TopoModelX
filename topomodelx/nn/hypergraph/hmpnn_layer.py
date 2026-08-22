@@ -37,6 +37,7 @@ class _AdjacencyDropoutMixin:
                 neighborhood.values().to(torch.float), dropout_rate, self.training
             ),
             neighborhood.size(),
+            check_invariants=False,
         ).coalesce()
 
 

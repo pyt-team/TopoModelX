@@ -1,6 +1,6 @@
 """Simplicial Complex Convolutional Network (SCCN) Layer."""
 
-from typing import Literal
+from typing import Literal, cast
 
 import torch
 
@@ -109,12 +109,13 @@ class SCCNLayer(torch.nn.Module):
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
-        for rank in self.convs_same_rank:
-            self.convs_same_rank[rank].reset_parameters()
-        for rank in self.convs_low_to_high:
-            self.convs_low_to_high[rank].reset_parameters()
-        for rank in self.convs_high_to_low:
-            self.convs_high_to_low[rank].reset_parameters()
+        for module_dict in (
+            self.convs_same_rank,
+            self.convs_low_to_high,
+            self.convs_high_to_low,
+        ):
+            for module in module_dict.values():
+                cast("Conv", module).reset_parameters()
 
     def forward(self, features, incidences, adjacencies):
         r"""Forward pass.

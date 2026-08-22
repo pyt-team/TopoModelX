@@ -24,11 +24,13 @@ class TestSANLayer:
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.5, 0.3, 0.2]),
                 size=(n_cells, n_cells),
+                check_invariants=False,
             )
             laplacian_down = torch.sparse_coo_tensor(
                 indices=torch.tensor([[0, 1, 2], [1, 2, 0]]),
                 values=torch.tensor([0.3, 0.4, 0.5]),
                 size=(n_cells, n_cells),
+                check_invariants=False,
             )
             P = torch.randn(n_cells, n_cells)
 

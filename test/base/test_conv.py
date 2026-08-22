@@ -49,6 +49,7 @@ class TestConv:
             indices=torch.tensor([[0, 0, 0, 1, 2], [0, 1, 1, 2, 9]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(3, 10),
+            check_invariants=False,
         )
 
     def test_update(self):

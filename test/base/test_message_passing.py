@@ -18,12 +18,14 @@ class TestMessagePassing:
             indices=torch.tensor([[0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]]),
             values=torch.tensor([1, 2, 3, 4, 5, 6]),
             size=(3, 3),
+            check_invariants=False,
         ).float()
 
         self.neighborhood_r_to_s = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 0, 1, 1], [0, 1, 2, 1, 2]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(2, 3),
+            check_invariants=False,
         )
 
         self.mp = MessagePassing()

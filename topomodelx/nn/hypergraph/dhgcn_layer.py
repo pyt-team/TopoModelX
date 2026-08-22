@@ -1,7 +1,7 @@
 """Dynamic hypergraph convolutional network (DHGCN) Layer implementation."""
 
 import torch
-from torch_cluster import knn_graph, nearest
+from torch_geometric.nn import knn_graph, nearest
 
 from topomodelx.base.conv import Conv
 
@@ -85,7 +85,7 @@ class DHGCNLayer(torch.nn.Module):
             [n_nodes, n_hyperedges = k_centroids].
             If this parameter has value "target_to_source", the output shape will be
             [n_hyperedges = k_centroids, n_nodes].
-            It corresponds to the pytorch_cluster's flow parameter is the knn_graph method
+            It corresponds to the flow parameter of the knn_graph method
             and is defined accordingly.
 
         Returns
@@ -104,8 +104,8 @@ class DHGCNLayer(torch.nn.Module):
             centroids = torch.index_select(x, 0, centroid_indices)
 
             new_element = x[new_index : new_index + 1]
-            batch_x = torch.tensor([0], device=device)
-            batch_y = torch.zeros(centroids.size(0), device=device)
+            batch_x = torch.zeros(1, dtype=torch.long, device=device)
+            batch_y = torch.zeros(centroids.size(0), dtype=torch.long, device=device)
             assigned_cluster = nearest(new_element, centroids, batch_x, batch_y)
 
             element_indices = element_indices_by_cluster[assigned_cluster]
@@ -195,6 +195,7 @@ class DHGCNLayer(torch.nn.Module):
             torch.ones(local_edge_index.size(1), device=device),
             size=(n_nodes, n_nodes),
             device=device,
+            check_invariants=False,
         )  # [n_nodes, n_hyperedges = n_nodes]
 
         global_edge_index = self.kmeans(x_0_features.cpu())
@@ -203,6 +204,7 @@ class DHGCNLayer(torch.nn.Module):
             torch.ones(n_nodes, device=device),
             size=(n_nodes, self.k_centroids),
             device=device,
+            check_invariants=False,
         )  # [n_nodes, n_hyperedges = k_centroids]
         return torch.cat((local_hyperedges, global_hyperedges), dim=1)
 

@@ -192,6 +192,7 @@ class HyperGATLayer(MessagePassing):
             indices=incidence_1.indices(),
             values=incidence_1.values() * attention_values,
             size=incidence_1.shape,
+            check_invariants=False,
         )
         intra_aggregation_with_attention = incidence_with_attention.t() @ (
             x_0 @ self.weight1
@@ -207,6 +208,7 @@ class HyperGATLayer(MessagePassing):
             indices=incidence_1.indices(),
             values=attention_values * incidence_1.values(),
             size=incidence_1.shape,
+            check_invariants=False,
         )
         inter_aggregation_with_attention = incidence_with_attention @ (
             messages_on_edges @ self.weight2

@@ -22,30 +22,35 @@ class TestHMCLayer:
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
             dtype=torch.float,
+            check_invariants=False,
         )
         adjacency_1 = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [1, 2, 0, 2, 0, 1]]),
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
             dtype=torch.float,
+            check_invariants=False,
         )
         coadjacency_2 = torch.sparse_coo_tensor(
             indices=torch.tensor([[0], [0]]),
             values=torch.tensor([1]),
             size=(1, 1),
             dtype=torch.float,
+            check_invariants=False,
         )
         incidence_1 = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
             dtype=torch.float,
+            check_invariants=False,
         )
         incidence_2 = torch.sparse_coo_tensor(
             indices=torch.tensor([[0, 1, 2], [0, 0, 0]]),
             values=torch.tensor([1, 1, 1]),
             size=(3, 1),
             dtype=torch.float,
+            check_invariants=False,
         )
         x_0 = torch.randn(3, in_channels[0])
         x_1 = torch.randn(3, in_channels[1])
@@ -97,6 +102,7 @@ class TestHBNS:
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
+            check_invariants=False,
         )
 
     def test_initialization(self):
@@ -155,6 +161,7 @@ class TestHBNS:
             indices=torch.tensor([[0, 0, 0, 1, 2], [0, 1, 1, 2, 9]]),
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(3, 10),
+            check_invariants=False,
         )
         """Test the forward pass of the message passing convolution layer."""
         x_source = torch.tensor(
@@ -364,6 +371,7 @@ class TestHBNS:
             indices=torch.tensor([[0, 0, 1, 1, 2, 2], [0, 2, 0, 1, 1, 2]]),
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
+            check_invariants=False,
         )
         x_source = torch.tensor([[1, 2], [3, 4], [5, 6]], dtype=torch.float)
         x_target = torch.tensor([[5, 6], [7, 8], [9, 10]], dtype=torch.float)
@@ -422,6 +430,7 @@ class TestHBS:
             values=torch.tensor([1, 1, 1, 1, 1, 1]),
             size=(3, 3),
             dtype=torch.float,
+            check_invariants=False,
         )
         self.hbs = HBS(
             source_in_channels=self.d_s_in,
@@ -449,6 +458,7 @@ class TestHBS:
             values=torch.tensor([1, 2, 3, 4, 5]),
             size=(10, 10),
             dtype=torch.float,
+            check_invariants=False,
         )
         """Test the forward pass of the message passing convolution layer."""
         x_source = torch.tensor(
