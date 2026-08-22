@@ -1,4 +1,5 @@
 """SCA with CMPS."""
+
 import torch
 
 from topomodelx.nn.simplicial.sca_cmps_layer import SCACMPSLayer

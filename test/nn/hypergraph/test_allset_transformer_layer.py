@@ -1,4 +1,5 @@
 """Test the AllSetTransformer layer."""
+
 import pytest
 import torch
 

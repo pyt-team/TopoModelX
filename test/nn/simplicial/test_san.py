@@ -23,9 +23,7 @@ class TestSAN:
         torch.manual_seed(seed_value)
         # Create a random cell complex of cells with length 3
         all_combinations = list(
-            itertools.combinations(
-                [x for x in range(1, node_creation + 1)], nodes_per_face
-            )
+            itertools.combinations(list(range(1, node_creation + 1)), nodes_per_face)
         )
         random.shuffle(all_combinations)
         selected_combinations = all_combinations[:faces]

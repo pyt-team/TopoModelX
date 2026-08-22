@@ -616,13 +616,13 @@ class HBS(torch.nn.Module):
             matrix :math:`W_p`.
         A_p : torch.sparse, shape=[n_cells, n_cells]
             Neighborhood matrix to the power p. Indicates how many paths of
-            lenght p exist from cell :math:`i` to cell :math:`j`.
+            length p exist from cell :math:`i` to cell :math:`j`.
         a_p : torch.Tensor, shape=[2*source_out_channels, 1]
             Learnable attention weight vector.
 
         Returns
         -------
-        att_p : torch.sparse, shape=[n_messages, n_messages].
+        torch.sparse, shape=[n_messages, n_messages].
             Represents the attention matrix :math:`A_p`.
         """
         n_messages = message.shape[0]
@@ -815,11 +815,14 @@ class HMCLayer(torch.nn.Module):
         super().__init__()
         super().__init__()
 
-        assert (
+        if not (
             len(in_channels) == 3
             and len(intermediate_channels) == 3
             and len(out_channels) == 3
-        )
+        ):
+            raise ValueError(
+                "in_channels, intermediate_channels and out_channels must each have length 3"
+            )
 
         in_channels_0, in_channels_1, in_channels_2 = in_channels
         (

@@ -1,6 +1,5 @@
 """Test the merge layer of the topomodelx base module."""
 
-
 import torch
 
 from topomodelx.base.aggregation import Aggregation

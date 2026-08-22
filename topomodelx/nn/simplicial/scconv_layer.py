@@ -1,4 +1,5 @@
 """Simplicial 2-complex convolutional neural network."""
+
 import torch
 
 from topomodelx.base.aggregation import Aggregation

@@ -75,9 +75,10 @@ def generate_trajectories(
     end_nodes = list(range(int(0.8 * N), N))
     all_triplets = list(product(start_nodes, mid_nodes, end_nodes))
 
-    assert (
-        len(all_triplets) >= n_max
-    ), f"Only {len(all_triplets)} valid paths, but {n_max} requested. Try increasing the number of points in the simplicial complex."
+    if len(all_triplets) < n_max:
+        raise ValueError(
+            f"Only {len(all_triplets)} valid paths, but {n_max} requested. Try increasing the number of points in the simplicial complex."
+        )
     triplets = random.sample(all_triplets, n_max)
 
     # Compute pairwise distances and create a matrix representing the underlying graph.

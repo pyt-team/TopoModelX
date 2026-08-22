@@ -1,4 +1,5 @@
 """Simplicial Complex Convolutional Network Implementation for binary node classification."""
+
 import torch
 
 from topomodelx.nn.simplicial.sccn_layer import SCCNLayer

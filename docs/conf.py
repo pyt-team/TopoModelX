@@ -2,11 +2,12 @@
 
 import os
 import shutil
+from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 
 project = "TopoModelX"
-copyright = "2022-2023, PyT-Team, Inc."
+copyright = "2022-2023, PyT-Team, Inc."  # noqa: A001
 author = "PyT-Team Authors"
 language = "en"
 
@@ -47,8 +48,10 @@ nbsphinx_allow_errors = True
 
 
 def copy_thumbnails():
-    """Copy the thumbnail files in the _build
-    directory to enable thumbnails in the gallery"""
+    """Copy the thumbnail files in the _build directory.
+
+    This enables thumbnails in the gallery.
+    """
     src_directory = "./_thumbnails"
     des_directory = "./_build/_thumbnails"
 
@@ -68,11 +71,11 @@ def copy_thumbnails():
             full_filename = a + "/" + file
             all_thumbnails.append(full_filename)
 
-    os.mkdir("./_build")
-    os.mkdir(des_directory)
+    Path("./_build").mkdir()
+    Path(des_directory).mkdir()
 
     for directory in all_directories:
-        os.mkdir(des_directory + "/" + directory)
+        (Path(des_directory) / directory).mkdir()
 
     for thumbnail in all_thumbnails:
         shutil.copyfile(thumbnail, "./_build/" + thumbnail[2:])

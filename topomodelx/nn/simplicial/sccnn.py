@@ -1,4 +1,5 @@
 """SCCNN implementation for complex classification."""
+
 import torch
 
 from topomodelx.nn.simplicial.sccnn_layer import SCCNNLayer

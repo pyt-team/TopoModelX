@@ -1,4 +1,5 @@
 """Implementation of UniGCN layer from Huang et. al.: UniGNN: a Unified Framework for Graph and Hypergraph Neural Networks."""
+
 import torch
 from torch import nn
 

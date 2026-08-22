@@ -1,4 +1,5 @@
 """HMPNN (Hypergraph Message Passing Neural Network) Layer introduced in Heydari et Livi 2022."""
+
 from typing import Literal
 
 import torch

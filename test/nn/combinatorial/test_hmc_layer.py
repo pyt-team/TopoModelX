@@ -1,4 +1,5 @@
 """Tests for the HMCLayer class."""
+
 import math
 
 import pytest
@@ -462,8 +463,9 @@ class TestHBS:
                 [8, 7],
                 [9, 7],
                 [10, -1],
-            ]
-        ).float()
+            ],
+            dtype=torch.float32,
+        )
 
         result = self.hbs.forward(x_source, self.neighborhood)
 

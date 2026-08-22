@@ -1,4 +1,5 @@
 """Template Layer with two conv passing steps."""
+
 from typing import Literal
 
 import torch

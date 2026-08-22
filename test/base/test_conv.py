@@ -1,4 +1,5 @@
 """Test the convolutional layers in the base module."""
+
 import pytest
 import torch
 

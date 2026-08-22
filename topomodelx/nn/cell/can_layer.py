@@ -203,13 +203,15 @@ class MultiHeadLiftLayer(nn.Module):
     ) -> None:
         super().__init__()
 
-        assert heads > 0, ValueError("Number of heads must be > 0")
-        assert signal_lift_readout in [
+        if heads <= 0:
+            raise ValueError("Number of heads must be > 0")
+        if signal_lift_readout not in [
             "cat",
             "sum",
             "avg",
             "max",
-        ], "Invalid readout method."
+        ]:
+            raise ValueError("Invalid readout method.")
 
         self.in_channels_0 = in_channels_0
         self.heads = heads
@@ -827,18 +829,22 @@ class CANLayer(torch.nn.Module):
         if att_activation is None:
             att_activation = torch.nn.LeakyReLU()
 
-        assert in_channels > 0, ValueError("Number of input channels must be > 0")
-        assert out_channels > 0, ValueError("Number of output channels must be > 0")
-        assert heads > 0, ValueError("Number of heads must be > 0")
-        assert out_channels % heads == 0, ValueError(
-            "Number of output channels must be divisible by the number of heads"
-        )
-        assert dropout >= 0.0 and dropout <= 1.0, ValueError("Dropout must be in [0,1]")
+        if in_channels <= 0:
+            raise ValueError("Number of input channels must be > 0")
+        if out_channels <= 0:
+            raise ValueError("Number of output channels must be > 0")
+        if heads <= 0:
+            raise ValueError("Number of heads must be > 0")
+        if out_channels % heads != 0:
+            raise ValueError(
+                "Number of output channels must be divisible by the number of heads"
+            )
+        if dropout < 0.0 or dropout > 1.0:
+            raise ValueError("Dropout must be in [0,1]")
 
         # assert that shared weight is True only if version is v2
-        assert share_weights is False or version == "v2", ValueError(
-            "Shared weights is valid only for v2"
-        )
+        if share_weights is not False and version != "v2":
+            raise ValueError("Shared weights is valid only for v2")
 
         if version == "v1":
             # lower attention

@@ -1,4 +1,5 @@
 """Simplical Complex Autoencoder Layer."""
+
 import torch
 
 from topomodelx.base.aggregation import Aggregation

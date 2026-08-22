@@ -22,10 +22,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11"
 ]
-requires-python = ">= 3.10"
+requires-python = ">= 3.11"
 dependencies=[
     "tqdm",
     "numpy<2",
@@ -74,10 +74,6 @@ documentation = "https://pyt-team.github.io/TopoModelX"
 source = "https://github.com/pyt-team/TopoModelX"  
 issues = "https://github.com/pyt-team/TopoModelX/issues"  
 
-[tool.ruff]
-target-version = "py310"
-extend-include = ["*.ipynb"]
-
 [tool.ruff.format]
 docstring-code-format = true
 
@@ -87,23 +83,54 @@ select = [
     "E", # code style
     "W", # warnings
     "I", # import order
+    "D", # pydocstyle rules
     "UP", # pyupgrade rules
+    "YTT", # flake8-2020 rules
+    "S", # bandit rules
+    "BLE", # blind except
     "B", # bugbear rules
+    "A", # builtin shadowing
+    "COM", # comma rules
+    "C4", # comprehensions
+    "DTZ", # datetime rules
+    "T10", # debugger calls
+    "FA", # future annotations
+    "ISC", # implicit str concatenation
+    "ICN", # import conventions
+    "LOG", # logging rules
+    "G", # logging format rules
     "PIE", # pie rules
     "Q", # quote rules
+    "RSE", # raise rules
     "RET", # return rules
+    "SLOT", # slot rules
     "SIM", # code simplifications
+    "TID", # tidy imports
+    "TC", # type checking rules
+    "PTH", # use pathlib
+    "PD", # pandas rules
+    "PLC", # pylint conventions
+    "PLE", # pylint errors
+    "FLY", # flynt
     "NPY", # numpy rules
     "PERF", # performance rules
+    "FURB", # refurb
     "RUF", # miscellaneous rules
 ]
-ignore = ["E501"] # line too long
-
-[tool.ruff.lint.pydocstyle]
-convention = "numpy"
+ignore = [
+    "E501",    # line too long
+    "COM812",  # trailing commas; conflict with `ruff format`
+    "ISC001",  # implicitly single-line str concat; conflict with `ruff format`
+    "PERF203", # allow try-except within loops
+    "PLC0415", # import in nested levels
+]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F403"]
+"test/**.py" = ["S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
 
 [tool.setuptools.packages.find]
 include = ["topomodelx"]

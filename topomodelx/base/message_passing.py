@@ -1,4 +1,5 @@
 """Message passing module."""
+
 import math
 from typing import Literal
 

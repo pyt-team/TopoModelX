@@ -1,4 +1,5 @@
 """Dist2Cycle Network Layer."""
+
 import torch
 import torch.nn as nn
 

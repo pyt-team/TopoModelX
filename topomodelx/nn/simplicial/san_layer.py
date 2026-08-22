@@ -1,4 +1,5 @@
 """Simplicial Attention Network (SAN) Layer."""
+
 from typing import Literal
 
 import torch

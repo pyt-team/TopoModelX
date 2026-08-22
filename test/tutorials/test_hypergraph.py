@@ -1,8 +1,8 @@
 """Unit tests for the tutorials."""
 
-import glob
 import subprocess
 import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -22,10 +22,10 @@ def _exec_tutorial(path):
             tmp_file.name,
             path,
         ]
-        subprocess.check_call(args)
+        subprocess.check_call(args)  # noqa: S603
 
 
-paths = sorted(glob.glob("tutorials/hypergraph/*.ipynb"))
+paths = sorted(map(str, Path("tutorials/hypergraph").glob("*.ipynb")))
 
 
 @pytest.mark.parametrize("path", paths)

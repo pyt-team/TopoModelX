@@ -1,6 +1,5 @@
 """HMPNN class."""
 
-
 import torch
 
 from topomodelx.nn.hypergraph.hmpnn_layer import HMPNNLayer

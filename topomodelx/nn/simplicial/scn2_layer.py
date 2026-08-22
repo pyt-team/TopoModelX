@@ -1,4 +1,5 @@
 """Simplex Convolutional Network (SCN) Layer [Yang et al. LoG 2022]."""
+
 import torch
 
 from topomodelx.base.conv import Conv

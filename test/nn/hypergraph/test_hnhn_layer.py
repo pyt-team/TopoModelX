@@ -1,4 +1,5 @@
 """Test the HNHN layer."""
+
 import pytest
 import torch
 

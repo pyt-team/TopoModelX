@@ -1,4 +1,5 @@
 """Unit tests for Scone Model."""
+
 import random
 
 import numpy as np
@@ -33,7 +34,7 @@ class TestScone:
         n_layers = 6
         model = SCoNe(in_channels, hidden_channels, n_layers)
         batch = next(iter(train_dl))
-        traj, mask, last_nodes = batch
+        traj, _, _ = batch
         with torch.no_grad():
             forward_pass = model(traj, incidence_1, incidence_2)
         print(forward_pass[0][0])

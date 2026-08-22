@@ -1,4 +1,5 @@
 """Simplicial Attention Network (SAN) implementation for binary edge classification."""
+
 import torch
 
 from topomodelx.nn.simplicial.san_layer import SANLayer

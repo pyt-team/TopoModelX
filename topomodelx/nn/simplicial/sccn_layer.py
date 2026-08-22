@@ -1,4 +1,5 @@
 """Simplicial Complex Convolutional Network (SCCN) Layer."""
+
 from typing import Literal
 
 import torch
@@ -172,14 +173,14 @@ class SCCNLayer(torch.nn.Module):
             if rank < self.max_rank:
                 list_to_be_aggregated.append(
                     self.convs_high_to_low[f"rank_{rank}"](
-                        features[f"rank_{rank+1}"],
-                        incidences[f"rank_{rank+1}"],
+                        features[f"rank_{rank + 1}"],
+                        incidences[f"rank_{rank + 1}"],
                     )
                 )
             if rank > 0:
                 list_to_be_aggregated.append(
                     self.convs_low_to_high[f"rank_{rank}"](
-                        features[f"rank_{rank-1}"],
+                        features[f"rank_{rank - 1}"],
                         incidences[f"rank_{rank}"].transpose(1, 0),
                     )
                 )

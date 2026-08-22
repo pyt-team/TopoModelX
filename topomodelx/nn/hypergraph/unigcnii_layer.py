@@ -1,4 +1,5 @@
 """UniGCNII layer implementation."""
+
 import torch
 
 from topomodelx.base.conv import Conv
@@ -115,15 +116,17 @@ class UniGCNIILayer(torch.nn.Module):
         node_degree = torch.sum(incidence_1.to_dense(), dim=1)
 
         # check if the node degrees are positive
-        assert torch.all(
-            node_degree > 0
-        ), "Node degrees should be positive (at least self-loops should be included).)"
+        if not torch.all(node_degree > 0):
+            raise ValueError(
+                "Node degrees should be positive (at least self-loops should be included).)"
+            )
 
         # Average node degree for each edge.
         edge_degree = torch.sum(torch.diag(node_degree) @ incidence_1, dim=0)
-        assert torch.all(
-            edge_degree > 0
-        ), "Edge degrees should be positive (every edge needs at least one node it is connecting)."
+        if not torch.all(edge_degree > 0):
+            raise ValueError(
+                "Edge degrees should be positive (every edge needs at least one node it is connecting)."
+            )
         edge_degree = edge_degree / torch.sum(incidence_1.to_dense(), dim=0)
 
         # Second message normalized with node and edge degrees (using broadcasting)

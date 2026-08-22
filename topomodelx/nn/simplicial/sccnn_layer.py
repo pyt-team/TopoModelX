@@ -1,4 +1,5 @@
 """Simplicial Complex Convolutional Neural Network Layer."""
+
 import torch
 from torch.nn.parameter import Parameter
 
@@ -113,8 +114,10 @@ class SCCNNLayer(torch.nn.Module):
         self.update_func = update_func
         self.initialization = initialization
 
-        assert initialization in ["xavier_uniform", "xavier_normal"]
-        assert self.conv_order > 0
+        if initialization not in ["xavier_uniform", "xavier_normal"]:
+            raise ValueError(f"Invalid initialization: {initialization}")
+        if self.conv_order <= 0:
+            raise ValueError("Convolution order must be > 0")
 
         self.weight_0 = Parameter(
             torch.Tensor(

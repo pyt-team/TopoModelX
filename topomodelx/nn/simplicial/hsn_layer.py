@@ -1,4 +1,5 @@
 """High Skip Network (HSN) Layer."""
+
 import torch
 
 from topomodelx.base.aggregation import Aggregation
