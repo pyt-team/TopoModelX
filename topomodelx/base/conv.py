@@ -1,4 +1,5 @@
 """Convolutional layer for message passing."""
+
 from typing import Literal
 
 import torch

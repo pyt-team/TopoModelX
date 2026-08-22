@@ -1,4 +1,5 @@
 """Test the HyperGAT layer."""
+
 import pytest
 import torch
 

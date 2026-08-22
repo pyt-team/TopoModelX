@@ -1,4 +1,5 @@
 """Test the SAN layer."""
+
 import torch
 
 from topomodelx.nn.simplicial.san_layer import SANLayer

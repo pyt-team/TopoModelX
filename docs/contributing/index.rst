@@ -191,8 +191,8 @@ Here's a generic docstring template::
       If relevant, provide equations with (:math:)
       describing computations performed in the method.
 
-      Example
-      -------
+      Examples
+      --------
       Provide code snippets showing how the method is used.
       You can link to scripts of the examples/ directory.
 

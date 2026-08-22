@@ -1,4 +1,5 @@
 """Test the DHGCN layer."""
+
 import pytest
 import torch
 

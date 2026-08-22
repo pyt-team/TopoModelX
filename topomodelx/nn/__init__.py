@@ -1,3 +1,5 @@
+"""Neural network layers for TopoModelX."""
+
 from .cell.can_layer import (
     CANLayer,
     LiftLayer,

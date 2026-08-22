@@ -1,4 +1,5 @@
 """Test the SCConv layer."""
+
 import torch
 
 from topomodelx.nn.simplicial.scconv_layer import SCConvLayer

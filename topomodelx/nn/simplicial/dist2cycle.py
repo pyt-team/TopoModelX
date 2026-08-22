@@ -1,4 +1,5 @@
 """Dist2Cycle model for binary node classification."""
+
 import torch
 
 from topomodelx.nn.simplicial.dist2cycle_layer import Dist2CycleLayer

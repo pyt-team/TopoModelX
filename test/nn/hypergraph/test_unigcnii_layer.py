@@ -1,4 +1,5 @@
 """Test the UniGCNII layer."""
+
 import pytest
 import torch
 

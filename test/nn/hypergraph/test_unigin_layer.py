@@ -1,4 +1,5 @@
 """Test the UniGIN layer."""
+
 import numpy as np
 import pytest
 import torch

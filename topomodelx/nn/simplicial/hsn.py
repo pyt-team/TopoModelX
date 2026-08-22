@@ -1,4 +1,5 @@
 """High Skip Network Implementation model for binary node classification."""
+
 import torch
 
 from topomodelx.nn.simplicial.hsn_layer import HSNLayer

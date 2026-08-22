@@ -1,4 +1,5 @@
 """Aggregation module."""
+
 from typing import Literal
 
 import torch

@@ -1,4 +1,5 @@
 """Test the UniSAGE layer."""
+
 import pytest
 import torch
 

@@ -1,4 +1,5 @@
 """HyperSAGE layer."""
+
 from typing import Literal
 
 import torch

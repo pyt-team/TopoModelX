@@ -1,4 +1,5 @@
 """Dynamic hypergraph convolutional network (DHGCN) Layer implementation."""
+
 import torch
 from torch_cluster import knn_graph, nearest
 
@@ -93,7 +94,8 @@ class DHGCNLayer(torch.nn.Module):
             Indices of the on-zero values in the feature matrix of hypergraph convolutional network.
             The order of dimensions of the matrix is defined by the value of the flow parameter.
         """
-        assert flow in ["source_to_target", "target_to_source"]
+        if flow not in ["source_to_target", "target_to_source"]:
+            raise ValueError(f"Invalid value for flow: {flow}")
         device = x.device
         permutation = torch.randperm(x.size(0), device=device)
         centroid_indices = permutation[:k]

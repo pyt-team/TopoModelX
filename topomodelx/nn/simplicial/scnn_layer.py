@@ -1,4 +1,5 @@
 """Simplicial Convolutional Neural Network Layer."""
+
 import torch
 from torch.nn.parameter import Parameter
 
@@ -75,7 +76,8 @@ class SCNNLayer(torch.nn.Module):
         self.aggr_norm = aggr_norm
         self.update_func = update_func
         self.initialization = initialization
-        assert initialization in ["xavier_uniform", "xavier_normal"]
+        if initialization not in ["xavier_uniform", "xavier_normal"]:
+            raise ValueError(f"Invalid initialization: {initialization}")
 
         self.weight = Parameter(
             torch.Tensor(

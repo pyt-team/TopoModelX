@@ -1,6 +1,5 @@
 """HOAN mesh classifer class."""
 
-
 import torch
 
 from topomodelx.nn.combinatorial.hmc_layer import HMCLayer
@@ -36,11 +35,21 @@ class HMC(torch.nn.Module):
     ) -> None:
         def check_channels_consistency():
             """Check that the number of input, intermediate, and output channels is consistent."""
-            assert len(channels_per_layer) > 0
+            if len(channels_per_layer) <= 0:
+                raise ValueError("channels_per_layer must not be empty")
             for i in range(len(channels_per_layer) - 1):
-                assert channels_per_layer[i][2][0] == channels_per_layer[i + 1][0][0]
-                assert channels_per_layer[i][2][1] == channels_per_layer[i + 1][0][1]
-                assert channels_per_layer[i][2][2] == channels_per_layer[i + 1][0][2]
+                if channels_per_layer[i][2][0] != channels_per_layer[i + 1][0][0]:
+                    raise ValueError(
+                        f"Inconsistent number of input channels at layer {i + 1}"
+                    )
+                if channels_per_layer[i][2][1] != channels_per_layer[i + 1][0][1]:
+                    raise ValueError(
+                        f"Inconsistent number of intermediate channels at layer {i + 1}"
+                    )
+                if channels_per_layer[i][2][2] != channels_per_layer[i + 1][0][2]:
+                    raise ValueError(
+                        f"Inconsistent number of output channels at layer {i + 1}"
+                    )
 
         super().__init__()
         check_channels_consistency()

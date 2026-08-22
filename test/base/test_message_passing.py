@@ -1,4 +1,5 @@
 """Test the message passing module."""
+
 import pytest
 import torch
 

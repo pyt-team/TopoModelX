@@ -1,4 +1,5 @@
 """AllSetTransformer Layer Module."""
+
 from typing import Literal
 
 import torch
@@ -408,6 +409,7 @@ class MultiHeadAttention(MessagePassing):
             self.source_index_j
         ] * attention_values.unsqueeze(-1)
         return scatter(x_message, self.target_index_i, dim=0, reduce="sum")
+
 
 class MLP(nn.Sequential):
     """MLP Module.

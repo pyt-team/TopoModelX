@@ -1,4 +1,5 @@
 """Simplicial Complex Net Layer."""
+
 from typing import Literal
 
 import torch
