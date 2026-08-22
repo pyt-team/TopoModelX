@@ -30,9 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: [2.0.1]
-        include:
-          - torch-version: 2.0.1
+        torch-version: ["2.3.0"]
         test-group: [1, 2, 3, 4]
 
     steps:
@@ -64,9 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: [2.0.1]
-        include:
-          - torch-version: 2.0.1
+        torch-version: ["2.3.0"]
         test-group: [1, 2, 3]
 
     steps:
@@ -98,9 +94,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: [2.0.1]
-        include:
-          - torch-version: 2.0.1
+        torch-version: ["2.3.0"]
 
     steps:
       - uses: actions/checkout@v4
@@ -131,9 +125,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: [2.0.1]
-        include:
-          - torch-version: 2.0.1
+        torch-version: ["2.3.0"]
 
     steps:
       - uses: actions/checkout@v4
