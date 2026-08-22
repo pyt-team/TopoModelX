@@ -1,6 +1,6 @@
 name: "Testing Codebase"
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches: [main,github-actions-test]
@@ -21,43 +21,41 @@ on:
 jobs:
 
   pytest:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11"]
         torch-version: [2.0.1]
         include:
           - torch-version: 2.0.1
 
     steps:
       - uses: actions/checkout@v5
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: '**/pyproject.toml'
+          enable-cache: true
 
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
-          pip install --upgrade pip setuptools wheel
-          pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          pip show pip
+          uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
+          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+
       - name: Install main package
-        run: |
-          pip install -e .[all]
+        run: uv pip install -e .[all]
+
       - name: Typecheck [mypy]
-        run: |
-          mypy -p topomodelx
+        run: uv run mypy -p topomodelx
+
       - name: Run tests for codebase [pytest]
-        run: |
-          pytest -n 2 --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+        run: uv run pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
