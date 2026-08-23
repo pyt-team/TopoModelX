@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: ["2.3.0"]
+        torch-version: ["2.8.0", "2.12.0"]
 
     steps:
       - uses: actions/checkout@v5
@@ -41,18 +41,23 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
           uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install pyg_lib torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
       - name: Install main package
         run: uv pip install -e .[all]
 
+      - name: Verify installation
+        run: |
+          uv pip freeze | grep -Ei "torch|pyg"
+          uv run --no-sync python -c "import torch; print('torch', torch.__version__)"
+          uv run --no-sync python -c "import pyg_lib; print('pyg_lib', pyg_lib.__version__)"
+          uv run --no-sync python -c "import torch_geometric; print('torch_geometric', torch_geometric.__version__)"
+
       - name: Typecheck [mypy]
-        run: uv run mypy -p topomodelx
+        run: uv run --no-sync mypy -p topomodelx
 
       - name: Run tests for codebase [pytest]
-        run: uv run pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
+        run: uv run --no-sync pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5

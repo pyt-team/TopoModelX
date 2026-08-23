@@ -22,7 +22,7 @@ def sparse_row_norm(sparse_tensor):
     row_sum = torch.sparse.sum(sparse_tensor, dim=1)
     values = sparse_tensor._values() / row_sum.to_dense()[sparse_tensor._indices()[0]]
     sparse_tensor = torch.sparse_coo_tensor(
-        sparse_tensor._indices(), values, sparse_tensor.shape
+        sparse_tensor._indices(), values, sparse_tensor.shape, check_invariants=False
     )
     return sparse_tensor.coalesce()
 
@@ -308,6 +308,7 @@ class HBNS(torch.nn.Module):
             ).squeeze(1),
             size=(t_message.shape[0], s_message.shape[0]),
             device=self.get_device(),
+            check_invariants=False,
         )
 
         f = torch.sparse_coo_tensor(
@@ -328,6 +329,7 @@ class HBNS(torch.nn.Module):
             ).squeeze(1),
             size=(s_message.shape[0], t_message.shape[0]),
             device=self.get_device(),
+            check_invariants=False,
         )
 
         if self.softmax:
@@ -394,6 +396,7 @@ class HBNS(torch.nn.Module):
             values=s_to_t_attention.values() * neighborhood_s_to_t.values(),
             size=neighborhood_s_to_t.shape,
             device=self.get_device(),
+            check_invariants=False,
         )
 
         neighborhood_t_to_s_att = torch.sparse_coo_tensor(
@@ -401,6 +404,7 @@ class HBNS(torch.nn.Module):
             values=t_to_s_attention.values() * neighborhood_t_to_s.values(),
             size=neighborhood_t_to_s.shape,
             device=self.get_device(),
+            check_invariants=False,
         )
 
         message_on_source = torch.mm(neighborhood_t_to_s_att, t_message)
@@ -635,6 +639,7 @@ class HBS(torch.nn.Module):
             ).squeeze(1),
             size=(n_messages, n_messages),
             device=self.get_device(),
+            check_invariants=False,
         )
         return (
             torch.sparse.softmax(e_p, dim=1) if self.softmax else sparse_row_norm(e_p)
@@ -693,6 +698,7 @@ class HBS(torch.nn.Module):
                 values=att_p.values() * A_p.values(),
                 size=A_p.shape,
                 device=self.get_device(),
+                check_invariants=False,
             )
 
         att_m_hop_matrices = [

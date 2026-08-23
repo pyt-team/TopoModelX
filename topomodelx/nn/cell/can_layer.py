@@ -74,9 +74,7 @@ def add_self_loops(neighborhood):
     )
 
     return torch.sparse_coo_tensor(
-        indices=cell_index,
-        values=cell_weight,
-        size=(N, N),
+        indices=cell_index, values=cell_weight, size=(N, N), check_invariants=False
     ).coalesce()
 
 

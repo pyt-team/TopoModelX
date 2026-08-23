@@ -134,6 +134,7 @@ class Conv(MessagePassing):
                 indices=neighborhood.indices(),
                 values=attention_values * neighborhood.values(),
                 size=neighborhood.shape,
+                check_invariants=False,
             )
         if self.weight is not None:
             x_message = torch.mm(x_source, self.weight)

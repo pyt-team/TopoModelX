@@ -29,13 +29,10 @@ class Dist2CycleLayer(torch.nn.Module):
 
     def reset_parameters(self) -> None:
         r"""Reset learnable parameters."""
-        fc_nonlin = "relu"
         fc_alpha = 0.0
         self.fc_neigh.reset_parameters()
 
-        nn.init.kaiming_uniform_(
-            self.fc_neigh.weight, a=fc_alpha, nonlinearity=fc_nonlin
-        )
+        nn.init.kaiming_uniform_(self.fc_neigh.weight, a=fc_alpha, nonlinearity="relu")
 
     def forward(self, x_e, Linv, adjacency):
         r"""Forward pass.

@@ -113,6 +113,7 @@ class SANConv(Conv):
             indices=neighborhood.indices(),
             values=attention_values,
             size=neighborhood.shape,
+            check_invariants=False,
         )
 
         # Attention coeffs are normalized using softmax

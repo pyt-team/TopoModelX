@@ -159,14 +159,15 @@ class SCoNe(nn.Module):
         self.n_layers = n_layers
 
         # Stack multiple SCoNe layers with given hidden dimensions
-        self.layers = nn.ModuleList(
-            [SCoNeLayer(self.in_channels, self.hidden_channels)]
+        layers: list[SCoNeLayer] = [SCoNeLayer(self.in_channels, self.hidden_channels)]
+        layers.extend(
+            SCoNeLayer(self.hidden_channels, self.hidden_channels)
+            for _ in range(self.n_layers - 1)
         )
-        for _ in range(self.n_layers - 1):
-            self.layers.append(SCoNeLayer(self.hidden_channels, self.hidden_channels))
+        self.layers = nn.ModuleList(layers)
 
         # Initialize parameters
-        for layer in self.layers:
+        for layer in layers:
             layer.reset_parameters()
 
     def forward(

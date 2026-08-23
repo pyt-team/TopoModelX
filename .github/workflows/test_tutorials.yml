@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: ["2.3.0"]
+        torch-version: ["2.8.0", "2.12.0"]
         test-group: [1, 2, 3, 4]
 
     steps:
@@ -45,15 +45,13 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
           uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install pyg_lib torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
       - name: Install main package
         run: uv pip install -e .[all]
 
       - name: Run tests for tutorials on simplicial domain [pytest] [Group-${{ matrix.test-group}}]
-        run: uv run pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_simplicial.py
+        run: uv run --no-sync pytest --splits 4 --group ${{ matrix.test-group}} test/tutorials/test_simplicial.py
 
   hypergraph-pytest:
     runs-on: ubuntu-latest
@@ -62,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: ["2.3.0"]
+        torch-version: ["2.8.0", "2.12.0"]
         test-group: [1, 2, 3]
 
     steps:
@@ -77,15 +75,13 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
           uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install pyg_lib torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
       - name: Install main package
         run: uv pip install -e .[all]
 
       - name: Run tests for tutorials on hypergraph domain [pytest] [Group-${{ matrix.test-group}}]
-        run: uv run pytest --splits 3 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
+        run: uv run --no-sync pytest --splits 3 --group ${{ matrix.test-group}} test/tutorials/test_hypergraph.py
 
   cell-pytest:
     runs-on: ubuntu-latest
@@ -94,7 +90,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: ["2.3.0"]
+        torch-version: ["2.8.0", "2.12.0"]
 
     steps:
       - uses: actions/checkout@v4
@@ -108,15 +104,13 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
           uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install pyg_lib torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
       - name: Install main package
         run: uv pip install -e .[all]
 
       - name: Run tests for tutorials on cell domains [pytest] 
-        run: uv run pytest test/tutorials/test_cell.py
+        run: uv run --no-sync pytest test/tutorials/test_cell.py
 
   combinatorial-pytest:
     runs-on: ubuntu-latest
@@ -125,7 +119,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11"]
-        torch-version: ["2.3.0"]
+        torch-version: ["2.8.0", "2.12.0"]
 
     steps:
       - uses: actions/checkout@v4
@@ -139,12 +133,10 @@ jobs:
       - name: Install PyTorch ${{ matrix.torch-version }}+cpu
         run: |
           uv pip install torch==${{ matrix.torch-version}} --extra-index-url https://download.pytorch.org/whl/cpu
-          uv pip install torch-scatter -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
-          uv pip install torch-cluster -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
+          uv pip install pyg_lib torch_scatter torch_sparse -f https://data.pyg.org/whl/torch-${{ matrix.torch-version }}+cpu.html
 
       - name: Install main package
         run: uv pip install -e .[all]
 
       - name: Run tests for tutorials on combinatorial domains [pytest] 
-        run: uv run pytest test/tutorials/test_combinatorial.py
+        run: uv run --no-sync pytest test/tutorials/test_combinatorial.py
