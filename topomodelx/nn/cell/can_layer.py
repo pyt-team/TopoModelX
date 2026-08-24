@@ -13,6 +13,38 @@ from topomodelx.base.message_passing import MessagePassing
 from topomodelx.utils.scatter import scatter_add, scatter_sum
 
 
+def sanitize_neighborhood(neighborhood: torch.Tensor) -> torch.Tensor:
+    r"""Return a coalesced neighborhood matrix without explicit zero entries.
+
+    The number of stored entries of the returned tensor equals its number of
+    true non-zero entries, so that iterating over stored entries (e.g. via
+    ``indices()``) corresponds to actual neighborhood relations. This matters
+    because sparse matrices built with ``toponetx.utils.sparse.from_sparse``
+    preserve explicit zeros that other construction paths (e.g. dense casting)
+    drop.
+
+    Parameters
+    ----------
+    neighborhood : torch.Tensor
+        Sparse neighborhood matrix, possibly uncoalesced and with explicit
+        zero entries.
+
+    Returns
+    -------
+    torch.Tensor
+        Coalesced sparse neighborhood matrix without explicit zeros.
+    """
+    neighborhood = neighborhood.coalesce()
+    values = neighborhood.values()
+    keep = values != 0
+    if bool(keep.all()):
+        return neighborhood
+    indices = neighborhood.indices()[:, keep]
+    return torch.sparse_coo_tensor(
+        indices, values[keep], neighborhood.shape, device=neighborhood.device
+    ).coalesce()
+
+
 def softmax(src, index, num_cells: int):
     r"""Compute the softmax of the attention coefficients.
 
@@ -162,6 +194,7 @@ class LiftLayer(MessagePassing):
             Edge signal.
         """
         # Extract source and target nodes from the graph's edge index
+        adjacency_0 = sanitize_neighborhood(adjacency_0)
         source, target = adjacency_0.indices()  # (num_edges,)
 
         # Extract the node signal of the source and target nodes
@@ -531,6 +564,8 @@ class MultiHeadCellAttention(MessagePassing):
         torch.Tensor, shape = (n_k_cells, channels)
             Output features on the r-cell of the cell complex.
         """
+        neighborhood = sanitize_neighborhood(neighborhood)
+
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
             return torch.zeros(
@@ -729,6 +764,8 @@ class MultiHeadCellAttention_v2(MessagePassing):
         torch.Tensor, shape = (n_k_cells, channels)
             Output features on the r-cell of the cell complex.
         """
+        neighborhood = sanitize_neighborhood(neighborhood)
+
         # If there are no non-zero values in the neighborhood, then the neighborhood is empty. -> return zero tensor
         if not neighborhood.values().nonzero().size(0) > 0 and self.concat:
             return torch.zeros(
