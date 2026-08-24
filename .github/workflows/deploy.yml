@@ -14,7 +14,7 @@ jobs:
           git fetch --prune --unshallow
           git tag -d $(git tag --points-at HEAD)
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - name: Install pypa/build
