@@ -2,15 +2,15 @@
 
 import numpy as np
 import torch
-from scipy.sparse import _csc
+from scipy import sparse
 
 
-def from_sparse(data: _csc.csc_matrix) -> torch.Tensor:
+def from_sparse(data: sparse.spmatrix | sparse.sparray) -> torch.Tensor:
     """Convert sparse input data directly to torch sparse coo format.
 
     Parameters
     ----------
-    data : scipy.sparse._csc.csc_matrix
+    data : scipy.sparse.spmatrix or scipy.sparse.sparray
         Input n_dimensional data.
 
     Returns
