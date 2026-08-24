@@ -28,13 +28,13 @@ class TestHSNLayer:
         channels = 5
 
         hsn = HSNLayer(channels)
+
+        with torch.no_grad():
+            for param in hsn.parameters():
+                param.fill_(1234.0)
+
         hsn.reset_parameters()
 
-        for module in hsn.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+        for name, param in hsn.named_parameters():
+            assert torch.isfinite(param).all(), name
+            assert not torch.all(param == 1234.0), name
