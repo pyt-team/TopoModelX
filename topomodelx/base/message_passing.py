@@ -185,10 +185,16 @@ class MessagePassing(torch.nn.Module):
         Tensor, shape = (...,  n_target_cells, out_channels)
             Output features on target cells.
             Each target cell aggregates messages from several source cells.
+            Target cells with an empty neighborhood receive zero features.
             Assumes that all target cells have the same rank s.
         """
         aggr = scatter(self.aggr_func)
-        return aggr(x_message, self.target_index_i, 0)
+        return aggr(
+            x_message,
+            self.target_index_i,
+            0,
+            dim_size=getattr(self, "n_target_cells", None),
+        )
 
     def forward(self, x_source, neighborhood, x_target=None):
         r"""Forward pass.
@@ -259,6 +265,7 @@ class MessagePassing(torch.nn.Module):
         """
         neighborhood = neighborhood.coalesce()
         self.target_index_i, self.source_index_j = neighborhood.indices()
+        self.n_target_cells = neighborhood.shape[0]
         neighborhood_values = neighborhood.values()
 
         x_message = self.message(x_source=x_source, x_target=x_target)

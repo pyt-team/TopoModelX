@@ -116,3 +116,11 @@ class TestMessagePassing:
             self.x_source, self.neighborhood_r_to_s, self.x_target
         )
         assert result.shape == (2, 2)
+
+    def test_forward_isolated_target(self):
+        """Test forward with target cells that have no incoming messages."""
+        x_source = torch.rand((3, 10))
+        neighborhood = torch.tensor([[1, 0, 1], [0, 0, 0]]).to_sparse_coo().float()
+
+        result = self.mp.forward(x_source, neighborhood)
+        assert result.shape == (2, 10)
