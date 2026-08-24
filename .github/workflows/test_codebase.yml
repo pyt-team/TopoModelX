@@ -30,7 +30,7 @@ jobs:
         torch-version: ["2.8.0", "2.12.0"]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v5
