@@ -60,7 +60,7 @@ jobs:
         run: uv run --no-sync pytest --cov --cov-report=xml:coverage.xml test/nn test/base test/utils
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
