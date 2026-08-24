@@ -46,7 +46,7 @@ class AllSet(torch.nn.Module):
         n_layers=2,
         layer_dropout=0.2,
         mlp_num_layers=2,
-        mlp_activation=None,
+        mlp_activation=torch.nn.ReLU,
         mlp_dropout=0.0,
         mlp_norm=None,
         **kwargs,

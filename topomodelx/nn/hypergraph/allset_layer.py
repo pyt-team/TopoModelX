@@ -175,7 +175,8 @@ class MLP(nn.Sequential):
             layers.append(nn.Linear(in_dim, hidden_dim, bias=bias))
             if norm_layer is not None:
                 layers.append(norm_layer(hidden_dim))
-            layers.append(activation_layer(**params))
+            if activation_layer is not None:
+                layers.append(activation_layer(**params))
             layers.append(nn.Dropout(dropout, **params))
             in_dim = hidden_dim
 
