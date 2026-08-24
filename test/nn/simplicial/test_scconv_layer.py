@@ -61,13 +61,13 @@ class TestSCConvLayer:
         face_channels = 7
 
         scconv = SCConvLayer(node_channels, edge_channels, face_channels)
+
+        with torch.no_grad():
+            for param in scconv.parameters():
+                param.fill_(1234.0)
+
         scconv.reset_parameters()
 
-        for module in scconv.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+        for name, param in scconv.named_parameters():
+            assert torch.isfinite(param).all(), name
+            assert not torch.all(param == 1234.0), name

@@ -44,13 +44,13 @@ class TestSCN2Layer:
         channels_2 = 30
 
         scn = SCN2Layer(channels_0, channels_1, channels_2)
+
+        with torch.no_grad():
+            for param in scn.parameters():
+                param.fill_(1234.0)
+
         scn.reset_parameters()
 
-        for module in scn.modules():
-            if isinstance(module, torch.nn.Conv2d):
-                torch.testing.assert_allclose(
-                    module.weight, torch.zeros_like(module.weight)
-                )
-                torch.testing.assert_allclose(
-                    module.bias, torch.zeros_like(module.bias)
-                )
+        for name, param in scn.named_parameters():
+            assert torch.isfinite(param).all(), name
+            assert not torch.all(param == 1234.0), name
