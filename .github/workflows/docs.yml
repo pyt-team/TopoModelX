@@ -14,10 +14,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.11.3]
-        torch-version: [2.0.1]
-        include:
-          - torch-version: 2.0.1
+        python-version: [3.13]
+        torch-version: [2.8.0]
 
     steps:
       - uses: actions/checkout@v7

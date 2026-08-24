@@ -23,19 +23,18 @@ classifiers = [
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
 ]
-requires-python = ">= 3.11"
+requires-python = ">= 3.12"
 dependencies=[
     "tqdm",
-    "numpy<2",
-    "scipy",
+    "numpy>=2.2",
+    "scipy>=1.15",
     "requests",
-    "scikit-learn",
-    "matplotlib",
-    "networkx",
+    "networkx>=3.4",
     "gudhi",
-    "pandas",
     "torch_geometric",
     "torch>=2.8.0",
     "toponetx",
@@ -45,9 +44,11 @@ dependencies=[
 doc = [
     "hypernetx",
     "jupyter",
+    "matplotlib>=3.10",
     "nbsphinx",
     "nbsphinx_link",
     "numpydoc",
+    "scikit-learn>=1.6",
     "sphinx",
     "sphinx-copybutton",
     "sphinx_gallery",
@@ -145,7 +146,6 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 show_error_codes = true
 disable_error_code = ["import-untyped"]
-plugins = "numpy.typing.mypy_plugin"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -156,6 +156,7 @@ filterwarnings = [
     "ignore::scipy.sparse._base.SparseEfficiencyWarning",
     "ignore:Sparse CSR tensor support is in beta state:UserWarning",
     "ignore:`torch.jit.script` is deprecated",
+    "ignore:`torch.jit.script` is not supported in Python 3.14",
 ]
 log_cli_level = "info"
 testpaths = ["test"]

@@ -99,11 +99,11 @@ where `${CUDA}` should be replaced by either `cpu`, `cu102`, `cu113`, or `cu115`
 
 To develop tmx on your machine, here are some tips.
 
-First, we recommend using Python 3.11.3, which is the python version used to run the unit-tests.
+First, we recommend using Python 3.12 or later, matching the [SPEC 0](https://scientific-python.org/specs/spec-0000/) recommendation.
 
 For example, create a conda environment:
    ```bash
-   conda create -n tmx python=3.11.3
+   conda create -n tmx python=3.12
    conda activate tmx
    ```
 
@@ -140,8 +140,6 @@ Then:
    ```bash
    pytest
    ```
-
-   In case an error occurs, please first check if all sub-packages ([`torch-scatter`](https://github.com/rusty1s/pytorch_scatter), [`torch-sparse`](https://github.com/rusty1s/pytorch_sparse), [`torch-cluster`](https://github.com/rusty1s/pytorch_cluster) and [`torch-spline-conv`](https://github.com/rusty1s/pytorch_spline_conv)) are on its latest reported version.
 
 6. Install pre-commit hooks:
 

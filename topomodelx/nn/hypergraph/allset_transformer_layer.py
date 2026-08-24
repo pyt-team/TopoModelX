@@ -6,7 +6,6 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torch_geometric.utils import softmax
-from torch_scatter import scatter
 
 from topomodelx.base.message_passing import MessagePassing
 
@@ -408,7 +407,12 @@ class MultiHeadAttention(MessagePassing):
         x_message = x_message.permute(1, 0, 2)[
             self.source_index_j
         ] * attention_values.unsqueeze(-1)
-        return scatter(x_message, self.target_index_i, dim=0, reduce="sum")
+        index = self.target_index_i
+        dim_size = int(index.max()) + 1 if index.numel() else 0
+        index = index.view(-1, *([1] * (x_message.dim() - 1))).expand_as(x_message)
+        return x_message.new_zeros((dim_size, *x_message.shape[1:])).scatter_reduce_(
+            0, index, x_message, reduce="sum"
+        )
 
 
 class MLP(nn.Sequential):
