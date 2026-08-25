@@ -191,7 +191,7 @@ class AllSetTransformerBlock(nn.Module):
         number_queries: int = 1,
         dropout: float = 0.0,
         mlp_num_layers: int = 1,
-        mlp_activation=None,
+        mlp_activation=nn.ReLU,
         mlp_dropout: float = 0.0,
         mlp_norm=None,
         initialization: Literal["xavier_uniform", "xavier_normal"] = "xavier_uniform",
@@ -455,7 +455,8 @@ class MLP(nn.Sequential):
             layers.append(nn.Linear(in_dim, hidden_dim, bias=bias))
             if norm_layer is not None:
                 layers.append(norm_layer(hidden_dim))
-            layers.append(activation_layer(**params))
+            if activation_layer is not None:
+                layers.append(activation_layer(**params))
             layers.append(nn.Dropout(dropout, **params))
             in_dim = hidden_dim
 
