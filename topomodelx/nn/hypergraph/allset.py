@@ -22,7 +22,7 @@ class AllSet(torch.nn.Module):
         Dropout probability for the AllSet layer.
     mlp_num_layers : int, default = 2
         Number of layers in the MLP.
-    mlp_activation : torch.nn.Module, default = None
+    mlp_activation : callable | None, default = torch.nn.ReLU
         Activation function in the MLP.
     mlp_dropout : float, default = 0.0
         Dropout probability for the MLP.
