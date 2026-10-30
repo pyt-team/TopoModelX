@@ -45,31 +45,31 @@ doc = [
     "hypernetx",
     "jupyter",
     "matplotlib>=3.10",
-    "nbsphinx",
     "nbsphinx_link",
-    "numpydoc",
     "scikit-learn>=1.6",
-    "sphinx",
-    "sphinx-copybutton",
-    "sphinx_gallery",
-    "pydata-sphinx-theme"
 ]
-lint = [
+all = ["TopoModelX[doc]"]
+
+[dependency-groups]
+dev = [
     "pre-commit",
-    "ruff"
-]
-test = [
+    "ruff",
     "pytest",
     "pytest-cov",
     "coverage",
     "jupyter",
     "mypy",
     "pytest-xdist",
-    "pytest-split"
+    "pytest-split",
 ]
-
-dev = ["TopoModelX[test, lint]"]
-all = ["TopoModelX[dev, doc]"]
+docs = [
+    "nbsphinx",
+    "numpydoc",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx_gallery",
+    "pydata-sphinx-theme",
+]
 
 [project.urls]
 documentation = "https://pyt-team.github.io/TopoModelX"  
