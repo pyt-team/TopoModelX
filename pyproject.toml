@@ -45,10 +45,30 @@ doc = [
     "hypernetx",
     "jupyter",
     "matplotlib>=3.10",
+    "nbsphinx",
     "nbsphinx_link",
+    "numpydoc",
     "scikit-learn>=1.6",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx_gallery",
+    "pydata-sphinx-theme",
 ]
-all = ["TopoModelX[doc]"]
+lint = [
+    "pre-commit",
+    "ruff",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "jupyter",
+    "mypy",
+    "pytest-xdist",
+    "pytest-split",
+]
+dev = ["TopoModelX[test, lint]"]
+all = ["TopoModelX[dev, doc]"]
 
 [dependency-groups]
 dev = [
