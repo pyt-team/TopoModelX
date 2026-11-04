@@ -85,13 +85,18 @@ class TestSCCNNLayer:
         b1 = torch.tensor([[-1.0, -1.0, 0.0], [1.0, 0.0, -1.0], [0.0, 1.0, 1.0]])
         b2 = torch.tensor([[1.0], [-1.0], [1.0]])
 
-        # Zero filters isolate the identity terms we changed.
+        # Zero Laplacians make all filtered terms vanish, leaving only
+        # the seven unfiltered (identity) terms to check below.
         laplacians = [torch.zeros(n, n).to_sparse() for n in (3, 3, 3, 1)]
         if sc_order > 2:
             laplacians.append(torch.zeros(1, 1).to_sparse())
         actual = layer((x_0, x_1, x_2), laplacians, (b1.to_sparse(), b2.to_sparse()))
 
-        # Identity signals occupy these slots in the original filter stacks.
+        # With conv_order=1, each weight slot matches one filter channel.
+        # Node identity slots: 0 (nodes), 2 (edges transferred to nodes).
+        # Edge identity slots: 0 (from nodes), 2 (edges), 5 (from faces).
+        # Face identity slots: 0 (faces), then 2 (from edges) for order 2,
+        # or 3 for higher orders because of the extra upper-Laplacian channel.
         w0, w1, w2 = layer.weight_0, layer.weight_1, layer.weight_2
         face_transfer_slot = 2 if sc_order == 2 else 3
         expected = (
