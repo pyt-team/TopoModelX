@@ -1,5 +1,6 @@
 """Test the SCCNN layer."""
 
+import pytest
 import torch
 
 from topomodelx.nn.simplicial.sccnn_layer import SCCNNLayer
@@ -73,3 +74,46 @@ class TestSCCNNLayer:
         assert y_0.shape == (n_nodes, channels)
         assert y_1.shape == (n_edges, channels)
         assert y_2.shape == (n_faces, channels)
+
+    @pytest.mark.parametrize("sc_order", [2, 3])
+    def test_identity_terms_and_gradients(self, sc_order):
+        """Preserve all seven identity terms and their training gradients."""
+        torch.manual_seed(42)
+        layer = SCCNNLayer((2, 2, 2), (2, 2, 2), conv_order=1, sc_order=sc_order)
+        x_0, x_1, x_2 = [torch.randn(n, 2, requires_grad=True) for n in (3, 3, 1)]
+        # Signed boundaries of one triangle.
+        b1 = torch.tensor([[-1.0, -1.0, 0.0], [1.0, 0.0, -1.0], [0.0, 1.0, 1.0]])
+        b2 = torch.tensor([[1.0], [-1.0], [1.0]])
+
+        # Zero Laplacians make all filtered terms vanish, leaving only
+        # the seven unfiltered (identity) terms to check below.
+        laplacians = [torch.zeros(n, n).to_sparse() for n in (3, 3, 3, 1)]
+        if sc_order > 2:
+            laplacians.append(torch.zeros(1, 1).to_sparse())
+        actual = layer((x_0, x_1, x_2), laplacians, (b1.to_sparse(), b2.to_sparse()))
+
+        # With conv_order=1, each weight slot matches one filter channel.
+        # Node identity slots: 0 (nodes), 2 (edges transferred to nodes).
+        # Edge identity slots: 0 (from nodes), 2 (edges), 5 (from faces).
+        # Face identity slots: 0 (faces), then 2 (from edges) for order 2,
+        # or 3 for higher orders because of the extra upper-Laplacian channel.
+        w0, w1, w2 = layer.weight_0, layer.weight_1, layer.weight_2
+        face_transfer_slot = 2 if sc_order == 2 else 3
+        expected = (
+            x_0 @ w0[:, :, 0] + (b1 @ x_1) @ w0[:, :, 2],
+            (b1.T @ x_0) @ w1[:, :, 0] + x_1 @ w1[:, :, 2] + (b2 @ x_2) @ w1[:, :, 5],
+            x_2 @ w2[:, :, 0] + (b2.T @ x_1) @ w2[:, :, face_transfer_slot],
+        )
+        for result, reference in zip(actual, expected, strict=True):
+            torch.testing.assert_close(result, reference)
+
+        # Compare gradients for both input features and learned weights.
+        variables = (x_0, x_1, x_2, w0, w1, w2)
+        actual_grad = torch.autograd.grad(
+            sum(y.square().sum() for y in actual), variables
+        )
+        expected_grad = torch.autograd.grad(
+            sum(y.square().sum() for y in expected), variables
+        )
+        for result, reference in zip(actual_grad, expected_grad, strict=True):
+            torch.testing.assert_close(result, reference)
