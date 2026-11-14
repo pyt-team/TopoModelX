@@ -77,7 +77,7 @@ Install `pytest` which is the software tools used to run tests:
 
     .. code-block:: bash
 
-      $ pip install -e .[dev]
+      $ uv pip install -e . --group dev
 
 Then run the test using:
 
@@ -98,7 +98,7 @@ Building the documentation requires installing specific requirements.
 
     .. code-block:: bash
 
-      $ pip install -e .[doc]
+      $ uv pip install -e .[doc] --group docs
 
 Intro to Docstrings
 ~~~~~~~~~~~~~~~~~~~

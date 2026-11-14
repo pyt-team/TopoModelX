@@ -52,11 +52,11 @@ doc = [
     "sphinx",
     "sphinx-copybutton",
     "sphinx_gallery",
-    "pydata-sphinx-theme"
+    "pydata-sphinx-theme",
 ]
 lint = [
     "pre-commit",
-    "ruff"
+    "ruff",
 ]
 test = [
     "pytest",
@@ -65,11 +65,31 @@ test = [
     "jupyter",
     "mypy",
     "pytest-xdist",
-    "pytest-split"
+    "pytest-split",
 ]
-
 dev = ["TopoModelX[test, lint]"]
 all = ["TopoModelX[dev, doc]"]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "coverage",
+    "jupyter",
+    "mypy",
+    "pytest-xdist",
+    "pytest-split",
+]
+docs = [
+    "nbsphinx",
+    "numpydoc",
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx_gallery",
+    "pydata-sphinx-theme",
+]
 
 [project.urls]
 documentation = "https://pyt-team.github.io/TopoModelX"  
