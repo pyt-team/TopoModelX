@@ -109,6 +109,53 @@ class TestCANLayer:
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
 
+    def test_forward_sparse_and_isolated_cells(self):
+        """Test CANLayer on sparse neighborhoods with isolated cells."""
+        n_cells = 5
+        in_channels = 4
+        out_channels = 6
+        heads = 2
+
+        x = torch.randn(n_cells, in_channels)
+        # Fewer non-zero entries than max target index + 1 (n_messages=2, max index=4)
+        lower_sparse = torch.sparse_coo_tensor(
+            torch.tensor([[3, 4], [4, 3]]),
+            torch.tensor([1.0, 1.0]),
+            (n_cells, n_cells),
+        ).coalesce()
+        # Trailing cells (2, 3, 4) are isolated
+        upper_isolated = torch.sparse_coo_tensor(
+            torch.tensor([[0, 1], [1, 0]]),
+            torch.tensor([1.0, 1.0]),
+            (n_cells, n_cells),
+        ).coalesce()
+
+        for version in ("v1", "v2"):
+            for concat in (True, False):
+                can_layer = CANLayer(
+                    in_channels=in_channels,
+                    out_channels=out_channels,
+                    heads=heads,
+                    dropout=0.0,
+                    concat=concat,
+                    skip_connection=True,
+                    add_self_loops=False,
+                    version=version,
+                )
+                expected_cols = out_channels if concat else out_channels // heads
+
+                lower_out = can_layer.lower_att(x, lower_sparse)
+                assert lower_out.shape == (n_cells, expected_cols)
+                assert torch.all(lower_out[:3] == 0)
+
+                upper_out = can_layer.upper_att(x, upper_isolated)
+                assert upper_out.shape == (n_cells, expected_cols)
+                assert torch.all(upper_out[2:] == 0)
+
+                x_out = can_layer(x, lower_sparse, upper_isolated)
+                assert x_out.shape == (n_cells, expected_cols)
+                assert torch.isfinite(x_out).all()
+
 
 class TestPoolLayer:
     """Unit tests for the PoolLayer class."""

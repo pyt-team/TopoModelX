@@ -544,7 +544,7 @@ class MultiHeadCellAttention(MessagePassing):
         alpha = self.att_activation(alpha)
 
         # Normalize the attention coefficients
-        alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
+        alpha = softmax(alpha, self.target_index_i, self.n_target_cells)
 
         # Apply dropout
         return F.dropout(alpha, p=self.dropout, training=self.training)
@@ -587,6 +587,7 @@ class MultiHeadCellAttention(MessagePassing):
             self.target_index_i,
             self.source_index_j,
         ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
+        self.n_target_cells = neighborhood.shape[0]
 
         # compute message passing step
         message = self.message(x_source)  # (|n_k_cells|, H, C)
@@ -744,7 +745,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
         )  # (|n_k_cells|, H)
 
         # Normalize the attention coefficients
-        alpha = softmax(alpha, self.target_index_i, x_source.shape[0])
+        alpha = softmax(alpha, self.target_index_i, self.n_target_cells)
 
         # Apply dropout
         return F.dropout(alpha, p=self.dropout, training=self.training)
@@ -787,6 +788,7 @@ class MultiHeadCellAttention_v2(MessagePassing):
             self.target_index_i,
             self.source_index_j,
         ) = neighborhood.indices()  # (|n_k_cells|, 1), (|n_k_cells|, 1)
+        self.n_target_cells = neighborhood.shape[0]
 
         # compute message passing step
         message = self.message(x_source)  # (|n_k_cells|, H, C)
